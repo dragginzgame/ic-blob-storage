@@ -1,61 +1,38 @@
 {
-   "date" : "2026-11-05",
+   "date" : "2026-11-06",
    "files" : {
-      "Cargo.lock" : "fd1a447818a3bf8c69efb21fdaa6bd9c93235d727b9d2cfc2cb6d461fe201cec",
-      "Cargo.toml" : "fdceb366cd24e83e200131a9102e1386fa940efc134815ccb83e634c130d361c",
-      "canisters/standalone/Cargo.toml" : "ce167ad7c380a8e6487a292ba57b4e7c9cb3d6c3aa98f8669cfc1f67cfa3c0e8",
-      "canisters/tests/admission_probe/Cargo.toml" : "a669d912157f246fd51badeb5300ee3efc97308d81fd5929c2474443028c82ed",
-      "canisters/tests/authority_probe/Cargo.toml" : "f73bc21387dadfa51f17f72babb4b9967edef329dbbc7268499a36d40b22d3bc",
-      "canisters/tests/consumer_probe/Cargo.toml" : "808ffda17c99596f60c02eed11b0411e8d1cb1721e3604962a2e54866aab1691",
-      "canisters/tests/funding_probe/Cargo.toml" : "96478c2dca9184ef16a56f56e9e992dd54a1c89aa518a69031df361e089e87eb",
-      "canisters/tests/gateway_source/Cargo.toml" : "f11b74e2b16ef88b27ddbcb7f267f4f022d9c953299f476421ad6b994886f21d",
-      "canisters/tests/storage_probe/Cargo.toml" : "4f1553f4700f5daa3246fbbb3ba1d6842a97319c239c38ddd3f84fbab63f2c39",
-      "crates/ic-blob-storage/Cargo.toml" : "0a196589fe7be60471ac862bf624b1fe8432c7e0e2cd05953ab98fda953a3577",
-      "releases/engine/CHANGELOG.md" : "f8838c673076754c91f09f9473716909fc4350f3bcab5a095329e86965fb9859",
-      "tests/pocketic/Cargo.toml" : "3cd6a34e1ac9439a67cf65000d88dbf70275d6cc17057f2a1bb5c73b0eec4c8c",
-      "tests/protocol/Cargo.toml" : "62785e03fb6bc7dfaa89ddb6531be3b2c4f3644f911e06a0901faba631071430"
+      "Cargo.lock" : "5d0f2e02e58fae16f5a87b2326631761fcc28d5c6d9e5368bb0824b71a759ce9",
+      "Cargo.toml" : "482a8802f7000bca622f45849048e7ef343844fd4cbaba4732974302478e6096",
+      "canisters/standalone/Cargo.toml" : "b0aef478905a8c423c8007ccae6b1081bd3bc7a2fded08c6a70f16635a6b30ac",
+      "canisters/tests/admission_probe/Cargo.toml" : "668c27c877dde6c90a960f09176e5263b23cd1ee40c504ffff406217ae22f97f",
+      "canisters/tests/authority_probe/Cargo.toml" : "0ac0965b534c648f38df805a706c54b5365353ea777a7b161435138ec43281da",
+      "canisters/tests/consumer_probe/Cargo.toml" : "9717656217283086abe765f7e7106afc0d97dca259a83172a07e74607ea6c45c",
+      "canisters/tests/funding_probe/Cargo.toml" : "1bc26caf2d7f9e5defb7f289a48410aab6314aefb51658fefb8a29e9c7733e2d",
+      "canisters/tests/gateway_source/Cargo.toml" : "81087cb02bf3b95c443039deb002ea9d6bb6d0737e18f5d4fd4e58b7cb9b122c",
+      "canisters/tests/storage_probe/Cargo.toml" : "2c56ca86b8df34cb855b1e6993d68a8e1f24b39401a3882fd31344f2a3c9db93",
+      "crates/ic-blob-storage/Cargo.toml" : "1d3de965bc82601de8a40b12aaf5c53258ddc6af26e3de378fa0e3de7f406575",
+      "releases/engine/CHANGELOG.md" : "22daebcb64e119daae76a2c390341fdf295b6efa403218fa9d5ebf5aa9d83a40",
+      "tests/pocketic/Cargo.toml" : "417d567306a578298c3c5a059b87387182c083498b7b3ef605a7fb9a32941c0b",
+      "tests/protocol/Cargo.toml" : "7db3296222a53ac51c423b2397ca788722adb07d9f0eefdb5a9f3b49db84f830"
    },
    "gate" : "release-verify-stages-v1",
    "group" : "engine",
    "policy" : "511b8e29ff8a89a590951dddff7f83c84c30b77b636a4e2e200f890c02fb77f7",
    "schema" : 1,
-   "source" : "5382ca2389c1af5609fce484f7a97fca942f9834",
+   "source" : "2e55591eeb7af7368761fa7685e6c2d2e7a5e72d",
    "status" : "released",
    "validation" : {
       "candidate" : {
-         "directory" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
+         "directory" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
          "editor" : {
-            "path" : "/home/adam/projects/ic-blob-storage/.tools/rust/selected-54ed1a9a5d3ad578cfd9abc43e0b9fe5bd54e30cc3bd04d0e610cc1617658f83/bin/ic-build-release-metadata",
-            "sha256" : "45fc399a48840eec085834b7c46d3ad203537c39a57a556f14a156d1e8c41b30"
+            "path" : "/home/adam/projects/ic-blob-storage/.tools/rust/selected-fb4789feb44ab26feb14d0f9206c858f7018e20173dcb9e3ca0f65568aee7c59/bin/ic-build-release-metadata",
+            "sha256" : "39ce90ec3b37dd41f40b40183b54f30c2062483a3d19494b9544ef80cb5c1ed4"
          },
-         "identity" : "acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
+         "identity" : "13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
          "kind" : "cargo-final-candidate-source",
          "original" : {
-            "Cargo.lock" : "f353bd3751d959fe2e0fa8a087ccfebe78c164ddf6d036a6e8efd9b3b8c02883",
-            "Cargo.toml" : "53946232ff8c6527bc33b124f073d8580ccfa59407987613999c0a66553939da",
-            "canisters/standalone/Cargo.toml" : "1b3cfe15156008d5fd9302e495f9147cc4cbc27e577bcef83bd5ffdc82bba284",
-            "canisters/tests/admission_probe/Cargo.toml" : "9f3e344b771631daf9972902f3bdbb13771b41c3b0d3e1e5cee367233e810e1e",
-            "canisters/tests/authority_probe/Cargo.toml" : "f167b8a94a6bfbe381e8987efa2872e19d179fee64540e5b1c20a09a6c5c3662",
-            "canisters/tests/consumer_probe/Cargo.toml" : "83861f07d33f96b8f6c8fddcdae735d8bbf22753e1d352d834b8d31ceb22bef9",
-            "canisters/tests/funding_probe/Cargo.toml" : "2bd7c1473c01993d58915c0c884feb86c08b93cc87ac1bc490edb5e7eebf8382",
-            "canisters/tests/gateway_source/Cargo.toml" : "d4b622a3766ff7f6148105fff59152bd33323be4822e69ac6f5ed04c06af0bf7",
-            "canisters/tests/storage_probe/Cargo.toml" : "9d4898eb6f981d72006655aa6e686ba39fc8611c182379caf2dd8236418ac15a",
-            "crates/ic-blob-storage-cli/Cargo.toml" : "9fed7acc1078cb75c3ac68742a63f590bda3b0b05b087ba82801bd1209b382f9",
-            "crates/ic-blob-storage-client/Cargo.toml" : "8334cece6a2be48a5a3a1e0ae95b272d3e38a90e294e4c2d7b5e04a61c69a050",
-            "crates/ic-blob-storage-contracts/Cargo.toml" : "dfc956b1b8c26894a38ca241cc3fa820dfbd2a168f18a7e3a3f503c91d136639",
-            "crates/ic-blob-storage/Cargo.toml" : "ce463fd2a9806750c96277632b3de1d5531b0b4f02ad95a919e11b37bae0fca5",
-            "releases/client/CHANGELOG.md" : "d13aecde603c5f6acbb29ccafe7e4870c42e4a59d059f398d41b38b1091ca73b",
-            "releases/client/release.json" : "2334d8cb8a5313ac52158d43973f9ec2733023674931dcc2f7c9085f6e5e3325",
-            "releases/contracts/CHANGELOG.md" : "93bf2240eac21a57631db1b920c8b969c16960e2bc60f3557a0e307b5182677b",
-            "releases/contracts/release.json" : "86c0f8c7acd6bb5c7e400ccd0b09bea3a132eb73af114edb58a385718802f635",
-            "releases/engine/CHANGELOG.md" : "daf0ad7ca1ec1b6af92d6a46c3862bf68e49ca1c467a5e532cdf568e28706564",
-            "releases/engine/release.json" : "7931898805201bd9cf321ab46599408a601e3fc69175c9dffb4eab5034cea9e9",
-            "tests/pocketic/Cargo.toml" : "73c31cba4fcab8c3515170ebab19007fc8fec8c94c470130fa7539b2348c7fcb",
-            "tests/protocol/Cargo.toml" : "e61319f15cc44acc8c32ec260d7fd940fe0261426c6b910fde4a808ac2faaf60"
-         },
-         "projected" : {
-            "Cargo.lock" : "fd1a447818a3bf8c69efb21fdaa6bd9c93235d727b9d2cfc2cb6d461fe201cec",
-            "Cargo.toml" : "fdceb366cd24e83e200131a9102e1386fa940efc134815ccb83e634c130d361c",
+            "Cargo.lock" : "d99b6e81e24af938ae6afcc48d87d8461372d8d3b504eada895419210fe09ab9",
+            "Cargo.toml" : "77d6e5555bbadf3ab5fb935c1d2daa7d6e741409c95281c9fc10376c0b91467d",
             "canisters/standalone/Cargo.toml" : "ce167ad7c380a8e6487a292ba57b4e7c9cb3d6c3aa98f8669cfc1f67cfa3c0e8",
             "canisters/tests/admission_probe/Cargo.toml" : "a669d912157f246fd51badeb5300ee3efc97308d81fd5929c2474443028c82ed",
             "canisters/tests/authority_probe/Cargo.toml" : "f73bc21387dadfa51f17f72babb4b9967edef329dbbc7268499a36d40b22d3bc",
@@ -63,22 +40,45 @@
             "canisters/tests/funding_probe/Cargo.toml" : "96478c2dca9184ef16a56f56e9e992dd54a1c89aa518a69031df361e089e87eb",
             "canisters/tests/gateway_source/Cargo.toml" : "f11b74e2b16ef88b27ddbcb7f267f4f022d9c953299f476421ad6b994886f21d",
             "canisters/tests/storage_probe/Cargo.toml" : "4f1553f4700f5daa3246fbbb3ba1d6842a97319c239c38ddd3f84fbab63f2c39",
-            "crates/ic-blob-storage-cli/Cargo.toml" : "9fed7acc1078cb75c3ac68742a63f590bda3b0b05b087ba82801bd1209b382f9",
-            "crates/ic-blob-storage-client/Cargo.toml" : "8334cece6a2be48a5a3a1e0ae95b272d3e38a90e294e4c2d7b5e04a61c69a050",
+            "crates/ic-blob-storage-cli/Cargo.toml" : "e095842352c14df7d53a5697c9823fe6c6e33d492915d4c458a00f16b222a5ba",
+            "crates/ic-blob-storage-client/Cargo.toml" : "8b7c96cb0d532ef4333dab493ada48fa4df9f516240d1b74ba6498e530af50ff",
             "crates/ic-blob-storage-contracts/Cargo.toml" : "dfc956b1b8c26894a38ca241cc3fa820dfbd2a168f18a7e3a3f503c91d136639",
             "crates/ic-blob-storage/Cargo.toml" : "0a196589fe7be60471ac862bf624b1fe8432c7e0e2cd05953ab98fda953a3577",
-            "releases/client/CHANGELOG.md" : "5c9d3042944dd0a0e49afabc4c8257ec3ff1f4b2e7d401ad99b2f760f42afe3c",
-            "releases/client/release.json" : "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
-            "releases/contracts/CHANGELOG.md" : "5c9d3042944dd0a0e49afabc4c8257ec3ff1f4b2e7d401ad99b2f760f42afe3c",
-            "releases/contracts/release.json" : "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
-            "releases/engine/CHANGELOG.md" : "5c9d3042944dd0a0e49afabc4c8257ec3ff1f4b2e7d401ad99b2f760f42afe3c",
-            "releases/engine/release.json" : "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+            "releases/client/CHANGELOG.md" : "5c7de70217f94515e69555fc98987ac0c4d09c5ddf1122e017f3d507757123cf",
+            "releases/client/release.json" : "2a75d688c08127a297cee394be49e7a24a26307d7d6b7412a1f3621a28984d62",
+            "releases/contracts/CHANGELOG.md" : "93bf2240eac21a57631db1b920c8b969c16960e2bc60f3557a0e307b5182677b",
+            "releases/contracts/release.json" : "86c0f8c7acd6bb5c7e400ccd0b09bea3a132eb73af114edb58a385718802f635",
+            "releases/engine/CHANGELOG.md" : "415ad178090c511618c0c7245f36a4a0c70346a3a46427450c75d1ca63152aaa",
+            "releases/engine/release.json" : "23bea10aee7f2fa5bb1224f9eb66c3c6ed17d5101bae164845f6579c2624a791",
             "tests/pocketic/Cargo.toml" : "3cd6a34e1ac9439a67cf65000d88dbf70275d6cc17057f2a1bb5c73b0eec4c8c",
             "tests/protocol/Cargo.toml" : "62785e03fb6bc7dfaa89ddb6531be3b2c4f3644f911e06a0901faba631071430"
          },
+         "projected" : {
+            "Cargo.lock" : "5d0f2e02e58fae16f5a87b2326631761fcc28d5c6d9e5368bb0824b71a759ce9",
+            "Cargo.toml" : "482a8802f7000bca622f45849048e7ef343844fd4cbaba4732974302478e6096",
+            "canisters/standalone/Cargo.toml" : "b0aef478905a8c423c8007ccae6b1081bd3bc7a2fded08c6a70f16635a6b30ac",
+            "canisters/tests/admission_probe/Cargo.toml" : "668c27c877dde6c90a960f09176e5263b23cd1ee40c504ffff406217ae22f97f",
+            "canisters/tests/authority_probe/Cargo.toml" : "0ac0965b534c648f38df805a706c54b5365353ea777a7b161435138ec43281da",
+            "canisters/tests/consumer_probe/Cargo.toml" : "9717656217283086abe765f7e7106afc0d97dca259a83172a07e74607ea6c45c",
+            "canisters/tests/funding_probe/Cargo.toml" : "1bc26caf2d7f9e5defb7f289a48410aab6314aefb51658fefb8a29e9c7733e2d",
+            "canisters/tests/gateway_source/Cargo.toml" : "81087cb02bf3b95c443039deb002ea9d6bb6d0737e18f5d4fd4e58b7cb9b122c",
+            "canisters/tests/storage_probe/Cargo.toml" : "2c56ca86b8df34cb855b1e6993d68a8e1f24b39401a3882fd31344f2a3c9db93",
+            "crates/ic-blob-storage-cli/Cargo.toml" : "e095842352c14df7d53a5697c9823fe6c6e33d492915d4c458a00f16b222a5ba",
+            "crates/ic-blob-storage-client/Cargo.toml" : "8b7c96cb0d532ef4333dab493ada48fa4df9f516240d1b74ba6498e530af50ff",
+            "crates/ic-blob-storage-contracts/Cargo.toml" : "dfc956b1b8c26894a38ca241cc3fa820dfbd2a168f18a7e3a3f503c91d136639",
+            "crates/ic-blob-storage/Cargo.toml" : "1d3de965bc82601de8a40b12aaf5c53258ddc6af26e3de378fa0e3de7f406575",
+            "releases/client/CHANGELOG.md" : "40229de8aaccb41ad5106426b2f84af0a2975d983854b4352dc4452eed9d93b9",
+            "releases/client/release.json" : "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+            "releases/contracts/CHANGELOG.md" : "5c9d3042944dd0a0e49afabc4c8257ec3ff1f4b2e7d401ad99b2f760f42afe3c",
+            "releases/contracts/release.json" : "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+            "releases/engine/CHANGELOG.md" : "be50df1d3c59d46d4cae8f71b527cce1bb54b9055157c2de1888e52b3ae8d148",
+            "releases/engine/release.json" : "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+            "tests/pocketic/Cargo.toml" : "417d567306a578298c3c5a059b87387182c083498b7b3ef605a7fb9a32941c0b",
+            "tests/protocol/Cargo.toml" : "7db3296222a53ac51c423b2397ca788722adb07d9f0eefdb5a9f3b49db84f830"
+         },
          "root" : "/home/adam/projects/ic-blob-storage",
          "schema" : 1,
-         "source" : "5382ca2389c1af5609fce484f7a97fca942f9834",
+         "source" : "2e55591eeb7af7368761fa7685e6c2d2e7a5e72d",
          "versions" : {
             "client" : {
                "members" : [
@@ -86,7 +86,7 @@
                   "ic-blob-storage-cli"
                ],
                "primary" : "ic-blob-storage-client",
-               "version" : "0.73.0"
+               "version" : "0.73.1"
             },
             "contracts" : {
                "members" : [
@@ -109,7 +109,7 @@
                   "ic-blob-storage-pocketic-tests"
                ],
                "primary" : "ic-blob-storage",
-               "version" : "0.73.0"
+               "version" : "0.74.0"
             }
          }
       },
@@ -141,80 +141,80 @@
       "evidence" : {
          "context_sha256" : "58ac94b3d82957697b110bfeb30c78e30a801f63f7a04ed122fa26d14b2e1c1b",
          "files" : {
-            "0-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "0-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
+            "0-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "0-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
             "0.log" : "60ecd6204f8c907ee84bea89cdad062609c008a6065dfe3d16a071d2d44940e6",
-            "1-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "1-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
+            "1-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "1-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
             "1.log" : "7f112ffd18567deb7f4e3ba4acdecc3869fe55552411be1c2b7090310fa12228",
-            "10-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "10-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
+            "10-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "10-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
             "10.log" : "05856ec97f8cb6a60efb61ce64fd9abf850b87df46824f64261472a1c0d74ebb",
-            "11-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "11-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "11.log" : "63c7327e6b37d90c7aa149d19d89a12314347a68d72a358bb5ec4dec96e47e82",
-            "12-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "12-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
+            "11-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "11-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "11.log" : "6a8c9b9015b79288f3c1f2f527d113777ffa86c069f0373a2363dcfb6ff401d0",
+            "12-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "12-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
             "12.log" : "3b350408c858e830d4ba4e6274fd8cfe151be6bcec909f29d132081a587af4c9",
-            "13-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "13-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "13.log" : "94abdff41af1fe9e48b2d2073bd171f01880eee672612b535beb014b17987ed5",
-            "14-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "14-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "14.log" : "a9a64c43aa378d9c31600a1a7592f96be0bf6511a7f1a4b2f94218ac2102a65d",
-            "15-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "15-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "15.log" : "e0864c8eb590c15d09b1d268d16b73558b54f63067e5823ac0f38fe9ff06db6f",
-            "16-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "16-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "16.log" : "31d05a45fa19db26a500d9bac26a73a60484fe9b04f7d3af7f9e456d9c03d2a4",
-            "17-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "17-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "17.log" : "c73e437a1f47d2a4a7cf79234b29389cc3207a33c1a2ec8fe2c843f0be3deee1",
-            "18-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "18-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "18.log" : "6d4f611e34cf09bc699b6ad75de264ad90fc232d439d4d77433dad78761e3400",
-            "19-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "19-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "19.log" : "d98e2e9c09a6f623a7f8b1cb942868702999b998595a570e8173d497ecddbba3",
-            "2-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "2-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "2.log" : "4d6fd9c86b164f815e83f086b6bd1be10068cd78ca1244c8e730ea74cada4b3b",
-            "20-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "20-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "20.log" : "85f4f9338ee76a24bb2abbd7b3be4c62f343defc4ab2dc9944a3a262348a4a9f",
-            "21-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "21-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "21.log" : "1d7d0f5d306a07b0cdc973f2f92a44a33a968d8ac7ba6f4bbabcb25b46fbdb68",
-            "3-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "3-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
+            "13-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "13-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "13.log" : "dc744c2a5aa672794d32d2125e37b46c4900b222932a45f9dc0bcde0cde26ff3",
+            "14-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "14-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "14.log" : "15d7e9281ad96719077d95f70064dfa74eecf4fad892d2c0b7376a1a1830bf21",
+            "15-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "15-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "15.log" : "e348ae6018255230c997929d07c5f703fb6252bcb5d66811cc42dca8df7965b4",
+            "16-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "16-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "16.log" : "dcd962a968bf74d232c5663206e4ba0bf5d7d97e24a0dca67d21c68b26190cac",
+            "17-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "17-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "17.log" : "7356457e695c2d92b218197c8f3b5095778ce4cfef3acb5c48ad79caa8752ca6",
+            "18-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "18-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "18.log" : "9069095fffe7b1a9a663eacdc5705a85db0f279cbc94c16855134468f95d9861",
+            "19-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "19-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "19.log" : "a0fcf74590254875d49fa84f8025217a6ef96b607706e196b30b8d1cb319a331",
+            "2-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "2-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "2.log" : "9adf9d7565ad8633d343459b7c29bc956ff343549d4d6bd83cace0603e0cd564",
+            "20-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "20-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "20.log" : "c482bb1a5bb9a146db54c342f720f20cad2b848eb763b4db0c58936d1a82472d",
+            "21-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "21-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "21.log" : "82e8dcecd38aea870f8bfba9b68f20f6d50606ea1fb9df3ba34801692b2a89fe",
+            "3-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "3-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
             "3.log" : "b1f02d33270051ad1d21c2fad5db070eed44d89fbf52903533dbab703ec688b3",
-            "4-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "4-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "4.log" : "e750948e6ed6a0f8872385ecdc4168fc6c5806cf026cb777fb2444573c20cd17",
-            "5-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "5-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
+            "4-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "4-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "4.log" : "77a2beaffd3049043697292ce9285644ac229802c30002cab2a8cda8abc57229",
+            "5-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "5-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
             "5.log" : "291541670ce10bedea01d224d9b347c19b0f7b246f90cff4411f9352a06ed2d2",
-            "6-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "6-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "6.log" : "e79afad820c76ab69f6f4b6ed62605cddd27196e0855d6076ecab5e1cdb980d0",
-            "7-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "7-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "7.log" : "451ad0e61bc03c76465542d83f460a824f86678117a44a8f0bf8235d2e3cc4c4",
-            "8-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "8-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "8.log" : "de7f0a5f68938a82632b0023a16481d2f445b2d221aaba0f49cd440f63051cdb",
-            "9-after-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "9-before-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
+            "6-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "6-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "6.log" : "ae9e87aecc2a2046b5e13e465d35dcff9756f3e4011c1964ab67f4ed76a0d041",
+            "7-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "7-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "7.log" : "a063fbd5fbe0f70ceb5df4c95fac23c24bd5a94008194ec4e65a3ea4381bcc51",
+            "8-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "8-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "8.log" : "a1d262f184c90a95509bcba4e49b235702bbbc3183dc94b55ba9f6e3a4a17003",
+            "9-after-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "9-before-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
             "9.log" : "cd0830e9aefe39267528c623286596855c83a8b3100ba11e681c046f6a97f001",
-            "inputs.json" : "6b7689a56d9127ac928d4d5f07fdb8f1277e04dcd35fd196c5e18003edd57a66",
-            "parsed-inputs.json" : "a0fec59bd5273686d3a17db0aadd5e4708c9110075216d2b311ac4a0d2156477",
-            "parsed-inputs.json.plan.json" : "26877be28d836723c8495449170806cd5155f82945237abcc9c05f9dff3ffa9d",
+            "inputs.json" : "2d892d14839eeb6b1d2c8c96b5419b8d0c94c7ce99d50315faf2cb5c6cc48c40",
+            "parsed-inputs.json" : "85e228d0bf7e80c1cda796949d4e2dd2ace9ef1b68a0b7ce20c3cebc1fc9c52e",
+            "parsed-inputs.json.plan.json" : "b8d88f8a79ecb8e8edba6bbb3222ad50254471fd42d867282b3e6ebd42fa267a",
             "parsed-inputs.json.policy.json" : "23dad03e78aee872fd4ff3aa59158019e6051b7f604c7523238e3964bb116eb6",
-            "plan-events.tsv" : "ece74f5b221806025d3431792dfb01cd4b32bff07abcd892aec252e849819c25",
-            "plan-inputs.json" : "45aeb08b4b18029d9025d16aaa15bbcee25ed2d0ac7fb29b844715ebd6109684",
-            "plan-selection.tsv" : "a17a3b9b123971d59a79808b6094c0e3b5d0849a9048fe04daba3d90dd32fb3f",
-            "timings.tsv" : "48a1eab9e6b2351095aec3ce85a7b43de98e4e3165a62683c8967b3f6ceb0dfb"
+            "plan-events.tsv" : "a6b6819f74709f642a97877ec298fdaecc595f0c24a178dd362fc9d16a1ac3e5",
+            "plan-inputs.json" : "262dcf5eadea723e692d7ecc001fa38084500892075c13073c23fd45bd5fb5bc",
+            "plan-selection.tsv" : "8d65907c649dab619402da09c6946488d222ca959b9016f83ec2b7e35dbb8d75",
+            "timings.tsv" : "2dfb41dba2c26b658fffec9c89c8a5b16eb762bb986961459e7a8ecb26e50b5e"
          },
          "group" : "engine",
          "inputs" : {
@@ -222,16 +222,16 @@
             ".github/workflows/published-example-install.yml" : "ef084929d3fa9aaee51024c032991d233300d9f42d4e5ad8ce034939d7292999",
             ".github/workflows/tooling.yml" : "15d1038bae99742e34e5e7db8b5533b30a232f4784147c771d57ebeb0a173448",
             ".shared-tooling.snapshot" : "2ad703f76aa47e8e3523fe930ee719ee8136aee5b7d14e140953e73828438bcb",
-            "Cargo.lock" : "f353bd3751d959fe2e0fa8a087ccfebe78c164ddf6d036a6e8efd9b3b8c02883",
-            "Cargo.toml" : "53946232ff8c6527bc33b124f073d8580ccfa59407987613999c0a66553939da",
+            "Cargo.lock" : "d99b6e81e24af938ae6afcc48d87d8461372d8d3b504eada895419210fe09ab9",
+            "Cargo.toml" : "77d6e5555bbadf3ab5fb935c1d2daa7d6e741409c95281c9fc10376c0b91467d",
             "Makefile" : "cc67c60039177757487404e7b9584eeef5f71bd0cc4d167d17517eef5be452ac",
-            "canisters/standalone/Cargo.toml" : "1b3cfe15156008d5fd9302e495f9147cc4cbc27e577bcef83bd5ffdc82bba284",
-            "canisters/tests/admission_probe/Cargo.toml" : "9f3e344b771631daf9972902f3bdbb13771b41c3b0d3e1e5cee367233e810e1e",
-            "canisters/tests/authority_probe/Cargo.toml" : "f167b8a94a6bfbe381e8987efa2872e19d179fee64540e5b1c20a09a6c5c3662",
-            "canisters/tests/consumer_probe/Cargo.toml" : "83861f07d33f96b8f6c8fddcdae735d8bbf22753e1d352d834b8d31ceb22bef9",
-            "canisters/tests/funding_probe/Cargo.toml" : "2bd7c1473c01993d58915c0c884feb86c08b93cc87ac1bc490edb5e7eebf8382",
-            "canisters/tests/gateway_source/Cargo.toml" : "d4b622a3766ff7f6148105fff59152bd33323be4822e69ac6f5ed04c06af0bf7",
-            "canisters/tests/storage_probe/Cargo.toml" : "9d4898eb6f981d72006655aa6e686ba39fc8611c182379caf2dd8236418ac15a",
+            "canisters/standalone/Cargo.toml" : "ce167ad7c380a8e6487a292ba57b4e7c9cb3d6c3aa98f8669cfc1f67cfa3c0e8",
+            "canisters/tests/admission_probe/Cargo.toml" : "a669d912157f246fd51badeb5300ee3efc97308d81fd5929c2474443028c82ed",
+            "canisters/tests/authority_probe/Cargo.toml" : "f73bc21387dadfa51f17f72babb4b9967edef329dbbc7268499a36d40b22d3bc",
+            "canisters/tests/consumer_probe/Cargo.toml" : "808ffda17c99596f60c02eed11b0411e8d1cb1721e3604962a2e54866aab1691",
+            "canisters/tests/funding_probe/Cargo.toml" : "96478c2dca9184ef16a56f56e9e992dd54a1c89aa518a69031df361e089e87eb",
+            "canisters/tests/gateway_source/Cargo.toml" : "f11b74e2b16ef88b27ddbcb7f267f4f022d9c953299f476421ad6b994886f21d",
+            "canisters/tests/storage_probe/Cargo.toml" : "4f1553f4700f5daa3246fbbb3ba1d6842a97319c239c38ddd3f84fbab63f2c39",
             "ci/candid-boundary.json" : "305ab71037ec81a29aa9e3b628c49c827f0eff9a5268572eff9b600a3775ebaa",
             "ci/cargo-dependency-boundaries.json" : "3c58b90372665d1be73aedb723fdaf55f8ed949efde3aa69febe18159b537229",
             "ci/cargo-release-groups.json" : "511b8e29ff8a89a590951dddff7f83c84c30b77b636a4e2e200f890c02fb77f7",
@@ -243,22 +243,22 @@
             "ci/release-stage-reuse.json" : "5f0f3e40af6aaef738323348dc7522e719a1c07ed9cb9b8f596414f8e6d4f856",
             "ci/release-validation.json" : "23dad03e78aee872fd4ff3aa59158019e6051b7f604c7523238e3964bb116eb6",
             "ci/tool-versions.env" : "0e5b503627e26605327cafb81f2a15287394e10fa8adce24e086b1752745079a",
-            "crates/ic-blob-storage-cli/Cargo.toml" : "9fed7acc1078cb75c3ac68742a63f590bda3b0b05b087ba82801bd1209b382f9",
-            "crates/ic-blob-storage-client/Cargo.toml" : "8334cece6a2be48a5a3a1e0ae95b272d3e38a90e294e4c2d7b5e04a61c69a050",
+            "crates/ic-blob-storage-cli/Cargo.toml" : "e095842352c14df7d53a5697c9823fe6c6e33d492915d4c458a00f16b222a5ba",
+            "crates/ic-blob-storage-client/Cargo.toml" : "8b7c96cb0d532ef4333dab493ada48fa4df9f516240d1b74ba6498e530af50ff",
             "crates/ic-blob-storage-contracts/Cargo.toml" : "dfc956b1b8c26894a38ca241cc3fa820dfbd2a168f18a7e3a3f503c91d136639",
-            "crates/ic-blob-storage/Cargo.toml" : "ce463fd2a9806750c96277632b3de1d5531b0b4f02ad95a919e11b37bae0fca5",
+            "crates/ic-blob-storage/Cargo.toml" : "0a196589fe7be60471ac862bf624b1fe8432c7e0e2cd05953ab98fda953a3577",
             "make/cargo-publication.mk" : "27e4279cd48e0c40597aba3f25f4ec06faf69c77882968b21f28719790825258",
             "make/consumer.mk" : "cb896704cd9ff2302b59072d723fea2dc17169e41b1c3440156f6958ff9f5258",
             "make/execution.mk" : "cebc0fa4ee9944550350a492a3bc1084e28820e2c915e20351c336d87ce0359f",
             "make/release.mk" : "cadaefaea8553889397ab2b87bb644afa8e9abbf7476c937df6f91099903dee6",
             "make/rust-format.mk" : "a7296bd15dcb49f052e5862ef0ecb592f09a826aacc7691b11aa3ce56fcdd5ef",
             "make/tools.mk" : "d2a5b214b8b1aed1de46c641c92efe85800affbc4efea3531b6a2b703619d77f",
-            "releases/client/CHANGELOG.md" : "d13aecde603c5f6acbb29ccafe7e4870c42e4a59d059f398d41b38b1091ca73b",
-            "releases/client/release.json" : "2334d8cb8a5313ac52158d43973f9ec2733023674931dcc2f7c9085f6e5e3325",
+            "releases/client/CHANGELOG.md" : "5c7de70217f94515e69555fc98987ac0c4d09c5ddf1122e017f3d507757123cf",
+            "releases/client/release.json" : "2a75d688c08127a297cee394be49e7a24a26307d7d6b7412a1f3621a28984d62",
             "releases/contracts/CHANGELOG.md" : "93bf2240eac21a57631db1b920c8b969c16960e2bc60f3557a0e307b5182677b",
             "releases/contracts/release.json" : "86c0f8c7acd6bb5c7e400ccd0b09bea3a132eb73af114edb58a385718802f635",
-            "releases/engine/CHANGELOG.md" : "daf0ad7ca1ec1b6af92d6a46c3862bf68e49ca1c467a5e532cdf568e28706564",
-            "releases/engine/release.json" : "7931898805201bd9cf321ab46599408a601e3fc69175c9dffb4eab5034cea9e9",
+            "releases/engine/CHANGELOG.md" : "415ad178090c511618c0c7245f36a4a0c70346a3a46427450c75d1ca63152aaa",
+            "releases/engine/release.json" : "23bea10aee7f2fa5bb1224f9eb66c3c6ed17d5101bae164845f6579c2624a791",
             "releases/history.md" : "e8b43b900504c1546d318a0663090220620952578f14a4e55056f79d3dfc2099",
             "rust-toolchain.toml" : "1bfdb988c976a2649721229548e6d8b827475b23e65671d889789b594182fe97",
             "scripts/ci/RustSource.pm" : "ce27820fc6256fc417d3606dfcc8b850256c3f36a1a29132be587d49aceb82d4",
@@ -380,40 +380,40 @@
             "scripts/release/test-release.sh" : "a01c0ab17ef8963204900ca30c00d18dccee13acf677c93cacb83100702ab2a6",
             "scripts/release/validate.sh" : "eade59893985ddbe31b3ab1648c9a9e78a79943e596c9b4514d033d19f01a95c",
             "scripts/release/validation.pl" : "448a8bf175773554818ef9c66fc021a9e543211496d21d2a61e792c7fbdddb75",
-            "target/blob-release-validation.aq8MnK/configuration.json" : "58ac94b3d82957697b110bfeb30c78e30a801f63f7a04ed122fa26d14b2e1c1b",
-            "target/blob-release-validation.aq8MnK/plan.json" : "26877be28d836723c8495449170806cd5155f82945237abcc9c05f9dff3ffa9d",
+            "target/blob-release-validation.rgN3fH/configuration.json" : "58ac94b3d82957697b110bfeb30c78e30a801f63f7a04ed122fa26d14b2e1c1b",
+            "target/blob-release-validation.rgN3fH/plan.json" : "b8d88f8a79ecb8e8edba6bbb3222ad50254471fd42d867282b3e6ebd42fa267a",
             "tests/browser/.nvmrc" : "73fb1b615e2043a933be1c0895cde4358036acc28d785692509b822aa53c761f",
             "tests/browser/package-lock.json" : "5ff0119e5392f88ff29233015f71426dd18a4104bd2161822e0a58e1e799449c",
             "tests/browser/package.json" : "c3d23bd8da9b21da7f3c48b4a3903c62705a64530177fa93b5ebf2ea6b3fe916",
-            "tests/pocketic/Cargo.toml" : "73c31cba4fcab8c3515170ebab19007fc8fec8c94c470130fa7539b2348c7fcb",
-            "tests/protocol/Cargo.toml" : "e61319f15cc44acc8c32ec260d7fd940fe0261426c6b910fde4a808ac2faaf60"
+            "tests/pocketic/Cargo.toml" : "3cd6a34e1ac9439a67cf65000d88dbf70275d6cc17057f2a1bb5c73b0eec4c8c",
+            "tests/protocol/Cargo.toml" : "62785e03fb6bc7dfaa89ddb6531be3b2c4f3644f911e06a0901faba631071430"
          },
          "kind" : "group-validation-evidence",
-         "plan_sha256" : "26877be28d836723c8495449170806cd5155f82945237abcc9c05f9dff3ffa9d",
+         "plan_sha256" : "b8d88f8a79ecb8e8edba6bbb3222ad50254471fd42d867282b3e6ebd42fa267a",
          "policy_sha256" : "23dad03e78aee872fd4ff3aa59158019e6051b7f604c7523238e3964bb116eb6",
-         "run" : "target/blob-release-validation.aq8MnK/validation.qXsAAp",
+         "run" : "target/blob-release-validation.rgN3fH/validation.1wWF95",
          "schema" : 1,
          "scope" : "workspace",
-         "source" : "5382ca2389c1af5609fce484f7a97fca942f9834",
+         "source" : "2e55591eeb7af7368761fa7685e6c2d2e7a5e72d",
          "stages" : [
             {
                "log" : "0.log",
                "log_sha256" : "60ecd6204f8c907ee84bea89cdad062609c008a6065dfe3d16a071d2d44940e6",
-               "seconds" : 3,
+               "seconds" : 2,
                "state" : "PASS",
                "target" : "shared-tooling-check"
             },
             {
                "log" : "1.log",
                "log_sha256" : "7f112ffd18567deb7f4e3ba4acdecc3869fe55552411be1c2b7090310fa12228",
-               "seconds" : 2,
+               "seconds" : 1,
                "state" : "PASS",
                "target" : "compiler-check"
             },
             {
                "log" : "2.log",
-               "log_sha256" : "4d6fd9c86b164f815e83f086b6bd1be10068cd78ca1244c8e730ea74cada4b3b",
-               "seconds" : 30,
+               "log_sha256" : "9adf9d7565ad8633d343459b7c29bc956ff343549d4d6bd83cace0603e0cd564",
+               "seconds" : 29,
                "state" : "PASS",
                "target" : "tools-check"
             },
@@ -426,8 +426,8 @@
             },
             {
                "log" : "4.log",
-               "log_sha256" : "e750948e6ed6a0f8872385ecdc4168fc6c5806cf026cb777fb2444573c20cd17",
-               "seconds" : 68,
+               "log_sha256" : "77a2beaffd3049043697292ce9285644ac229802c30002cab2a8cda8abc57229",
+               "seconds" : 64,
                "state" : "PASS",
                "target" : "clippy"
             },
@@ -440,113 +440,113 @@
             },
             {
                "log" : "6.log",
-               "log_sha256" : "e79afad820c76ab69f6f4b6ed62605cddd27196e0855d6076ecab5e1cdb980d0",
+               "log_sha256" : "ae9e87aecc2a2046b5e13e465d35dcff9756f3e4011c1964ab67f4ed76a0d041",
                "seconds" : 1,
                "state" : "PASS",
                "target" : "documentation-links-check"
             },
             {
                "log" : "7.log",
-               "log_sha256" : "451ad0e61bc03c76465542d83f460a824f86678117a44a8f0bf8235d2e3cc4c4",
-               "seconds" : 115,
+               "log_sha256" : "a063fbd5fbe0f70ceb5df4c95fac23c24bd5a94008194ec4e65a3ea4381bcc51",
+               "seconds" : 107,
                "state" : "PASS",
                "target" : "shared-tooling-tests"
             },
             {
                "log" : "8.log",
-               "log_sha256" : "de7f0a5f68938a82632b0023a16481d2f445b2d221aaba0f49cd440f63051cdb",
-               "seconds" : 27,
+               "log_sha256" : "a1d262f184c90a95509bcba4e49b235702bbbc3183dc94b55ba9f6e3a4a17003",
+               "seconds" : 6,
                "state" : "PASS",
                "target" : "contracts-boundary-check"
             },
             {
                "log" : "9.log",
                "log_sha256" : "cd0830e9aefe39267528c623286596855c83a8b3100ba11e681c046f6a97f001",
-               "seconds" : 10,
+               "seconds" : 9,
                "state" : "PASS",
                "target" : "shell-check"
             },
             {
                "log" : "10.log",
                "log_sha256" : "05856ec97f8cb6a60efb61ce64fd9abf850b87df46824f64261472a1c0d74ebb",
-               "seconds" : 84,
+               "seconds" : 77,
                "state" : "PASS",
                "target" : "release-metadata-check"
             },
             {
                "log" : "11.log",
-               "log_sha256" : "63c7327e6b37d90c7aa149d19d89a12314347a68d72a358bb5ec4dec96e47e82",
-               "seconds" : 31,
+               "log_sha256" : "6a8c9b9015b79288f3c1f2f527d113777ffa86c069f0373a2363dcfb6ff401d0",
+               "seconds" : 29,
                "state" : "PASS",
                "target" : "release-check"
             },
             {
                "log" : "12.log",
                "log_sha256" : "3b350408c858e830d4ba4e6274fd8cfe151be6bcec909f29d132081a587af4c9",
-               "seconds" : 20,
+               "seconds" : 19,
                "state" : "PASS",
                "target" : "hooks-check"
             },
             {
                "log" : "13.log",
-               "log_sha256" : "94abdff41af1fe9e48b2d2073bd171f01880eee672612b535beb014b17987ed5",
-               "seconds" : 3,
+               "log_sha256" : "dc744c2a5aa672794d32d2125e37b46c4900b222932a45f9dc0bcde0cde26ff3",
+               "seconds" : 2,
                "state" : "PASS",
                "target" : "fmt-check"
             },
             {
                "log" : "14.log",
-               "log_sha256" : "a9a64c43aa378d9c31600a1a7592f96be0bf6511a7f1a4b2f94218ac2102a65d",
-               "seconds" : 31,
+               "log_sha256" : "15d7e9281ad96719077d95f70064dfa74eecf4fad892d2c0b7376a1a1830bf21",
+               "seconds" : 29,
                "state" : "PASS",
                "target" : "check"
             },
             {
                "log" : "15.log",
-               "log_sha256" : "e0864c8eb590c15d09b1d268d16b73558b54f63067e5823ac0f38fe9ff06db6f",
-               "seconds" : 33,
+               "log_sha256" : "e348ae6018255230c997929d07c5f703fb6252bcb5d66811cc42dca8df7965b4",
+               "seconds" : 28,
                "state" : "PASS",
                "target" : "probe-check"
             },
             {
                "log" : "16.log",
-               "log_sha256" : "31d05a45fa19db26a500d9bac26a73a60484fe9b04f7d3af7f9e456d9c03d2a4",
-               "seconds" : 30,
+               "log_sha256" : "dcd962a968bf74d232c5663206e4ba0bf5d7d97e24a0dca67d21c68b26190cac",
+               "seconds" : 28,
                "state" : "PASS",
                "target" : "docs-check"
             },
             {
                "log" : "17.log",
-               "log_sha256" : "c73e437a1f47d2a4a7cf79234b29389cc3207a33c1a2ec8fe2c843f0be3deee1",
-               "seconds" : 31,
+               "log_sha256" : "7356457e695c2d92b218197c8f3b5095778ce4cfef3acb5c48ad79caa8752ca6",
+               "seconds" : 29,
                "state" : "PASS",
                "target" : "test-native"
             },
             {
                "log" : "18.log",
-               "log_sha256" : "6d4f611e34cf09bc699b6ad75de264ad90fc232d439d4d77433dad78761e3400",
-               "seconds" : 56,
+               "log_sha256" : "9069095fffe7b1a9a663eacdc5705a85db0f279cbc94c16855134468f95d9861",
+               "seconds" : 53,
                "state" : "PASS",
                "target" : "test-pocketic"
             },
             {
                "log" : "19.log",
-               "log_sha256" : "d98e2e9c09a6f623a7f8b1cb942868702999b998595a570e8173d497ecddbba3",
-               "seconds" : 30,
+               "log_sha256" : "a0fcf74590254875d49fa84f8025217a6ef96b607706e196b30b8d1cb319a331",
+               "seconds" : 29,
                "state" : "PASS",
                "target" : "wasm-check"
             },
             {
                "log" : "20.log",
-               "log_sha256" : "85f4f9338ee76a24bb2abbd7b3be4c62f343defc4ab2dc9944a3a262348a4a9f",
-               "seconds" : 31,
+               "log_sha256" : "c482bb1a5bb9a146db54c342f720f20cad2b848eb763b4db0c58936d1a82472d",
+               "seconds" : 29,
                "state" : "PASS",
                "target" : "package-regression"
             },
             {
                "log" : "21.log",
-               "log_sha256" : "1d7d0f5d306a07b0cdc973f2f92a44a33a968d8ac7ba6f4bbabcb25b46fbdb68",
-               "seconds" : 38,
+               "log_sha256" : "82e8dcecd38aea870f8bfba9b68f20f6d50606ea1fb9df3ba34801692b2a89fe",
+               "seconds" : 37,
                "state" : "PASS",
                "target" : "package"
             }
@@ -719,7 +719,7 @@
             "scripts/release/test-release.sh",
             "scripts/release/validate.sh",
             "scripts/release/validation.pl",
-            "target/blob-release-validation.aq8MnK/configuration.json",
+            "target/blob-release-validation.rgN3fH/configuration.json",
             "tests/browser/.nvmrc",
             "tests/browser/package-lock.json",
             "tests/browser/package.json",
@@ -729,7 +729,7 @@
          "policy" : "ci/release-validation.json",
          "schema" : 1,
          "scope" : "workspace",
-         "source" : "5382ca2389c1af5609fce484f7a97fca942f9834",
+         "source" : "2e55591eeb7af7368761fa7685e6c2d2e7a5e72d",
          "stages" : [
             {
                "reason" : "Shared, unknown or not yet classified inputs require the full roster",
@@ -843,7 +843,7 @@
             }
          ]
       },
-      "plan_path" : "target/blob-release-validation.aq8MnK/plan.json",
+      "plan_path" : "target/blob-release-validation.rgN3fH/plan.json",
       "policy" : {
          "groups" : [
             "contracts",
@@ -877,23 +877,23 @@
          ]
       },
       "schema" : 1,
-      "source" : "5382ca2389c1af5609fce484f7a97fca942f9834",
+      "source" : "2e55591eeb7af7368761fa7685e6c2d2e7a5e72d",
       "stage_admissions" : {
          "check" : {
             "admission" : {
-               "context_sha256" : "0a5758af228b8165d5edf7c9f807ff30189e221a431ea76255499eac147a444f",
+               "context_sha256" : "7886ec8cba40648d3faba331a0227b869d3508b135027205ed0c5a7285844806",
                "contract" : "blob-final-candidate/1",
-               "elapsed_seconds" : 23.7282390519977,
-               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/0a5758af228b8165d5edf7c9f807ff30189e221a431ea76255499eac147a444f.RMJZxn.json",
-               "execution_proof_sha256" : "0badb09601f3e31ff9d34799c322a7aa6bc10e034363de759f2b721cafdbd449",
+               "elapsed_seconds" : 21.9797101379954,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/7886ec8cba40648d3faba331a0227b869d3508b135027205ed0c5a7285844806.hhoIzf.json",
+               "execution_proof_sha256" : "e3629691cfc1921e4086ac4819fb8913436a592ce72273a07ddf42be1a92bc02",
                "group" : "engine",
                "kind" : "release-stage-admission",
                "mode" : "reused",
                "schema" : 1,
-               "source" : "5382ca2389c1af5609fce484f7a97fca942f9834",
+               "source" : "2e55591eeb7af7368761fa7685e6c2d2e7a5e72d",
                "stage" : "check"
             },
-            "candidate_identity" : "acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
+            "candidate_identity" : "13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
             "command" : [
                "/usr/bin/make",
                "--no-print-directory",
@@ -901,14 +901,14 @@
                "check-run"
             ],
             "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
-            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
-            "elapsed_seconds" : 28.9802596640075,
-            "environment_sha256" : "53ac25e02815f2037b93ba35436f79919d6026b2157cdfe795997d8ec0f21062",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
+            "elapsed_seconds" : 26.8572134169517,
+            "environment_sha256" : "3fdbd5033dff8c929a73693fa94d5f4d3030b242d9f8b10379cb076ce6a23167",
             "files" : {
-               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.aq8MnK/stages/check-admission.json" : "6d4be42488075a8b14d99a1318598d5328604c1c075dd9996f144b56aa102557",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/check-contracts.RMJZxn/command.stderr" : "f2832d04a4b806c0a00fc935f72b17c8b7f970b1663ae75c2040a8dcec04d969",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/check-contracts.RMJZxn/command.stdout" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/0a5758af228b8165d5edf7c9f807ff30189e221a431ea76255499eac147a444f.RMJZxn.json" : "0badb09601f3e31ff9d34799c322a7aa6bc10e034363de759f2b721cafdbd449"
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.rgN3fH/stages/check-admission.json" : "73f41ffd0e54fff99c39aa670f372b3cdcc9b07128ebb617ae9a296cff12a7bd",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/check-client.hhoIzf/command.stderr" : "888a8117368ab7b3c080346ff139619daa31203ee980c31cd58ccf0e19f37bc3",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/check-client.hhoIzf/command.stdout" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/7886ec8cba40648d3faba331a0227b869d3508b135027205ed0c5a7285844806.hhoIzf.json" : "e3629691cfc1921e4086ac4819fb8913436a592ce72273a07ddf42be1a92bc02"
             },
             "host" : [
                "Linux",
@@ -919,27 +919,27 @@
             ],
             "kind" : "sealed-cargo-stage-admission",
             "origin" : {
-               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/check-contracts.RMJZxn",
-               "group" : "contracts",
-               "source" : "4eb56823b75ea8dd140e81d675518722ff62f08f"
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/check-client.hhoIzf",
+               "group" : "client",
+               "source" : "3f5faafb8ae94ae4b7cc0df6f3a02d61df575b65"
             },
             "schema" : 1
          },
          "clippy" : {
             "admission" : {
-               "context_sha256" : "911888369d10e7f1155dcc42b1dd463ccde3bb69ba3229b790698fc1b4c7aa89",
+               "context_sha256" : "db76359b756ab1728b4bd02751ef5514c71ad91e2bc06702659cf10f5675826a",
                "contract" : "blob-final-candidate/1",
-               "elapsed_seconds" : 23.6967526539811,
-               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/911888369d10e7f1155dcc42b1dd463ccde3bb69ba3229b790698fc1b4c7aa89.Lhgoce.json",
-               "execution_proof_sha256" : "ba6cf948e91d1a4da69974eac3ce26b78b98f4c20ef853cce773a539737c9192",
+               "elapsed_seconds" : 22.9448010869673,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/db76359b756ab1728b4bd02751ef5514c71ad91e2bc06702659cf10f5675826a.mAzSx2.json",
+               "execution_proof_sha256" : "57667fc2a5d799a394e07aa96564bfc72ec58419a44c3e48eef7b4ab6876d381",
                "group" : "engine",
                "kind" : "release-stage-admission",
                "mode" : "reused",
                "schema" : 1,
-               "source" : "5382ca2389c1af5609fce484f7a97fca942f9834",
+               "source" : "2e55591eeb7af7368761fa7685e6c2d2e7a5e72d",
                "stage" : "clippy"
             },
-            "candidate_identity" : "acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
+            "candidate_identity" : "13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
             "command" : [
                "/usr/bin/make",
                "--no-print-directory",
@@ -947,14 +947,14 @@
                "clippy-run"
             ],
             "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
-            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
-            "elapsed_seconds" : 65.9585405710386,
-            "environment_sha256" : "53ac25e02815f2037b93ba35436f79919d6026b2157cdfe795997d8ec0f21062",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
+            "elapsed_seconds" : 63.0346767760348,
+            "environment_sha256" : "3fdbd5033dff8c929a73693fa94d5f4d3030b242d9f8b10379cb076ce6a23167",
             "files" : {
-               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.aq8MnK/stages/clippy-admission.json" : "597bed5cbf01a790949c56463aa13d1b84e05ce6a386923c5954cd1ab13b38a2",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/clippy-contracts.Lhgoce/command.stderr" : "fdd96829b67738f01f416b0029a913d4af6b8f390d63a243a645169fcf0062cd",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/clippy-contracts.Lhgoce/command.stdout" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/911888369d10e7f1155dcc42b1dd463ccde3bb69ba3229b790698fc1b4c7aa89.Lhgoce.json" : "ba6cf948e91d1a4da69974eac3ce26b78b98f4c20ef853cce773a539737c9192"
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.rgN3fH/stages/clippy-admission.json" : "3ab01a2c11cd69c9808dbd609a8389b8d6556c52e15ed63e94ecc295b5390fa5",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/clippy-client.mAzSx2/command.stderr" : "5ea41114f2bf77588a3b887be361fc24f7fbb6c6722a09ea95cf60c8087cf9ff",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/clippy-client.mAzSx2/command.stdout" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/db76359b756ab1728b4bd02751ef5514c71ad91e2bc06702659cf10f5675826a.mAzSx2.json" : "57667fc2a5d799a394e07aa96564bfc72ec58419a44c3e48eef7b4ab6876d381"
             },
             "host" : [
                "Linux",
@@ -965,27 +965,27 @@
             ],
             "kind" : "sealed-cargo-stage-admission",
             "origin" : {
-               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/clippy-contracts.Lhgoce",
-               "group" : "contracts",
-               "source" : "4eb56823b75ea8dd140e81d675518722ff62f08f"
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/clippy-client.mAzSx2",
+               "group" : "client",
+               "source" : "3f5faafb8ae94ae4b7cc0df6f3a02d61df575b65"
             },
             "schema" : 1
          },
          "docs-check" : {
             "admission" : {
-               "context_sha256" : "a086529f4ebaab565de5ba1cd6fb60ff04e2ffd29e620b4755cdcd5eafd463f8",
+               "context_sha256" : "9ca35a08e5ebf9ca0e4fe8521faf4cd6e40b24418f63b6bf3922b99960993a89",
                "contract" : "blob-final-candidate/1",
-               "elapsed_seconds" : 23.7096589569701,
-               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/a086529f4ebaab565de5ba1cd6fb60ff04e2ffd29e620b4755cdcd5eafd463f8.7yoTgW.json",
-               "execution_proof_sha256" : "56cc8e9a3917d96803c9700ae5bd441aeabb7421059a3bc6bee8d22af239bed1",
+               "elapsed_seconds" : 22.0855146399699,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/9ca35a08e5ebf9ca0e4fe8521faf4cd6e40b24418f63b6bf3922b99960993a89.1nGFDn.json",
+               "execution_proof_sha256" : "dbfd0678eb4848a384909dcce9f9548ebbadf50d853da74f70cc761289e7505b",
                "group" : "engine",
                "kind" : "release-stage-admission",
                "mode" : "reused",
                "schema" : 1,
-               "source" : "5382ca2389c1af5609fce484f7a97fca942f9834",
+               "source" : "2e55591eeb7af7368761fa7685e6c2d2e7a5e72d",
                "stage" : "docs-check"
             },
-            "candidate_identity" : "acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
+            "candidate_identity" : "13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
             "command" : [
                "/usr/bin/make",
                "--no-print-directory",
@@ -993,14 +993,14 @@
                "docs-check-run"
             ],
             "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
-            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
-            "elapsed_seconds" : 28.8964444210287,
-            "environment_sha256" : "53ac25e02815f2037b93ba35436f79919d6026b2157cdfe795997d8ec0f21062",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
+            "elapsed_seconds" : 26.8074678170378,
+            "environment_sha256" : "3fdbd5033dff8c929a73693fa94d5f4d3030b242d9f8b10379cb076ce6a23167",
             "files" : {
-               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.aq8MnK/stages/docs-check-admission.json" : "d60a641b342a5db10881d78f361f384025dcb79b09953d507930b69cb37d49c7",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/docs-check-contracts.7yoTgW/command.stderr" : "f23651323d5c7061ae5084fc849337ab3041bef9672231690e84507e85385c41",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/docs-check-contracts.7yoTgW/command.stdout" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/a086529f4ebaab565de5ba1cd6fb60ff04e2ffd29e620b4755cdcd5eafd463f8.7yoTgW.json" : "56cc8e9a3917d96803c9700ae5bd441aeabb7421059a3bc6bee8d22af239bed1"
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.rgN3fH/stages/docs-check-admission.json" : "a6db4bec84646c8013d026a86d40167eb9d446c09d9549475ff7978c8791181f",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/docs-check-client.1nGFDn/command.stderr" : "2f4e5a2964177427cb823f3c1587a1a2d1557e7f1b28172b4eaf5fb1dad07712",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/docs-check-client.1nGFDn/command.stdout" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/9ca35a08e5ebf9ca0e4fe8521faf4cd6e40b24418f63b6bf3922b99960993a89.1nGFDn.json" : "dbfd0678eb4848a384909dcce9f9548ebbadf50d853da74f70cc761289e7505b"
             },
             "host" : [
                "Linux",
@@ -1011,27 +1011,27 @@
             ],
             "kind" : "sealed-cargo-stage-admission",
             "origin" : {
-               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/docs-check-contracts.7yoTgW",
-               "group" : "contracts",
-               "source" : "4eb56823b75ea8dd140e81d675518722ff62f08f"
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/docs-check-client.1nGFDn",
+               "group" : "client",
+               "source" : "3f5faafb8ae94ae4b7cc0df6f3a02d61df575b65"
             },
             "schema" : 1
          },
          "package-regression" : {
             "admission" : {
-               "context_sha256" : "94edfce27ce0ae93579f6d8e5d4dd7b52ff9c0f8b01e1251867ee18a7b997c74",
+               "context_sha256" : "9516176859cb547cbaafa352f24f39d3d6d0d4ed588f777958865869f9d16fdd",
                "contract" : "blob-final-candidate/1",
-               "elapsed_seconds" : 23.5812604500097,
-               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/94edfce27ce0ae93579f6d8e5d4dd7b52ff9c0f8b01e1251867ee18a7b997c74.vSdIxd.json",
-               "execution_proof_sha256" : "036355d432c830afbd8bd8dfa83430487837aa47df83087034c31c371fa85203",
+               "elapsed_seconds" : 22.3830256029614,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/9516176859cb547cbaafa352f24f39d3d6d0d4ed588f777958865869f9d16fdd.BaoYts.json",
+               "execution_proof_sha256" : "14601f5d5be135e4bb38f8e9fc42bf2d257d43feb6324e33d4e491e69c86ed23",
                "group" : "engine",
                "kind" : "release-stage-admission",
                "mode" : "reused",
                "schema" : 1,
-               "source" : "5382ca2389c1af5609fce484f7a97fca942f9834",
+               "source" : "2e55591eeb7af7368761fa7685e6c2d2e7a5e72d",
                "stage" : "package-regression"
             },
-            "candidate_identity" : "acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
+            "candidate_identity" : "13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
             "command" : [
                "/usr/bin/make",
                "--no-print-directory",
@@ -1039,14 +1039,14 @@
                "package-regression-run"
             ],
             "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
-            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
-            "elapsed_seconds" : 28.6887994330027,
-            "environment_sha256" : "53ac25e02815f2037b93ba35436f79919d6026b2157cdfe795997d8ec0f21062",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
+            "elapsed_seconds" : 27.2990391849889,
+            "environment_sha256" : "3fdbd5033dff8c929a73693fa94d5f4d3030b242d9f8b10379cb076ce6a23167",
             "files" : {
-               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.aq8MnK/stages/package-regression-admission.json" : "93c407ecb6b1d4f7e031edf88feefcc3a5e6aca1fd69eb80e102cbbb9748e535",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/package-regression-contracts.vSdIxd/command.stderr" : "be50634f6e9c2f905a31bc28a1226f110af79a891ebb0d40cf14efceb599da79",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/package-regression-contracts.vSdIxd/command.stdout" : "0671f5968427450a9674cc520af6af78edd5939adc2c0d5694cdd1947c7d5177",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/94edfce27ce0ae93579f6d8e5d4dd7b52ff9c0f8b01e1251867ee18a7b997c74.vSdIxd.json" : "036355d432c830afbd8bd8dfa83430487837aa47df83087034c31c371fa85203"
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.rgN3fH/stages/package-regression-admission.json" : "fe1e9f0e9c66f164fcea61212bd4fe8eee3e9b4842dd29c79f6554bcae97a410",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/package-regression-client.BaoYts/command.stderr" : "8e8d50543137d4cdf3aa880c82a6f66a7f103816813a6b031314d13451667f02",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/package-regression-client.BaoYts/command.stdout" : "eb4db56a2599b6be076c50ed7d5b00a1a65787d883185ce04fdda07fa0038014",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/9516176859cb547cbaafa352f24f39d3d6d0d4ed588f777958865869f9d16fdd.BaoYts.json" : "14601f5d5be135e4bb38f8e9fc42bf2d257d43feb6324e33d4e491e69c86ed23"
             },
             "host" : [
                "Linux",
@@ -1057,27 +1057,27 @@
             ],
             "kind" : "sealed-cargo-stage-admission",
             "origin" : {
-               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/package-regression-contracts.vSdIxd",
-               "group" : "contracts",
-               "source" : "4eb56823b75ea8dd140e81d675518722ff62f08f"
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/package-regression-client.BaoYts",
+               "group" : "client",
+               "source" : "3f5faafb8ae94ae4b7cc0df6f3a02d61df575b65"
             },
             "schema" : 1
          },
          "probe-check" : {
             "admission" : {
-               "context_sha256" : "b16d1e78f66d34281c1f559e8aa40deadaa9a101241f9ce57b5f042caceddd66",
+               "context_sha256" : "f282b35562d7b1308bb14d077934355426f62ee2e0e4fa0a81b921b127c9f0f8",
                "contract" : "blob-final-candidate/1",
-               "elapsed_seconds" : 26.1570337439771,
-               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/b16d1e78f66d34281c1f559e8aa40deadaa9a101241f9ce57b5f042caceddd66.49gRvr.json",
-               "execution_proof_sha256" : "1fbfec45c81de5c99827f0fef607b56a57d316cc3d97dcf610bdf6b86ce57364",
+               "elapsed_seconds" : 21.948108355049,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/f282b35562d7b1308bb14d077934355426f62ee2e0e4fa0a81b921b127c9f0f8.BpdyM8.json",
+               "execution_proof_sha256" : "df729069951b5b049af288a46381d4b4b794989f1143c49ab20b165f2214d7fd",
                "group" : "engine",
                "kind" : "release-stage-admission",
                "mode" : "reused",
                "schema" : 1,
-               "source" : "5382ca2389c1af5609fce484f7a97fca942f9834",
+               "source" : "2e55591eeb7af7368761fa7685e6c2d2e7a5e72d",
                "stage" : "probe-check"
             },
-            "candidate_identity" : "acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
+            "candidate_identity" : "13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
             "command" : [
                "/usr/bin/make",
                "--no-print-directory",
@@ -1085,14 +1085,14 @@
                "probe-check-run"
             ],
             "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
-            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
-            "elapsed_seconds" : 31.4446512780269,
-            "environment_sha256" : "53ac25e02815f2037b93ba35436f79919d6026b2157cdfe795997d8ec0f21062",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
+            "elapsed_seconds" : 26.8714772540261,
+            "environment_sha256" : "3fdbd5033dff8c929a73693fa94d5f4d3030b242d9f8b10379cb076ce6a23167",
             "files" : {
-               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.aq8MnK/stages/probe-check-admission.json" : "7a795f3783ecfdb6623fe2d8bb866729a9964ec25625c11f114fe8720825d9ed",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/probe-check-contracts.49gRvr/command.stderr" : "661392f888b29f9e68d09c5eb869dbb99d0947aee92f80ec2690eaec9dd72a63",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/probe-check-contracts.49gRvr/command.stdout" : "447d2d8e9a33a8edc508e30db3f651c0be167990fc54f8eaf20bd86488985f80",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/b16d1e78f66d34281c1f559e8aa40deadaa9a101241f9ce57b5f042caceddd66.49gRvr.json" : "1fbfec45c81de5c99827f0fef607b56a57d316cc3d97dcf610bdf6b86ce57364"
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.rgN3fH/stages/probe-check-admission.json" : "f6b41cb46f2cfab9a9367fa27733c684966072a73df03f4d0800a31cfa7eca4a",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/probe-check-client.BpdyM8/command.stderr" : "cc646c4d7dfa564b5da001e8170f63f88fb3c193401e35b3573a974e6701afd6",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/probe-check-client.BpdyM8/command.stdout" : "a374a57dfc8906cf6b10b8c3f6167d36ac345737067117d6a6d828a41eb78ff1",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/f282b35562d7b1308bb14d077934355426f62ee2e0e4fa0a81b921b127c9f0f8.BpdyM8.json" : "df729069951b5b049af288a46381d4b4b794989f1143c49ab20b165f2214d7fd"
             },
             "host" : [
                "Linux",
@@ -1103,27 +1103,27 @@
             ],
             "kind" : "sealed-cargo-stage-admission",
             "origin" : {
-               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/probe-check-contracts.49gRvr",
-               "group" : "contracts",
-               "source" : "4eb56823b75ea8dd140e81d675518722ff62f08f"
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/probe-check-client.BpdyM8",
+               "group" : "client",
+               "source" : "3f5faafb8ae94ae4b7cc0df6f3a02d61df575b65"
             },
             "schema" : 1
          },
          "release-check" : {
             "admission" : {
-               "context_sha256" : "42b2e454d0007f8f64283b0e2c5f134a1e12b7335aac3e287f8dcaebc27b61eb",
+               "context_sha256" : "a1d0ba4fc35ae14949a7d9f7e471cbf4f7b50a2b829107dbeb907b520304cfab",
                "contract" : "blob-final-candidate/1",
-               "elapsed_seconds" : 23.7359222699888,
-               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/42b2e454d0007f8f64283b0e2c5f134a1e12b7335aac3e287f8dcaebc27b61eb.vLk0Ey.json",
-               "execution_proof_sha256" : "8b2aed67cafe948bae1e5e75f613733e6ce0457fa6608defae998117dd6ee2ae",
+               "elapsed_seconds" : 22.4758388299961,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/a1d0ba4fc35ae14949a7d9f7e471cbf4f7b50a2b829107dbeb907b520304cfab.HS9Rxi.json",
+               "execution_proof_sha256" : "8d428aa0c6174527ff7ddde36c92a3702ae94aa536468609d3016e42ab8d9faf",
                "group" : "engine",
                "kind" : "release-stage-admission",
                "mode" : "reused",
                "schema" : 1,
-               "source" : "5382ca2389c1af5609fce484f7a97fca942f9834",
+               "source" : "2e55591eeb7af7368761fa7685e6c2d2e7a5e72d",
                "stage" : "release-check"
             },
-            "candidate_identity" : "acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
+            "candidate_identity" : "13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
             "command" : [
                "/usr/bin/make",
                "--no-print-directory",
@@ -1131,14 +1131,14 @@
                "release-check-run"
             ],
             "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
-            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
-            "elapsed_seconds" : 28.9200564459898,
-            "environment_sha256" : "53ac25e02815f2037b93ba35436f79919d6026b2157cdfe795997d8ec0f21062",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
+            "elapsed_seconds" : 27.356532152975,
+            "environment_sha256" : "3fdbd5033dff8c929a73693fa94d5f4d3030b242d9f8b10379cb076ce6a23167",
             "files" : {
-               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.aq8MnK/stages/release-check-admission.json" : "a7cb3efdb8cb8b5ea6a1ddeff14ab515ef4f687ef0c78fe4bfa9f9ca515c8f60",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/release-check-contracts.vLk0Ey/command.stderr" : "e237bf68452f394ffe54e018832419d40907390b5a98d44e8939943ca20bf452",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/release-check-contracts.vLk0Ey/command.stdout" : "c31443aa056fbc3636d7ed2e7ad800de09593e3af440564d6b4db36a63aa93cb",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/42b2e454d0007f8f64283b0e2c5f134a1e12b7335aac3e287f8dcaebc27b61eb.vLk0Ey.json" : "8b2aed67cafe948bae1e5e75f613733e6ce0457fa6608defae998117dd6ee2ae"
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.rgN3fH/stages/release-check-admission.json" : "9d1bf5d7d1b6d1cca34520b970731799b44c06901a301d124145e07525e24d0a",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/release-check-client.HS9Rxi/command.stderr" : "11fca5a9ed41b89c9405e220a9fd6b471fdc9e7641b3d830bfafc04e615ae753",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/release-check-client.HS9Rxi/command.stdout" : "c31443aa056fbc3636d7ed2e7ad800de09593e3af440564d6b4db36a63aa93cb",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/a1d0ba4fc35ae14949a7d9f7e471cbf4f7b50a2b829107dbeb907b520304cfab.HS9Rxi.json" : "8d428aa0c6174527ff7ddde36c92a3702ae94aa536468609d3016e42ab8d9faf"
             },
             "host" : [
                "Linux",
@@ -1149,27 +1149,27 @@
             ],
             "kind" : "sealed-cargo-stage-admission",
             "origin" : {
-               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/release-check-contracts.vLk0Ey",
-               "group" : "contracts",
-               "source" : "4eb56823b75ea8dd140e81d675518722ff62f08f"
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/release-check-client.HS9Rxi",
+               "group" : "client",
+               "source" : "3f5faafb8ae94ae4b7cc0df6f3a02d61df575b65"
             },
             "schema" : 1
          },
          "test-native" : {
             "admission" : {
-               "context_sha256" : "64af94e9cd658052b95cdf10a4177d95c752964b0cbb35b743911c8061529c51",
+               "context_sha256" : "c8ce3edd07939c16f3ed70afa61cff044ae00957fa31d4fc60ec800e0bb7c361",
                "contract" : "blob-final-candidate/1",
-               "elapsed_seconds" : 23.5705207010033,
-               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/64af94e9cd658052b95cdf10a4177d95c752964b0cbb35b743911c8061529c51.ury_5q.json",
-               "execution_proof_sha256" : "85bfe82d6d6c13a386dc463fedb9d3317ba544895d81309273d5d351cafe271e",
+               "elapsed_seconds" : 22.1800479540252,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/c8ce3edd07939c16f3ed70afa61cff044ae00957fa31d4fc60ec800e0bb7c361.sgpnCx.json",
+               "execution_proof_sha256" : "fc07d27d9b436749a889d5d050fd35e78025c7a73b61bb7d1a1d4f01c07e3468",
                "group" : "engine",
                "kind" : "release-stage-admission",
                "mode" : "reused",
                "schema" : 1,
-               "source" : "5382ca2389c1af5609fce484f7a97fca942f9834",
+               "source" : "2e55591eeb7af7368761fa7685e6c2d2e7a5e72d",
                "stage" : "test-native"
             },
-            "candidate_identity" : "acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
+            "candidate_identity" : "13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
             "command" : [
                "/usr/bin/make",
                "--no-print-directory",
@@ -1177,14 +1177,14 @@
                "test-native-run"
             ],
             "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
-            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
-            "elapsed_seconds" : 28.8014456160017,
-            "environment_sha256" : "53ac25e02815f2037b93ba35436f79919d6026b2157cdfe795997d8ec0f21062",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
+            "elapsed_seconds" : 27.1586527620093,
+            "environment_sha256" : "3fdbd5033dff8c929a73693fa94d5f4d3030b242d9f8b10379cb076ce6a23167",
             "files" : {
-               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.aq8MnK/stages/test-native-admission.json" : "5b256e6ca360b472ec24d55b6010821047dd9a9dd9584ee73877015be64a9a9a",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-native-contracts.ury_5q/command.stderr" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-native-contracts.ury_5q/command.stdout" : "2d1e52e4708d26fc6a9d5f7d2ff5d593d9f95013fc234752fc23be7f45d7eba9",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/64af94e9cd658052b95cdf10a4177d95c752964b0cbb35b743911c8061529c51.ury_5q.json" : "85bfe82d6d6c13a386dc463fedb9d3317ba544895d81309273d5d351cafe271e"
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.rgN3fH/stages/test-native-admission.json" : "36dfc3d6f02a5f0fe9f49182c4987428e26be4689228c05c728457ff80805367",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-native-client.sgpnCx/command.stderr" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-native-client.sgpnCx/command.stdout" : "d86136601778c21d1ecfe28a246e327f3c401eb4dc1b918e67bfa29870c30c4a",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/c8ce3edd07939c16f3ed70afa61cff044ae00957fa31d4fc60ec800e0bb7c361.sgpnCx.json" : "fc07d27d9b436749a889d5d050fd35e78025c7a73b61bb7d1a1d4f01c07e3468"
             },
             "host" : [
                "Linux",
@@ -1195,27 +1195,27 @@
             ],
             "kind" : "sealed-cargo-stage-admission",
             "origin" : {
-               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-native-contracts.ury_5q",
-               "group" : "contracts",
-               "source" : "4eb56823b75ea8dd140e81d675518722ff62f08f"
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-native-client.sgpnCx",
+               "group" : "client",
+               "source" : "3f5faafb8ae94ae4b7cc0df6f3a02d61df575b65"
             },
             "schema" : 1
          },
          "test-pocketic" : {
             "admission" : {
-               "context_sha256" : "00943a4165038d753dc11590292efb1f8eea6464dc30f30e2a1c258a8b2f1e7c",
+               "context_sha256" : "1b38e84cfd57c82cc70cc10a97189bf0943d86d3010eafb7a66c4b2e2b98df37",
                "contract" : "blob-final-candidate/1",
-               "elapsed_seconds" : 23.5325577339972,
-               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/00943a4165038d753dc11590292efb1f8eea6464dc30f30e2a1c258a8b2f1e7c.WDeY4t.json",
-               "execution_proof_sha256" : "07b8cd3bcab674339868da424be30bc9c675b1c7276428db9a6bbfbaf12f0d51",
+               "elapsed_seconds" : 22.4756636209786,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/1b38e84cfd57c82cc70cc10a97189bf0943d86d3010eafb7a66c4b2e2b98df37.4isL60.json",
+               "execution_proof_sha256" : "f73c5d977b979cc6167b337e3f81ea78e654fca85be6ef85c087a5e28348d0ef",
                "group" : "engine",
                "kind" : "release-stage-admission",
                "mode" : "reused",
                "schema" : 1,
-               "source" : "5382ca2389c1af5609fce484f7a97fca942f9834",
+               "source" : "2e55591eeb7af7368761fa7685e6c2d2e7a5e72d",
                "stage" : "test-pocketic"
             },
-            "candidate_identity" : "acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
+            "candidate_identity" : "13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
             "command" : [
                "/usr/bin/make",
                "--no-print-directory",
@@ -1223,14 +1223,14 @@
                "test-pocketic-run"
             ],
             "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
-            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
-            "elapsed_seconds" : 54.7646235279972,
-            "environment_sha256" : "53ac25e02815f2037b93ba35436f79919d6026b2157cdfe795997d8ec0f21062",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
+            "elapsed_seconds" : 51.3132060580538,
+            "environment_sha256" : "3fdbd5033dff8c929a73693fa94d5f4d3030b242d9f8b10379cb076ce6a23167",
             "files" : {
-               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.aq8MnK/stages/test-pocketic-admission.json" : "8e9a08f396fdb6425173876336c530935b7f85e2f066c0febe410cbba12dbf29",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-pocketic-contracts.WDeY4t/command.stderr" : "459f6c60bdcf5f46c179a68ee36904c8e9e49354914fe7dbbd4cb06e87f334b9",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-pocketic-contracts.WDeY4t/command.stdout" : "4cd8c776b0da11d4488ffda3245ee0f61ea938178a91aaca39ae30a422096aed",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/00943a4165038d753dc11590292efb1f8eea6464dc30f30e2a1c258a8b2f1e7c.WDeY4t.json" : "07b8cd3bcab674339868da424be30bc9c675b1c7276428db9a6bbfbaf12f0d51"
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.rgN3fH/stages/test-pocketic-admission.json" : "b97b9b4ffc22e2c218e43319e8025e28d98f4ba864dfca8a0a7604968ad925d3",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-pocketic-client.4isL60/command.stderr" : "2d3d8043e1b22b359d12529263b71979fa1316ca7d0923c5472d7e98b9fbf381",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-pocketic-client.4isL60/command.stdout" : "f0cc22d1f9a61f09ff752be04ccdb13918c2839e9f948bc8c16134e2dfb915a3",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/1b38e84cfd57c82cc70cc10a97189bf0943d86d3010eafb7a66c4b2e2b98df37.4isL60.json" : "f73c5d977b979cc6167b337e3f81ea78e654fca85be6ef85c087a5e28348d0ef"
             },
             "fresh_identity" : true,
             "host" : [
@@ -1242,27 +1242,27 @@
             ],
             "kind" : "sealed-cargo-stage-admission",
             "origin" : {
-               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-pocketic-contracts.WDeY4t",
-               "group" : "contracts",
-               "source" : "4eb56823b75ea8dd140e81d675518722ff62f08f"
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/test-pocketic-client.4isL60",
+               "group" : "client",
+               "source" : "3f5faafb8ae94ae4b7cc0df6f3a02d61df575b65"
             },
             "schema" : 1
          },
          "wasm-check" : {
             "admission" : {
-               "context_sha256" : "df2cf4359df31c20c165715209cff2296dd0c8af851446429e3226c56162e826",
+               "context_sha256" : "44674ebfe5a5b4e8d38a5aebcda05326ed768707e2be2fa375e2d48ce95f86ee",
                "contract" : "blob-final-candidate/1",
-               "elapsed_seconds" : 23.4132918129908,
-               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/df2cf4359df31c20c165715209cff2296dd0c8af851446429e3226c56162e826.ja51Uu.json",
-               "execution_proof_sha256" : "2502c8cf0c71b12a2456c51a7a78e77b35d1b6c8fba59c34721e5f4077cc9e3b",
+               "elapsed_seconds" : 22.5253573169466,
+               "execution_proof" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/44674ebfe5a5b4e8d38a5aebcda05326ed768707e2be2fa375e2d48ce95f86ee.v0eztU.json",
+               "execution_proof_sha256" : "1d97b591f6a79e6f646e7f9a8737d92c99972c83612451c4c1fcc815c9d31fa2",
                "group" : "engine",
                "kind" : "release-stage-admission",
                "mode" : "reused",
                "schema" : 1,
-               "source" : "5382ca2389c1af5609fce484f7a97fca942f9834",
+               "source" : "2e55591eeb7af7368761fa7685e6c2d2e7a5e72d",
                "stage" : "wasm-check"
             },
-            "candidate_identity" : "acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
+            "candidate_identity" : "13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
             "command" : [
                "/usr/bin/make",
                "--no-print-directory",
@@ -1270,14 +1270,14 @@
                "wasm-check-run"
             ],
             "compiler" : "rustc 1.99.1 (58cf8f9c3 2026-10-13)\nbinary: rustc\ncommit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67\ncommit-date: 2026-10-13\nhost: x86_64-unknown-linux-gnu\nrelease: 1.99.1\nLLVM version: 23.1.1\n",
-            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/acf475cdda1522fd151bfba6e97c7c96ceab056737bb091dd923a4da8f67b7f1",
-            "elapsed_seconds" : 28.5382191370009,
-            "environment_sha256" : "53ac25e02815f2037b93ba35436f79919d6026b2157cdfe795997d8ec0f21062",
+            "cwd" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/candidates/sources/13ecc26269dd54b540962090886b88961148a9d34fe584793a09c2aefdb1ae67",
+            "elapsed_seconds" : 27.4801340259728,
+            "environment_sha256" : "3fdbd5033dff8c929a73693fa94d5f4d3030b242d9f8b10379cb076ce6a23167",
             "files" : {
-               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.aq8MnK/stages/wasm-check-admission.json" : "a51b7f439b005eaadfec9e102fc83ffa109907798d539429fc10550bba09601b",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/wasm-check-contracts.ja51Uu/command.stderr" : "e35091b154b2dcd7dfcc7122d3cc7c4001f6b431b7789deb9b2085fd33579121",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/wasm-check-contracts.ja51Uu/command.stdout" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/df2cf4359df31c20c165715209cff2296dd0c8af851446429e3226c56162e826.ja51Uu.json" : "2502c8cf0c71b12a2456c51a7a78e77b35d1b6c8fba59c34721e5f4077cc9e3b"
+               "/home/adam/projects/ic-blob-storage/target/blob-release-validation.rgN3fH/stages/wasm-check-admission.json" : "e6ad1a2d42a9f1e082c46572163eec6cb937ebb8f77cb0a085012ec63abac80b",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/wasm-check-client.v0eztU/command.stderr" : "97c148f990f5489ce7ef372eb029a3218752ad0e05ef46fdebf37839a81e3e09",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/wasm-check-client.v0eztU/command.stdout" : "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+               "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/proofs/44674ebfe5a5b4e8d38a5aebcda05326ed768707e2be2fa375e2d48ce95f86ee.v0eztU.json" : "1d97b591f6a79e6f646e7f9a8737d92c99972c83612451c4c1fcc815c9d31fa2"
             },
             "host" : [
                "Linux",
@@ -1288,13 +1288,13 @@
             ],
             "kind" : "sealed-cargo-stage-admission",
             "origin" : {
-               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/wasm-check-contracts.ja51Uu",
-               "group" : "contracts",
-               "source" : "4eb56823b75ea8dd140e81d675518722ff62f08f"
+               "attempt" : "/home/adam/projects/ic-blob-storage/target/release-stage-cache/execution/attempts/wasm-check-client.v0eztU",
+               "group" : "client",
+               "source" : "3f5faafb8ae94ae4b7cc0df6f3a02d61df575b65"
             },
             "schema" : 1
          }
       }
    },
-   "version" : "0.73.0"
+   "version" : "0.74.0"
 }
