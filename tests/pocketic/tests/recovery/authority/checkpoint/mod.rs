@@ -170,44 +170,27 @@ async fn damaged_checkpoint_rejects_reconstruction_without_resetting_live_state(
     let before = f.archive().await;
     let memory = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let mut corrupted = memory.clone();
-    // Locate the protected versioned envelope, not an ic-storage implementation offset.
-    let at = corrupted
+    // Freed collection pages can retain earlier checkpoint copies. Damage every
+    // retained envelope so the active record is covered without a Storage offset.
+    let checkpoints: Vec<_> = corrupted
         .windows(8)
-        .position(|bytes| bytes == b"ICBV\0\0\0\x01")
-        .expect("stored verifier record");
-    corrupted[at + 72] ^= 1;
+        .enumerate()
+        .filter(|(_, bytes)| *bytes == b"ICBV\0\0\0\x01")
+        .map(|(at, _)| at)
+        .collect();
+    assert!(!checkpoints.is_empty(), "stored verifier record");
+    for at in checkpoints {
+        corrupted[at + 72] ^= 1;
+    }
     f.replace_archive_bytes(corrupted.clone()).await;
     f.reject_upgrade(f.service).await;
     f.upgrade_skipping_outgoing_hook(f.service, false).await;
-    // The enclosing Storage cell checks these bytes before the inner
-    // checkpoint decoder runs. Refuse the damaged journal without repairing it.
-    let rejected = f
-        .harness
-        .pic
-        .query_call(
-            f.service,
-            f.operator,
-            "probe_checkpoint",
-            blob_test_protocol::fixture_wire::encode_args(
-                "probe_checkpoint",
-                (CheckpointProbeInput {
-                    root: v.upload.root,
-                    index: 1,
-                    bytes: v.bytes[CHUNK..].to_vec().into(),
-                },),
-            )
-            .expect("bounded checkpoint probe"),
-        )
-        .await
-        .expect_err("damaged outer journal must refuse reconstruction");
+    // Storage supplies no collection checksum. The owned checkpoint decoder
+    // must reject the damaged inner record without repairing it or live state.
     assert_eq!(
-        crate::canister_rejection(&rejected).reject_code,
-        RejectCode::CanisterError
-    );
-    assert!(
-        crate::canister_rejection(&rejected)
-            .reject_message
-            .contains("Checksum")
+        f.checkpoint_probe(f.operator, v.upload, 1, &v.bytes[CHUNK..])
+            .await,
+        Err(CheckpointProbeFailure::InvalidCheckpoint)
     );
     assert_eq!(
         f.harness.pic.get_stable_memory(f.service).await.unwrap(),

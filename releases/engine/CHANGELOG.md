@@ -22,6 +22,8 @@ Independent releases start after coordinated 0.65.0; [shared history](../history
 - Adopt published Testkit 0.88 for the async client, explicit server ownership
   and installation/recovery checks. No benchmark facade or removed configuration
   compatibility layer is retained.
+- Check damaged retained verifier checkpoints through their own decoder, including
+  backing with earlier copies, without assuming collection-checksum protection.
 
 ## [0.73.0] - 2026-11-05
 

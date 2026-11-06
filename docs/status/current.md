@@ -19,7 +19,15 @@ write-trap rollback cases. Dependency pins/Platform boundaries and the standalon
 normal/build Wasm exclusions pass. Lock-selected Testkit/Build tools are prepared
 and admitted offline. No full release gate, native macOS, Canic or live-provider
 rerun is claimed. Existing live trials retain their frozen tools/backing below;
-these development artifacts are not replacements. No Git/release effects.
+these development artifacts are not replacements. Authorized delivery is in progress.
+
+First Client gate at source `3a94dc10` passed 644 native cases, then stopped on
+the checkpoint test's old collection-checksum/first-copy assumption. Evidence:
+`target/blob-release-validation.0tYTOP/validation.UOhp90` and
+`target/blob-delivery.Co3u1H/client-release.log`. The corrected test damages every
+retained checkpoint copy and requires the owned decoder's typed refusal, unchanged
+live state and original-byte recovery. Focused journey and remaining installed
+targets pass; restart the normal release against the committed correction.
 
 ## Completed bounded 0.73 provider trial — 2026-11-06
 
