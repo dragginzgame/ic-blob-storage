@@ -136,14 +136,14 @@ here does not waive provider, recovery, accounting or retirement requirements.
 
 ### Before the acceptance deployment
 
-Blob's Contracts, Client and Engine **0.73.0** groups are released and published.
-The delivered family selects Wire 0.17.2, Platform 0.23.0, Runtime 0.19.2, Types
-0.18.1, Storage 0.67.1 and native Testkit 0.87.0. Source-bound release gates and
+Blob's Contracts **0.73.0**, Client **0.73.1** and Engine **0.74.0** are published.
+The delivered family selects Wire 0.17.3, Platform 0.23.2, Runtime 0.19.2, Types
+0.18.1, Storage 0.68.0 and native Testkit 0.88.0. Source-bound release gates and
 registry/archive/tag readbacks passed; [current status](status/current.md) records
 the exact evidence and host limits. Cross-release service transitions still use
 [retirement and fresh installation](retiring-installations.md), preserving old
-provider objects, uncertainty and billing. The live 0.69 trial above keeps its
-original artifacts; publication did not upgrade it.
+provider objects, uncertainty and billing. The live 0.69 and 0.73 trials above keep
+their original artifacts; publication did not upgrade either installation.
 
 The **2026-11-06 read-only Canic review**, at unchanged local/default-branch base
 `e6a061999dfae207bc20917ffefa2082e7ffe2e7` with active unrelated work, finds all
@@ -173,15 +173,16 @@ application login belong to Canic/the application, not a missing Blob adapter.
 
 Recorded November 2/3 Canic composition and dependency-conflict observations
 retain their original graphs in the earlier handoff/evidence. They do not establish
-a current defect or qualify the new 0.73 public identities. This review did not
-edit or compile Canic, run its private consumers or infer a production capacity
-profile from fixture limits.
+a current defect or qualify the new 0.74 Engine/Storage identities. This review
+did not edit or compile Canic, run its private consumers or infer a production
+capacity profile from fixture limits.
 
 Deployment becomes the next step after the remaining owner actions:
 
-1. Canic adopts the matching published Blob 0.73 family in its three maintained
-   catalogs/locks, admits one runtime/type/Wire identity and qualifies its dedicated
-   and embedded installation/recovery, funding profiles and generated clients.
+1. Canic adopts the selected published Engine 0.74 / Contracts 0.73 family in its
+   three maintained catalogs/locks, admits one runtime/type/Wire identity and
+   qualifies its dedicated and embedded installation/recovery, funding profiles
+   and generated clients.
    Its owner then delivers the selected change with applicable CI/publication
    acceptance. Prior composition checks keep their own inputs; this public-identity
    cut needs current evidence, without duplicating the adapter or its fixtures.

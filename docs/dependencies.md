@@ -6,17 +6,17 @@
 
 ## Current adoption
 
-Delivered Contracts/Client/Engine **0.73.0** retain their frozen release selections
-in the group receipts and [current handoff](status/current.md). The pending
-adoption selects published **Build 0.75.0**, **Storage 0.68.0** and
+Delivered Contracts **0.73.0**, Client **0.73.1** and Engine **0.74.0** record their
+source-bound selections in the group receipts and [current handoff](status/current.md).
+This adoption selects published **Build 0.75.0**, **Storage 0.68.0** and
 **Testkit 0.88.0**. Each published archive's checksum matches registry metadata.
 Rust 1.99.1 remains the supported minimum and pinned compiler. Host foundation
-0.74.4 and Host Tools 0.83.0 stay unchanged. Incoming Platform 0.23.2 and
-Wire/Derive 0.17.3 lock edits are preserved. The lockfile is authoritative;
+0.74.4 and Host Tools 0.83.0 stay unchanged. The lock selects Platform 0.23.2,
+Wire/Derive 0.17.3 and the incoming cc 1.11.1 patch. The lockfile is authoritative;
 these selections do not impose fleet lockstep.
 
 Storage 0.68 replaces its collection engines and persisted collection images.
-The Engine draft is **0.74.0** because Blob exposes Storage types and its stored
+Engine is **0.74.0** because Blob exposes Storage types and its stored
 behavior changes. Retire complete old installations under their original tools,
 then use fresh whole backing. Keep every provider object, uncertain effect,
 balance and continuing liability. Allocation directory encoding and Blob's Wire
@@ -28,7 +28,7 @@ IC traps; native mutation panics poison the runtime and require discarding it.
 
 Build 0.75 removes shared-cache inspection/pruning APIs; Blob does not call those
 APIs. Its maintained source-evidence and package-verification consumers remain
-native-only. The Client group draft is a compatible **0.73.1**; passive Contracts
+native-only. Client **0.73.1** is compatible; passive Contracts
 and the replicated Client API are unaffected.
 
 Testkit 0.88 removes benchmark helpers and unused client configuration families;

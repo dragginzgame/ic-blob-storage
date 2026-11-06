@@ -1,33 +1,46 @@
 # Current status — 2026-11-06
 
-## Pending Build, Storage and Testkit adoption
+## Delivered Client 0.73.1 and Engine 0.74.0
 
-Adopted published **Build 0.75.0 / Storage 0.68.0 / Testkit 0.88.0**, with registry
-checksums verified against all three cached archives. Incoming Platform 0.23.2
-and Wire/Derive 0.17.3 selections are preserved; nine unused transitive packages
-drop out. Rust 1.99.1 and package versions remain unchanged. Engine's draft is
-**0.74.0** (public Storage identity, collection formats and trap behavior); Client's
-is **0.73.1** (native Build consumers); Contracts needs no new release.
-Retire old whole backing before fresh installation. No converter/reset or wrapper
-is added. Malformed stored payloads trap; framing/byte-limit refusals stay typed.
-Two corruption tests now verify that contract and unchanged retained bytes.
+Both changed groups are pushed and published. Registry readbacks verify non-yanked
+versions, archive checksums and VCS identities against the exact release tags.
+Contracts remains 0.73.0; no unaffected group was republished.
 
-Focused Linux checks pass: 153 service-owner cases, two native composition cases,
-strict all-target/all-feature Clippy for Engine/CLI/PocketIC, standalone/probe
-release Wasm builds, and installed CLI-carrier, same-release lifecycle and
-write-trap rollback cases. Dependency pins/Platform boundaries and the standalone
-normal/build Wasm exclusions pass. Lock-selected Testkit/Build tools are prepared
-and admitted offline. No full release gate, native macOS, Canic or live-provider
-rerun is claimed. Existing live trials retain their frozen tools/backing below;
-these development artifacts are not replacements. Authorized delivery is in progress.
+| Group | Release commit | Receipt |
+| --- | --- | --- |
+| Contracts 0.73.0 | [`2ae0ba1b`](https://github.com/dragginzgame/ic-blob-storage/commit/2ae0ba1b5c60576faa334b9cb8d65c5b2ea8d5ae) | [Contracts](../../releases/contracts/release.json) |
+| Client 0.73.1 | [`2e55591e`](https://github.com/dragginzgame/ic-blob-storage/commit/2e55591eeb7af7368761fa7685e6c2d2e7a5e72d) | [Client](../../releases/client/release.json) |
+| Engine 0.74.0 | [`a7c6b374`](https://github.com/dragginzgame/ic-blob-storage/commit/a7c6b37402fd1f71a103063bd4c1acecc6332909) | [Engine](../../releases/engine/release.json) |
 
-First Client gate at source `3a94dc10` passed 644 native cases, then stopped on
-the checkpoint test's old collection-checksum/first-copy assumption. Evidence:
-`target/blob-release-validation.0tYTOP/validation.UOhp90` and
-`target/blob-delivery.Co3u1H/client-release.log`. The corrected test damages every
-retained checkpoint copy and requires the owned decoder's typed refusal, unchanged
-live state and original-byte recovery. Focused journey and remaining installed
-targets pass; restart the normal release against the committed correction.
+The graph selects **Build 0.75.0 / Storage 0.68.0 / Testkit 0.88.0**, Platform
+0.23.2, Wire/Derive 0.17.3, Runtime/guard 0.19.2 and Types 0.18.1. Foundation
+0.74.4/Tools 0.83.0 remain; the incoming cc 1.11.1 patch was included in the gate.
+Nine unused transitive packages are gone. Shared Tooling remains **0.30.4** at
+`2aa41c7394300302fe802b69b31b855bdc89b671`; Rust **1.99.1** is minimum and pinned.
+Storage changes public identity, collection images and failure behavior: retire
+whole old backing with original tools before fresh installation. Malformed stored
+values trap; framing/byte-limit refusals remain typed. Propagate IC traps; native
+mutation panics require discarding the runtime. No migration/reset/wrapper was added.
+
+The complete 22-stage Linux gate passed with **644 native and 352 installed cases**
+(82 Client / 270 Engine). Engine reused all nine eligible final-candidate stages;
+actual-source identity, metadata, tools and archive checks remained fresh. Both
+publications admitted retained Clippy. Hosted [CI 42201285250](https://github.com/dragginzgame/ic-blob-storage/actions/runs/42201285250)
+was in progress at readback; its generated-client job passed. Native macOS, Canic
+and new live-provider acceptance are not established. No live installation was
+changed, and no provider payment or artifact cleanup occurred.
+
+The first gate at `3a94dc10` failed only the old checkpoint corruption expectation.
+The correction at `3f5faafb` covers retained copies and the owned decoder's refusal,
+unchanged live state and original-byte recovery; no production checksum was added.
+Retain `target/blob-release-validation.0tYTOP/validation.UOhp90` (failed),
+`target/blob-release-validation.WK1eXo/validation.wNwYnP` (Client full gate),
+`target/blob-release-validation.rgN3fH/validation.1wWF95` (Engine), and
+`target/blob-delivery.Co3u1H/` (logs and `delivery-readback.json`). Registry archives
+remain in `target/publication.6nhMT3` / `target/publication.51Se9T`; original proofs
+remain under `target/release-stage-cache/`, with builds in `target/release-stage-build/`.
+The frozen 0.73 qualification and closed #117 retain their scope in the
+[previous delivery handoff](https://github.com/dragginzgame/ic-blob-storage/blob/6ff224ed8acb5ac846150e7f48cb59d3c6006105/docs/status/current.md).
 
 ## Completed bounded 0.73 provider trial — 2026-11-06
 
@@ -57,79 +70,22 @@ The 0.69 and older trials below are untouched. #5/#31 still need real applicatio
 login/CSP/catalog acceptance; #6/#34 retain deletion/billing and lost-payment
 evidence. The trial changed no implementation/dependency or package release.
 
-## Delivered Contracts, Client and Engine 0.73.0
-
-The authorized Testkit adoption and #117 delivery are complete on `origin/main`.
-All 13 members select 0.73.0; all three public packages are published, non-yanked,
-and independently verified against registry checksums and exact tagged sources.
-
-| Group | Release commit | Receipt |
-| --- | --- | --- |
-| Contracts | [`2ae0ba1b`](https://github.com/dragginzgame/ic-blob-storage/commit/2ae0ba1b5c60576faa334b9cb8d65c5b2ea8d5ae) | [0.73.0](../../releases/contracts/release.json) |
-| Client | [`5382ca23`](https://github.com/dragginzgame/ic-blob-storage/commit/5382ca2389c1af5609fce484f7a97fca942f9834) | [0.73.0](../../releases/client/release.json) |
-| Engine | [`6811018e`](https://github.com/dragginzgame/ic-blob-storage/commit/6811018e57c4424a812d3eb94ce5e00a2fcef43b) | [0.73.0](../../releases/engine/release.json) |
-
-[#117 is closed/completed](https://github.com/dragginzgame/ic-blob-storage/issues/117#issuecomment-6665892409).
-Only `CaffeineUploadCertificateResponse`'s unused Wire metadata implementation was
-removed. The external Rust path, Candid/Serde support, provider method and
-`method`/`blob_hash` record remain; the owned assessment retains its Wire schema.
-The host trait removal is the explicit 0.73 API cut. Endpoint identities, external
-Candid bytes, application Wire frames, limits and saved records are unchanged.
-No replacement DTO, compatibility wrapper or automatic migration was introduced.
-
-## Delivered 0.73 boundaries and qualification
-
-Delivered Testkit **0.87.0** uses async calls and caller-owned runtimes/isolated
-servers, without a blocking facade or network deletion from client Drop. Its
-frozen graph selects Platform **0.23.0**, Host Tools **0.83.0**, Storage **0.67.1**,
-Wire/Derive **0.17.2**, Runtime **0.19.2** and Types **0.18.1**. Direct Rust CBOR
-is removed; external IC/provider codecs remain Platform-owned and app protocols Wire.
-
-Shared Tooling **0.30.4**, committed `2aa41c7394300302fe802b69b31b855bdc89b671`,
-has 168 verified snapshot files. The Platform check enforces lexical Candid source
-and dependency boundaries; it does not establish macro expansion/type resolution.
-Rust **1.99.1** is minimum and pinned compiler. Browser Platform **0.2.0** supplies
-typed ingress/fixture APIs; SDK Core **6.1.1** remains behind Platform and Caffeine's
-explicit override. Saved bytes, limits, bindings and retry policy are preserved.
-
-The 22-stage Linux release gate passed. Its projected final 0.73 cohort executed
-**644 native cases and 352 installed PocketIC cases** (82 Client, 270 Engine),
-strict Clippy, schema/frame/#117 boundaries, Wasm and actual archive checks.
-Client/Engine reused nine admitted candidate stages; actual-source identity,
-dependency/compiler, archive and registry checks remained fresh. Publication
-admitted retained Clippy. Supplier identities/browser lock stayed fixed.
-
-Additional prerelease checks passed browser bundles, 21 Node cases, three installed
-certificate cases and ten opt-in Chromium scenarios, corrected for trusted
-registration and retained physical/billing obligations. They establish neither
-native macOS, actual Canic nor live-provider acceptance.
-
-Retained evidence: `target/testkit087-migration/` (release/publication logs,
-`release-reuse-summary.json`, `registry-readback-01/delivery-readback.json`),
-`target/blob-release-validation.EfH3HF/validation.VLyndM` (first gate),
-`target/blob-release-validation.Jzeudv/validation.To2FwU` (Client) and
-`target/blob-release-validation.aq8MnK/validation.qXsAAp` (Engine). Original candidate
-proofs/logs remain under `target/release-stage-cache/`; group plans/receipts remain
-in Git release-state and committed release files. The [evidence index](../evidence/README.md)
-explains historical custody limits; provider/recovery and frozen fixtures remain.
-
 ## Remaining application/provider acceptance
 
 Four issues remain open: [#5 publication/browser serving/integrity](https://github.com/dragginzgame/ic-blob-storage/issues/5),
 [#6 reuse/capacity/deletion/billing](https://github.com/dragginzgame/ic-blob-storage/issues/6),
 [#31 actual multi-user transfers](https://github.com/dragginzgame/ic-blob-storage/issues/31)
-and [#34 attributable original paid-operation credit/replay](https://github.com/dragginzgame/ic-blob-storage/issues/34).
-Local integration or publication does not satisfy their live acceptance.
-Next select the actual application origin/network/service binding with Canic's
-owner and follow [the acceptance plan](../acceptance-plan.md#next-application-acceptance-run).
-November 6 read-only Canic review finds Engine 0.72.2 / Contracts 0.72.0 in all
-three locks at unchanged base `e6a061999`. Its handoff reports dedicated/embedded
-and five-profile tests on an earlier lock; named raw output is unavailable here.
-The 0.73 family, explicit generated-client case and final graph remain Canic #622
-acceptance; [the owner follow-up](https://github.com/dragginzgame/canic/issues/622#issuecomment-6680798989)
-records the reviewed graph and completed provider sample. Both private consumers are local-only with delegated-token Auth
-disabled; no demo/test Blob role or actual application binding was found. No
-Canic files/builds, new deployment, provider effects or package changes occurred.
+and [#34 original paid-operation credit/replay](https://github.com/dragginzgame/ic-blob-storage/issues/34).
+Publication does not satisfy their live acceptance. Follow the
+[application plan](../acceptance-plan.md#next-application-acceptance-run).
+The earlier November 6 read-only Canic review found Engine 0.72.2 / Contracts
+0.72.0 in three locks at base `e6a061999`, local-only fixtures with delegated-token
+Auth disabled and no actual application binding. Reported older composition
+results keep their own locks; their named raw output is unavailable here.
+[Canic #622's delivered-family follow-up](https://github.com/dragginzgame/canic/issues/622#issuecomment-6682566587)
+records Engine 0.74/Contracts 0.73 adoption, compatible Storage peers, both managed
+shapes, five funding profiles and explicit generated-client qualification. Canic
+owns its wrapper/application; no sibling source was edited or built here.
 
 The standalone **0.69.0** trial at **`4h7vw-4qaaa-aaaau-ahieq-cai`** is unchanged.
 Its [probe ledger](../evidence/caffeine-probes/README.md) owns immutable phase
