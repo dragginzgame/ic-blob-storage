@@ -1,5 +1,6 @@
 {
   "schema": 1,
+  "cbor_allowances": [],
   "allowances": [
     {
       "path": "canisters/standalone/src/ops/mod.rs",

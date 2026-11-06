@@ -8,12 +8,18 @@
 
 Delivered Contracts **0.73.0**, Client **0.73.1** and Engine **0.74.0** record their
 source-bound selections in the group receipts and [current handoff](status/current.md).
-This adoption selects published **Build 0.75.0**, **Storage 0.68.0** and
+Their delivery selected published **Build 0.75.0**, **Storage 0.68.0** and
 **Testkit 0.88.0**. Each published archive's checksum matches registry metadata.
 Rust 1.99.1 remains the supported minimum and pinned compiler. Host foundation
-0.74.4 and Host Tools 0.83.0 stay unchanged. The lock selects Platform 0.23.2,
+0.74.4 and Host Tools 0.83.0 stay unchanged. The delivered lock selected Platform 0.23.2,
 Wire/Derive 0.17.3 and the incoming cc 1.11.1 patch. The lockfile is authoritative;
 these selections do not impose fleet lockstep.
+
+The pending Engine 0.74.1 batch selects published **Testkit 0.89.1**, preserving
+the incoming Platform 0.23.3, Runtime/Macros/Guard 0.19.3, Types 0.18.2, Wire/Derive 0.17.4 and
+flate2 1.1.11 lock edits. Testkit's logging cut removes twelve unused transitive
+packages; it changes no Blob public contract. The current handoff distinguishes
+focused adoption evidence from the delivered graph's full release gate.
 
 Storage 0.68 replaces its collection engines and persisted collection images.
 Engine is **0.74.0** because Blob exposes Storage types and its stored
@@ -197,8 +203,8 @@ Normal contracts exclude schema generation; deployment refuses schema/JSON tooli
 native Testkit and Host dependencies. Required external Candid stays on Platform.
 Replicated Client selects canonical Types and Runtime directly.
 
-Shared Tooling **0.30.4** is captured from committed source
-`2aa41c7394300302fe802b69b31b855bdc89b671` (168 verified files), using its canonical
+Shared Tooling **0.30.7** is captured from committed source
+`22a853e26c05ec323f06c57fa316c08b808f252b` (171 verified files), using its canonical
 revision exporter. It includes the undated-draft candidate projection fix
 ([Shared #357](https://github.com/dragginzgame/shared-tooling/issues/357)) and
 consumer-owned formatting/LOC scratch defaults
@@ -206,12 +212,18 @@ consumer-owned formatting/LOC scratch defaults
 Fresh source/publication admission and lint fallback remain required; adoption
 alone is not evidence of a reused publication stage.
 The existing `platform-boundary-check` also runs the lexical
-[Candid source check](candid-boundary.md) across `crates`, `canisters` and `tests`.
+[Candid/CBOR source check](candid-boundary.md) with `--cbor` across `crates`,
+`canisters` and `tests`. Its empty `cbor_allowances` requires this enforcement
+mode; there are no approved source exceptions. The common CBOR inventory is a
+checkpointed CI input. Cargo rejects its codecs across all declaration kinds,
+including aliases; the existing browser check covers both package roots plus
+build scripts. No independent first-party Cargo workspace is omitted.
 Its admitted input, `ci/candid-boundary.json`, names 41 exact external Caffeine
 declarations and codec/test helpers; owned application DTOs remain Wire. New,
 stale and ambiguous allowances fail. Ordinary hosted tooling and the existing
 release stage use this same target. Macro expansion, cross-module aliases and
-protocol compatibility still require review; this check is not type resolution.
+protocol compatibility still require review; these lexical checks cannot prove
+dynamic/generated references or resolve arbitrary cross-module aliases.
 The snapshot includes the Bash 3.2 empty-option fix for LOC and bounded
 experimental-evidence guidance. Routine output belongs under `target/evidence`;
 this refresh does not delete protected provider, recovery or release evidence.
@@ -421,6 +433,12 @@ operations and `ic_testkit::fake_principal` for deterministic identities. Testki
 owns client/server startup, lifecycle extensions and typed transport failures.
 External Principal/management identities and local decoder limits remain unchanged;
 no facade `pocket-ic` feature or separate simulator package is selected.
+Testkit 0.89 removes implicit client log files and process-global subscriber
+setup; [the published release's migration guide](https://github.com/dragginzgame/ic-tooling/blob/094d1447c07681c8ef973c0b0e5d9c1193e6c0b4/docs/testkit/client-migration.md#application-owned-logging-in-089)
+assigns retained logging to the application. Blob sets neither retired client
+logging environment variable and adds no subscriber or logging adapter. Captured
+test output and explicitly selected server output remain with their existing
+owners. Imported client tracing events are not a separately retained log.
 Host Tools' decoder limits belong to Platform; Blob uses that canonical type.
 The optional package verifier and its Build dependency stay on the same Host
 process identity. Archive qualification passes explicit default-feature selection to
@@ -451,8 +469,8 @@ published Platform **0.23.0**'s `ic-protocol` capability in the native dev
 configuration, consuming byte-bounded readers and the untagged certificate
 encoder. No unused generic or development fixture encoder is selected.
 [Platform #143](https://github.com/dragginzgame/ic-platform/issues/143) supplied
-the former missing API. The declaration boundary now forbids direct
-`serde_cbor` and Ciborium in every workspace package, including tests; owned
+the former missing API. Shared's canonical CBOR inventory now forbids direct
+codecs in every workspace package, including tests; owned
 application DTOs/private controls stay on Wire. Native transitive CBOR remains
 through Platform/Agent, IC transport types and Testkit. The consumer still owns
 trust roots, signature/request-ID verification, byte limits, original request

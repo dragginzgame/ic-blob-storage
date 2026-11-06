@@ -76,6 +76,14 @@ Missing, empty or unknown group selections refuse at Make and direct adapter
 entrypoints before setup or release effects. There is no default group, inferred
 selection, all-groups release or automatic dependent release.
 
+Shared 0.30.7 supplies an optional [frozen batch runner](frozen-releases.md).
+Blob has not qualified its release/publication hooks in that managed checkout,
+so it does not set `RELEASE_FROZEN_GROUPS` or enable frozen delivery. The existing
+selected-group runner and source-drift refusal remain authoritative. Archive
+verification conservatively checks all three published libraries, as required
+by the current mapping; archive narrowing is not qualified. Neither snapshot
+adoption nor the scoped routing fixture establishes release wall-time savings.
+
 ## Maintainer delivery and recovery
 
 From clean committed source and notes, choose the selected group's increment:
@@ -119,10 +127,10 @@ invalidates that proof. A shallow checkout cannot establish a narrow scope.
 
 | Classified change | Required checks |
 | --- | --- |
-| Replicated tenant-client implementation only | Common guards and all archives; Client and Engine package roots for Clippy/build/native/docs/Wasm checks; installed standalone/CLI and replicated tenant-client scenarios |
+| Replicated tenant-client implementation only | Common guards and all archives; Client and Engine package roots for Clippy/native tests/docs/Wasm checks; installed standalone/CLI and replicated tenant-client scenarios |
 | Other Client/CLI implementation | The same Client and Engine roots plus every installed integration scenario; storage and consumer probes depend on Client |
 | Contracts implementation | All thirteen package roots and every installed integration scenario, covering public identities and reverse consumers |
-| Engine implementation | Engine roots for the five Cargo stages; common CLI/probe/archive boundaries and both installed partitions remain required |
+| Engine implementation | Engine roots for the four automatic Cargo stages; common CLI/probe/archive boundaries and both installed partitions remain required |
 | Release machinery unchanged in either case | Real selected-group metadata rendering/rollback and preservation of other groups; omit the full publication/recovery fixture matrix |
 | Product implementation with unchanged CLI/verifier contract | Omit `package-regression`; keep actual `package` verification |
 | Shared or uncertain inputs | Every stage, including the full release-adapter matrix |
@@ -139,6 +147,17 @@ only package roots change. Native test and Rustdoc roots retain their original
 full-gate rosters. Package flags are bound into stage reasons, re-derived from the
 exact source and configuration before execution, and checkpointed with the policy.
 Normal Make targets remain full; `make ci` removes any ambient active-plan setting.
+
+Clippy owns automatic native compilation admission. Its recipe and the optional
+`make check` use identical package roots, native target, default profile,
+`--all-targets` and `--all-features`; Clippy additionally denies warnings. Neither
+owned Rust source nor the CLI build script has a Clippy-specific compilation
+branch. The [Clippy Cargo interface](https://doc.rust-lang.org/clippy/usage.html#workspaces)
+supports these package selections. CI and release plans therefore omit the
+duplicate native `check` stage; `make check` remains available separately.
+The standalone package mapping and source-bound historical receipt interpretation
+remain intact. Isolated/default-feature graph checks, Wasm, Rustdoc, installed
+tests and actual archive verification keep their distinct obligations.
 
 Cargo's locked/offline metadata supplies member names and manifest paths, including
 aliases, globbed members and table-form dependency declarations. The bounded
@@ -217,15 +236,45 @@ Real group rendering, rollback, source/index/selection, tools, compiler, depende
 and boundary checks, formatting, archive verification and registry admission remain
 fresh in the actual checkout.
 
-`ci/release-stage-reuse.json` selects nine candidate stages: Clippy, release-adapter
-regressions, check, probe check, Rustdoc, native tests, the combined installed
+`ci/release-stage-reuse.json` selects eight candidate stages: Clippy, release-adapter
+regressions, probe check, Rustdoc, native tests, the combined installed
 stage, Wasm check and archive-verifier regressions. Each admission hashes full candidate source, dependency sources,
 Rust/native toolchain inputs, explicit environment and host identity. It records
 execution or reuse against an immutable original proof and logs; missing or changed
 proofs run the stage. Changed source/tool/configuration cannot satisfy an exact
-match. Unsupported host/scope/configuration (including parallel Make and custom
-build targets) executes the original recipe. Only Linux/x86_64 is currently
-qualified; native macOS keeps ordinary execution. Narrow group plans remain narrow.
+match. Both workspace and admitted group plans can use candidate reuse on
+Linux/x86_64. A group plan's exact package roots and installed partitions are
+copied from the existing selector into an immutable leaf-scope input. Its bytes
+are hashed into the stage inventory and its identity is part of the executed
+command. Capture and later receipt verification compare that command with the
+original plan. Different package/partition obligations require different proofs;
+a Client-only installed proof cannot satisfy an Engine plan requiring both
+partitions. Narrow group plans remain narrow at the leaf commands.
+
+An explicit `POCKET_IC_BIN` can participate only when it is the exact absolute
+path returned by the canonical managed-server check. The child receives that
+explicit selection unchanged, and its environment and admitted payload are part
+of the proof. This configuration has its own execution identity; it is not
+silently converted into the default selection. Other explicit binaries retain
+caller-owned execution.
+
+Unsupported hosts, parallel Make/jobserver scheduling, custom target directories,
+ambient Rust/Cargo configuration, relative/empty PATH entries and unsupported
+temporary roots still execute the original recipe. Before execution, the log
+prints each concrete reason as `Stage reuse unavailable [STAGE]: ...`, naming
+configuration keys without disclosing their values. The attempt retains
+`stages/STAGE-eligibility.json`, even if the fallback fails. A successful direct
+execution also records its reasons in `stages/STAGE.json`. Eligibility means the
+configuration can be considered; missing or mismatched proofs still execute.
+Native macOS remains unqualified for the candidate observer's native input closure.
+
+For focused changes to this mapping, run
+`bash scripts/ci/test-release-stage-reuse.sh --scopes`. It uses real Cargo package
+selection and two selected installed scenarios to qualify matching scopes,
+partition separation, the explicit managed server, fallback diagnostics and
+publication refusal when the actual dependency closure differs.
+It is routing/reuse qualification, not another complete service-acceptance gate.
+The full fixture and publication-only mode retain their separate purposes.
 
 The installed candidate suites cover final versions. After every admitted
 installed stage, a small fresh actual-source sweep checks installation/reopen version

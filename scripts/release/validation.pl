@@ -8,7 +8,7 @@ use JSON::PP;
 use Digest::SHA qw(sha256_hex);
 use File::Temp qw(tempdir);
 use File::Path qw(make_path);
-use Cwd qw(abs_path);
+use Cwd qw(abs_path getcwd);
 use File::Basename qw(dirname);
 my $json = JSON::PP->new->canonical->utf8;
 my $policy_path = 'ci/release-validation.json';
@@ -190,6 +190,7 @@ sub stage_records {
                 or die "stage custody changed before capture\n";
             $stage ne 'test-pocketic' || $record->{fresh_identity}
                 or die "missing actual mixed-version identity qualification\n";
+            check_candidate_scope($record,$plan,$stage);
         } else { die "unknown stage execution evidence\n"; }
         $records{$stage}=$record;
     }
@@ -252,6 +253,65 @@ sub package_args {
     my @packages = grep { $affected{$owner->{$_}} } ref($roots) ? @$roots : sort keys %$owner;
     @packages or die "package stage has no applicable roots\n";
     return [map { ('-p',$_) } @packages];
+}
+sub candidate_scope {
+    my ($plan,$stage)=@_;
+    return unless defined($plan) && $plan->{scope} eq 'group';
+    my ($entry)=grep {$_->{target} eq $stage} @{$plan->{stages}};
+    defined($entry) && $entry->{required} or die "candidate stage is not required\n";
+    if ($stage eq 'test-pocketic') {
+        $entry->{reason} =~ /; installed partitions: (test-pocketic-client-run(?: test-pocketic-engine-run)?)\z/
+            or die "missing planned installed partitions\n";
+        return {schema=>1,stage=>$stage,partitions=>[split / /,$1]};
+    }
+    return unless $stage =~ /\A(?:clippy|check|docs-check|test-native|wasm-check)\z/;
+    $entry->{reason} =~ /; package roots: (.+)\z/ or die "missing planned package roots\n";
+    return {schema=>1,stage=>$stage,packages=>[split / /,$1]};
+}
+sub read_candidate_scope {
+    my ($stage)=@_;
+    my $path=$ENV{CARGO_STAGE_SCOPE};
+    return unless defined $path;
+    my $identity=$ENV{CARGO_STAGE_IDENTITY}//'';
+    $identity =~ /\A[0-9a-f]{64}\z/
+        && getcwd() =~ m{\A(.+)/target/release-stage-cache/candidates/sources/\Q$identity\E\z}
+        or die "leaf scope is restricted to the qualified candidate\n";
+    my $owner=$1;
+    $path =~ m{\A\Q$owner\E/target/release-stage-cache/scopes/([0-9a-f]{64})\.json\z}
+        or die "invalid candidate scope route\n";
+    my $digest=$1;
+    (abs_path($path)//'') eq $path or die "redirected candidate scope\n";
+    my $raw=read_file($path); my $scope=$json->decode($raw);
+    sha256_hex($raw) eq $digest && encode($scope) eq $raw
+        && ($scope->{schema}//0)==1 && ($scope->{stage}//'') eq $stage
+        or die "candidate scope identity differs\n";
+    if ($stage eq 'test-pocketic') {
+        join(',',sort keys %$scope) eq 'partitions,schema,stage'
+            && ref($scope->{partitions}) eq 'ARRAY'
+            && join(' ',@{$scope->{partitions}}) =~ /\Atest-pocketic-client-run(?: test-pocketic-engine-run)?\z/
+            or die "invalid candidate installed partitions\n";
+    } else {
+        $stage =~ /\A(?:clippy|check|docs-check|test-native|wasm-check)\z/
+            && join(',',sort keys %$scope) eq 'packages,schema,stage'
+            && ref($scope->{packages}) eq 'ARRAY' && @{$scope->{packages}}
+            && @{$scope->{packages}} % 2 == 0 or die "invalid candidate package scope\n";
+        my %seen;
+        for (my $i=0;$i<@{$scope->{packages}};$i+=2) {
+            $scope->{packages}[$i] eq '-p' && $scope->{packages}[$i+1] =~ /\A[a-z0-9][a-z0-9_-]*\z/
+                && !$seen{$scope->{packages}[$i+1]}++ or die "invalid candidate package flags\n";
+        }
+    }
+    return $scope;
+}
+sub check_candidate_scope {
+    my ($entry,$plan,$stage)=@_;
+    my $scope=candidate_scope($plan,$stage);
+    my @selected=grep {/\ACARGO_STAGE_SCOPE=/} @{$entry->{command}};
+    if (!defined $scope) { @selected==0 or die "unexpected scoped candidate command\n"; return; }
+    $entry->{cwd} =~ m{\A(.+)/target/release-stage-cache/candidates/sources/[0-9a-f]{64}\z}
+        or die "invalid scoped candidate directory\n";
+    my $expected="CARGO_STAGE_SCOPE=$1/target/release-stage-cache/scopes/".sha256_hex(encode($scope)).'.json';
+    @selected==1 && $selected[0] eq $expected or die "candidate command differs from planned leaf scope\n";
 }
 sub selection {
     my ($source, $group, $context_path, $context) = @_;
@@ -414,6 +474,7 @@ sub verify {
             }
             $stage ne 'test-pocketic' || $entry->{fresh_identity}
                 or die "missing fresh version-sensitive integration\n";
+            check_candidate_scope($entry,$record->{plan},$stage);
         } else { die "unknown sealed stage kind\n"; }
     }
     return 1;
@@ -433,7 +494,7 @@ sub main {
             $entry->{reason} =~ /; installed partitions: (test-pocketic-client-run(?: test-pocketic-engine-run)?)\z/
                 or die "missing planned installed partitions\n";
             $targets=$1;
-        }
+        } elsif (my $scope=read_candidate_scope('test-pocketic')) { $targets=join(' ',@{$scope->{partitions}}); }
         print "$targets\n";
     } elsif ($command eq 'packages') {
         @args == 1 or die "expected package stage\n";
@@ -450,7 +511,8 @@ sub main {
                     or die "invalid planned package flags\n";
                 $flags = \@flags;
             } else { $flags = package_args($source,$stage,undef,workspace_members()); }
-        } else { $flags = package_args(undef,$stage,undef); }
+        } elsif (my $scope=read_candidate_scope($stage)) { $flags=$scope->{packages}; }
+        else { $flags = package_args(undef,$stage,undef); }
         print join(' ',@$flags),"\n";
     } elsif ($command eq 'plan') {
         @args == 1 or die "expected output plan path\n";

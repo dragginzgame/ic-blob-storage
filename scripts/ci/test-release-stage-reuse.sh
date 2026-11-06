@@ -3,7 +3,7 @@
 # live release, upload or provider effect. Run explicitly for mapping changes.
 set -euo pipefail
 mode=${1:-full}
-case "$mode" in full|--publication-only) ;; *) exit 2 ;; esac
+case "$mode" in full|--publication-only|--scopes) ;; *) exit 2 ;; esac
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 [[ $(uname -s)/$(uname -m) == Linux/x86_64 ]] || {
     echo 'Candidate reuse is not qualified on this host; ordinary stages remain required.'
@@ -48,6 +48,18 @@ clippy-run:
 	cargo clippy --offline --locked -p ic-blob-storage-contracts --lib --all-features -- -D warnings
 MAKE
 fi
+if [[ "$mode" == --scopes ]]; then
+    # Real Cargo package selection and two real installed boundaries, rather than
+    # repeating the product's complete native/installed suites for routing tests.
+    printf '%s\n' '{"groups":["contracts","client","engine"],"schema":1,"stages":["clippy","test-pocketic"]}' > ci/release-validation.json
+    printf '%s\n' '{"contract":"blob-final-candidate/1","hosts":["Linux/x86_64"],"schema":1,"stages":["clippy","test-pocketic"]}' > ci/release-stage-reuse.json
+    cat >> Makefile <<'MAKE'
+test-pocketic-client-run:
+	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test standalone standalone_installation_cli::standalone_installs_cli_carrier_and_independently_rejects_wrong_actual_service -- --exact
+test-pocketic-engine-run:
+	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage admission_write_traps_roll_back_identity_permission_and_both_totals -- --exact
+MAKE
+fi
 for group in "${groups[@]}"; do
     previous=$(RELEASE_GROUP="$group" bash scripts/release/group.sh version)
     next=$(bash scripts/ci/next-release-version.sh "$previous" patch)
@@ -60,6 +72,126 @@ git config core.hooksPath /dev/null
 git add .
 git -c commit.gpgsign=false commit -qm 'Reproducible native stage fixture'
 export RELEASE_GROUP RELEASE_SOURCE RELEASE_PREVIOUS RELEASE_VERSION RELEASE_DATE=2040-01-02
+if [[ "$mode" == --scopes ]]; then
+    # Establish genuine workspace baselines for both owners from executed or
+    # admitted identical proofs. No changed receipt fields stand in for execution.
+    for group in client engine; do
+        export RELEASE_GROUP="$group" RELEASE_SOURCE
+        RELEASE_SOURCE=$(git rev-parse HEAD)
+        bash scripts/release/validate.sh > "$fixture/baseline-$group.log" 2>&1
+        jq '{gate:"release-verify-stages-v1",validation:.}' ".git/release-state/validation/$group-$RELEASE_SOURCE.json" > "$fixture/$group-baseline.json"
+    done
+    for group in client engine; do cp "$fixture/$group-baseline.json" "releases/$group/release.json"; done
+    git add releases
+    git -c commit.gpgsign=false commit -qm 'Qualified selective fixture baselines'
+    for group in client engine; do
+        previous=$(RELEASE_GROUP="$group" bash scripts/release/group.sh version)
+        git tag -a "$group-v$previous" -m 'Qualified selective fixture baseline'
+    done
+    printf '\n// Scoped reuse qualification: tenant-client delta.\n' >> crates/ic-blob-storage-client/src/tenants/mod.rs
+    git add crates/ic-blob-storage-client/src/tenants/mod.rs
+    git -c commit.gpgsign=false commit -qm 'Tenant-client scope qualification'
+    RELEASE_SOURCE=$(git rev-parse HEAD)
+    server=$(bash scripts/dev/testkit-server.sh check)
+    qualify_scope() {
+        local name=$1 group=$2 lint=$3 installed=$4 explicit=${5:-no}
+        export RELEASE_GROUP="$group"
+        unset POCKET_IC_BIN
+        if [[ "$explicit" == yes ]]; then export POCKET_IC_BIN="$server"; fi
+        bash scripts/release/validate.sh > "$fixture/$name.log" 2>&1
+        cp ".git/release-state/validation/$group-$RELEASE_SOURCE.json" "$fixture/$name.json"
+        jq -e --arg lint "$lint" --arg installed "$installed" '
+            .plan.scope == "group" and
+            .stage_admissions.clippy.admission.mode == $lint and
+            .stage_admissions["test-pocketic"].admission.mode == $installed
+        ' "$fixture/$name.json" > /dev/null
+    }
+    qualify_scope client-first client executed executed
+    qualify_scope client-reuse client reused reused
+    # The Cargo package roots match, but Engine also needs the Engine installed
+    # partition. The smaller proof must not qualify that larger obligation.
+    qualify_scope engine-first engine reused executed
+    qualify_scope engine-reuse engine reused reused
+    qualify_scope explicit-first client executed executed yes
+    qualify_scope explicit-reuse client reused reused yes
+    unset POCKET_IC_BIN
+    perl -MJSON::PP -e '
+        require "./scripts/release/validation.pl";
+        sub load { local $/; open my $f,"<",$_[0] or die $!; decode_json(<$f>) }
+        my ($client,$engine,$explicit)=map {load($_)} @ARGV[0..2];
+        for my $record ($client,$engine,$explicit) {
+            BlobValidation::verify($record,$ENV{RELEASE_SOURCE},$record->{group});
+            for my $stage (qw(clippy test-pocketic)) {
+                my ($arg)=grep {/\ACARGO_STAGE_SCOPE=/} @{$record->{stage_admissions}{$stage}{command}};
+                $arg =~ s/\ACARGO_STAGE_SCOPE=// or die "missing scoped leaf command";
+                my $scope=load($arg);
+                if ($stage eq "clippy") {
+                    !grep {$_ eq "ic-blob-storage-contracts"} @{$scope->{packages}}
+                        or die "unaffected Contracts root was added";
+                } else {
+                    @{$scope->{partitions}} == ($record->{group} eq "client" ? 1 : 2)
+                        or die "wrong installed partition scope";
+                }
+            }
+        }
+        my $proof=load($explicit->{stage_admissions}{"test-pocketic"}{admission}{execution_proof});
+        $proof->{context}{environment}{POCKET_IC_BIN} eq $ARGV[3] or die "explicit server was replaced";
+        $client->{stage_admissions}{clippy}{command}[3]="CARGO_STAGE_SCOPE=/wrong.json";
+        eval {BlobValidation::verify($client,$ENV{RELEASE_SOURCE},$client->{group})};
+        $@ =~ /candidate command differs from planned leaf scope/ or die "wrong scoped proof admitted: $@";
+    ' "$fixture/client-first.json" "$fixture/engine-first.json" "$fixture/explicit-first.json" "$server"
+    # Prepare an authentic selected tag for fast direct-fallback diagnostics.
+    # Only the final leaf make is a failing substitute; tag/receipt admission is real.
+    export RELEASE_GROUP=client
+    RELEASE_PREVIOUS=$(bash scripts/release/group.sh version)
+    RELEASE_VERSION=$(bash scripts/ci/next-release-version.sh "$RELEASE_PREVIOUS" patch)
+    bash scripts/release/release.sh prepare > "$fixture/scoped-prepare.log" 2>&1
+    bash scripts/release/group.sh plan > "$fixture/scoped-plan.json"
+    paths=(); while IFS= read -r path; do paths+=("$path"); done < <(jq -r '.files[]' "$fixture/scoped-plan.json")
+    git add -- "${paths[@]}"
+    git -c commit.gpgsign=false commit -qm 'Qualified scoped fixture release'
+    git tag -a "client-v$RELEASE_VERSION" -m 'Qualified scoped fixture release'
+    mkdir "$fixture/failing-make"
+    cat > "$fixture/failing-make/make" <<'MAKE'
+#!/usr/bin/env bash
+printf '%s\n' "${POCKET_IC_BIN-unset}" > "$TEST_FALLBACK_SERVER"
+exit 9
+MAKE
+    chmod +x "$fixture/failing-make/make"
+    export PATH="$fixture/failing-make:$PATH" TEST_FALLBACK_SERVER="$fixture/fallback-server"
+    run=$(mktemp -d "$PWD/target/publication.XXXXXX")
+    # This fixture plans a Contracts bump too, but prepares only Client. Scoped
+    # lint covers Client; the exact dependency closure must still refuse reuse.
+    status=0
+    CARGO_TARGET_DIR="$run/target" perl scripts/release/stage.pl --publication-clippy ic-blob-storage-client "$run" > "$fixture/scoped-publication.log" 2>&1 || status=$?
+    [[ "$status" == 9 && ! -e "$run/stages/clippy.json" ]]
+    grep -F 'actual publication closure differs from qualified final candidate' "$fixture/scoped-publication.log"
+    for cause in parallel target compiler temporary path pocketic; do
+        run=$(mktemp -d "$PWD/target/publication.XXXXXX")
+        args=(env "CARGO_TARGET_DIR=$run/target")
+        case "$cause" in
+            parallel) args+=(MAKEFLAGS=-j4); expected='Make scheduling:' ;;
+            target) args+=("CARGO_TARGET_DIR=$PWD/target/foreign"); expected='Cargo target:' ;;
+            compiler) args+=(RUSTFLAGS=-Cdebuginfo=0); expected='build environment: RUSTFLAGS' ;;
+            temporary)
+                # Keep tag/source admission valid; a relative TMPDIR would make
+                # its earlier source-check scratch visible as untracked work.
+                long_tmp="$PWD/target/fixture-temporary-root-too-long-for-pocketic"
+                mkdir -p "$long_tmp"
+                args+=("TMPDIR=$long_tmp"); expected='temporary root:' ;;
+            path) args+=("PATH=$PATH:."); expected='PATH:' ;;
+            pocketic) args+=(POCKET_IC_BIN=/caller/selected/pocket-ic); expected='PocketIC selection:' ;;
+        esac
+        status=0
+        "${args[@]}" perl scripts/release/stage.pl --publication-clippy ic-blob-storage-client "$run" > "$fixture/refusal-$cause.log" 2>&1 || status=$?
+        [[ "$status" == 9 && ! -e "$run/stages/clippy.json" ]]
+        grep -F "Stage reuse unavailable [clippy]: $expected" "$fixture/refusal-$cause.log"
+        jq -e --arg expected "$expected" '.eligible == false and any(.reasons[]; contains($expected))' "$run/stages/clippy-eligibility.json" > /dev/null
+        if [[ "$cause" == pocketic ]]; then [[ $(cat "$TEST_FALLBACK_SERVER") == /caller/selected/pocket-ic ]]; fi
+    done
+    echo 'Scoped real-Cargo/PocketIC reuse, partition separation, explicit managed server and refusal diagnostics passed.'
+    exit 0
+fi
 for group in "${groups[@]}"; do
     RELEASE_GROUP="$group"
     RELEASE_SOURCE=$(git rev-parse HEAD)

@@ -45,10 +45,13 @@ Primitive Make targets do only their named operation. The complete current
 gate is `make ci` (also `make validate`). `make release-verify` uses the
 conservative, source-bound [release selection](../releasing.md#validation-scope).
 An explicit hosted workflow group selection uses that same plan on all three
-native hosts. Only its admitted plan can narrow the five Cargo-stage package
+native hosts. Only its admitted plan can narrow the four automatic Cargo-stage package
 rosters; normal `make ci`, individual Make targets and main/PR CI remain full.
 Normal CI and release plans share `ci/release-validation.json` as their only
-stage roster. Cargo observes member paths; new validation attempts and their
+stage roster. Strict Clippy owns the native all-target/all-feature compilation
+check, so the gate does not repeat the equivalent optional `make check` command.
+Isolated-feature, Wasm and actual archive checks remain distinct. Cargo observes
+member paths; new validation attempts and their
 temporary proof checks use `target/`, retaining historical release evidence.
 `make check`, `make clippy`, `make test`, `make test-native`, `make compiler-graphs-check`
 and `make docs-check` are workspace aggregates, reserved for explicitly authorized
@@ -204,7 +207,10 @@ preserving separate qualification for native hosts and installed IC behavior.
 The declaration
 gate opts in to shared Cargo package/dependency inheritance checks. The separate
 Platform boundary target uses Shared's canonical package-identity checker, its
-external-IC inventory and Blob's stricter local policy; that policy is a guarded CI input. It covers
+external-IC/CBOR inventories and Blob's stricter local policy. These are guarded
+CI inputs. The Rust source check opts into `--cbor` with no source exceptions;
+the browser SDK check also enforces the shared CBOR inventory across product,
+test and build roots. Cargo admission covers
 all direct dependency kinds/targets, not transitive deployment admission.
 The upstream exporter/governance integration fixture runs in Shared Tooling;
 it is omitted from Blob's selected files and gate. Actual snapshot verification,

@@ -27,6 +27,9 @@ perl -MJSON::PP -e '
     open my $g,"<","ci/cargo-release-groups.json" or die $!; my $g=decode_json(<$g>);
     join(",",sort @{$p->{groups}}) eq join(",",sort map {$_->{name}} @{$g->{groups}}) or die "group roster drift\n";
     my %stages=map {$_=>1} @{$p->{stages}};
+    $stages{clippy} && !$stages{check} && $stages{"contracts-boundary-check"}
+        && $stages{"wasm-check"} && $stages{"docs-check"}
+        or die "native compilation owner or distinct feature/Wasm/docs coverage drift\n";
     $stages{"test-pocketic"} && $stages{"package-regression"} && $stages{package}
         && !$stages{"test-pocketic-client"} && !$stages{"test-pocketic-engine"}
         or die "installed/preparation or archive qualification roster drift\n";
@@ -133,7 +136,8 @@ jq --arg root "$TEMPORARY/source" '
     .packages |= map(.manifest_path = ($root + (.manifest_path | ltrimstr($old))))
 ' "$TEMPORARY/metadata.json" > "$TEMPORARY/fixture-metadata.json"
 export TEST_METADATA="$TEMPORARY/fixture-metadata.json"
-# Exercise the actual five Cargo recipes, substituting only Cargo itself.
+# Exercise the four automatic Cargo recipes and optional native check,
+# substituting only Cargo itself.
 perl -0777 -ne 'for my $t (qw(clippy check docs-check test-native wasm-check test-pocketic ci)) { my $actual=$t eq "ci" ? $t : "$t-run"; /^\Q$actual\E:\n(.*?)(?=^\S|\z)/ms or die "missing $t recipe"; print "$t:\n$1"; }' Makefile > "$TEMPORARY/package-recipes.mk"
 perl -0777 -ne '/^override CI_TARGETS = [^\n]+\n/m or die "missing roster caller"; print $&;' Makefile > "$TEMPORARY/roster.mk"
 mkdir "$TEMPORARY/bin"
@@ -218,7 +222,7 @@ test-pocketic-client-run test-pocketic-engine-run: fixture-prepare
 MAKE
 cat "$TEMPORARY/roster.mk" >> Makefile
 cat "$TEMPORARY/package-recipes.mk" >> Makefile
-printf '%s\n' '{"groups":["contracts","client","engine"],"schema":1,"stages":["lint","clippy","check","docs-check","test-native","wasm-check","client-boundary","test-pocketic","release-metadata-check","release-check","package-regression","package"]}' > ci/release-validation.json
+printf '%s\n' '{"groups":["contracts","client","engine"],"schema":1,"stages":["lint","clippy","docs-check","test-native","wasm-check","client-boundary","test-pocketic","release-metadata-check","release-check","package-regression","package"]}' > ci/release-validation.json
 export GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_TEMPLATE_DIR="$TEMPORARY/templates"
 : > "$TEST_COMMANDS"
 make clippy check docs-check test-native wasm-check > "$TEMPORARY/full-commands.log" 2>&1
@@ -229,17 +233,68 @@ cp "$TEST_COMMANDS" "$TEMPORARY/full-commands"
 [[ "$(sed -n '3p' "$TEST_COMMANDS")" == 'doc --offline --locked -p ic-blob-storage -p ic-blob-storage-client -p ic-blob-storage-contracts -p ic-blob-storage-canister --all-features --no-deps' ]]
 [[ "$(sed -n '4p' "$TEST_COMMANDS")" == 'test --offline --locked -p ic-blob-storage -p ic-blob-storage-client -p ic-blob-storage-contracts -p blob-consumer-probe -p ic-blob-storage-canister -p ic-blob-storage-cli --all-features' ]]
 [[ "$(sed -n '5p' "$TEST_COMMANDS")" == 'check --offline --locked --workspace --all-features --target wasm32-unknown-unknown' ]]
+# The optional native check proves no additional selection/profile/feature
+# coverage over strict Clippy. Keep it usable without adding it to the gate.
+lint_command=$(sed -n '1p' "$TEST_COMMANDS")
+check_command=$(sed -n '2p' "$TEST_COMMANDS")
+[[ "${lint_command#clippy }" == "${check_command#check } -- -D warnings" ]]
+sed '2d' "$TEMPORARY/full-commands" > "$TEMPORARY/full-ci-commands"
+# Candidate leaf inputs are hash-bound data, never an ambient package-skip flag.
+perl -MJSON::PP -MDigest::SHA=sha256_hex -MFile::Path=make_path -MCwd=getcwd -e '
+    require "./scripts/release/validation.pl";
+    my $root=getcwd(); my $identity="a" x 64;
+    my $candidate="$root/target/release-stage-cache/candidates/sources/$identity";
+    my $scopes="$root/target/release-stage-cache/scopes";
+    make_path($candidate,$scopes);
+    local $ENV{CARGO_STAGE_IDENTITY}=$identity;
+    sub scope_file {
+        my ($scope)=@_; my $raw=BlobValidation::encode($scope);
+        my $path="$scopes/".sha256_hex($raw).".json";
+        BlobValidation::write_file($path,$raw); return $path;
+    }
+    sub refuses {
+        my ($stage,$expected)=@_;
+        eval {BlobValidation::read_candidate_scope($stage)};
+        $@ =~ /\Q$expected\E/ or die "wrong leaf refusal: $@";
+    }
+    chdir $candidate or die $!;
+    for my $stage (qw(clippy check docs-check test-native wasm-check)) {
+        my $scope={schema=>1,stage=>$stage,packages=>["-p","ic-blob-storage"]};
+        $ENV{CARGO_STAGE_SCOPE}=scope_file($scope);
+        BlobValidation::encode(BlobValidation::read_candidate_scope($stage)) eq BlobValidation::encode($scope)
+            or die "package projection changed";
+    }
+    for my $partitions (["test-pocketic-client-run"],["test-pocketic-client-run","test-pocketic-engine-run"]) {
+        $ENV{CARGO_STAGE_SCOPE}=scope_file({schema=>1,stage=>"test-pocketic",partitions=>$partitions});
+        join(" ",@{BlobValidation::read_candidate_scope("test-pocketic")->{partitions}}) eq join(" ",@$partitions)
+            or die "partition projection changed";
+    }
+    my $path=scope_file({schema=>1,stage=>"clippy",packages=>["-p","ic-blob-storage"]});
+    $ENV{CARGO_STAGE_SCOPE}=$path;
+    refuses("check","candidate scope identity differs");
+    my $plan={scope=>"group",stages=>[{target=>"clippy",required=>1,reason=>"fixture; package roots: -p ic-blob-storage"}]};
+    my $entry={cwd=>$candidate,command=>["make","CARGO_STAGE_SCOPE=$path"]};
+    BlobValidation::check_candidate_scope($entry,$plan,"clippy");
+    $entry->{command}=["make"];
+    eval {BlobValidation::check_candidate_scope($entry,$plan,"clippy")};
+    $@ =~ /candidate command differs from planned leaf scope/ or die "unscoped proof admitted";
+    $ENV{CARGO_STAGE_SCOPE}=scope_file({schema=>1,stage=>"clippy",packages=>["--workspace","ic-blob-storage"]});
+    refuses("clippy","invalid candidate package flags");
+    BlobValidation::write_file($path,"{}\n");
+    $ENV{CARGO_STAGE_SCOPE}=$path; refuses("clippy","candidate scope identity differs");
+    chdir $root or die $!; refuses("clippy","leaf scope is restricted to the qualified candidate");
+'
 git init -q
 git config user.name 'Blob validation fixture'
 git config user.email 'fixture@example.invalid'
 git config core.hooksPath /dev/null
 git add .
 git commit -qm 'Admitted fixture baseline'
-# Execute the actual normal-ci recipe with an invalid ambient plan. All five
-# original full Cargo commands must still execute through the canonical runner.
+# Execute the actual normal-ci recipe with an invalid ambient plan. All four
+# automatic Cargo commands execute once, without the optional native check.
 : > "$TEST_COMMANDS"
 BLOB_RELEASE_VALIDATION_PLAN=invalid TEST_EVENTS="$TEMPORARY/events" make ci CI_TARGETS=lint > "$TEMPORARY/normal-ci.log" 2>&1
-cmp "$TEMPORARY/full-commands" "$TEST_COMMANDS"
+cmp "$TEMPORARY/full-ci-commands" "$TEST_COMMANDS"
 # The first delivery executes the entire roster; legacy receipts cannot enable
 # omission. Seed tagged baselines only from actual full substituted executions.
 export RELEASE_SOURCE RELEASE_GROUP TEST_EVENTS="$TEMPORARY/events"
@@ -309,7 +364,7 @@ git clone -q --no-hardlinks . "$TEMPORARY/publication"
     verify_record "$TEMPORARY/good-record.json"
 )
 # Client implementation includes Engine reverse consumers, but not Contracts roots.
-jq -e 'all(.plan.stages[] | select(.target == "clippy" or .target == "check" or .target == "wasm-check"); (.reason | contains("-p ic-blob-storage-pocketic-tests")) and (.reason | contains("-p ic-blob-storage-client")) and (.reason | contains("-p ic-blob-storage-contracts") | not))' "$record" > /dev/null
+jq -e 'all(.plan.stages[] | select(.target == "clippy" or .target == "wasm-check"); (.reason | contains("-p ic-blob-storage-pocketic-tests")) and (.reason | contains("-p ic-blob-storage-client")) and (.reason | contains("-p ic-blob-storage-contracts") | not))' "$record" > /dev/null
 active_plan="$(jq -r .plan_path "$record")"
 BLOB_RELEASE_VALIDATION_PLAN="$active_plan" TEST_FAIL=clippy refuse make clippy
 cp "$active_plan" "$TEMPORARY/active-plan.json"
@@ -389,7 +444,7 @@ RELEASE_SOURCE="$(git rev-parse HEAD)"
 RELEASE_GROUP=contracts perl scripts/release/validation.pl plan target/contracts/plan.json
 jq -e '.scope == "group" and any(.stages[]; .target == "test-pocketic" and .required and (.reason | contains("test-pocketic-engine-run")))' target/contracts/plan.json > /dev/null
 # Contracts changes select all public identities and reverse consumers.
-jq -e 'all(.stages[] | select(.target == "clippy" or .target == "check"); (.reason | contains("-p ic-blob-storage-contracts")) and (.reason | contains("-p ic-blob-storage-client")) and (.reason | contains("-p ic-blob-storage")))' target/contracts/plan.json > /dev/null
+jq -e 'all(.stages[] | select(.target == "clippy"); (.reason | contains("-p ic-blob-storage-contracts")) and (.reason | contains("-p ic-blob-storage-client")) and (.reason | contains("-p ic-blob-storage")))' target/contracts/plan.json > /dev/null
 git reset --hard -q "$client_source"
 # The complete delta includes an earlier Engine change even when the last commit
 # is tenant-only. Only Engine edits select Engine roots; both IC partitions stay.
@@ -399,10 +454,10 @@ git add .
 git commit -qm 'Engine implementation'
 RELEASE_SOURCE="$(git rev-parse HEAD)"
 RELEASE_GROUP=engine perl scripts/release/validation.pl plan target/full/plan.json
-jq -e '.scope == "group" and all(.stages[] | select(.target == "clippy" or .target == "check"); (.reason | contains("-p ic-blob-storage ")) and (.reason | contains("-p ic-blob-storage-client") | not) and (.reason | contains("-p ic-blob-storage-contracts") | not))' target/full/plan.json > /dev/null
+jq -e '.scope == "group" and all(.stages[] | select(.target == "clippy"); (.reason | contains("-p ic-blob-storage ")) and (.reason | contains("-p ic-blob-storage-client") | not) and (.reason | contains("-p ic-blob-storage-contracts") | not))' target/full/plan.json > /dev/null
 : > "$TEST_COMMANDS"
 RELEASE_GROUP=engine bash scripts/release/validate.sh > "$TEMPORARY/engine.log" 2>&1
-[[ "$(wc -l < "$TEST_COMMANDS")" == 5 ]]
+[[ "$(wc -l < "$TEST_COMMANDS")" == 4 ]]
 if grep -Eq -- '-p ic-blob-storage-(client|contracts)( |$)' "$TEST_COMMANDS"; then exit 1; fi
 printf '// later tenant change\n' >> crates/ic-blob-storage-client/src/tenants/mod.rs
 git add .

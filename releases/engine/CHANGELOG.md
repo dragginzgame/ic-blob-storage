@@ -4,6 +4,27 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.74.1] - Unreleased
+
+### 🔧 Changed
+
+- Adopt published Testkit 0.89.1 for native integration tests and managed server
+  setup. Blob does not use its removed implicit client logging; no replacement
+  subscriber is added. Twelve now-unused logging/transitive packages leave the
+  workspace graph; PocketIC protocol, server selection and teardown stay unchanged.
+- Adopt Shared Tooling 0.30.7 and enforce its canonical CBOR dependency inventory
+  plus Rust/browser source boundaries. Remove the duplicate local codec denylist;
+  frozen multi-group delivery remains inactive until Blob-specific qualification.
+- Explain each stage-reuse refusal before current-source execution and retain
+  the decision with the attempt. Qualify Linux group-scoped reuse using the
+  plan's exact package roots and installed partitions, plus explicit selection
+  of the already-admitted managed PocketIC binary. Other hosts, parallel Make,
+  custom targets and unqualified configuration retain ordinary execution.
+- Remove the redundant native `cargo check` stage from CI and release plans:
+  strict Clippy covers the same package roots, targets, features and profile.
+  Keep standalone `make check`, isolated-feature checks, Wasm and actual package
+  verification.
+
 ## [0.74.0] - 2026-11-06
 
 ### ⚠️ Breaking

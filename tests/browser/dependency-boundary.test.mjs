@@ -6,18 +6,19 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const sdk = '@icp-sdk/core';
+const cbor = 'cbor-x';
 const platform = '@tokostudios/ic-platform';
 const repo = new URL('../../', import.meta.url);
 
 // Minimal installed packages exercise dependency admission, not SDK behavior.
 async function fixture(root) {
-  for (const path of ['scripts/ci', 'clients/browser', 'tests/browser',
+  for (const path of ['ci', 'scripts/ci', 'clients/browser', 'tests/browser',
     `tests/browser/node_modules/${sdk}`, `tests/browser/node_modules/${platform}`,
     'tests/browser/node_modules/@caffeineai/object-storage']) {
     await mkdir(join(root, path), { recursive: true });
   }
   for (const path of ['scripts/ci/check-browser-tools.mjs', 'scripts/ci/check-node-tools.mjs',
-    'scripts/ci/check-ic-sdk-boundary.mjs',
+    'scripts/ci/check-ic-sdk-boundary.mjs', 'ci/cbor-dependencies.json',
     'clients/browser/package.json', 'tests/browser/package.json', 'tests/browser/package-lock.json',
     'tests/browser/.nvmrc']) {
     await writeFile(join(root, path), await readFile(new URL(path, repo)));
@@ -38,27 +39,40 @@ async function changeJson(root, path, change) {
   await writeFile(join(root, path), JSON.stringify(value));
 }
 
-test('browser dependency boundary admits Platform and refuses SDK escape paths', async t => {
+test('browser dependency boundary admits Platform and refuses SDK/CBOR escape paths', async t => {
   const cases = [
     ['canonical graph', async () => {}, null],
     ...['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'].map(field =>
       [field, root => changeJson(root, 'clients/browser/package.json', value => {
         value[field] = { ...value[field], [sdk]: '6.1.1' };
-      }), 'direct SDK dependency']),
+      }), 'direct SDK/CBOR dependency']),
     ['dependency alias', root => changeJson(root, 'clients/browser/package.json', value => {
       value.dependencies['renamed-sdk'] = `npm:${sdk}@6.1.1`;
-    }), 'direct SDK dependency'],
+    }), 'direct SDK/CBOR dependency'],
     ['product import', root => writeFile(join(root, 'clients/browser/escape.js'),
-      `import { Principal } from '${sdk}/principal';`), 'direct SDK import'],
+      `import { Principal } from '${sdk}/principal';`), 'direct SDK/CBOR import'],
     ['test dynamic import', root => writeFile(join(root, 'tests/browser/escape.mjs'),
-      `await import('${sdk}/agent');`), 'direct SDK import'],
+      `await import('${sdk}/agent');`), 'direct SDK/CBOR import'],
     ['build require', root => writeFile(join(root, 'scripts/ci/escape.cjs'),
-      `require('${sdk}/agent');`), 'direct SDK import'],
+      `require('${sdk}/agent');`), 'direct SDK/CBOR import'],
     ['npm script import', root => changeJson(root, 'clients/browser/package.json', value => {
       value.scripts = { escape: `node -e "require('${sdk}/agent')"` };
-    }), 'direct SDK import'],
+    }), 'direct SDK/CBOR import'],
     ['re-export', root => writeFile(join(root, 'clients/browser/escape.js'),
-      `export { Principal } from '${sdk}/principal';`), 'direct SDK import'],
+      `export { Principal } from '${sdk}/principal';`), 'direct SDK/CBOR import'],
+    ['CBOR product import', root => writeFile(join(root, 'clients/browser/escape.js'),
+      `import { decode } from '${cbor}';`), 'direct SDK/CBOR import'],
+    ['CBOR test dependency alias', async root => {
+      const selector = `npm:${cbor}@1.0.0`;
+      await changeJson(root, 'tests/browser/package.json', value => {
+        value.devDependencies['renamed-codec'] = selector;
+      });
+      await changeJson(root, 'tests/browser/package-lock.json', value => {
+        value.packages[''].devDependencies['renamed-codec'] = selector;
+      });
+    }, 'direct SDK/CBOR dependency'],
+    ['CBOR build require', root => writeFile(join(root, 'scripts/ci/escape.cjs'),
+      `require.resolve('${cbor}');`), 'direct SDK/CBOR import'],
     ...['nested', 'aliased'].map(kind => [kind, root => changeJson(root, 'tests/browser/package-lock.json', value => {
       const original = value.packages[`node_modules/${sdk}`];
       const path = kind === 'nested' ? `node_modules/provider/node_modules/${sdk}` : 'node_modules/renamed-sdk';

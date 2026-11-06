@@ -1,1 +1,1 @@
-{"contract":"blob-final-candidate/1","hosts":["Linux/x86_64"],"schema":1,"stages":["clippy","release-check","check","probe-check","docs-check","test-native","test-pocketic","wasm-check","package-regression"]}
+{"contract":"blob-final-candidate/1","hosts":["Linux/x86_64"],"schema":1,"stages":["clippy","release-check","probe-check","docs-check","test-native","test-pocketic","wasm-check","package-regression"]}

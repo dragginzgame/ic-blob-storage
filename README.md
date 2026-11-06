@@ -263,8 +263,8 @@ scope; controller status does not grant tenant access.
 | Command | What it checks |
 | --- | --- |
 | `make fmt-check` | Rust formatting |
-| `make check` | Native compilation |
-| `make clippy` | Strict Rust linting |
+| `make check` | Optional native compilation without linting; omitted from CI |
+| `make clippy` | Native compilation and strict Rust linting |
 | `make test-native` | Native tests and doctests |
 | `make test-pocketic` | Local storage and standalone IC suites |
 | `make test-admission-resources` | Admission bounds and local instruction-cost reports |

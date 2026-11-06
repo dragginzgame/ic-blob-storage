@@ -42,6 +42,15 @@ sub safe_directory {
     }
     make_path($directory);
 }
+sub inventory {
+    my ($files)=@_;
+    my $raw=$json->encode({files=>$files})."\n";
+    my $path='target/release-stage-cache/tools/'.sha256_hex($raw).'.json';
+    safe_directory('target/release-stage-cache/tools');
+    if (-e $path) { BlobValidation::read_file($path) eq $raw or die "prepared input inventory drift\n"; }
+    else { write_record($path,$json->decode($raw)); }
+    return "$root/$path";
+}
 my ($source,$group,$plan,$destination);
 if (!$publication && !defined($ENV{BLOB_RELEASE_VALIDATION_PLAN})) {
     exec 'make','--no-print-directory',"$stage-run"; die $!;
@@ -71,14 +80,20 @@ my $temporary=$ENV{TMPDIR}//"$root/target/tmp";
 $temporary=abs_path($temporary)//$temporary if $temporary =~ m{\A/} && -d $temporary;
 my $configuration=BlobValidation::configuration();
 my $host="$configuration->{host}{os}/$configuration->{host}{arch}";
-my $eligible=(!defined($plan) || $plan->{scope} eq 'workspace')
-    && !keys(%{$configuration->{environment}}) && !keys(%{$configuration->{cargo_config}})
-    && grep {$_ eq $host} @{$policy->{hosts}};
-$eligible=0 unless $qualified_path;
+my @refusals;
+push @refusals,"host: $host is not qualified" unless grep {$_ eq $host} @{$policy->{hosts}};
+push @refusals,'build environment: '.join(', ',sort keys %{$configuration->{environment}})
+    if keys %{$configuration->{environment}};
+push @refusals,'Cargo configuration: '.join(', ',sort keys %{$configuration->{cargo_config}})
+    if keys %{$configuration->{cargo_config}};
+push @refusals,'PATH: empty or relative entries are not qualified' unless $qualified_path;
 # PocketIC embeds Unix socket paths below its temporary root (SUN_LEN).
-$eligible=0 if $temporary !~ m{\A/} || length($temporary)>60
-    || (defined($ENV{TMPDIR}) && !-d $temporary);
-$eligible=0 if ($ENV{MAKEFLAGS}//'') =~ /--jobserver|(?:\A|\s)-?j(?:\d|\s|\z)/;
+push @refusals,'temporary root: an absolute path of at most 60 bytes is required'
+    if $temporary !~ m{\A/} || length($temporary)>60;
+push @refusals,'temporary root: caller-selected TMPDIR does not exist'
+    if defined($ENV{TMPDIR}) && !-d $temporary;
+push @refusals,'Make scheduling: parallel jobs/jobserver are not qualified'
+    if ($ENV{MAKEFLAGS}//'') =~ /--jobserver|(?:\A|\s)-?j(?:\d|\s|\z)/;
 # The standard publication wrapper isolates archive builds in its newly owned
 # run. Historical lint admission does not compile there; its proof and exact
 # primary closure are checked below. Other custom target directories still use
@@ -87,15 +102,26 @@ my $publication_target=$publication
     && $publication_run =~ m{\Atarget/publication\.[A-Za-z0-9]{6}\z}
     && defined($ENV{CARGO_TARGET_DIR})
     && $ENV{CARGO_TARGET_DIR} eq "$root/$publication_run/target";
-$eligible=0 if defined($ENV{CARGO_TARGET_DIR})
+push @refusals,'Cargo target: custom target directories are not qualified' if defined($ENV{CARGO_TARGET_DIR})
     && $ENV{CARGO_TARGET_DIR} ne "$root/target" && !$publication_target;
-# Explicit simulator selections are not silently converted to managed defaults.
-$eligible=0 if defined $ENV{POCKET_IC_BIN};
-if (!$eligible) {
+# Admit only the exact already-checked managed path, preserving it in the child
+# environment. Other explicit binaries still execute under caller custody.
+my $selected_server;
+if (defined($ENV{POCKET_IC_BIN}) && !@refusals) {
+    $selected_server=eval { observation('bash','scripts/dev/testkit-server.sh','check') };
+    $selected_server =~ s/\n\z// if defined $selected_server;
+    push @refusals,'PocketIC selection: only the exact admitted managed path is qualified'
+        if !defined($selected_server) || $ENV{POCKET_IC_BIN} ne $selected_server;
+}
+write_record("$destination/$stage-eligibility.json",{schema=>1,kind=>'blob-stage-reuse-eligibility',
+    stage=>$stage,scope=>defined($plan) ? $plan->{scope} : 'publication',host=>$host,
+    eligible=>@refusals ? JSON::PP::false : JSON::PP::true,reasons=>\@refusals});
+if (@refusals) {
+    print STDERR "Stage reuse unavailable [$stage]: $_\n" for @refusals;
     run('make','--no-print-directory',"$stage-run");
     write_record("$destination/$stage.json",{schema=>1,kind=>'blob-direct-stage-execution',
         source=>$source,group=>$group,stage=>$stage,mode=>'executed',
-        reason=>'No qualified candidate projection for this scope, host or build configuration'});
+        reason=>join('; ',@refusals),reasons=>\@refusals});
     exit;
 }
 if ($publication) {
@@ -104,6 +130,9 @@ if ($publication) {
     my $admitted=eval {
         my $receipt=document("releases/$group/release.json");
         my $validation=$receipt->{validation};
+        my $scope=BlobValidation::candidate_scope($validation->{plan},'clippy');
+        !defined($scope) || grep {$_ eq $primary} @{$scope->{packages}}
+            or die "release Clippy did not include the publication primary\n";
         my $qualified=$validation->{stage_admissions}{clippy};
         ($qualified->{kind}//'') eq 'sealed-cargo-stage-admission'
             or die "release has no retained candidate Clippy qualification\n";
@@ -127,11 +156,12 @@ if ($publication) {
         1;
     };
     if (!$admitted) {
-        print STDERR "Candidate lint unavailable; running current-source Clippy: $@";
+        my $reason=$@; $reason =~ s/\s+\z//;
+        print STDERR "Stage reuse unavailable [publication Clippy]: $reason\n";
         run('make','--no-print-directory','clippy-run');
         write_record("$destination/clippy.json",{schema=>1,kind=>'blob-direct-stage-execution',
             source=>$source,group=>$group,stage=>'clippy',mode=>'executed',
-            reason=>'No admitted retained publication qualification'});
+            reason=>$reason});
     } else { print "Publication Clippy: retained final-candidate qualification admitted\n"; }
     exit;
 }
@@ -168,7 +198,7 @@ else {
         $files{$file}=1;
     }
     $files{$projection->{editor}{path}}=1;
-    my $server=observation('bash','scripts/dev/testkit-server.sh','check'); $server =~ s/\n\z//;
+    my $server=$selected_server//observation('bash','scripts/dev/testkit-server.sh','check'); $server =~ s/\n\z//;
     $files{$server}=1;
     my $testkit=observation('bash','scripts/dev/install-rust-tools.sh','--consumer',$prepared,
         '--package','ic-testkit','--lockfile',"$root/Cargo.lock",'--bin','ic-testkit-server',
@@ -176,17 +206,23 @@ else {
     $testkit =~ s/\n\z//;
     $files{$testkit}=1;
     $tools={files=>[sort keys %files]};
-    my $raw=$json->encode($tools)."\n";
-    my $stable='target/release-stage-cache/tools/'.sha256_hex($raw).'.json';
-    safe_directory('target/release-stage-cache/tools');
-    if (-e $stable) { BlobValidation::read_file($stable) eq $raw or die "prepared tool inventory drift\n"; }
-    else { write_record($stable,$tools); }
-    $tools->{inventory}="$root/$stable";
+    $tools->{inventory}=inventory($tools->{files});
     write_record($tools_path,$tools);
+}
+my $scope=BlobValidation::candidate_scope($plan,$stage);
+my $scope_path;
+my $inventory=$tools->{inventory};
+if (defined $scope) {
+    safe_directory('target/release-stage-cache/scopes');
+    $scope_path="$root/target/release-stage-cache/scopes/".sha256_hex(BlobValidation::encode($scope)).'.json';
+    if (-e $scope_path) { BlobValidation::read_file($scope_path) eq BlobValidation::encode($scope) or die "leaf scope drift\n"; }
+    else { write_record($scope_path,$scope); }
+    $inventory=inventory([sort(@{$tools->{files}},$scope_path)]);
 }
 my %environment=(PATH=>$ENV{PATH},HOME=>$ENV{HOME},LC_ALL=>'C',RUSTUP_AUTO_INSTALL=>'0',CARGO_NET_OFFLINE=>'true',
     BLOB_PREPARED_TOOLS_ROOT=>$prepared,
-    TMPDIR=>$temporary,CARGO_STAGE_TOOLS=>$tools->{inventory},CARGO_STAGE_IDENTITY=>$projection->{identity});
+    TMPDIR=>$temporary,CARGO_STAGE_TOOLS=>$inventory,CARGO_STAGE_IDENTITY=>$projection->{identity});
+$environment{POCKET_IC_BIN}=$ENV{POCKET_IC_BIN} if defined $ENV{POCKET_IC_BIN};
 $environment{$_}=$ENV{$_} for grep {defined $ENV{$_}} qw(CARGO_HOME RUSTUP_HOME);
 my $environment_path="$parent/$stage-environment.json";
 write_record($environment_path,\%environment);
@@ -196,7 +232,8 @@ run($^X,"$root/scripts/ci/run-validation-stage.pl",'--state',"$root/target/relea
     '--stage',$stage,'--contract',$policy->{contract},'--source',$source,'--group',$group,
     '--observe',"$root/scripts/ci/observe-cargo-stage.pl",'--environment',"$root/$environment_path",
     '--max-bytes','536870912','--admission-output',$admission,'--',
-    'make','--no-print-directory',"CARGO_TARGET_DIR=$root/target/release-stage-build","$stage-run");
+    'make','--no-print-directory',"CARGO_TARGET_DIR=$root/target/release-stage-build",
+    (defined($scope_path) ? "CARGO_STAGE_SCOPE=$scope_path" : ()),"$stage-run");
 chdir $root or die $!;
 my $sealed=$json->decode(observation($^X,'scripts/ci/seal-validation-stage.pl',$admission,$source,$group,$projection->{identity}));
 if (!$publication && $stage eq 'test-pocketic') {
