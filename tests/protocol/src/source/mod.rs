@@ -1,15 +1,11 @@
 //! Inspection of the local source journal; never provider reconciliation evidence.
-use crate::{SourceMode, journey::readback::ReadSourceConfig};
+use crate::SourceMode;
 use ic_platform::principal::ExternalPrincipal;
 use serde::Deserialize;
 
 /// Local service call whose intent was committed before dispatch.
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum SourceAction {
-    /// Ask the bound service to refresh its gateway list.
-    Sync,
-    /// Ask the bound service to revoke its gateway.
-    Revoke,
     /// Submit exactly these deletion confirmations to the bound service.
     Delete(Vec<[u8; 32]>),
 }
@@ -39,12 +35,6 @@ pub struct SourceRecoveryView {
     pub mode: SourceMode,
     /// Captured list reply waiting across IC rounds, including its exact identity.
     pub held_sync: Option<SourceHeldSyncView>,
-    /// At most one retained 1 MiB leaf, not a provider object archive.
-    pub read: Option<ReadSourceConfig>,
-    /// Whether an admitted read had not finished at the recorded boundary.
-    pub read_pending: bool,
-    /// Whether the driver had released that read's hold.
-    pub read_ready: bool,
     /// Bounded lifetime history, including unresolved actions.
     pub effects: Vec<SourceEffectView>,
 }

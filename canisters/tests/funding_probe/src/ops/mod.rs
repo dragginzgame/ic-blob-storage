@@ -1,27 +1,14 @@
-//! Bounded fixture journals and single platform effects for a local-only experiment.
+//! Receiver accounting and platform effects; production owns all outgoing funding.
 
-use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
 pub(crate) mod cashier;
-pub(crate) mod liquidity;
-pub(crate) mod lookup;
-pub(crate) mod preview;
-pub(crate) mod status;
 mod storage;
 
-use std::{cell::RefCell, num::NonZeroUsize};
+use std::cell::RefCell;
 
 use crate::model::FundingJournalRecord;
-use blob_test_protocol::funding::{
-    FundingAttemptRecord, FundingFailure, FundingObservation, FundingOutcome,
-    FundingProviderErrorView, FundingReceiptRecord, FundingReconciliationView, FundingReplyMode,
-    FundingRequest,
-};
-use ic_blob_storage::ops::caffeine::funding::{
-    TopUpProviderError, TopUpReply, decode_top_up_reply,
-};
-use ic_blob_storage_contracts::funding::transfer::FundingTransfer;
+use blob_test_protocol::funding::{FundingReceiptRecord, FundingReplyMode, FundingRequest};
 use ic_platform::Principal;
-use ic_platform::cdk::call::{Call, CallFailed};
+use ic_platform::cdk::call::Call;
 
 thread_local! {
     static STATE: RefCell<Option<FundingJournalRecord>> = const { RefCell::new(None) };
@@ -40,22 +27,11 @@ fn mutate<T>(f: impl FnOnce(&mut FundingJournalRecord) -> T) -> T {
     })
 }
 
-pub(crate) fn initialize(
-    peer: Principal,
-    driver: Principal,
-    input: blob_test_protocol::funding::budget::FundingBudgetInput,
-) {
+pub(crate) fn initialize(peer: Principal, driver: Principal) {
     storage::create();
     STATE.with_borrow_mut(|state| {
-        let budget = crate::model::budget::FundingBudgetRecord::new(
-            input.allocated,
-            input.reserve,
-            input.operating_reserve,
-            input.other_liabilities,
-        )
-        .expect("valid explicit attachment budget");
         let initial =
-            FundingJournalRecord::new(ic_platform::cdk::api::canister_self(), peer, driver, budget);
+            FundingJournalRecord::new(ic_platform::cdk::api::canister_self(), peer, driver);
         storage::save(&initial);
         *state = Some(initial);
     });
@@ -70,111 +46,14 @@ pub(crate) fn load() -> FundingJournalRecord {
     recovered
 }
 
-pub(crate) fn restored_reconciliations(
-    record: &FundingJournalRecord,
-) -> Vec<(FundingTransfer, FundingReconciliationView)> {
-    record
-        .all_attempts()
-        .iter()
-        .filter_map(|entry| {
-            entry.observation.map(|observation| {
-                (
-                    crate::model::checked_transfer(entry).expect("validated restored transfer"),
-                    observation.reconciliation,
-                )
-            })
-        })
-        .collect()
-}
-
 pub(crate) fn restore_fenced(mut recovered: FundingJournalRecord) {
     recovered.fence();
     storage::save(&recovered);
     STATE.with_borrow_mut(|state| *state = Some(recovered));
 }
 
-pub(crate) fn admit(
-    caller: Principal,
-    request: FundingRequest,
-) -> Result<Principal, FundingFailure> {
-    STATE.with_borrow_mut(|state| {
-        let state = state.as_mut().expect("initialized fixture");
-        let result = state.admit(caller, request);
-        if result.is_ok() {
-            storage::save(state);
-        }
-        result
-    })
-}
-
-pub(crate) fn complete(request: FundingRequest, observation: FundingObservation) {
-    mutate(|state| state.complete(request, observation));
-}
-
-pub(crate) fn attempts(caller: Principal) -> Option<Vec<FundingAttemptRecord>> {
-    read(|state| state.attempts(caller))
-}
-
 pub(crate) fn receipts(caller: Principal) -> Option<Vec<FundingReceiptRecord>> {
     read(|state| state.receipts(caller))
-}
-
-/// Local domain facts before workflow policy and passive view conversion.
-pub(crate) struct ObservedFundingCall {
-    pub(crate) transfer: FundingTransfer,
-    pub(crate) outcome: FundingOutcome,
-}
-
-pub(crate) async fn transfer(prepared: liquidity::PreparedFundingCall) -> ObservedFundingCall {
-    let offered = prepared.offered;
-    let result = prepared.call.await;
-    // Capture in this call's continuation, before decoding, further awaits or spawning.
-    // An enqueue failure runs without a response callback: never sample its ambient refund.
-    let refunded = match &result {
-        Ok(_) | Err(CallFailed::CallRejected(_)) => {
-            Some(ic_platform::cdk::api::msg_cycles_refunded())
-        }
-        Err(CallFailed::InsufficientLiquidCycleBalance(_) | CallFailed::CallPerformFailed(_)) => {
-            None
-        }
-    };
-    let transfer = match refunded {
-        Some(refund) => FundingTransfer::unbounded_callback(offered, refund)
-            .expect("call-specific refund within attachment"),
-        None => FundingTransfer::not_enqueued(offered),
-    };
-    let outcome = match result {
-        Ok(response) => classify(&response.into_bytes()),
-        Err(CallFailed::CallRejected(error)) => FundingOutcome::Rejected(error.raw_reject_code()),
-        Err(CallFailed::InsufficientLiquidCycleBalance(_) | CallFailed::CallPerformFailed(_)) => {
-            FundingOutcome::NotEnqueued
-        }
-    };
-    ObservedFundingCall { transfer, outcome }
-}
-
-fn classify(bytes: &[u8]) -> FundingOutcome {
-    let positive = |value| NonZeroUsize::new(value).expect("positive fixture budget");
-    let limits = CaffeineReplyLimits {
-        max_bytes: positive(4096),
-        decoding_quota: positive(100_000),
-        skipping_quota: positive(1000),
-        max_type_entries: positive(32),
-    };
-    match decode_top_up_reply(bytes, limits) {
-        Ok(TopUpReply::ReportedSuccess { .. }) => FundingOutcome::ReportedSuccess,
-        Ok(TopUpReply::ProviderFailure(error)) => FundingOutcome::ProviderError(match error {
-            TopUpProviderError::NotAuthorized(principal) => {
-                FundingProviderErrorView::NotAuthorized(principal.into())
-            }
-            TopUpProviderError::AccountBalanceOverflow => {
-                FundingProviderErrorView::AccountBalanceOverflow
-            }
-            TopUpProviderError::InternalError => FundingProviderErrorView::InternalError,
-            TopUpProviderError::TopUpWithoutCycles => FundingProviderErrorView::TopUpWithoutCycles,
-        }),
-        Err(_) => FundingOutcome::InvalidReply,
-    }
 }
 
 pub(crate) fn accept(caller: Principal, request: FundingRequest) {

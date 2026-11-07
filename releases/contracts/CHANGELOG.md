@@ -4,6 +4,14 @@ Packages: `ic-blob-storage-contracts`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.73.1] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Platform 0.24 and Wire 0.17.8 while retaining the same canonical
+  Principal/Candid identities, packet bytes, decoder limits and acceptance.
+  Refresh native qualification with Host 0.75 and Shared Tooling 0.31.5.
+
 ## [0.73.0] - 2026-11-05
 
 ### 💥 Breaking

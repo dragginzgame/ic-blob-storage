@@ -1,9 +1,5 @@
 //! Direct-upload manifest, retained accounting and lifecycle evidence for the actual shared owner.
 use super::*;
-use ic_testkit::pocket_ic::CanisterInstallMode;
-use sha2::{Digest, Sha256};
-
-const CHUNK: usize = 1024 * 1024;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn metadata_rejection_preserves_reservation_and_reordered_retry_preserves_binding() {
@@ -226,67 +222,49 @@ async fn ten_mib_manifest_authorizes_local_exposure_without_claiming_completion(
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn unsupported_upgrade_preserves_manifest_even_when_outgoing_hook_is_skipped() {
+async fn workload_reopen_retains_the_original_manifest_and_fences_fresh_admission() {
+    use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
     let f = Fixture::new().await;
     f.enroll().await;
     let v = vectors::vector("media-1048577", 1);
     let p = f.permission(&v).await;
     f.admit(p).await;
     f.prepare(p, &v).await;
-    let prefix = f.observe(p).await;
-    let pic = &f.harness.pic;
-    let error = pic
+    let before = f.observe(p).await;
+    f.harness
+        .pic
         .upgrade_canister(
             f.service,
             Fixture::wasm(),
-            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
+            blob_test_protocol::fixture_wire::encode_one("fixture_post_upgrade", f.installation)
+                .unwrap(),
             Some(f.controller),
         )
         .await
-        .unwrap_err();
+        .unwrap();
+    assert_eq!(f.observe(p).await, before);
     assert_eq!(
-        crate::canister_rejection(&error).reject_code,
-        RejectCode::CanisterError
+        f.call(f.project, Command::Admit(p)).await,
+        Err(Failure::Fenced)
     );
-    assert_eq!(f.observe(p).await, prefix);
-
-    let wasm = Fixture::wasm();
-    let hashes = {
-        let mut values = Vec::new();
-        for bytes in wasm.chunks(CHUNK) {
-            values.push({
-                pic.upload_chunk(f.service, Some(f.controller), bytes.to_vec())
-                    .await
-                    .unwrap()
-            });
-        }
-        values
-    };
-    #[expect(
-        clippy::default_trait_access,
-        reason = "PocketIC reexports the install mode but not UpgradeFlags"
-    )]
-    let mut mode = CanisterInstallMode::Upgrade(Some(Default::default()));
-    let CanisterInstallMode::Upgrade(Some(flags)) = &mut mode else {
-        unreachable!()
-    };
-    flags.skip_pre_upgrade = Some(true);
-    let error = pic
-        .install_chunked_canister(
+    let capacity: Result<
+        ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityResponse,
+        ic_blob_storage_contracts::dto::upload::capacity::UploadCapacityFailure,
+    > = f
+        .harness
+        .pic
+        .query_blob_as(
             f.service,
-            Some(f.controller),
-            mode,
-            f.service,
-            hashes,
-            Sha256::digest(&wasm).to_vec(),
-            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
+            f.project,
+            "blob_upload_capacity",
+            ic_blob_storage_contracts::dto::tenant::TenantScope {
+                service: f.service.into(),
+                tenant: f.project.into(),
+                namespace: 1,
+            },
+            4096,
         )
         .await
-        .unwrap_err();
-    assert_eq!(
-        crate::canister_rejection(&error).reject_code,
-        RejectCode::CanisterError
-    );
-    assert_eq!(f.observe(p).await, prefix);
-    assert_eq!(f.observe(p).await.manifest, ManifestState::Bound);
+        .unwrap();
+    assert!(capacity.unwrap().fenced);
 }

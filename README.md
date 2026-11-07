@@ -268,7 +268,6 @@ scope; controller status does not grant tenant access.
 | `make test-native` | Native tests and doctests |
 | `make test-pocketic` | Local storage and standalone IC suites |
 | `make test-admission-resources` | Admission bounds and local instruction-cost reports |
-| `make test-read-resources` | Read-slot bounds and local instruction-cost reports |
 | `make probe-check` | Offline integrity checks of retained provider evidence |
 | `make docs-check` | Rust API documentation |
 | `make wasm-check` | Wasm compilation |

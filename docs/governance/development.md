@@ -77,7 +77,7 @@ read-only checksum/source verification without repeating build/lint work. Rust
 compilation/tests use `--offline --locked`. Scoped targets remain offline;
 run `make deps` before them after dependency changes or cache removal.
 The shared logger owns stage dispatch and prepared-input checkpoints. Blob's
-`CI_INPUTS` declares the root and all thirteen member manifests, Cargo.lock,
+`CI_INPUTS` declares the root and all member manifests, Cargo.lock,
 compiler/tool pins, snapshot/Make inputs and browser selectors. `ci` passes them
 through `--input`; release plans additionally checkpoint all tracked recipe,
 CI, group, manifest, lock and selection inputs against their immutable source.
@@ -258,7 +258,7 @@ goals and delivery admission; Blob selects the same direct-only policy file for
 Make and standalone metadata commands. The
 reviewed `make/rust-format.mk` owns root-workspace formatting and its prerequisite
 check. Its standard Rust driver preserves grouped dependency roles across the
-complete thirteen-member workspace without local formatter overrides. Prepared
+complete complete member workspace without local formatter overrides. Prepared
 and selected committed release metadata checks use the matching
 `--manifest-order-grouped` policy. The `scripts/ci/run-rust-formatting.pl` driver
 shows each pass and elapsed time, retaining detailed failed logs. It can reuse a
@@ -277,7 +277,7 @@ Actual hook, release and parallel Testkit fixtures export `make/consumer.mk`
 with all parsed companions; none may fall back to the real checkout's adapters.
 Hook/Testkit fixtures use `prepare-script-fixture.sh` for explicit roots and
 their companion closure. The group release fixture exports visible regular
-source into a disposable repository, exercises the actual thirteen-member graph
+source into a disposable repository, exercises the actual workspace graph
 and installs only its build/registry substitutes. Release fixtures live under
 `target/release-tests.*`; failed fixtures remain there and the tooling evidence
 collector includes that prefix and historical locations.

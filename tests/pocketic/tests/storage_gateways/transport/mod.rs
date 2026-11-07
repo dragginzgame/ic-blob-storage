@@ -183,6 +183,22 @@ async fn delayed_gateway_reply_cannot_overwrite_edits_or_a_newer_pending_attempt
             .await
             .unwrap();
         f.wait_source().await;
+        let source_before = f.harness.pic.get_stable_memory(f.operator).await.unwrap();
+        f.harness
+            .pic
+            .upgrade_canister(
+                f.operator,
+                std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
+                blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
+                None,
+            )
+            .await
+            .expect_err("a held source reply must survive a refused upgrade");
+        assert_eq!(
+            f.harness.pic.get_stable_memory(f.operator).await.unwrap(),
+            source_before
+        );
+
         let replacement = f.gateway_begin().await;
         assert_ne!(replacement, old);
         assert_eq!(f.gateway_view().await.pending_sequence, Some(replacement));
@@ -325,3 +341,86 @@ async fn gateway_callback_write_trap_keeps_pending_state_and_restoration_blocks_
 }
 
 mod replicated;
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn restored_held_source_retains_the_original_reply_and_cannot_resume_it() {
+    use ic_testkit::pocket_ic::common::rest::BlobCompression;
+    let f = Fixture::with_gateway_source().await;
+    let token = f.gateway_begin().await;
+    f.source_mode(SourceMode::Hold).await;
+    let call = f
+        .harness
+        .pic
+        .submit_call(
+            f.service,
+            f.operator,
+            "fixture_gateway_transport",
+            ic_blob_storage_pocketic_tests::control_calls::encode_control_one(
+                f.transport_input(token),
+            )
+            .unwrap(),
+        )
+        .await
+        .unwrap();
+    f.wait_source().await;
+    let pending = f.harness.pic.get_stable_memory(f.operator).await.unwrap();
+    f.resume_source().await;
+    let reply: Result<(), Failure> =
+        ic_blob_storage_pocketic_tests::control_calls::decode_control_one(
+            &f.harness.pic.await_call(call).await.unwrap(),
+            REPLY_BYTES,
+        )
+        .unwrap();
+    assert_eq!(reply, Ok(()));
+    f.harness
+        .pic
+        .set_stable_memory(f.operator, pending, BlobCompression::NoCompression)
+        .await
+        .unwrap();
+    f.harness
+        .pic
+        .upgrade_canister(
+            f.operator,
+            std::fs::read(fixture_path("BLOB_GATEWAY_SOURCE_WASM")).unwrap(),
+            blob_test_protocol::fixture_wire::encode_args("fixture_post_upgrade", ()).unwrap(),
+            None,
+        )
+        .await
+        .unwrap();
+    let before: Option<SourceRecoveryView> = fixture_calls::query_fixture(
+        &f.harness.pic,
+        f.operator,
+        f.controller,
+        "recovery_observation",
+        (),
+    )
+    .await
+    .map(|(value,)| value)
+    .unwrap();
+    let before = before.unwrap();
+    assert!(before.fenced);
+    let held = before.held_sync.as_ref().unwrap();
+    assert_eq!(held.sequence, 1);
+    assert_eq!(held.gateway, f.other);
+    assert!(!held.ready);
+    let (resumed,): (bool,) =
+        fixture_calls::update_fixture(&f.harness.pic, f.operator, f.controller, "resume_sync", ())
+            .await
+            .unwrap();
+    assert!(!resumed);
+    let next = f.gateway_begin().await;
+    assert_eq!(
+        f.query_gateways(f.operator, next).await,
+        Err(Failure::Transport)
+    );
+    let (after,): (Option<SourceRecoveryView>,) = fixture_calls::query_fixture(
+        &f.harness.pic,
+        f.operator,
+        f.controller,
+        "recovery_observation",
+        (),
+    )
+    .await
+    .unwrap();
+    assert_eq!(after, Some(before));
+}

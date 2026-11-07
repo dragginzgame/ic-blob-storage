@@ -15,7 +15,7 @@ mod releases;
 const CHUNK: usize = 1024 * 1024;
 
 #[tokio::test(flavor = "multi_thread")]
-async fn resource_typed_endpoints_preserve_provider_and_tenant_authority() {
+async fn measurement_commands_preserve_provider_and_tenant_authority() {
     use blob_test_protocol::admission::release::LifecycleCommand;
     let f = Fixture::new().await;
     f.enroll().await;
@@ -82,7 +82,7 @@ impl Fixture {
             &self.harness.pic,
             self.service,
             caller,
-            "resources",
+            "fixture_admission_profiles",
             (u8::try_from(limit).unwrap(),),
         )
         .await
@@ -115,7 +115,12 @@ impl Fixture {
         let error = self
             .harness
             .pic
-            .update_call(self.service, self.uploader, "prepare", bytes)
+            .update_call(
+                self.service,
+                self.uploader,
+                "fixture_admission_measurement",
+                bytes,
+            )
             .await
             .unwrap_err();
         assert_eq!(
@@ -230,7 +235,11 @@ async fn resource_envelope_rejects_before_workflow_and_preserves_the_original_pe
         request: p.request,
         manifest: v.manifest.clone(),
     };
-    let frame = blob_test_protocol::fixture_wire::encode_one("prepare", &valid).unwrap();
+    let frame = blob_test_protocol::fixture_wire::encode_one(
+        "fixture_admission_measurement",
+        Command::Prepare(valid.request, valid.manifest.clone()),
+    )
+    .unwrap();
     let mut trailing = frame.clone();
     trailing.push(0);
     let mut truncated = frame.clone();
@@ -243,10 +252,25 @@ async fn resource_envelope_rejects_before_workflow_and_preserves_the_original_pe
         },
     };
     for bytes in [
-        blob_test_protocol::fixture_wire::encode_one("prepare", too_large).unwrap(),
+        blob_test_protocol::fixture_wire::encode_one(
+            "fixture_admission_measurement",
+            Command::Prepare(too_large.request, too_large.manifest),
+        )
+        .unwrap(),
         blob_test_protocol::fixture_wire::encode_one("admit", &valid).unwrap(),
-        blob_test_protocol::fixture_wire::encode_reply("prepare", &valid).unwrap(),
-        blob_test_protocol::fixture_wire::encode_args("prepare", (&valid, 7_u64)).unwrap(),
+        blob_test_protocol::fixture_wire::encode_reply(
+            "fixture_admission_measurement",
+            Command::Prepare(valid.request, valid.manifest.clone()),
+        )
+        .unwrap(),
+        blob_test_protocol::fixture_wire::encode_args(
+            "fixture_admission_measurement",
+            (
+                Command::Prepare(valid.request, valid.manifest.clone()),
+                7_u64,
+            ),
+        )
+        .unwrap(),
         ic_platform::candid::contract::encode_one(7_u64).unwrap(),
         trailing,
         truncated,

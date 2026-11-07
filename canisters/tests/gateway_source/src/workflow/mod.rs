@@ -1,10 +1,9 @@
 //! Deliberate reentrant schedules with captured request data across each await.
 
-use blob_test_protocol::{SourceMode, SourceObservation, SyncFailure};
+use blob_test_protocol::{SourceMode, SourceObservation};
 use ic_platform::Principal;
 
 use crate::ops;
-pub(crate) mod readback;
 
 pub(crate) fn initialize(service: Principal, gateway: Principal, driver: Principal) {
     ops::initialize(service, gateway, driver);
@@ -45,21 +44,6 @@ pub(crate) fn inspect_gateways(caller: Principal) {
     }
 }
 
-pub(crate) async fn run_sync(
-    caller: Principal,
-    input: blob_test_protocol::GatewaySyncRequest,
-) -> Result<(), SyncFailure> {
-    let service = ops::read(|state| {
-        (state.driver == caller.into() && !state.fenced)
-            .then_some(state.service)
-            .ok_or(SyncFailure::Denied)
-    })?;
-    if input.service != service {
-        return Err(SyncFailure::Binding);
-    }
-    ops::sync(service.into(), input).await
-}
-
 pub(crate) async fn run_deletion(caller: Principal, roots: Vec<Vec<u8>>) -> Result<(), u32> {
     let service = ops::read(|state| {
         assert_eq!(state.driver, caller.into(), "fixture driver only");
@@ -71,36 +55,6 @@ pub(crate) async fn run_deletion(caller: Principal, roots: Vec<Vec<u8>>) -> Resu
         "bounded fixture roots"
     );
     ops::confirm_deletion(service.into(), roots).await
-}
-
-pub(crate) async fn reply(caller: Principal, input: blob_test_protocol::GatewaySyncRequest) {
-    if !ops::read(|state| state.service == caller.into() && !state.fenced) {
-        ops::reject();
-        return;
-    }
-    let (service, gateway, mode) = ops::receive();
-    if !passive_reply(gateway, mode).await {
-        return;
-    }
-    match mode {
-        SourceMode::Overlap => {
-            let result = ops::sync(service, input).await;
-            ops::record_nested(result);
-        }
-        SourceMode::Revoke => ops::revoke(service).await,
-        SourceMode::Replace(next) => {
-            ops::revoke(service).await;
-            ops::replace(next.into());
-            // This deliberate scenario explicitly authorizes a new sync after
-            // its own revocation; it is not a retry of the original request.
-            let next_request = ops::next_sync_request(input);
-            let result = ops::sync(service, next_request).await;
-            ops::record_nested(result);
-        }
-        _ => {}
-    }
-    // Deliberately return the captured OLD list after the reentrant mutation.
-    ops::reply_list(gateway);
 }
 
 pub(crate) fn prepare_upgrade() {
@@ -189,7 +143,7 @@ async fn passive_reply(gateway: Principal, mode: SourceMode) -> bool {
         SourceMode::Malformed => ops::reply(vec![0]),
         SourceMode::Oversized => ops::reply(vec![0; 4097]),
         SourceMode::Empty => ops::reply_empty(),
-        _ => return true,
+        SourceMode::Valid => return true,
     }
     false
 }

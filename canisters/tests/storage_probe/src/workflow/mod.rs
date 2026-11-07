@@ -15,6 +15,7 @@ use ic_blob_storage_contracts::upload::binding::UploadContext;
 
 pub(crate) mod funding;
 pub(crate) mod gateways;
+pub(crate) mod qualification;
 pub(crate) mod references;
 pub(crate) fn configure_certificate(
     context: UploadContext,
@@ -340,3 +341,14 @@ pub(crate) fn funding_summary(
 }
 pub(crate) mod reads;
 pub(crate) mod uploads;
+
+/// Exercise the canonical Contracts verifier in installed Wasm; no retained verifier state.
+pub(crate) fn probe_content(
+    context: UploadContext,
+    input: blob_test_protocol::content::ContentProbeCase,
+) -> Result<
+    blob_test_protocol::content::ContentProbeReport,
+    blob_test_protocol::content::ContentProbeFailure,
+> {
+    ops::probe_content(context, input)
+}

@@ -1,55 +1,9 @@
-//! Encode exactly the operation-specific input sent by the admission fixture.
-use blob_test_protocol::admission::{
-    Command,
-    input::{EnrollmentInput, PreparationInput, ReferenceInput},
-    release::LifecycleCommand,
-};
-
+//! One labelled measurement command; public service ingress is tested separately.
+use blob_test_protocol::admission::Command;
 pub(super) fn encode(command: Command) -> (&'static str, Vec<u8>) {
-    fn input<T: serde::Serialize>(method: &'static str, value: T) -> (&'static str, Vec<u8>) {
-        (
-            method,
-            blob_test_protocol::fixture_wire::encode_one(method, value).unwrap(),
-        )
-    }
-    match command {
-        Command::Enroll {
-            tenant,
-            expected,
-            active,
-        } => input(
-            "enroll",
-            EnrollmentInput {
-                tenant: tenant.into(),
-                expected,
-                active,
-            },
-        ),
-        Command::Admit(value) => input("admit", value),
-        Command::Prepare(request, manifest) => {
-            input("prepare", PreparationInput { request, manifest })
-        }
-        Command::Expose(root) => input("expose", root),
-        Command::Revoke(request) => input("revoke", request),
-        Command::FixtureLifecycle(command) => match command {
-            LifecycleCommand::SubstituteDeletion(request) => input("substitute_deletion", request),
-            LifecycleCommand::SubstituteSettlement(request) => {
-                input("substitute_settlement", request)
-            }
-            LifecycleCommand::Reference {
-                object,
-                reference,
-                operation,
-                retain,
-            } => input(
-                "reference",
-                ReferenceInput {
-                    object,
-                    reference,
-                    operation,
-                    retain,
-                },
-            ),
-        },
-    }
+    let method = "fixture_admission_measurement";
+    (
+        method,
+        blob_test_protocol::fixture_wire::encode_one(method, command).unwrap(),
+    )
 }

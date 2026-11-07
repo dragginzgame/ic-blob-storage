@@ -4,7 +4,6 @@ use blob_test_protocol::admission::{ContentDescriptor, release::LifecycleCommand
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
 use ic_blob_storage_contracts::identity::caffeine::verification::CaffeineRootVerifier;
-use ic_blob_storage_pocketic_tests::fixture_calls;
 use std::num::{NonZeroU64, NonZeroUsize};
 
 mod preparation;
@@ -14,13 +13,14 @@ async fn read(
     f: &Fixture,
     actor: Principal,
     input: ContentLookup,
-) -> Result<Option<ContentDescriptor>, Failure> {
-    fixture_calls::query_fixture(
+) -> Result<Option<ContentDescriptor>, blob_test_protocol::storage::Failure> {
+    ic_blob_storage_pocketic_tests::control_calls::ControlCallExt::query_control_as(
         &f.harness.pic,
         f.service,
         actor,
         "content_descriptor",
         (input,),
+        blob_test_protocol::fixture_wire::MAX_BYTES,
     )
     .await
     .map(|(reply,)| reply)
@@ -85,7 +85,10 @@ async fn check_authority(f: &Fixture, input: ContentLookup) {
         f.other,
         Principal::anonymous(),
     ] {
-        assert_eq!(read(f, actor, input).await, Err(Failure::NotProject));
+        assert_eq!(
+            read(f, actor, input).await,
+            Err(blob_test_protocol::storage::Failure::Denied)
+        );
     }
     assert_eq!(
         read(
@@ -109,7 +112,7 @@ async fn check_authority(f: &Fixture, input: ContentLookup) {
             }
         )
         .await,
-        Err(Failure::WrongService)
+        Err(blob_test_protocol::storage::Failure::Binding)
     );
     assert_eq!(
         read(
@@ -121,7 +124,7 @@ async fn check_authority(f: &Fixture, input: ContentLookup) {
             }
         )
         .await,
-        Err(Failure::WrongNamespace)
+        Err(blob_test_protocol::storage::Failure::Binding)
     );
 }
 

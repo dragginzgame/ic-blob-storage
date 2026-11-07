@@ -23,8 +23,6 @@ ifneq ($(strip $(_blob_frozen_goals)),)
 unexport CARGO_TARGET_DIR BLOB_PREPARED_TOOLS_ROOT
 endif
 endif
-export BLOB_AUTHORITY_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_authority_probe.wasm
-export BLOB_ADMISSION_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_admission_probe.wasm
 export BLOB_STORAGE_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_storage_probe.wasm
 export BLOB_CONSUMER_PROBE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_consumer_probe.wasm
 export BLOB_GATEWAY_SOURCE_WASM := $(CARGO_TARGET_DIR)/wasm32-unknown-unknown/release/blob_gateway_source.wasm
@@ -59,7 +57,7 @@ CI_INPUTS := Cargo.toml Cargo.lock rust-toolchain.toml .shared-tooling.snapshot 
 	tests/browser/.nvmrc tests/browser/package.json tests/browser/package-lock.json \
 	$(wildcard releases/*/CHANGELOG.md releases/*/release.json crates/*/Cargo.toml canisters/*/Cargo.toml canisters/tests/*/Cargo.toml tests/pocketic/Cargo.toml tests/protocol/Cargo.toml)
 
-.PHONY: help version deps cloc shared-tooling-check dependency-pins-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-read-resources test-funding-receipt-resources wasm-check \
+.PHONY: help version deps cloc shared-tooling-check dependency-pins-check check clippy docs-check test test-native test-pocketic test-browser test-browser-store test-browser-transport test-browser-standalone test-sdk-probe test-sdk-inputs test-fixture test-standalone build-standalone test-admission-resources test-funding-receipt-resources wasm-check \
 	build package package-regression package-verifier clean shell-check release-check probe-check ci validate release-verify test-browser-publication test-browser-bootstrap test-browser-launcher test-browser-native \
 	release-plan ensure-clean \
 	release-version release-preflight release-prepare-version release-prepared-check release-files \
@@ -108,7 +106,6 @@ help:
 	@echo "test-sdk-probe                Opt-in local SDK fault probe; BLOB_SDK_PROBE_REPORT=NEW_DIRECTORY"
 	@echo "test-sdk-inputs               Opt-in offline native/browser handoff; BLOB_SDK_INPUTS_REPORT=NEW_DIRECTORY"
 	@echo "test-admission-resources     Local admission bounds and Wasm resource report"
-	@echo "test-read-resources          Local read-slot and Wasm resource report"
 	@echo "clean                        Explicitly remove build artifacts"
 	@echo "docs-check / wasm-check       Check docs or the Wasm library build"
 	@echo "test-wasm-opt                Qualify retained original/O3/Os/Oz installation and restore"
@@ -246,7 +243,7 @@ test-native-host: contracts-boundary-check
 	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_tenants::client:: -- --test-threads=1
 
 test-fixture:
-	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-admission-probe -p blob-storage-probe -p blob-consumer-probe -p blob-gateway-source -p blob-funding-probe --lib
+	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe -p blob-consumer-probe -p blob-gateway-source -p blob-funding-probe --lib
 
 test-pocketic-prepare:
 	+$(MAKE) --no-print-directory testkit-check
@@ -270,7 +267,7 @@ test-pocketic-client-run: test-pocketic-prepare
 	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_tenants::client::
 
 test-pocketic-engine-run: test-pocketic-prepare
-	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --lib --test admission --test authority --test content --test funding --test gateway_sync --test journey --test obligations --test operator --test storage --test uploads -- --skip storage_tenants::client::
+	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --lib --test admission --test content --test provider --test storage -- --skip storage_tenants::client::
 	+cargo test --offline --locked -p ic-blob-storage-pocketic-tests --doc
 
 build-standalone:
@@ -354,7 +351,7 @@ test-browser:
 	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage chromium_certificate_intent -- --ignored --test-threads=1
 
 test-admission-resources:
-	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-admission-probe --lib
+	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
 	@mkdir -p target/reports
 	+BLOB_ADMISSION_RESOURCE_REPORT="$(CURDIR)/target/reports/admission-resources.json" \
 	BLOB_ADMISSION_HISTORY_REPORT="$(CURDIR)/target/reports/admission-history.json" \
@@ -368,13 +365,6 @@ test-funding-receipt-resources:
 	@test -n "$(BLOB_FUNDING_RECEIPT_PROFILE)" || { echo "Set BLOB_FUNDING_RECEIPT_PROFILE to a fresh report directory." >&2; exit 1; }
 	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-storage-probe --lib
 	+bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test storage storage_resources::credits::receipt_populated_confirmation_and_restoration_profile -- --ignored --exact --test-threads=1
-
-test-read-resources:
-	+cargo build --offline --locked --release --target wasm32-unknown-unknown -p blob-authority-probe -p blob-gateway-source --lib
-	@mkdir -p target/reports
-	+BLOB_READ_RESOURCE_REPORT="$(CURDIR)/target/reports/read-resources.json" \
-	bash scripts/ci/run-pocketic-test.sh --offline --locked -p ic-blob-storage-pocketic-tests --test journey readback -- --test-threads=2
-	@echo "Local read report: target/reports/read-resources.json (not a production read protocol or provider pricing)"
 
 wasm-check-run:
 	+@packages="$$(perl scripts/release/validation.pl packages wasm-check)" || exit $$?; \

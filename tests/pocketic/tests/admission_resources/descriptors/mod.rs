@@ -4,7 +4,6 @@ use blob_test_protocol::admission::{ContentDescriptor, ContentLookup, ContentSta
 use ic_blob_storage_contracts::identity::caffeine::CaffeineContentHasher;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHashLimits;
 use ic_blob_storage_contracts::identity::caffeine::CaffeineHeader;
-use ic_blob_storage_pocketic_tests::fixture_calls;
 use std::num::{NonZeroU64, NonZeroUsize};
 
 async fn wide(f: &Fixture, id: u8, tenant: Principal) -> (Permission, JourneyManifest) {
@@ -54,21 +53,23 @@ async fn wide(f: &Fixture, id: u8, tenant: Principal) -> (Permission, JourneyMan
 }
 
 async fn descriptor(f: &Fixture, p: Permission) -> ContentDescriptor {
-    let result: Result<Option<ContentDescriptor>, Failure> = fixture_calls::query_fixture(
-        &f.harness.pic,
-        f.service,
-        p.request.tenant,
-        "content_descriptor",
-        (ContentLookup {
-            service: f.service,
-            tenant: p.request.tenant,
-            namespace: 1,
-            root: p.request.root,
-        },),
-    )
-    .await
-    .map(|(reply,)| reply)
-    .unwrap();
+    let result: Result<Option<ContentDescriptor>, blob_test_protocol::storage::Failure> =
+        ic_blob_storage_pocketic_tests::control_calls::ControlCallExt::query_control_as(
+            &f.harness.pic,
+            f.service,
+            p.request.tenant,
+            "content_descriptor",
+            (ContentLookup {
+                service: f.service,
+                tenant: p.request.tenant,
+                namespace: 1,
+                root: p.request.root,
+            },),
+            blob_test_protocol::fixture_wire::MAX_BYTES,
+        )
+        .await
+        .map(|(reply,)| reply)
+        .unwrap();
     result.unwrap().unwrap()
 }
 

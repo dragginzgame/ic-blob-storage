@@ -35,8 +35,6 @@
       {
          "changelog" : "releases/engine/CHANGELOG.md",
          "dependencies" : [
-            "blob-admission-probe",
-            "blob-authority-probe",
             "blob-consumer-probe",
             "blob-funding-probe",
             "blob-gateway-source",
@@ -49,8 +47,6 @@
          "members" : [
             "ic-blob-storage",
             "ic-blob-storage-canister",
-            "blob-admission-probe",
-            "blob-authority-probe",
             "blob-consumer-probe",
             "blob-funding-probe",
             "blob-gateway-source",

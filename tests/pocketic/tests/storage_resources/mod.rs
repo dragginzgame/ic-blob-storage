@@ -366,9 +366,11 @@ async fn profile_workload(directory: &Path, workload: Workload) -> bool {
         .unwrap();
     let profile = StorageProbeInstallation {
         operator,
-        max_objects: count,
-        max_tenants: workload.tenants,
-        max_object_bytes: workload.bytes,
+        resources: blob_test_protocol::storage::resources::small_resources(
+            count,
+            workload.tenants,
+            workload.bytes,
+        ),
         max_funding_attempts: 4,
     };
     let installation =

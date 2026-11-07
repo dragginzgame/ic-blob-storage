@@ -157,9 +157,7 @@ async fn profile(directory: &Path, count: u32) {
         .unwrap();
     let profile = StorageProbeInstallation {
         operator,
-        max_objects: 2,
-        max_tenants: 2,
-        max_object_bytes: 10,
+        resources: blob_test_protocol::storage::resources::small_resources(2, 2, 10),
         max_funding_attempts: count,
     };
     let installation =

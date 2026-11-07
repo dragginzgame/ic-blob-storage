@@ -1,11 +1,13 @@
 //! Host grants, passive DTO conversion and fixture-only stable-write faults.
 mod configuration;
+pub(crate) mod content;
 mod conversion;
 pub(crate) mod exposure;
 pub(crate) mod funding;
 pub(crate) mod gateways;
 pub(crate) mod lifecycle;
 pub(crate) mod planning;
+pub(crate) mod qualification;
 pub(crate) mod read;
 pub(crate) mod references;
 pub(crate) mod resources;
@@ -101,6 +103,8 @@ impl Memory for ProbeMemory {
 struct State {
     runtime: MemoryRuntime<ProbeBackingMemory>,
     operator: Principal,
+    config: ic_blob_storage_contracts::configuration::service::ServiceConfiguration,
+    profiles: std::collections::VecDeque<blob_test_protocol::admission::ExecutionProfile>,
     uploads: StableUploads<ProbeMemory>,
     funding: ic_blob_storage::ops::service::funding::StableFundingJournal<ProbeMemory>,
     gateways: ic_blob_storage::ops::service::gateways::StableGatewayRegistry<ProbeMemory>,
@@ -163,6 +167,8 @@ pub(crate) fn initialize(
         *state = Some(State {
             runtime,
             operator: operator.into(),
+            config: config.service(),
+            profiles: std::collections::VecDeque::new(),
             uploads,
             funding,
             gateways,
@@ -593,4 +599,17 @@ pub(crate) fn encode_control<T: serde::Serialize>(value: T) -> Vec<u8> {
 }
 pub(crate) fn encode_control_unit() -> Vec<u8> {
     ic_blob_storage_contracts::document::encode(()).expect("private control unit reply")
+}
+
+pub(crate) fn probe_content(
+    context: UploadContext,
+    input: blob_test_protocol::content::ContentProbeCase,
+) -> Result<
+    blob_test_protocol::content::ContentProbeReport,
+    blob_test_protocol::content::ContentProbeFailure,
+> {
+    if STATE.with_borrow(|state| state.as_ref().unwrap().operator) != context.actor {
+        return Err(blob_test_protocol::content::ContentProbeFailure::Denied);
+    }
+    content::run(input)
 }

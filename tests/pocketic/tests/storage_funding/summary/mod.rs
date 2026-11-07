@@ -1,5 +1,5 @@
 use super::*;
-use blob_test_protocol::status::FundingActivityView;
+use blob_test_protocol::funding::FundingActivityView;
 use ic_blob_storage_contracts::dto::operator::OperatorScope as Scope;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

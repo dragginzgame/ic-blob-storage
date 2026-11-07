@@ -20,10 +20,16 @@ async fn wasm_verifies_chunk_boundaries_metadata_and_rejection_recovery_within_w
     installation::install_fixture(
         pic,
         canister,
-        "BLOB_AUTHORITY_PROBE_WASM",
+        "BLOB_STORAGE_PROBE_WASM",
         blob_test_protocol::fixture_wire::encode_args(
             "fixture_init",
-            (tenant, fake_principal(2), fake_principal(3), operator),
+            (
+                blob_test_protocol::storage::resources::StorageProbeInstallation {
+                    operator,
+                    resources: blob_test_protocol::storage::resources::small_resources(2, 2, 10),
+                    max_funding_attempts: 4,
+                },
+            ),
         )
         .expect("init"),
         Some(operator),

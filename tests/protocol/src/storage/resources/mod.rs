@@ -10,12 +10,8 @@ pub const STORAGE_PROBE_INPUT_BYTES: usize = 4096;
 pub struct StorageProbeInstallation {
     /// Explicit fixture operator.
     pub operator: ExternalPrincipal,
-    /// Lifetime operation ceiling, in 1..=10,000; ordinary tests use two.
-    pub max_objects: u32,
-    /// Explicit tenant ceiling in 1..=32; ordinary tests use two.
-    pub max_tenants: u32,
-    /// Object length ceiling in 10..=64 MiB; ordinary tests use ten bytes.
-    pub max_object_bytes: u64,
+    /// Complete explicit service resource envelope, shared by every fixture scenario.
+    pub resources: ic_blob_storage_contracts::dto::configuration::ServiceResourceInput,
     /// Lifetime funding intent ceiling in 1..=10,000; ordinary tests use four.
     pub max_funding_attempts: u32,
 }
@@ -100,4 +96,68 @@ pub struct FundingCreditResources {
     pub stable_bytes: u64,
     /// Logical reads around this call only, excluding previous population.
     pub reads: Vec<RestorationMemoryReads>,
+}
+
+/// Existing small Storage fixture envelope. Callers retain explicit object, tenant and byte limits.
+/// # Panics
+/// Refuses byte/chunk products outside the bounded fixture representation.
+#[must_use]
+pub fn small_resources(
+    objects: u32,
+    tenants: u32,
+    bytes: u64,
+) -> ic_blob_storage_contracts::dto::configuration::ServiceResourceInput {
+    let chunks = u32::try_from(
+        bytes.div_ceil(ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES as u64),
+    )
+    .expect("bounded fixture bytes")
+        * objects;
+    ic_blob_storage_contracts::dto::configuration::ServiceResourceInput {
+        max_tenants: tenants,
+        max_object_bytes: bytes,
+        max_headers: 8,
+        max_header_bytes: 1024,
+        max_chunks: chunks,
+        max_tenant_chunks: chunks,
+        max_objects: objects,
+        max_tenant_objects: objects,
+        max_physical_bytes: u128::from(objects) * u128::from(bytes),
+        max_liability_bytes: u128::from(objects) * u128::from(bytes),
+        max_tenant_logical_bytes: u128::from(objects) * u128::from(bytes),
+        max_references_per_object: 2,
+        max_receipts_per_object: 3,
+        max_active: objects,
+        max_tenant_active: objects,
+    }
+}
+/// Preserve the measured admission workloads using the same production owner/configuration contract.
+#[must_use]
+pub fn admission_resources(
+    workload: crate::admission::Workload,
+) -> ic_blob_storage_contracts::dto::configuration::ServiceResourceInput {
+    use crate::admission::Workload;
+    let (objects, tenant_objects, chunks, tenant_chunks, tenant_bytes, references, receipts) =
+        match workload {
+            Workload::Small => (4, 2, 15, 10, 10, 2, 3),
+            Workload::RetainedHistory => (256, 128, 256, 128, 10, 2, 3),
+            Workload::ReleaseHistory => (704, 704, 768, 768, 288, 4, 7),
+            Workload::ReferenceHistory => (1, 1, 10, 10, 10, 256, 511),
+        };
+    ic_blob_storage_contracts::dto::configuration::ServiceResourceInput {
+        max_tenants: 2,
+        max_object_bytes: 10 * 1024 * 1024,
+        max_headers: 8,
+        max_header_bytes: 1024,
+        max_chunks: chunks,
+        max_tenant_chunks: tenant_chunks,
+        max_objects: objects,
+        max_tenant_objects: tenant_objects,
+        max_physical_bytes: 2 * tenant_bytes * 1024 * 1024,
+        max_liability_bytes: 2 * tenant_bytes * 1024 * 1024,
+        max_tenant_logical_bytes: tenant_bytes * 1024 * 1024,
+        max_references_per_object: references,
+        max_receipts_per_object: receipts,
+        max_active: objects.min(4),
+        max_tenant_active: tenant_objects.min(2),
+    }
 }

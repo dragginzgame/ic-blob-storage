@@ -1,5 +1,122 @@
 # Current status — 2026-11-07
 
+## Pending upstream adoption and delegated delivery
+
+The maintainer authorized adoption and publication for this repository. Select
+published Build 0.78.0, Wire/Derive 0.17.8, Host Artifacts/FS/HTTP/Process 0.75.0,
+Host Tools 0.84.0, Platform 0.24.0 and Testkit 0.91.0; Types 0.18.2 and Runtime
+0.19.5 stay canonical. Registry metadata, Cargo.lock and cached crate archive
+checksums match for all twelve selected packages. Released APIs were inspected:
+Build's retired compiler/snapshot/progress capabilities are unused here; the
+explicit gateway decoder handles Platform's retired shortcut. Native-only
+Testkit retains Platform 0.23.6; the deployed normal/build graph selects 0.24 and
+excludes Testkit/Host/Agent/parser/schema/test-support dependencies.
+
+Shared Tooling 0.31.5 is exported canonically from independently verified remote
+main `b2026a118e38de4af1555c527af327cb604eacdf`, with all 171 selected files
+verified against that committed source. No sibling source was changed. The review
+and proof records are under `target/blob-upstream-delivery-20261107/`.
+
+The affected release plan is Contracts 0.73.1, then Client 0.74.0, then Engine
+0.74.4, each on main/origin with crates.io publication. Client requires a minor
+because the optional native DownloadError exposes Host FS's changed public
+DirectoryCreationError/NamedWriteError identities. Contracts and Engine expose
+no changed Platform wrapper identity; canonical Principal, Candid, Runtime and
+Storage identities and product bytes/semantics remain unchanged, so they take
+patches. The current Shared runner does not represent mixed increments in one
+batch. Use separate captured group batches in supplier order, preserving each
+batch's source, intents, failure logs, qualification and publication readback;
+do not override the runner's saved kind or use mutable normal-checkout release
+hooks. Reconcile each verified delivery before capturing the next group.
+
+Focused archive-verifier Clippy, formatting, snapshot/source/dependency boundaries
+and deployment exclusions pass on the selected graph. Full required delivery
+gates run inside the captured checkouts. Delivery has not started yet. The pending
+cleanup below is included; no live canister replacement, paid provider effect,
+retirement or destruction of old provider/release evidence is selected.
+
+## Pending Engine 0.74.4 — fixture consolidation and explicit gateway decoding (#119)
+
+The gateway-source fixture uses Platform's `decode_one_with_config` with explicit
+`DecoderConfig::new()`, preserving upstream unit/extra-value behavior, quotas,
+diagnostics and raw transport error mapping. #119's seven-case actual callback
+regression now lives in `tests/pocketic/tests/gateway_source/deletion_reply/mod.rs`
+and runs under the provider target. Native Testkit `reply-fixtures` supplies its
+bounded raw receiver; no direct Candid dependency or compatibility decoder is added.
+
+The retired read experiment and parallel funding sender are removed. Production
+Storage owns outgoing funding budgets, intents, accounting, credit and restoration;
+the bounded Cashier receiver and unique receiver recovery coverage remain. Original
+focused proof/failures remain under `target/issue119-20261107/` and
+`target/blob-cleanup-*.log`; the earlier 20 native / 83 installed passing tests
+precede the further consolidation below and are not its final qualification.
+
+### One service qualification owner
+
+The Authority and Admission probe packages are removed. The workspace has eleven
+members and four probes, retaining the existing physical layout. Cargo catalogs,
+Engine release groups, Make preparation/test partitions and dependency exclusions
+select that current roster. Historical release receipts and provider evidence are
+unchanged and still refer to their original packages/builds; Shared's exported
+stack document remains its reviewed snapshot.
+
+The Storage fixture owns the sole service configuration, memory runtime, allocation
+and production stores. Installation supplies the complete passive ServiceResourceInput,
+so workload limits have one source. The four previous admission workloads retain
+their exact capacities. A 16 KiB private measurement command and 32-entry ephemeral
+profile window exercise the same uploads owner; descriptor/discovery/capacity reads
+reuse the existing Storage/public endpoints. There is no second service owner or
+per-operation compatibility grammar. Admission profiles now reopen under the
+production inspection fence instead of enforcing the old fixture's no-upgrade rule.
+
+Coverage disposition:
+
+- Current tenant/uploader/controller checks, manifest/exposure retries, reference
+  receipts, physical/billing obligations and restore fences stay in Storage and
+  standalone scenarios. The alternate heap catalogs and replay-built authority
+  archive are gone; no product obligation records are touched.
+- Mandatory verified-before-certificate serving, persisted verifier sessions and
+  their checkpoint recovery belonged to the retired fixture model. Contracts keeps
+  verifier/checkpoint mathematics; the installed full/final-leaf, metadata and wrong
+  digest witness is retained by the content target using Storage, without durable
+  verifier state or a registration gate.
+- The private balance cache/journal, revision/preview APIs and status projections
+  had no counterpart in the current production workflow. Their fixture-only tests
+  retire; actual account reads and provider decoder failures remain covered by
+  standalone account and independent source consumers. Shared billing/diagnosis
+  policy tests remain with the core.
+- Provider source readers/journal recovery now run independently in the provider
+  target. Production gateway transport retains held replies, stale callbacks,
+  revocation/cancellation, failed upgrades and restored captured-source fences.
+  #119 is preserved. None of these substitutes qualifies deployed Caffeine.
+
+The accepted changes cut private fixture formats and commands only. No public
+product endpoint, product stable format, installation retirement or paid/provider
+operation changes. Old runs retain their original tools; no dual reader, reset or
+automatic migration is introduced. Pending dependency edits are preserved. No
+sibling or provider effects were part of that cleanup pass; the delegated library
+delivery above now includes the reviewed changes.
+
+Linux/Rust 1.99.1 qualification passes on the fixed preserved graph: strict
+all-target/all-feature Clippy for Storage/Gateway probes and all PocketIC targets;
+release Wasm builds of all four remaining probes and standalone; native CLI build;
+8 Contracts verifier/checkpoint tests, 5 core certificate tests, 24 billing-policy
+tests and 7 protocol tests. The migrated targets pass all 29 admission cases
+(including all four resource workloads), the 2 content-target cases and all 12
+provider-target cases. Production-path selections pass 16 gateway, 10 lifecycle,
+7 exposure, 7 manifest, 8 tenant, 4 standalone account and 7 standalone gateway
+cases: 102 integration-target passes in total. One Chromium opt-in case remains
+ignored; these local substitutes do not qualify the deployed provider.
+
+Formatting, source/dependency boundaries, deployment exclusions, documentation
+links and release-plan/test-partition regressions pass. Input fingerprints stayed
+unchanged throughout runtime qualification. Logs, the exact graph fingerprint and
+Shared's LOC JSON remain in `target/blob-probe-consolidation/`. The current count
+is 100,470 Rust code lines (28,581 application/library; 71,020 tests; 869 examples/
+tooling), versus 110,263 at the start of this pass, with zero unclassified files.
+Full release CI, native macOS, opt-in browser execution and live acceptance were
+not rerun. Earlier proof and all unsuccessful attempts remain retained separately.
+
 ## Delivered Client 0.73.2 / Engine 0.74.3
 
 Shared 0.31.1 batch **batch-eSq3MKgb** completed from committed source

@@ -4,26 +4,18 @@ use ic_blob_storage::ops::service::stores::ServiceStoreConfiguration;
 use ic_blob_storage_contracts::dto::configuration::ServiceBillingInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceConfigurationInput;
 use ic_blob_storage_contracts::dto::configuration::ServiceFundingInput;
-use ic_blob_storage_contracts::dto::configuration::ServiceResourceInput;
 
 pub(super) fn configuration(
     input: blob_test_protocol::storage::resources::StorageProbeInstallation,
 ) -> ServiceStoreConfiguration {
     assert!(
-        (1..=10_000).contains(&input.max_objects)
-            && (1..=32).contains(&input.max_tenants)
-            && (10..=67_108_864).contains(&input.max_object_bytes)
+        (1..=10_000).contains(&input.resources.max_objects)
+            && (1..=32).contains(&input.resources.max_tenants)
+            && (10..=67_108_864).contains(&input.resources.max_object_bytes)
             && (1..=10_000).contains(&input.max_funding_attempts),
         "bounded fixture capacity"
     );
-    let objects = input.max_objects;
     let operator = input.operator;
-    let bytes = input.max_object_bytes;
-    let chunks = u32::try_from(
-        bytes.div_ceil(ic_blob_storage_contracts::identity::caffeine::CAFFEINE_CHUNK_BYTES as u64),
-    )
-    .unwrap()
-        * objects;
     let service = ic_platform::cdk::api::canister_self();
     validate_candidate(
         service,
@@ -32,23 +24,7 @@ pub(super) fn configuration(
             operator: operator.into(),
             payment_account: service,
             namespace: 1,
-            resources: ServiceResourceInput {
-                max_tenants: input.max_tenants,
-                max_object_bytes: bytes,
-                max_headers: 8,
-                max_header_bytes: 1024,
-                max_chunks: chunks,
-                max_tenant_chunks: chunks,
-                max_objects: objects,
-                max_tenant_objects: objects,
-                max_physical_bytes: u128::from(objects) * u128::from(bytes),
-                max_liability_bytes: u128::from(objects) * u128::from(bytes),
-                max_tenant_logical_bytes: u128::from(objects) * u128::from(bytes),
-                max_references_per_object: 2,
-                max_receipts_per_object: 3,
-                max_active: objects,
-                max_tenant_active: objects,
-            },
+            resources: input.resources,
             billing: ServiceBillingInput {
                 cashier: operator.into(),
                 reserve: 1,

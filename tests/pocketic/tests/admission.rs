@@ -16,8 +16,8 @@ use ic_blob_storage_pocketic_tests::service_calls::canister_rejection;
 mod vectors;
 
 use blob_test_protocol::admission::{
-    Command, Enrollment, Failure, Installation, ManifestState, Observation, Outcome, Permission,
-    Phase, Request, Workload,
+    Command, Enrollment, Failure, ManifestState, Observation, Outcome, Permission, Phase, Request,
+    Workload,
 };
 use ic_platform::principal::ExternalPrincipal as Principal;
 use ic_testkit::fake_principal;
@@ -33,6 +33,7 @@ struct Fixture {
     project: Principal,
     other: Principal,
     uploader: Principal,
+    installation: blob_test_protocol::storage::resources::StorageProbeInstallation,
 }
 
 impl Fixture {
@@ -45,22 +46,25 @@ impl Fixture {
         let operator = fake_principal(1);
         let controller = fake_principal(2);
         let service = installation::controlled_canister(&harness.pic, controller).await;
+        let installation = blob_test_protocol::storage::resources::StorageProbeInstallation {
+            operator,
+            resources: blob_test_protocol::storage::resources::admission_resources(workload),
+            max_funding_attempts: 4,
+        };
         harness
             .pic
             .install_canister(
                 service,
                 Self::wasm(),
-                blob_test_protocol::fixture_wire::encode_args(
-                    "fixture_init",
-                    (Installation { operator, workload },),
-                )
-                .unwrap(),
+                blob_test_protocol::fixture_wire::encode_args("fixture_init", (installation,))
+                    .unwrap(),
                 Some(controller),
             )
             .await
             .unwrap();
         Self {
             harness,
+            installation,
             service,
             operator,
             controller,
@@ -71,7 +75,7 @@ impl Fixture {
     }
 
     fn wasm() -> Vec<u8> {
-        std::fs::read(fixture_path("BLOB_ADMISSION_PROBE_WASM")).unwrap()
+        std::fs::read(fixture_path("BLOB_STORAGE_PROBE_WASM")).unwrap()
     }
 
     async fn call(&self, caller: Principal, command: Command) -> Result<Outcome, Failure> {
@@ -95,7 +99,7 @@ impl Fixture {
             &self.harness.pic,
             self.service,
             caller,
-            "inspect",
+            "fixture_admission_observation",
             (request,),
         )
         .await

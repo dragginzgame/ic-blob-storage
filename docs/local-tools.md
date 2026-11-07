@@ -236,68 +236,50 @@ promise crash-durable directory updates. Persistence follows
 See the
 [consumer download direction](roadmap.md#consumer-download-verification).
 
-## Inspect a running PocketIC fixture
+## Inspect production-path PocketIC fixtures
 
-Use the typed [operator scenarios](../tests/pocketic/tests/operator.rs).
-They inspect the caller-owned instance directly, preserve unknown economic fields,
-and compare durable journals before and after passive queries. There is no separate
-fixture command grammar, report format or attachment client.
-
-## Preview or refresh fixture balances
-
-[Balance scenarios](../tests/pocketic/tests/operator_balance/mod.rs) and their
-[preview/refresh cases](../tests/pocketic/tests/operator_balance/refresh/mod.rs)
-keep query-only previews separate from a single explicit update. Stale revisions,
-consumed sequences, pending reads and restoration fences refuse before dispatch.
-Malformed acknowledgement never proves no effect; later diagnosis cannot erase it.
+[Storage scenarios](../tests/pocketic/tests/storage.rs) and
+[standalone account scenarios](../tests/pocketic/tests/standalone_account/mod.rs)
+exercise actual operator/tenant endpoints, preserving absent economic observations
+and comparing durable state across passive reads. The former authority probe's
+private balance cache, preview commands and alternate restoration archives are
+retired; they are not part of the production service contract.
 
 ## Synchronize fixture gateways
 
-[Gateway sync scenarios](../tests/pocketic/tests/operator_sync/mod.rs) use explicit
-source, namespace, caller, revision and sequence. Held replies cannot override
-revocation; overlap cannot dispatch another request. Restoration retains fences
-and pending evidence. Each preview remains a query, without update fallback.
+[Storage gateway transport scenarios](../tests/pocketic/tests/storage_gateways/transport/mod.rs)
+use the production durable registry and explicit caller/source bindings. Held
+replies cannot override revocation, cancellation or a newer attempt. Source
+restoration keeps its captured reply fenced. The
+[independent source readers](../tests/pocketic/tests/provider.rs) retain decoder,
+caller and journal checks without another service implementation.
 
-## Preview fixture funding
+## Qualify production funding with a local receiver
 
-[Funding preview scenarios](../tests/pocketic/tests/operator_funding_preview/mod.rs)
-inspect the exact identity, full amount and current attachment-budget revision.
-They reserve nothing and never transfer cycles. Gross balance cannot supply
-spendability; transport acceptance cannot supply provider credit. Typed blockers
-remain distinct from caller, binding and invalid-amount failures.
+[Storage funding scenarios](../tests/pocketic/tests/storage_funding/mod.rs) exercise
+production preparation, assessment, lookup, dispatch, callback accounting, credit
+confirmation and fenced recovery. The [transport cases](../tests/pocketic/tests/storage_funding/transport/mod.rs)
+check exact Cashier arguments, call-specific refunds, advertised failures and
+callback rollback. Query-only assessment remains separate from dispatch.
 
-## Recover an exact fixture funding outcome
+The funding probe is only a bounded receiver substitute, installed with
+`(peer, driver)`. The driver configures exact expected argument bytes, the offered
+and accepted cycles, and a canned reply. Only the configured peer can transfer;
+receipts retain actual acceptance, never provider credit. Restored receivers are
+inspection-only. The fixture has no outgoing payment, budget, preview or recovery
+engine: the production Storage owner is the sole source of those semantics.
+These local tests do not qualify deployed Cashier credit, billing or recovery.
 
-[Funding lookup scenarios](../tests/pocketic/tests/operator_funding_lookup/mod.rs)
-query the complete original request after a lost reply. Absent means missing from
-this journal, including an old backup; pending includes callback rollback. Neither
-permits another transfer. Restored owners stay fenced and conflicting requests
-cannot retrieve an earlier operation's result.
+## Admission workload measurements
 
-## Fixture funding accounting
-
-The funding fixture requires `(peer, driver, FundingBudgetInput { allocated,
-reserve, operating_reserve, other_liabilities })` at installation. Its positive
-`reserve` limits transfer attachments;
-the typed status and preview expose this local attachment budget. Available
-allocation excludes accepted cycles and full unresolved attachments. Callback
-refunds and proven unsent offers are reported separately. Incoming receipts or
-added gross cycles never increase it. Separately, the transfer guard uses current
-platform liquid cycles and call costs, preserving positive `operating_reserve`
-slack and explicit `other_liabilities`. These holds cannot be reset or released by
-a refund. Costs are sampled after intent persistence and before dispatch. A
-`LiquidityBlocked` outcome consumes the identity, releases the unsent attachment
-and reports no callback refund.
-Callback trap controls apply only to actual callbacks; they cannot erase an unsent
-refusal. Such refusals still consume the bounded journal's lifetime capacity.
-The fixture uses the library's `model::billing::allocation::FundingAllocation`
-for amount reconstruction. It requires complete sequential history and rejects
-original reserve violations even if the eventual reply returned the full offer.
-
-Preview `liquidity` figures are observations, possibly cached, and can change
-without a budget revision. The update rechecks its own exact encoded call. These
-local installed holds do not prove complete production liabilities, provider credit
-or recovery; top-level spendability remains unknown. Restored owners stay fenced.
+`make test-admission-resources` uses the same Storage probe and production
+`StableUploads` owner as rollback/recovery tests. Its explicit resource inputs
+preserve Small, RetainedHistory, ReleaseHistory and ReferenceHistory workloads.
+The private `fixture_admission_measurement` command measures bounded metadata
+operations; it has one 16 KiB Wire envelope and a 32-entry diagnostic window.
+Service ingress remains on the actual Blob endpoints and their existing bounds.
+Private descriptor observations reuse Storage's existing controls. Resource
+reports describe this fixture build, never deployed provider throughput or costs.
 
 ## Opt-in receipt-history resources
 

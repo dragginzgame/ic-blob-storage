@@ -65,7 +65,7 @@ for package in ic-metrics ic-memory ic-stable-structures ic-wire-derive clap cla
 done
 unset FIXTURE_PACKAGE_LINE
 printf 'Deployment CLI and retired runtime refusals: PASS\n'
-for package in blob-test-protocol ic-blob-storage-pocketic-tests blob-authority-probe blob-admission-probe blob-storage-probe blob-consumer-probe blob-funding-probe blob-gateway-source; do
+for package in blob-test-protocol ic-blob-storage-pocketic-tests blob-storage-probe blob-consumer-probe blob-funding-probe blob-gateway-source; do
     export FIXTURE_PACKAGE_LINE="$package v1.0.0"
     if bash "$root/scripts/ci/check-runtime-free-contracts.sh" > "$fixture/output" 2>&1; then
         echo "Deployment accepted $package" >&2; exit 1

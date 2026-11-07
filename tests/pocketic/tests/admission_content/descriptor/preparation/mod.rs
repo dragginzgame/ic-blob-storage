@@ -2,7 +2,6 @@
 use super::*;
 use blob_test_protocol::admission::input::{RetainedDescriptor, RetainedDescriptorInput};
 use ic_blob_storage_contracts::identity::caffeine::manifest::builder::CaffeineManifestBuilder;
-use ic_blob_storage_pocketic_tests::fixture_calls;
 
 const BYTES: usize = 10 * 1024 * 1024;
 
@@ -66,18 +65,20 @@ async fn client_prepared_ten_mib_manifest_enters_service_without_a_body_relay() 
         incarnation: 1,
         reference: 1,
     };
-    let inspect = async || -> Result<Option<RetainedDescriptor>, Failure> {
-        fixture_calls::query_fixture(
-            &f.harness.pic,
-            f.service,
-            f.project,
-            "retained_content_descriptor",
-            (input,),
-        )
-        .await
-        .map(|(reply,)| reply)
-        .unwrap()
-    };
+    let inspect =
+        async || -> Result<Option<RetainedDescriptor>, blob_test_protocol::storage::Failure> {
+            ic_blob_storage_pocketic_tests::control_calls::ControlCallExt::query_control_as(
+                &f.harness.pic,
+                f.service,
+                f.project,
+                "retained_content_descriptor",
+                (input,),
+                blob_test_protocol::fixture_wire::MAX_BYTES,
+            )
+            .await
+            .map(|(reply,)| reply)
+            .unwrap()
+        };
     assert_eq!(inspect().await, Ok(None));
     f.call(f.uploader, Command::Expose(permission.request.root))
         .await

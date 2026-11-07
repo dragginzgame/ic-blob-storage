@@ -1,6 +1,5 @@
 //! Fixture state and individual platform effects; no production provider contract.
 pub(crate) mod balance;
-pub(crate) mod readback;
 mod scheduling;
 mod storage;
 pub(crate) mod sync_hold;
@@ -12,7 +11,7 @@ pub(crate) fn unfunded_replicated_query() -> bool {
 
 use crate::model::{ActionRecord, SourceJournalRecord};
 use blob_test_protocol::{
-    SourceMode, SourceObservation, SyncFailure,
+    SourceMode, SourceObservation,
     source::{SourceAction, SourceEffectView, SourceRecoveryView},
 };
 use ic_platform::Principal;
@@ -63,7 +62,6 @@ fn mutate<T>(f: impl FnOnce(&mut SourceJournalRecord) -> T) -> T {
 pub(crate) fn observation() -> SourceObservation {
     read(|state| SourceObservation {
         requests: state.requests,
-        nested_sync: state.nested_sync,
     })
 }
 
@@ -94,16 +92,11 @@ pub(crate) fn recovery() -> SourceRecoveryView {
                 ready: held.ready,
             }
         }),
-        read: state.read.config.as_ref().map(readback::config_view),
-        read_pending: state.read.pending,
-        read_ready: state.read.ready,
         effects: state
             .effects
             .iter()
             .map(|effect| SourceEffectView {
                 action: match &effect.action {
-                    ActionRecord::Sync => SourceAction::Sync,
-                    ActionRecord::Revoke => SourceAction::Revoke,
                     ActionRecord::Delete(roots) => SourceAction::Delete(roots.clone()),
                 },
                 succeeded: effect.succeeded,
@@ -115,7 +108,6 @@ pub(crate) fn recovery() -> SourceRecoveryView {
 pub(crate) fn configure(mode: SourceMode) {
     mutate(|state| {
         state.mode = mode;
-        state.nested_sync = None;
     });
 }
 
@@ -130,68 +122,6 @@ pub(crate) fn receive() -> (Principal, Principal, SourceMode) {
     })
 }
 
-pub(crate) fn replace(gateway: Principal) {
-    mutate(|state| {
-        state.gateway = gateway.into();
-        state.mode = SourceMode::Valid;
-    });
-}
-
-pub(crate) fn record_nested(result: Result<(), SyncFailure>) {
-    mutate(|state| state.nested_sync = Some(result));
-}
-
-pub(crate) fn next_sync_request(
-    input: blob_test_protocol::GatewaySyncRequest,
-) -> blob_test_protocol::GatewaySyncRequest {
-    blob_test_protocol::GatewaySyncRequest {
-        revision: input
-            .revision
-            .checked_add(1)
-            .expect("fixture edit revision"),
-        sequence: input
-            .sequence
-            .checked_add(1)
-            .expect("fixture sync sequence"),
-        ..input
-    }
-}
-
-pub(crate) async fn sync(
-    service: Principal,
-    input: blob_test_protocol::GatewaySyncRequest,
-) -> Result<(), SyncFailure> {
-    let id = mutate(|state| state.begin_effect(ActionRecord::Sync));
-    let response = Call::bounded_wait(service, "sync_gateway")
-        .take_raw_args(
-            blob_test_protocol::fixture_wire::encode_one("sync_gateway", input)
-                .expect("fixture call arguments"),
-        )
-        .await
-        .expect("local probe sync transport");
-    let result: Result<(), SyncFailure> =
-        blob_test_protocol::fixture_wire::decode_one("sync_gateway", response.as_ref(), 4096)
-            .expect("typed probe reply");
-    mutate(|state| state.finish_effect(id, result.is_ok()));
-    result
-}
-
-pub(crate) async fn revoke(service: Principal) {
-    let id = mutate(|state| state.begin_effect(ActionRecord::Revoke));
-    let response = Call::bounded_wait(service, "revoke_gateway")
-        .take_raw_args(
-            blob_test_protocol::fixture_wire::encode_args("revoke_gateway", ())
-                .expect("fixture scheduling arguments"),
-        )
-        .await
-        .expect("local revoke transport");
-    let revoked: bool =
-        blob_test_protocol::fixture_wire::decode_one("revoke_gateway", response.as_ref(), 4096)
-            .expect("revoke reply");
-    mutate(|state| state.finish_effect(id, revoked));
-    assert!(revoked, "source is the explicit fixture operator");
-}
-
 pub(crate) async fn confirm_deletion(service: Principal, roots: Vec<Vec<u8>>) -> Result<(), u32> {
     let retained = roots
         .iter()
@@ -204,7 +134,12 @@ pub(crate) async fn confirm_deletion(service: Principal, roots: Vec<Vec<u8>>) ->
         )
         .await
     {
-        Ok(reply) => ic_platform::candid::decoder::decode_one::<()>(reply.as_ref()).map_err(|_| 0),
+        Ok(reply) => ic_platform::candid::decoder::decode_one_with_config::<()>(
+            reply.as_ref(),
+            // Preserve this fixture's upstream defaults, including unit/extra-value admission.
+            &ic_platform::candid::decoder::DecoderConfig::new(),
+        )
+        .map_err(|_| 0),
         Err(CallFailed::CallRejected(error)) => Err(error.raw_reject_code()),
         Err(CallFailed::InsufficientLiquidCycleBalance(_) | CallFailed::CallPerformFailed(_)) => {
             Err(0)

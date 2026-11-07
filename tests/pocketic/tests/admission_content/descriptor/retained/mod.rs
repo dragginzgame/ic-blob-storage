@@ -1,6 +1,5 @@
 use super::*;
 use blob_test_protocol::admission::input::{RetainedDescriptor, RetainedDescriptorInput};
-use ic_blob_storage_pocketic_tests::fixture_calls;
 
 async fn lifecycle(
     f: &Fixture,
@@ -14,13 +13,14 @@ async fn inspect(
     f: &Fixture,
     actor: Principal,
     input: RetainedDescriptorInput,
-) -> Result<Option<RetainedDescriptor>, Failure> {
-    fixture_calls::query_fixture(
+) -> Result<Option<RetainedDescriptor>, blob_test_protocol::storage::Failure> {
+    ic_blob_storage_pocketic_tests::control_calls::ControlCallExt::query_control_as(
         &f.harness.pic,
         f.service,
         actor,
         "retained_content_descriptor",
         (input,),
+        blob_test_protocol::fixture_wire::MAX_BYTES,
     )
     .await
     .map(|(reply,)| reply)
@@ -141,7 +141,10 @@ async fn check_authority(f: &Fixture, input: RetainedDescriptorInput) {
         f.other,
         Principal::anonymous(),
     ] {
-        assert_eq!(inspect(f, actor, input).await, Err(Failure::NotProject));
+        assert_eq!(
+            inspect(f, actor, input).await,
+            Err(blob_test_protocol::storage::Failure::Denied)
+        );
     }
     for bad in [
         RetainedDescriptorInput { object: 0, ..input },
@@ -154,7 +157,10 @@ async fn check_authority(f: &Fixture, input: RetainedDescriptorInput) {
             ..input
         },
     ] {
-        assert_eq!(inspect(f, f.project, bad).await, Err(Failure::InvalidInput));
+        assert_eq!(
+            inspect(f, f.project, bad).await,
+            Err(blob_test_protocol::storage::Failure::Invalid)
+        );
     }
     for bad in [
         RetainedDescriptorInput { object: 2, ..input },
@@ -189,7 +195,7 @@ async fn check_authority(f: &Fixture, input: RetainedDescriptorInput) {
             }
         )
         .await,
-        Err(Failure::WrongService)
+        Err(blob_test_protocol::storage::Failure::Binding)
     );
     assert_eq!(
         inspect(
@@ -204,7 +210,7 @@ async fn check_authority(f: &Fixture, input: RetainedDescriptorInput) {
             }
         )
         .await,
-        Err(Failure::WrongNamespace)
+        Err(blob_test_protocol::storage::Failure::Binding)
     );
     assert_eq!(
         inspect(

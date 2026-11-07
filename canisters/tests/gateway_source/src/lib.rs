@@ -7,8 +7,7 @@ mod workflow;
 
 use std::marker::PhantomData;
 
-use blob_test_protocol::journey::readback::{ReadSourceConfig, ReadSourceObservation};
-use blob_test_protocol::{SourceMode, SourceObservation, SyncFailure};
+use blob_test_protocol::{SourceMode, SourceObservation};
 use ic_platform::principal::ExternalPrincipal;
 
 #[ic_platform::cdk::init(decode_with = "blob_test_protocol::fixture_wire::hooks::init")]
@@ -36,14 +35,6 @@ fn configure(mode: SourceMode) -> bool {
     workflow::configure(ic_platform::cdk::api::msg_caller(), mode)
 }
 
-#[ic_platform::cdk::update(
-    decode_with = "blob_test_protocol::fixture_wire::hooks::one::<_, { blob_test_protocol::fixture_wire::identity(\"run_sync\") }>",
-    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"run_sync\") }>"
-)]
-async fn run_sync(input: blob_test_protocol::GatewaySyncRequest) -> Result<(), SyncFailure> {
-    workflow::run_sync(ic_platform::cdk::api::msg_caller(), input).await
-}
-
 #[ic_platform::cdk::query(
     decode_with = "blob_test_protocol::fixture_wire::hooks::unit::<{ blob_test_protocol::fixture_wire::identity(\"observation\") }>",
     encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"observation\") }>"
@@ -61,55 +52,11 @@ async fn run_deletion(roots: Vec<Vec<u8>>) -> Result<(), u32> {
 }
 
 #[ic_platform::cdk::update(
-    decode_with = "blob_test_protocol::fixture_wire::hooks::one::<_, { blob_test_protocol::fixture_wire::identity(\"configure_read\") }>",
-    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"configure_read\") }>"
-)]
-fn configure_read(config: ReadSourceConfig) -> bool {
-    workflow::readback::configure(ic_platform::cdk::api::msg_caller(), config)
-}
-
-#[ic_platform::cdk::query(
-    decode_with = "blob_test_protocol::fixture_wire::hooks::unit::<{ blob_test_protocol::fixture_wire::identity(\"read_observation\") }>",
-    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"read_observation\") }>"
-)]
-fn read_observation() -> Option<ReadSourceObservation> {
-    workflow::readback::observation(ic_platform::cdk::api::msg_caller())
-}
-
-#[ic_platform::cdk::update(
-    decode_with = "blob_test_protocol::fixture_wire::hooks::unit::<{ blob_test_protocol::fixture_wire::identity(\"resume_read\") }>",
-    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"resume_read\") }>"
-)]
-fn resume_read() -> bool {
-    workflow::readback::resume(ic_platform::cdk::api::msg_caller())
-}
-
-#[ic_platform::cdk::update(
     decode_with = "blob_test_protocol::fixture_wire::hooks::unit::<{ blob_test_protocol::fixture_wire::identity(\"resume_sync\") }>",
     encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"resume_sync\") }>"
 )]
 fn resume_sync() -> bool {
     workflow::resume_sync(ic_platform::cdk::api::msg_caller())
-}
-
-#[ic_platform::cdk::update(
-    manual_reply = true,
-    decode_with = "blob_test_protocol::fixture_wire::hooks::args::<_, { blob_test_protocol::fixture_wire::identity(\"fixture_chunk\") }>"
-)]
-async fn fixture_chunk(root: Vec<u8>, index: u64) -> PhantomData<Vec<u8>> {
-    workflow::readback::reply(ic_platform::cdk::api::msg_caller(), &root, index).await;
-    PhantomData
-}
-
-#[ic_platform::cdk::update(
-    manual_reply = true,
-    decode_with = "blob_test_protocol::fixture_wire::hooks::one::<_, { blob_test_protocol::fixture_wire::identity(\"fixture_gateways\") }>"
-)]
-async fn fixture_gateways(
-    input: blob_test_protocol::GatewaySyncRequest,
-) -> PhantomData<Vec<ExternalPrincipal>> {
-    workflow::reply(ic_platform::cdk::api::msg_caller(), input).await;
-    PhantomData
 }
 
 #[ic_platform::cdk::query(

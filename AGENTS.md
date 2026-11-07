@@ -1,7 +1,7 @@
 # AGENTS.md
 
 For scope, delegated delivery, validation, compiler support and reporting, use
-[Shared policy at 5efbda2](https://github.com/dragginzgame/shared-tooling/blob/5efbda2ab81ad84e30f490f3137d8ef083c303d2/DRAGGINZGAME.md)
+[Shared policy at b2026a1](https://github.com/dragginzgame/shared-tooling/blob/b2026a118e38de4af1555c527af327cb604eacdf/DRAGGINZGAME.md)
 and its revision-bound references over older snapshot or local-guide wording.
 This includes Rust 1.99.1 as minimum and pinned development/release compiler;
 check local declarations and qualification before claiming adoption is complete.
@@ -130,7 +130,7 @@ it does not override shared rules or depend on a mutable sibling checkout.
   in `crates/`, standalone in `canisters/standalone/` and probe canisters in `canisters/tests/`, and packaged test
   support in `tests/pocketic/` and `tests/protocol/`. The maintainer explicitly
   reversed the crates-only moves. Do not relocate these packages during routine
-  adoption; a future redesign requires separate explicit approval. All 13 members
+  adoption; a future redesign requires separate explicit approval. All 11 members
   still share one virtual root, lockfile and inherited dependency catalog. Their
   literal versions are coordinated within the Contracts, Client and Engine
   groups in `ci/cargo-release-groups.json`; releases require `RELEASE_GROUP`.

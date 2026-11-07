@@ -1,21 +1,15 @@
 //! Private fixture controls shared by local test canisters and the host harness.
 //! These are not a production service API or an independently defined provider contract.
-use ic_platform::principal::ExternalPrincipal;
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 pub mod admission;
-pub mod authority;
-pub mod chunk;
 pub mod consumer;
 pub mod content;
 pub mod funding;
 pub mod journey;
-pub mod obligations;
 pub mod source;
-pub mod status;
 pub mod storage;
-pub mod uploads;
 
 /// Deliberate source behavior for one local gateway-list experiment.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
@@ -32,50 +26,6 @@ pub enum SourceMode {
     Empty,
     /// Reject the inter-canister call.
     Reject,
-    /// Attempt another sync while the original is awaiting this reply.
-    Overlap,
-    /// Revoke the old gateway before returning its stale membership list.
-    Revoke,
-    /// Revoke, complete a new sync, then return the original stale list.
-    Replace(ExternalPrincipal),
-}
-
-/// Typed outcomes of the test-only sync orchestration.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
-pub enum SyncFailure {
-    /// Caller lacks the explicit fixture operator role.
-    Denied,
-    /// Another attempt is already pending.
-    InProgress,
-    /// An intervening decision invalidated this attempt.
-    Stale,
-    /// Supplied reply failed decoding or membership validation.
-    InvalidReply,
-    /// Reply exceeded the configured pre-decoding byte bound.
-    ReplyTooLarge,
-    /// The local inter-canister call failed.
-    Transport,
-    /// Internal scope or sequence admission rejected the attempt.
-    Admission,
-    /// Inspection-only restoration prohibits new syncs and callbacks.
-    Fenced,
-    /// Expected service, namespace or source differs from this registry.
-    Binding,
-}
-
-/// Explicit local sync admission; this is not a reusable registry token.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
-pub struct GatewaySyncRequest {
-    /// Authority fixture owning membership.
-    pub service: ExternalPrincipal,
-    /// Exact fixture namespace.
-    pub namespace: u128,
-    /// Controlled source of the gateway list.
-    pub source: ExternalPrincipal,
-    /// Expected operator-edit revision, including no-op revocations.
-    pub revision: u64,
-    /// Expected next lifetime sync sequence.
-    pub sequence: u64,
 }
 
 /// Bounded observations of calls made to the controlled source.
@@ -83,13 +33,9 @@ pub struct GatewaySyncRequest {
 pub struct SourceObservation {
     /// Number of list requests observed, used to check denial before effects.
     pub requests: u64,
-    /// Result of the most recent deliberate reentrant sync, if any.
-    pub nested_sync: Option<Result<(), SyncFailure>>,
 }
 
 pub mod balance;
-
-pub mod billing;
 
 pub mod fixture_wire;
 pub mod provider_candid;

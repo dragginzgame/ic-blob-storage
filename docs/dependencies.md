@@ -1,4 +1,14 @@
 <p align="center">
+
+Pending adoption selects published Build 0.78.0, Wire/Derive 0.17.8, Host
+Artifacts/FS/HTTP/Process 0.75.0, Host Tools 0.84.0, Platform 0.24.0 and
+Testkit 0.91.0. Types 0.18.2 and Runtime 0.19.5 retain their canonical identities.
+Released sources were checked against registry checksums. The prepared explicit
+Candid configuration addresses Platform's removed unconfigured decoder shortcuts;
+Blob does not use its retired offline key derivation. Testkit still introduces
+Platform 0.23.6 in the native-only simulator graph, separately from deployed
+Platform 0.24. Contributor tools require explicit preparation before offline checks.
+
   <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
 </p>
 
@@ -87,7 +97,7 @@ establish a deployed canister's graph or a performance improvement.
 ## Current dependency owners
 
 The root [Cargo catalog](../Cargo.toml) owns all direct dependency requirements;
-all thirteen members inherit common package metadata and dependencies while
+all members inherit common package metadata and dependencies while
 declaring literal versions within their release groups. The root
 [lockfile](../Cargo.lock) owns this checkout's selected graph. Member manifests
 select features and targets. Registry consumers resolve their own compatible
@@ -273,7 +283,7 @@ The first delivery
 of the package-scope mapping keeps the full
 roster; later package narrowing and stage omissions require an admitted baseline,
 reviewed reverse-consumer coverage and unchanged infrastructure.
-The workspace retains thirteen independently grouped members and one lock.
+The workspace retains eleven independently grouped members and one lock.
 The canonical companion closure now includes the validation-runner guide, fixing
 [Shared #346](https://github.com/dragginzgame/shared-tooling/issues/346) without an
 extra consumer entrypoint. See [release ownership](releasing.md).
@@ -292,7 +302,7 @@ lockfile presence, establish exposure.
 ### Supported compiler
 
 Rust **1.99.1** is both the minimum supported compiler in the root manifest and
-the exact development/release pin in `rust-toolchain.toml`. All thirteen members
+the exact development/release pin in `rust-toolchain.toml`. All eleven members
 inherit the floor; there are no independent Cargo workspaces or member overrides.
 `make compiler-check` records actual Cargo/rustc verbose identities and admits
 every effective member floor against the pin, with offline locked metadata.
@@ -600,7 +610,8 @@ Testkit's opt-in `held-reply-fixtures` owns generic immutable reply slots
 and manual PocketIC release. It is suitable for consumer callback races without
 provider lifecycle operations. It does not replace Blob's durable
 [gateway source](../canisters/tests/gateway_source/src/model/mod.rs): the
-[recovery cases](../tests/pocketic/tests/recovery/authority/sync/mod.rs) inspect
+[source recovery](../tests/pocketic/tests/gateway_source/recovery/mod.rs) and
+[transport cases](../tests/pocketic/tests/storage_gateways/transport/mod.rs) inspect
 captured source journals, reject pending upgrades, restore old source bytes and
 verify bounded exhaustion. Testkit's held controller explicitly excludes fixture
 upgrade/reinstall/restore with held calls and keeps no durable source journal.

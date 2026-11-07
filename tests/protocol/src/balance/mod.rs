@@ -1,7 +1,7 @@
 //! Controlled balance observations, not a production account or Cashier API.
 use ic_platform::candid::contract::CandidType;
 use ic_platform::principal::ExternalPrincipal;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 /// Independent local receiver shape for the maintained balance request encoder.
 /// This fixture endpoint is a substitute, not a production Cashier implementation.
@@ -18,134 +18,6 @@ pub struct BalanceSourceRequest {
 pub struct RelationshipSourceRequest {
     /// Usage owner selected by the encoded request, not the expected payer.
     pub canister: ExternalPrincipal,
-}
-
-/// Explicit local observation binding; no default project/account is inferred.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
-pub struct BalanceScope {
-    /// Authority fixture answering status.
-    pub service: ExternalPrincipal,
-    /// Namespace owned by that authority fixture.
-    pub namespace: u128,
-    /// Controlled local source, never an implicitly selected Cashier.
-    pub source: ExternalPrincipal,
-    /// Account expected inside the independent Candid reply bytes.
-    pub account: ExternalPrincipal,
-}
-
-/// Exact local read admission. Reusing a consumed sequence cannot dispatch again.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
-pub struct BalanceRefreshRequest {
-    /// All expected observation bindings.
-    pub scope: BalanceScope,
-    /// Exact current configuration revision.
-    pub revision: u64,
-    /// Expected next lifetime attempt number, starting at one.
-    pub sequence: u64,
-}
-
-/// Admission or observation failure; errors never stand in for zero cycles.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
-pub enum BalanceFailure {
-    /// Caller lacks explicit operator authority.
-    Denied,
-    /// Restored inspection owner cannot refresh or configure.
-    Fenced,
-    /// Invalid or mismatched scope.
-    Binding,
-    /// No configured observation scope.
-    NotConfigured,
-    /// Numeric billing limits failed validation.
-    InvalidLimits,
-    /// An earlier read is still pending, including invalidated reads.
-    Busy,
-    /// Lifetime attempts or configuration sequence exhausted.
-    Limit,
-    /// Local call could not be encoded, enqueued or completed.
-    Transport,
-    /// Response exceeded the byte budget.
-    Oversized,
-    /// Invalid Candid or invalid signed/oversized amounts.
-    Malformed,
-    /// Returned account differs from the captured request.
-    AccountMismatch,
-    /// Structured provider-shaped failure from the substitute.
-    AccountNotFound,
-    /// Structured internal failure from the substitute.
-    ProviderInternal,
-    /// Expected revision/sequence is stale, or configuration changed during the call.
-    Stale,
-}
-
-/// All independently reported components; total is not recomputed.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
-pub struct BalanceAmountsView {
-    /// Reported total cycles.
-    pub total: u128,
-    /// Reported prepaid cycles.
-    pub prepaid: u128,
-    /// Reported promotional cycles.
-    pub promotional: u128,
-    /// Reported ledger cycles.
-    pub ledger: u128,
-}
-
-/// Retained outcome; reports do not prove payment credit or provider freshness.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
-pub enum BalanceOutcomeView {
-    /// Exact validated response and local receive time in nanoseconds.
-    Reported(BalanceAmountsView, u64),
-    /// Failed observation, preserved independently of prior reports.
-    Failed(BalanceFailure),
-}
-
-/// One immutable intent and its optional terminal result.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
-pub struct BalanceAttemptView {
-    /// Lifetime read identity, never reused.
-    pub sequence: u64,
-    /// Configuration revision captured before dispatch.
-    pub revision: u64,
-    /// Exact source/account/service/namespace context.
-    pub scope: BalanceScope,
-    /// Local dispatch time, in nanoseconds.
-    pub started_at: u64,
-    /// Absent means pending, including restored callback uncertainty.
-    pub outcome: Option<BalanceOutcomeView>,
-}
-
-/// Why the latest retained report is or is not usable for local display.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, Serialize)]
-pub enum BalanceUsability {
-    /// No attempt under this configuration.
-    Unobserved,
-    /// Most recent call has no completion.
-    Pending,
-    /// Valid local reply within the fixture age bound; not provider freshness proof.
-    Observed,
-    /// Local age bound exceeded or the clock precedes dispatch/receipt.
-    Expired,
-    /// Configuration changed since the latest attempt.
-    Invalidated,
-    /// Latest observation failed.
-    Failed,
-    /// Inspection-only restoration denies use of retained reports.
-    Fenced,
-}
-
-/// Read-only bounded history of simulated balance observations.
-#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
-pub struct BalanceStatusView {
-    /// Current explicit configuration, if any.
-    pub configured: Option<BalanceScope>,
-    /// Current configuration revision.
-    pub revision: u64,
-    /// Local fixture observation age limit, in nanoseconds.
-    pub max_age_ns: u64,
-    /// Current use classification, without altering retained history.
-    pub usability: BalanceUsability,
-    /// At most sixteen lifetime attempts; no recycling or reset.
-    pub attempts: Vec<BalanceAttemptView>,
 }
 
 /// Driver-installed raw response, independent of the production decoder schema.

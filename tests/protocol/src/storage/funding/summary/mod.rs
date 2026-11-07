@@ -1,6 +1,6 @@
 //! Complete local journal status, never provider-account clearance.
 use super::Allocation;
-use crate::status::FundingActivityView;
+use crate::funding::FundingActivityView;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use serde::Deserialize;
 

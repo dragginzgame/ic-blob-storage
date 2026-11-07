@@ -4,6 +4,21 @@ Packages: `ic-blob-storage-client`, `ic-blob-storage-cli`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.74.0] - Unreleased
+
+### 💥 Breaking
+
+- Adopt Host FS 0.75 for optional native downloads. `DownloadError::Directory`
+  and `DownloadError::Publication` now carry that version's public Host error
+  identities; callers exchanging these errors must align their Host FS dependency.
+  Replicated Client APIs, verification, request bytes and retry behavior are unchanged.
+
+### 🔧 Changed
+
+- Use Build 0.78 and aligned Host 0.75 tools for CLI source/archive qualification,
+  and Platform 0.24, Testkit 0.91 and Shared Tooling 0.31.5 for maintained checks.
+  Preserve bounded execution, evidence and saved publication formats.
+
 ## [0.73.2] - 2026-11-07
 
 ### 🔧 Changed

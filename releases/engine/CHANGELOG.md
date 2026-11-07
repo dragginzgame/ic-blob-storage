@@ -1,8 +1,46 @@
 # Engine release notes
 
-Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`, `blob-authority-probe`, `blob-consumer-probe`, `blob-funding-probe`, `blob-gateway-source`, `blob-storage-probe`, `blob-test-protocol`, `ic-blob-storage-pocketic-tests`.
+Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-consumer-probe`, `blob-funding-probe`, `blob-gateway-source`, `blob-storage-probe`, `blob-test-protocol`, `ic-blob-storage-pocketic-tests`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
+
+## [0.74.4] - Unreleased
+
+### 🔧 Changed
+
+- Adopt Platform 0.24, Wire 0.17.8 and Testkit 0.91, aligning native Host 0.75
+  error identities. Keep canonical Types 0.18.2 and Runtime 0.19.5, service
+  endpoints, decoder budgets, stable schemas and exact retries unchanged.
+- Adopt Shared Tooling 0.31.5's release-check isolation and portable fixture
+  fixes, completed release-guide closure and fresh LOC scratch handling.
+
+- Configure the gateway fixture's external Candid deletion-reply decoder explicitly
+  for Platform 0.24's API cut, preserving unit/extra-value acceptance, error
+  codes and durable effect outcomes across restoration
+  ([#119](https://github.com/dragginzgame/ic-blob-storage/issues/119)).
+
+- Remove the private read-session experiment left behind after the 0.52 product
+  retirement: probe endpoints, slots, callback traps, archived read state and its
+  resource target. Keep descriptor/client downloads and current recovery checks.
+- Qualify outgoing funding solely through the production storage workflow. Remove
+  the funding probe's parallel sender, budget, preview/lookup APIs and sender-only
+  tests. Keep its bounded Cashier receiver, extend production transport reply cases
+  and cover receiver restoration/rollback there. This cuts private fixture formats; retained
+  historical runs require their original fixture builds. Product schemas and public
+  endpoints are unchanged.
+
+- Consolidate qualification on the Storage probe's production owner, configuration,
+  allocation and install/reopen path; remove the Authority and Admission probe
+  packages and obsolete transient service, verifier-gated registration, private
+  balance/status journals and reentrant control protocols. Preserve the four
+  admission capacity/resource workloads through an explicit full resource input
+  and one bounded measurement command. Reuse existing descriptor/capacity endpoints.
+- Retain independent provider decoder/source-journal checks and the #119 regression
+  in the provider target, with held-source upgrade/restoration checks on production
+  gateway transport. Move the installed Contracts verifier witness to Storage.
+  Actual upload, reference, economics and recovery scenarios remain on Storage and
+  standalone APIs. Retained historical runs require their original fixture builds;
+  no product API, stable schema or provider obligation is removed.
 
 ## [0.74.3] - 2026-11-07
 

@@ -1,0 +1,301 @@
+//! Query-only relationship inspection over a controlled local source, not Cashier.
+use super::*;
+use blob_test_protocol::balance::BalanceSourceConfig;
+use ic_blob_storage::ops::caffeine::decoding::CaffeineReplyLimits;
+use ic_blob_storage::ops::caffeine::{
+    query::{CashierQuery, CashierQueryRequest, reply::BoundRelationshipReplyError},
+    relationship::{
+        PaymentRelationshipBinding, PaymentRelationshipProviderError, PaymentRelationshipReply,
+        PaymentRelationshipReplyError,
+    },
+};
+use ic_blob_storage_pocketic_tests::fixture_calls;
+use ic_testkit::pocket_ic::common::rest::BlobCompression;
+use std::num::NonZeroUsize;
+
+fn owner() -> Principal {
+    Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap()
+}
+fn payer() -> Principal {
+    Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap()
+}
+fn limits() -> CaffeineReplyLimits {
+    CaffeineReplyLimits {
+        max_bytes: NonZeroUsize::new(4096).unwrap(),
+        decoding_quota: NonZeroUsize::new(100_000).unwrap(),
+        skipping_quota: NonZeroUsize::new(1000).unwrap(),
+        max_type_entries: NonZeroUsize::new(32).unwrap(),
+    }
+}
+fn bytes(name: &str) -> Vec<u8> {
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../crates/ic-blob-storage/tests/fixtures/caffeine-relationship")
+        .join(format!("{name}.hex"));
+    let hex = std::fs::read_to_string(path).unwrap();
+    hex::decode(hex.trim()).expect("fixture hex")
+}
+
+impl Fixture {
+    fn relationship_request(
+        &self,
+        paid_canister: Principal,
+        payment_account: Principal,
+    ) -> CashierQueryRequest {
+        CashierQueryRequest::new(
+            self.gateway.into(),
+            CashierQuery::PaymentRelationship(PaymentRelationshipBinding {
+                paid_canister: paid_canister.into(),
+                payment_account: payment_account.into(),
+            }),
+        )
+        .unwrap()
+    }
+    async fn relationship_response(&self, bytes: Vec<u8>, hold: bool, reject: bool) {
+        // The existing bounded raw-response slot is shared by the local experiments.
+        let configured: bool = fixture_calls::update_fixture(
+            &self.harness.pic,
+            self.gateway,
+            self.driver,
+            "configure_balance",
+            (BalanceSourceConfig {
+                account: owner(),
+                bytes,
+                hold,
+                reject,
+            },),
+        )
+        .await
+        .map(|(reply,)| reply)
+        .unwrap();
+        assert!(configured);
+    }
+    async fn inspect_relationship(
+        &self,
+        request: &CashierQueryRequest,
+    ) -> Result<PaymentRelationshipReply, BoundRelationshipReplyError> {
+        let before = self.journals().await;
+        let bytes = self
+            .harness
+            .pic
+            .query_call(
+                request.cashier().into(),
+                self.driver,
+                request.method_name(),
+                request.arguments().to_vec(),
+            )
+            .await
+            .unwrap();
+        let result = request.decode_relationship_reply(request.cashier(), &bytes, limits());
+        assert!(
+            self.journals().await == before,
+            "inspection preserves all journals"
+        );
+        result
+    }
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn relationship_query_preserves_exact_fields_absence_and_provider_failures_without_mutation()
+{
+    let f = Fixture::new().await;
+    let request = f.relationship_request(owner(), payer());
+    f.relationship_response(bytes("wide-signed"), false, false)
+        .await;
+    let PaymentRelationshipReply::ReportedRelationship(report) =
+        f.inspect_relationship(&request).await.unwrap()
+    else {
+        panic!("report expected")
+    };
+    assert_eq!(
+        report.binding(),
+        PaymentRelationshipBinding {
+            paid_canister: owner().into(),
+            payment_account: payer().into()
+        }
+    );
+    assert_eq!(
+        report.spending_limit_per_day(),
+        &ic_platform::candid::contract::Int::parse(b"-340282366920938463463374607431768211456")
+            .unwrap()
+    );
+    assert_eq!(
+        report.current_period_spent(),
+        &ic_platform::candid::contract::Int::parse(b"340282366920938463463374607431768211456")
+            .unwrap()
+    );
+    assert_eq!(report.expiration_timestamp(), None);
+    for (name, expected) in [
+        ("absent", PaymentRelationshipReply::NoRelationshipReported),
+        (
+            "not-found",
+            PaymentRelationshipReply::ProviderFailure(
+                PaymentRelationshipProviderError::RelationshipNotFound(owner().into()),
+            ),
+        ),
+        (
+            "denied",
+            PaymentRelationshipReply::ProviderFailure(
+                PaymentRelationshipProviderError::NotAuthorized(payer().into()),
+            ),
+        ),
+        (
+            "invalid",
+            PaymentRelationshipReply::ProviderFailure(
+                PaymentRelationshipProviderError::InvalidRequest,
+            ),
+        ),
+        (
+            "internal",
+            PaymentRelationshipReply::ProviderFailure(
+                PaymentRelationshipProviderError::InternalError,
+            ),
+        ),
+    ] {
+        f.relationship_response(bytes(name), false, false).await;
+        assert_eq!(f.inspect_relationship(&request).await, Ok(expected));
+    }
+    assert_eq!(
+        request.query(),
+        CashierQuery::PaymentRelationship(PaymentRelationshipBinding {
+            paid_canister: owner().into(),
+            payment_account: payer().into()
+        })
+    );
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn mismatched_or_unusable_relationship_replies_never_select_a_fallback_payer() {
+    let f = Fixture::new().await;
+    let request = f.relationship_request(owner(), payer());
+    f.relationship_response(bytes("linked"), false, false).await;
+    let wrong_payer = f.relationship_request(owner(), owner());
+    assert_eq!(
+        f.inspect_relationship(&wrong_payer).await,
+        Err(BoundRelationshipReplyError::Reply(
+            PaymentRelationshipReplyError::PaymentAccountMismatch
+        ))
+    );
+    // Configure an otherwise valid report for another requested owner. The source
+    // accepts that request but the shared decoder rejects the returned owner.
+    let configured: bool = fixture_calls::update_fixture(
+        &f.harness.pic,
+        f.gateway,
+        f.driver,
+        "configure_balance",
+        (BalanceSourceConfig {
+            account: payer(),
+            bytes: bytes("linked"),
+            hold: false,
+            reject: false,
+        },),
+    )
+    .await
+    .map(|(reply,)| reply)
+    .unwrap();
+    assert!(configured);
+    assert_eq!(
+        f.inspect_relationship(&f.relationship_request(payer(), payer()))
+            .await,
+        Err(BoundRelationshipReplyError::Reply(
+            PaymentRelationshipReplyError::PaidCanisterMismatch
+        ))
+    );
+    for (bytes, error) in [
+        (vec![], PaymentRelationshipReplyError::InvalidReply),
+        (vec![0; 4097], PaymentRelationshipReplyError::ReplyTooLarge),
+    ] {
+        f.relationship_response(bytes, false, false).await;
+        assert_eq!(
+            f.inspect_relationship(&request).await,
+            Err(BoundRelationshipReplyError::Reply(error))
+        );
+    }
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn query_cannot_bypass_driver_owner_or_source_hold_controls() {
+    let f = Fixture::new().await;
+    let request = f.relationship_request(owner(), payer());
+    f.relationship_response(bytes("linked"), false, false).await;
+    let before = f.journals().await;
+    for caller in [Principal::anonymous(), f.service, fake_principal(99)] {
+        assert!(
+            f.harness
+                .pic
+                .query_call(
+                    f.gateway,
+                    caller,
+                    request.method_name(),
+                    request.arguments().to_vec()
+                )
+                .await
+                .is_err()
+        );
+    }
+    let wrong_owner = f.relationship_request(payer(), payer());
+    assert!(
+        f.harness
+            .pic
+            .query_call(
+                f.gateway,
+                f.driver,
+                wrong_owner.method_name(),
+                wrong_owner.arguments().to_vec()
+            )
+            .await
+            .is_err()
+    );
+    assert_eq!(f.journals().await, before);
+    for (hold, reject) in [(true, false), (false, true)] {
+        f.relationship_response(bytes("linked"), hold, reject).await;
+        let before = f.journals().await;
+        assert!(
+            f.harness
+                .pic
+                .query_call(
+                    f.gateway,
+                    f.driver,
+                    request.method_name(),
+                    request.arguments().to_vec()
+                )
+                .await
+                .is_err()
+        );
+        assert_eq!(f.journals().await, before);
+    }
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn old_stable_bytes_do_not_replace_live_inspection_and_restoration_fences_queries() {
+    let f = Fixture::new().await;
+    let request = f.relationship_request(owner(), payer());
+    f.relationship_response(bytes("linked"), false, false).await;
+    let old = f.harness.pic.get_stable_memory(f.gateway).await.unwrap();
+    f.relationship_response(bytes("denied"), false, false).await;
+    f.harness
+        .pic
+        .set_stable_memory(f.gateway, old, BlobCompression::NoCompression)
+        .await
+        .unwrap();
+    assert_eq!(
+        f.inspect_relationship(&request).await,
+        Ok(PaymentRelationshipReply::ProviderFailure(
+            PaymentRelationshipProviderError::NotAuthorized(payer().into())
+        ))
+    );
+    f.restore_source().await;
+    let before = f.journals().await;
+    assert!(
+        f.harness
+            .pic
+            .query_call(
+                f.gateway,
+                f.driver,
+                request.method_name(),
+                request.arguments().to_vec()
+            )
+            .await
+            .is_err()
+    );
+    assert_eq!(f.journals().await, before);
+}

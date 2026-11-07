@@ -797,3 +797,47 @@ async fn fixture_nonreplicated_reference_status(
 > {
     workflow::references::status(context(), &input).await
 }
+
+#[ic_platform::cdk::update(
+    decode_with = "blob_test_protocol::fixture_wire::hooks::one::<_, { blob_test_protocol::fixture_wire::identity(\"probe_content\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"probe_content\") }>"
+)]
+fn probe_content(
+    input: blob_test_protocol::content::ContentProbeCase,
+) -> Result<
+    blob_test_protocol::content::ContentProbeReport,
+    blob_test_protocol::content::ContentProbeFailure,
+> {
+    workflow::probe_content(context(), input)
+}
+
+#[ic_platform::cdk::update(
+    decode_with = "ops::qualification::decode::mutation::<_, { blob_test_protocol::fixture_wire::identity(\"fixture_admission_measurement\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"fixture_admission_measurement\") }>"
+)]
+fn fixture_admission_measurement(
+    input: blob_test_protocol::admission::Command,
+) -> Result<blob_test_protocol::admission::Outcome, blob_test_protocol::admission::Failure> {
+    workflow::qualification::execute(context(), input, ic_platform::cdk::api::time())
+}
+#[ic_platform::cdk::query(
+    decode_with = "blob_test_protocol::fixture_wire::hooks::one::<_, { blob_test_protocol::fixture_wire::identity(\"fixture_admission_observation\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"fixture_admission_observation\") }>"
+)]
+fn fixture_admission_observation(
+    input: blob_test_protocol::admission::Request,
+) -> Result<blob_test_protocol::admission::Observation, blob_test_protocol::admission::Failure> {
+    workflow::qualification::inspect(context(), input)
+}
+#[ic_platform::cdk::query(
+    decode_with = "blob_test_protocol::fixture_wire::hooks::one::<_, { blob_test_protocol::fixture_wire::identity(\"fixture_admission_profiles\") }>",
+    encode_with = "blob_test_protocol::fixture_wire::hooks::reply::<_, { blob_test_protocol::fixture_wire::identity(\"fixture_admission_profiles\") }>"
+)]
+fn fixture_admission_profiles(
+    limit: u8,
+) -> Result<
+    Vec<blob_test_protocol::admission::ExecutionProfile>,
+    blob_test_protocol::admission::Failure,
+> {
+    workflow::qualification::resources(context(), limit)
+}

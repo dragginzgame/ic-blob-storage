@@ -12,7 +12,7 @@ Publication neither deploys nor qualifies the storage service.
 | --- | --- | --- |
 | `contracts` | `ic-blob-storage-contracts` | None |
 | `client` | `ic-blob-storage-client` | Native CLI |
-| `engine` | `ic-blob-storage` | Standalone host, six probes, test protocol and PocketIC support |
+| `engine` | `ic-blob-storage` | Standalone host, four probes, test protocol and PocketIC support |
 
 [ci/cargo-release-groups.json](../ci/cargo-release-groups.json) is authoritative.
 Every member has a literal version; dependencies inherit the root catalog. A
@@ -198,7 +198,7 @@ invalidates that proof. A shallow checkout cannot establish a narrow scope.
 | --- | --- |
 | Replicated tenant-client implementation only | Common guards and all archives; Client and Engine package roots for Clippy/native tests/docs/Wasm checks; installed standalone/CLI and replicated tenant-client scenarios |
 | Other Client/CLI implementation | The same Client and Engine roots plus every installed integration scenario; storage and consumer probes depend on Client |
-| Contracts implementation | All thirteen package roots and every installed integration scenario, covering public identities and reverse consumers |
+| Contracts implementation | All workspace package roots and every installed integration scenario, covering public identities and reverse consumers |
 | Engine implementation | Engine roots for the four automatic Cargo stages; common CLI/probe/archive boundaries and both installed partitions remain required |
 | Release machinery unchanged in either case | Real selected-group metadata rendering/rollback and preservation of other groups; omit the full publication/recovery fixture matrix |
 | Product implementation with unchanged CLI/verifier contract | Omit `package-regression`; keep actual `package` verification |

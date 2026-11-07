@@ -5,6 +5,7 @@ use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 
 mod dispatch;
+mod receiver;
 use blob_test_protocol::{
     funding::{
         FundingFailure, FundingOutcome, FundingProviderErrorView, FundingReceiptRecord,
@@ -87,16 +88,7 @@ impl Fixture {
                 std::fs::read(fixture_path("BLOB_FUNDING_PROBE_WASM")).unwrap(),
                 blob_test_protocol::fixture_wire::encode_args(
                     "fixture_init",
-                    (
-                        f.service,
-                        f.controller,
-                        blob_test_protocol::funding::budget::FundingBudgetInput {
-                            allocated: 1000,
-                            reserve: 100,
-                            operating_reserve: 1_000_000_000,
-                            other_liabilities: 0,
-                        },
-                    ),
+                    (f.service, f.controller),
                 )
                 .unwrap(),
                 None,
@@ -127,7 +119,6 @@ impl Fixture {
                     offered: intent.offered,
                     accept: accepted,
                     reply,
-                    trap_callback: false,
                 },
             },),
         )
@@ -217,6 +208,28 @@ async fn cashier_transport_binds_exact_arguments_and_keeps_refunds_independent_o
             400,
             FundingReplyMode::InternalError,
             FundingOutcome::ProviderError(FundingProviderErrorView::InternalError),
+        ),
+        (
+            400,
+            FundingReplyMode::NotAuthorized,
+            FundingOutcome::ProviderError(FundingProviderErrorView::NotAuthorized(
+                Principal::anonymous(),
+            )),
+        ),
+        (
+            400,
+            FundingReplyMode::AccountBalanceOverflow,
+            FundingOutcome::ProviderError(FundingProviderErrorView::AccountBalanceOverflow),
+        ),
+        (
+            400,
+            FundingReplyMode::TopUpWithoutCycles,
+            FundingOutcome::ProviderError(FundingProviderErrorView::TopUpWithoutCycles),
+        ),
+        (
+            400,
+            FundingReplyMode::LedgerReport,
+            FundingOutcome::InvalidReply,
         ),
         (
             400,
@@ -564,7 +577,7 @@ async fn mismatched_callback_request_never_releases_the_original_uncertain_offer
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn actual_cashier_acceptance_is_not_cleared_by_a_later_fully_refunded_call() {
-    use blob_test_protocol::status::FundingActivityView;
+    use blob_test_protocol::funding::FundingActivityView;
     let f = Fixture::with_cashier().await;
     for (id, offered, accepted) in [(1, 900, 400), (2, 500, 0)] {
         let intent = f.funding_intent(id, offered);

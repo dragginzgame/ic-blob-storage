@@ -2,11 +2,10 @@
 use ic_platform::principal::ExternalPrincipal;
 pub(crate) mod balance;
 
-use blob_test_protocol::{SourceMode, SyncFailure, journey::readback::ReadSourceMode};
+use blob_test_protocol::SourceMode;
 use ic_platform::Principal;
 use serde::Deserialize;
 
-pub(crate) const CHUNK: usize = 1024 * 1024;
 const MAX_EFFECTS: usize = 64;
 
 #[derive(serde::Serialize, Deserialize)]
@@ -17,10 +16,8 @@ pub(crate) struct SourceJournalRecord {
     pub fenced: bool,
     pub mode: SourceMode,
     pub requests: u64,
-    pub nested_sync: Option<Result<(), SyncFailure>>,
     pub sync: SyncRecord,
     pub balance: balance::BalanceSourceRecord,
-    pub read: ReadRecord,
     pub effects: Vec<EffectRecord>,
 }
 
@@ -38,27 +35,8 @@ pub(crate) struct HeldSyncRecord {
     pub ready: bool,
 }
 
-#[derive(serde::Serialize, Deserialize)]
-pub(crate) struct ReadRecord {
-    pub config: Option<LeafRecord>,
-    pub requests: u64,
-    pub pending: bool,
-    pub ready: bool,
-}
-
-#[derive(Clone, serde::Serialize, Deserialize)]
-pub(crate) struct LeafRecord {
-    pub root: [u8; 32],
-    pub index: u64,
-    pub bytes: ic_wire::ByteBuf,
-    pub mode: ReadSourceMode,
-    pub hold: bool,
-}
-
 #[derive(Clone, serde::Serialize, Deserialize)]
 pub(crate) enum ActionRecord {
-    Sync,
-    Revoke,
     Delete(Vec<[u8; 32]>),
 }
 
@@ -85,23 +63,14 @@ impl SourceJournalRecord {
             fenced: false,
             mode: SourceMode::Valid,
             requests: 0,
-            nested_sync: None,
             sync: SyncRecord { held: None },
             balance: balance::BalanceSourceRecord::new(),
-            read: ReadRecord {
-                config: None,
-                requests: 0,
-                pending: false,
-                ready: false,
-            },
             effects: Vec::new(),
         }
     }
 
     pub fn valid(&self) -> bool {
         self.balance.valid()
-            && self.read.config.as_ref().is_none_or(LeafRecord::valid)
-            && (!self.read.pending || self.read.config.is_some())
             && self.effects.len() <= MAX_EFFECTS
             && self.effects.iter().all(|effect| effect.action.valid())
             && self.sync.held.as_ref().is_none_or(|held| {
@@ -114,7 +83,6 @@ impl SourceJournalRecord {
 
     pub fn busy(&self) -> bool {
         self.balance.pending
-            || self.read.pending
             || self.sync.held.is_some()
             || self.effects.iter().any(|effect| effect.succeeded.is_none())
     }
@@ -195,13 +163,6 @@ impl ActionRecord {
     fn valid(&self) -> bool {
         match self {
             Self::Delete(roots) => roots.len() <= 8,
-            Self::Sync | Self::Revoke => true,
         }
-    }
-}
-
-impl LeafRecord {
-    pub fn valid(&self) -> bool {
-        !self.bytes.is_empty() && self.bytes.len() <= CHUNK && self.index < 6
     }
 }

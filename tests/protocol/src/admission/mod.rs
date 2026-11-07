@@ -21,15 +21,6 @@ pub enum Workload {
     ReferenceHistory,
 }
 
-/// Explicit test installation; no provider or account authority is supplied.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
-pub struct Installation {
-    /// Sole observer/enrollment operator.
-    pub operator: ExternalPrincipal,
-    /// Fixed bounded workload to install.
-    pub workload: Workload,
-}
-
 /// Exact fixture operation. Object ID equals operation ID; incarnation/reference are one.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub struct Request {
@@ -135,9 +126,9 @@ pub enum Phase {
     Cancelled,
 }
 
-/// In-process dispatch only; each update has its own bounded wire input.
+/// One bounded measurement command against the existing production owner.
 /// Exposure returns no certificate and causes no provider effect.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Command {
     /// Explicit local host facts and reference mutations for capacity measurements.
     /// These controls are provider substitutes, never a production completion API.
@@ -161,7 +152,7 @@ pub enum Command {
     Revoke(Request),
 }
 
-/// Typed mutation outcome; errors are ordinary Candid replies, never traps.
+/// Typed mutation outcome; errors are ordinary Wire replies, never traps.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Outcome {
     /// Original or replayed reference result, including recorded lifecycle failure.
@@ -226,6 +217,8 @@ pub struct ExecutionProfile {
 /// Typed categories used to assert boundary behavior without freezing error prose.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum Failure {
+    /// The actual service owner reopened under its permanent restore fence.
+    Fenced,
     /// Exact refusal from the maintained production certificate gate.
     Exposure(ic_blob_storage_contracts::dto::upload::exposure::UploadExposureFailure),
     /// Malformed fixture identity or enrollment precondition.

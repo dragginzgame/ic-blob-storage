@@ -1,7 +1,7 @@
 //! Scope conversion and read-only status projection; policy belongs to workflow.
 use super::{Failure, STATE, UploadContext, failure};
 use blob_test_protocol::{
-    status::FundingActivityView,
+    funding::FundingActivityView,
     storage::funding::{Allocation, summary::Summary},
 };
 use ic_blob_storage::model::billing::journal::FundingJournalScope;

@@ -8,8 +8,7 @@ const JOURNAL_KEY: &str = "fixture.source.wire.v1";
 const MAX_JOURNAL_BYTES: usize = 1_114_112;
 const LIMITS: Limits = Limits {
     bytes: MAX_JOURNAL_BYTES,
-    // Wire conservatively charges bulk payload storage as well as output bytes.
-    // Preserve the admitted 1 MiB leaf plus bounded source history.
+    // Keep the existing conservative budget for bounded source/balance history.
     allocation: MAX_JOURNAL_BYTES * 16,
     nodes: 262_144,
     depth: 32,

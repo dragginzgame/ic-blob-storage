@@ -2,8 +2,8 @@
 use super::Request;
 use serde::Deserialize;
 
-/// In-process dispatch for a single shared-owner mutation, never a wire envelope.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+/// Explicit measurement operations within the private bounded command envelope.
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Deserialize, serde::Serialize)]
 pub enum LifecycleCommand {
     /// Operator supplies a substitute physical-deletion fact.
     SubstituteDeletion(Request),
