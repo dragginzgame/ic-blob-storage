@@ -6,13 +6,13 @@
 
 ## Current adoption
 
-Delivered Contracts **0.73.0**, Client **0.73.1** and Engine **0.74.2** record their
+Delivered Contracts **0.73.0**, Client **0.73.2** and Engine **0.74.3** record their
 source-bound selections in the group receipts and [current handoff](status/current.md).
-The current qualified graph selects published **Build 0.75.0**, **Storage 0.68.1**
-and **Testkit 0.89.3**. Each published archive's checksum matches registry metadata.
+The delivered qualified graph selects published **Build 0.77.0**, **Storage 0.68.3**
+and **Testkit 0.90.0**. Each published archive's checksum matches registry metadata.
 Rust 1.99.1 remains the supported minimum and pinned compiler. Host foundation
-0.74.4 and Host Tools 0.83.0 stay unchanged. The delivered lock selected Platform 0.23.4,
-Wire/Derive 0.17.5 and cc 1.11.1. The lockfile is authoritative;
+0.74.4 and Host Tools 0.83.0 stay unchanged. The delivered lock selected Platform 0.23.5,
+Runtime 0.19.5, Types 0.18.2, Wire/Derive 0.17.6 and cc 1.11.1. The lockfile is authoritative;
 these selections do not impose fleet lockstep.
 
 Engine 0.74.2's Shared 0.31 batch also qualified Runtime/Macros/Guard 0.19.4,
@@ -22,14 +22,17 @@ images stay unchanged from 0.74.1. The current handoff records qualification and
 its host/live-service limits; future normal-checkout updates belong to the next
 batch. The twelve logging/transitive removals from 0.74.1 remain.
 
-The pending Client 0.73.2 / Engine 0.74.3 adoption selects published **Build
+The delivered Client 0.73.2 / Engine 0.74.3 adoption selects published **Build
 0.77.0**, Platform 0.23.5, Storage 0.68.3, Testkit 0.90.0 and Wire/Derive 0.17.6.
 Runtime 0.19.5 and Types 0.18.2 retain their canonical identities.
 Host Foundation 0.74.4 and Tools 0.83.0 are already current. Build's retired cache-timing
 getters do not affect Blob's source-evidence/package APIs; the new Wire Packed
 adapters remain unselected so saved bytes and retry identities stay unchanged.
 The root lock preserves the incoming SmallVec patch. Focused qualification and
-its limitations are recorded in the current handoff; this is not another release.
+its limitations are recorded in the current handoff. A concurrent normal-checkout
+Platform 0.23.6/crypto-common/generic-array update was preserved separately,
+then reapplied after batch reconciliation; it is not in these released archives
+and still needs its own review/qualification.
 
 Storage 0.68 replaces its collection engines and persisted collection images.
 Engine **0.74.0** introduced the cut because Blob exposes Storage types and its stored
@@ -55,7 +58,8 @@ No compatibility constructors, unbounded setting or wrapper runtime remain.
 Blob has no consumers of the other retired reset-policy, no-tick polling, Candid
 convenience or server-filesystem snapshot APIs. The native feature reduction drops
 `mime`, `mime_guess` and `unicase` without changing Reqwest's selected version.
-Platform 0.23.5 was independently checked and remains the latest published facade.
+Platform 0.23.5 was the latest independently verified facade at batch selection;
+the later 0.23.6 update remains deferred outside that captured graph.
 The incoming Runtime 0.19.5 system-copy changes and Storage 0.68.3 batched key
 reads were already selected before this adoption; stored images remain unchanged.
 Focused Contracts/Engine unit tests and installed checks qualify the actual graph.

@@ -1,19 +1,53 @@
 # Current status — 2026-11-07
 
-## Authorized delivery in progress
+## Delivered Client 0.73.2 / Engine 0.74.3
 
-The maintainer requested deployment and issue reconciliation. Deliver the reviewed
-Client 0.73.2 and Engine 0.74.3 patch batch, in that order, to `origin/main` and
-crates.io through Shared 0.31.1's captured batch. Contracts is unchanged. Earlier
-"no delivery" statements below describe implementation-time authority, now
-superseded for this batch. Preserve all retained batches and provider obligations;
-this request selects library delivery, not live canister replacement or paid probes.
-Close #118 only after its migration and qualification reach default main; #5,
-#6, #31 and #34 still require application/provider acceptance.
+Shared 0.31.1 batch **batch-eSq3MKgb** completed from committed source
+`725283169a17bfa7fab682c486d570e0197288d0`. Client **0.73.2** is published at
+`b18779f2a88ffdacf89a8af52f0ef6c0ccd41e0d` (`client-v0.73.2`); Engine **0.74.3**
+is published at `4370052d60a8480ebf981216a7f22302da612f3e` (`engine-v0.74.3`).
+Both tags and default main were read back independently. Non-yanked registry
+archives match checksums and their exact Git provenance:
 
-## Pending published upstream adoption — Client 0.73.2 / Engine 0.74.3
+- Client: `0c73cdea170be423fdd9a7f31d6e9b22eb61a3bfd25be75ed834b549b31b0fff`.
+- Engine: `cbad121c5a4b62ef70f1c6d8a569b45641b0961cc1f0e456971781a113797e0c`.
 
-Official crates.io metadata selects **Build 0.77.0 / Platform 0.23.5 / Storage
+Both 21-stage Linux/Rust 1.99.1 gates passed. The final-version candidate executed
+644 native tests, 82 Client and 270 Engine installed cases. Engine re-admitted all
+eight eligible stage proofs; actual group metadata, policies, tool admission,
+source-binding installation sweeps and package verification stayed fresh. Both
+publications admitted retained Clippy qualification. Native macOS, opt-in browser
+and live-provider acceptance were not rerun. Contracts remains **0.73.0**.
+[#118 is closed](https://github.com/dragginzgame/ic-blob-storage/issues/118#issuecomment-6705332626)
+on delivered implementation and these consumer checks. #5, #6, #31 and #34 remain
+open for their actual application/provider acceptance; no service replacement,
+payment, provider deletion or cleanup occurred.
+
+The managed checkout is `target/release-frozen/batch-eSq3MKgb`; durable recovery
+and intent remain under `.git/release-state/frozen/batch-eSq3MKgb`. Keep its
+original proofs, builds and publication records. The normal checkout was
+reconciled with the canonical batch command. Retain
+`target/blob-delivery0732-0743.def5087_/` for commands, full release logs,
+independent archive/registry/tag readback and deferred-lock custody checks.
+Client gate: `target/blob-release-validation.iC3TjI/validation.BPBHIw`; Engine
+gate: `target/blob-release-validation.GSiDZJ/validation.RBHQqB` in that managed checkout.
+The [hosted workflow for 4370052d](https://github.com/dragginzgame/ic-blob-storage/actions/runs/42361801887)
+was in progress at readback; its asynchronous matrix is separate from the
+completed local release gates. No hosted pass is inferred from publication.
+
+A concurrent normal-checkout update selected **Platform 0.23.6**, crypto-common
+0.1.7 and generic-array 0.14.7. It did not alter the captured validation or
+archives, which retain Platform 0.23.5. The update was committed only for custody
+on local `preserve/blob-platform0236-20261107` at `cbf3a893`, then reapplied
+uncommitted after reconciliation. Its supplier records match the preserved lock
+exactly; local package versions retain the delivered releases. This deferred
+selection still needs review/qualification and belongs to the next batch. The
+following implementation records describe work before this completed delivery;
+their earlier no-delivery statements retain that historical scope.
+
+## Delivered upstream implementation record — Client 0.73.2 / Engine 0.74.3
+
+The captured registry-verified graph selects **Build 0.77.0 / Platform 0.23.5 / Storage
 0.68.3 / Testkit 0.90.0 / Wire-Derive 0.17.6**. Host Foundation 0.74.4, Tools
 0.83.0, Runtime 0.19.5 and Types 0.18.2 are already current. The Build catalog
 requirement advances to 0.77; compatible patch selections remain in the shared
@@ -65,12 +99,13 @@ lock comparison and focused logs. Earlier installed-IC proofs retain their origi
 Build graph; no new service/browser/provider or native macOS qualification is claimed.
 No package versions, stage, commit, push, release or provider effect occurred.
 
-## Pending Testkit 0.90 adoption — issue #118
+## Delivered Testkit 0.90 adoption — issue #118
 
 The official registry now supplies Testkit **0.90.0**, checksum
 `aeeb9dd0920b5a4343aed61f2cb7c0266488823dab5f7b19e0b632b54b7d8f5a`, VCS
 `c03161b9f1395c343756fda6b8721e957798c3df`. Platform **0.23.5** is independently
-verified as the latest published facade and stays selected. No sibling override
+verified as the latest published facade at batch selection and remains in the
+captured graph; the later 0.23.6 update is deferred above. No sibling override
 or source edit is used. The root Testkit catalog/lock selects 0.90; all 20 fixture
 builders explicitly receive Blob's `support::REQUEST_TIMEOUT` (300 seconds),
 preserving the published 0.89 default. Startup remains 30 seconds, with independent
@@ -92,16 +127,13 @@ Dependency/source boundaries, pins, deployed dependency exclusions, the unchange
 0.77 editor's refreshed offline admission, formatting and documentation links pass.
 Cargo/lock/compiler/snapshot fingerprints stayed fixed through qualification.
 
-[#118](https://github.com/dragginzgame/ic-blob-storage/issues/118) remains open:
-GitHub default `main` still selects Testkit 0.89.1 and zero-argument builders.
-This local migration meets its focused implementation criteria, but is not yet
-on the default branch. Reconcile after authorized delivery; no stage, commit,
-push, release or deployment occurred. Retain source inventory, registry/lock
-selections, exact commands and logs under `target/testkit090-adoption-20261107/`.
-Earlier tests keep their original supplier graphs; no native macOS, live-provider
-or full release qualification is claimed.
+[#118](https://github.com/dragginzgame/ic-blob-storage/issues/118) is closed after
+verified delivery to default main and publication, as recorded above. Retain
+source inventory, registry/lock selections, exact commands and focused logs under
+`target/testkit090-adoption-20261107/`. Earlier tests keep their original supplier
+graphs; the completed captured release gates are separate evidence above.
 
-## Pending consumer tooling roster cleanup
+## Delivered consumer tooling roster cleanup
 
 `shared-tooling-tests` no longer invokes Shared's generic
 `test-tool-downloads.sh` download/retry/checksum matrix. Shared owns that producer
@@ -115,7 +147,7 @@ files. Logs remain in `target/tooling-roster-20261107/`. This is a target-roster
 change, not a tool-admission policy change or a measured speed-up; the full
 tooling/release suites were not rerun. No staging, commit or delivery occurred.
 
-## Pending native CLI simplification
+## Delivered native CLI simplification
 
 The same Client 0.73.2 / Engine 0.74.3 batch removes the native CLI's intermediate
 `Command` enum and separate execution match. The typed Clap `Invocation` now owns
