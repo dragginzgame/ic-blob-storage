@@ -4,7 +4,7 @@ Packages: `ic-blob-storage-client`, `ic-blob-storage-cli`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
-## [0.74.0] - Unreleased
+## [0.74.0] - 2026-11-07
 
 ### 💥 Breaking
 
