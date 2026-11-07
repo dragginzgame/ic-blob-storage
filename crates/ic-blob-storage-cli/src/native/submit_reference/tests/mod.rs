@@ -99,7 +99,7 @@ fn invalid_or_foreign_intent_refuses_before_signing_and_claiming() {
         let index = incomplete.iter().position(|value| value == flag).unwrap();
         incomplete.drain(index..=index + 1);
         assert!(matches!(
-            Options::parse(&incomplete),
+            crate::native::arguments::parse(&incomplete),
             Err(Failure::Arguments)
         ));
     }

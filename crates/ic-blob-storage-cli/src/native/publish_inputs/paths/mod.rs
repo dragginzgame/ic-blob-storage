@@ -36,12 +36,7 @@ impl Root {
     }
     pub fn read(&self, name: &str, maximum: u64) -> Result<Vec<u8>, Failure> {
         let file = self.source(name)?.file()?;
-        let maximum = usize::try_from(maximum).map_err(|_| Failure::File)?;
-        let bytes = ic_host_fs::read::read_opened_file(file, maximum).map_err(|_| Failure::File)?;
-        if bytes.is_empty() {
-            return Err(Failure::File);
-        }
-        Ok(bytes)
+        crate::native::read_opened(file, maximum)
     }
 }
 

@@ -22,6 +22,15 @@ images stay unchanged from 0.74.1. The current handoff records qualification and
 its host/live-service limits; future normal-checkout updates belong to the next
 batch. The twelve logging/transitive removals from 0.74.1 remain.
 
+The pending Client 0.73.2 / Engine 0.74.3 adoption selects published **Build
+0.77.0**, Platform 0.23.5, Storage 0.68.3, Testkit 0.90.0 and Wire/Derive 0.17.6.
+Runtime 0.19.5 and Types 0.18.2 retain their canonical identities.
+Host Foundation 0.74.4 and Tools 0.83.0 are already current. Build's retired cache-timing
+getters do not affect Blob's source-evidence/package APIs; the new Wire Packed
+adapters remain unselected so saved bytes and retry identities stay unchanged.
+The root lock preserves the incoming SmallVec patch. Focused qualification and
+its limitations are recorded in the current handoff; this is not another release.
+
 Storage 0.68 replaces its collection engines and persisted collection images.
 Engine **0.74.0** introduced the cut because Blob exposes Storage types and its stored
 behavior changes. Retire complete old installations under their original tools,
@@ -33,10 +42,23 @@ failures now trap, while framing admission and explicit reservations can return
 typed errors. Collection payloads have no integrity checksum. Hosts must propagate
 IC traps; native mutation panics poison the runtime and require discarding it.
 
-Build 0.75 removes shared-cache inspection/pruning APIs; Blob does not call those
-APIs. Its maintained source-evidence and package-verification consumers remain
-native-only. Client **0.73.1** is compatible; passive Contracts
-and the replicated Client API are unaffected.
+Build 0.77 removes cache-timing forwarding getters; Blob does not use them.
+Its source-evidence, Cargo package qualification and release-metadata sources
+match published 0.76 byte-for-byte. These consumers remain native-only; this is
+a compatible Client patch, with passive Contracts and replicated Client APIs unaffected.
+
+Testkit 0.90 requires explicit positive finite HTTP request budgets. Blob's 20
+builder calls select the fixture-owned `support::REQUEST_TIMEOUT` (300 seconds),
+preserving the prior effective limit. Server startup remains separately bounded
+at 30 seconds; CLI/scenario deadlines and exact operation identities are unchanged.
+No compatibility constructors, unbounded setting or wrapper runtime remain.
+Blob has no consumers of the other retired reset-policy, no-tick polling, Candid
+convenience or server-filesystem snapshot APIs. The native feature reduction drops
+`mime`, `mime_guess` and `unicase` without changing Reqwest's selected version.
+Platform 0.23.5 was independently checked and remains the latest published facade.
+The incoming Runtime 0.19.5 system-copy changes and Storage 0.68.3 batched key
+reads were already selected before this adoption; stored images remain unchanged.
+Focused Contracts/Engine unit tests and installed checks qualify the actual graph.
 
 Testkit 0.88 removes benchmark helpers and unused client configuration families;
 Blob has no callers of those removed APIs. Its selected native client remains
@@ -204,12 +226,14 @@ Normal contracts exclude schema generation; deployment refuses schema/JSON tooli
 native Testkit and Host dependencies. Required external Candid stays on Platform.
 Replicated Client selects canonical Types and Runtime directly.
 
-Shared Tooling **0.31.0** is captured from committed source
-`74313941af2fce4399bec0e6909ca6229673c3f8` (171 verified files), using its canonical
+Shared Tooling **0.31.1** is captured from committed source
+`5efbda2ab81ad84e30f490f3137d8ef083c303d2` (171 verified files), using its canonical
 revision exporter. It includes the undated-draft candidate projection fix
 ([Shared #357](https://github.com/dragginzgame/shared-tooling/issues/357)) and
 consumer-owned formatting/LOC scratch defaults
 ([Shared #356](https://github.com/dragginzgame/shared-tooling/issues/356)).
+Its checksum NUL reader also parses on Bash 3.2; source metadata owns the version
+despite this commit's `0.31.2` title. Local Linux checks do not qualify native macOS.
 Fresh source/publication admission and lint fallback remain required; adoption
 alone is not evidence of a reused publication stage.
 The existing `platform-boundary-check` also runs the lexical

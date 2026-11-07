@@ -38,7 +38,7 @@ async fn update(
 async fn standalone_project_grants_two_signed_uploaders_without_cross_user_certificate_authority() {
     let mut f = Fixture::with_harness(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )

@@ -43,31 +43,37 @@ fn arguments(command: &str) -> Vec<String> {
 #[test]
 fn decisions_require_explicit_exact_cancellation_or_gateway_without_other_action_flags() {
     assert!(matches!(
-        Options::parse(&arguments("sync-gateways")).unwrap().0,
-        super::super::arguments::Command::GatewayControl(Input {
-            action: Action::Sync,
-            ..
-        })
+        crate::native::arguments::parse(&arguments("sync-gateways"))
+            .unwrap()
+            .command
+            .unwrap(),
+        crate::native::arguments::schema::Invocation::SyncGateways(_)
     ));
     let mut args = arguments("cancel-gateway-sync");
-    assert!(matches!(Options::parse(&args), Err(Failure::Arguments)));
+    assert!(matches!(
+        crate::native::arguments::parse(&args),
+        Err(Failure::Arguments)
+    ));
     for bad in ["0", "01", "-1", "18446744073709551616"] {
         let mut bad_args = args.clone();
         bad_args.extend(["--sequence".into(), bad.into()]);
-        assert!(matches!(Options::parse(&bad_args), Err(Failure::Arguments)));
+        assert!(matches!(
+            crate::native::arguments::parse(&bad_args),
+            Err(Failure::Arguments)
+        ));
     }
     args.extend(["--sequence".into(), u64::MAX.to_string()]);
     assert!(matches!(
-        Options::parse(&args).unwrap().0,
-        super::super::arguments::Command::GatewayControl(Input {
-            action: Action::Cancel(u64::MAX),
-            ..
-        })
+        crate::native::arguments::parse(&args).unwrap().command.unwrap(),
+        crate::native::arguments::schema::Invocation::CancelGatewaySync(args) if args.input.input.sequence == u64::MAX
     ));
     for command in ["sync-gateways", "revoke-gateway"] {
         let mut args = arguments(command);
         args.extend(["--sequence".into(), "1".into()]);
-        assert!(matches!(Options::parse(&args), Err(Failure::Arguments)));
+        assert!(matches!(
+            crate::native::arguments::parse(&args),
+            Err(Failure::Arguments)
+        ));
     }
     let mut args = arguments("revoke-gateway");
     args.extend([
@@ -75,19 +81,25 @@ fn decisions_require_explicit_exact_cancellation_or_gateway_without_other_action
         Principal::self_authenticating([4]).to_text(),
     ]);
     assert!(matches!(
-        Options::parse(&args).unwrap().0,
-        super::super::arguments::Command::GatewayControl(Input {
-            action: Action::Revoke(_),
-            ..
-        })
+        crate::native::arguments::parse(&args)
+            .unwrap()
+            .command
+            .unwrap(),
+        crate::native::arguments::schema::Invocation::RevokeGateway(_)
     ));
     args.pop();
     args.push(Principal::anonymous().to_text());
-    assert!(matches!(Options::parse(&args), Err(Failure::Arguments)));
+    assert!(matches!(
+        crate::native::arguments::parse(&args),
+        Err(Failure::Arguments)
+    ));
     let mut args = arguments("sync-gateways");
     args.pop();
     args.pop();
-    assert!(matches!(Options::parse(&args), Err(Failure::Arguments)));
+    assert!(matches!(
+        crate::native::arguments::parse(&args),
+        Err(Failure::Arguments)
+    ));
 }
 #[test]
 fn acknowledgments_validate_scope_principal_sequence_and_decoding_bounds() {

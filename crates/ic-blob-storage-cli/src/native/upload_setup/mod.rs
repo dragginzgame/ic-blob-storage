@@ -216,10 +216,12 @@ fn observation(saved: &Request, bytes: &[u8]) -> Result<SetupObservation, Failur
         },
     })
 }
-pub(super) async fn run(options: &Options, input: &Input) -> Result<SetupOutcome, Failure> {
+pub(super) async fn run(options: &Options, input: &Input) -> Result<Value, Failure> {
     let saved = request::load(input, options.actor)?;
     let agent = super::agent(options)?;
-    execute(options, &saved, &agent).await
+    execute(options, &saved, &agent)
+        .await
+        .map(|outcome| outcome.report)
 }
 
 /// Execute a request already validated for the invocation's authenticated role.

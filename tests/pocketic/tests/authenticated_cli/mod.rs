@@ -1,12 +1,39 @@
 //! Native client subprocess with fixed test credentials and explicit local trust.
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
 use ic_platform::principal::ExternalPrincipal as Principal;
+use ic_testkit::pocket_ic::PocketIc;
 use serde_json::Value;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 // Fixed test-only Ed25519 seed [42; 32], never a deployment identity.
 pub(super) const PEM: &str = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEICoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq\n-----END PRIVATE KEY-----\n";
+
+/// Write the fixed fixture identity and this instance's exact root of trust.
+pub(super) async fn identity_files(
+    pic: &PocketIc,
+    directory: &Path,
+    key_name: &str,
+) -> (PathBuf, PathBuf) {
+    let key = directory.join(key_name);
+    let root = directory.join("root.der");
+    std::fs::write(&key, PEM).unwrap();
+    std::fs::write(&root, pic.root_key().await.unwrap().unwrap()).unwrap();
+    (key, root)
+}
+
+/// Expose only the selected simulator on numeric loopback; scenarios own stop/restart.
+pub(super) async fn live(pic: &mut PocketIc) -> String {
+    pic.make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
+        .await
+        .unwrap()
+        .to_string()
+}
+
+pub(super) fn change(args: &mut [String], flag: &str, value: &str) {
+    let index = args.iter().position(|s| s == flag).unwrap();
+    args[index + 1] = value.into();
+}
 
 pub(super) fn arguments(
     command: &str,

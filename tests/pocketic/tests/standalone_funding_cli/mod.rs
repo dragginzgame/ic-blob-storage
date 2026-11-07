@@ -1,21 +1,16 @@
 //! Signed passive absence never invents a restore-fence observation.
 use super::*;
-use crate::authenticated_cli::{PEM, arguments, run};
+use crate::authenticated_cli::{arguments, change, identity_files, live, run};
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::Value;
 
-fn change(args: &mut [String], flag: &str, value: &str) {
-    let index = args.iter().position(|s| s == flag).unwrap();
-    args[index + 1] = value.into();
-}
-
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgrade() {
     let mut f = Fixture::with_harness(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -35,17 +30,8 @@ async fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgr
         .await
         .unwrap();
     let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
-    let key = dir.path().join("key.pem");
-    let root = dir.path().join("root.der");
-    std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().await.unwrap().unwrap()).unwrap();
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string();
+    let (key, root) = identity_files(&f.harness.pic, dir.path(), "key.pem").await;
+    let url = live(&mut f.harness.pic).await;
     let mut args = arguments(
         "funding-outcome",
         f.operator_scope(),
@@ -88,13 +74,7 @@ async fn standalone_funding_cli_preserves_absence_and_refusals_after_fenced_upgr
         .await
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string();
+    let url = live(&mut f.harness.pic).await;
     change(&mut args, "--url", &url);
     let mut expected = absent;
     expected["url"] = url.into();

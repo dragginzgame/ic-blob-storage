@@ -1,5 +1,9 @@
 use super::*;
-use crate::native::{arguments::Command, execute, upload_inputs::tests as fixture};
+use crate::native::{
+    arguments::{parse, schema::Invocation},
+    execute,
+    upload_inputs::tests as fixture,
+};
 use ic_host_fs::testing::FixtureDirectory;
 use std::fs;
 
@@ -75,16 +79,22 @@ fn arguments(directory: &std::path::Path) -> Vec<String> {
 fn indexed_prepare_requires_canonical_index_explicit_roles_and_original_recovery_journal() {
     let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let args = arguments(directory.path());
-    assert!(Options::parse(&args).is_ok());
+    assert!(crate::native::arguments::parse(&args).is_ok());
     for value in ["00", "-1", "4096"] {
         let mut changed = args.clone();
         let index = changed.iter().position(|a| a == "--file-index").unwrap();
         changed[index + 1] = value.into();
-        assert!(matches!(Options::parse(&changed), Err(Failure::Arguments)));
+        assert!(matches!(
+            crate::native::arguments::parse(&changed),
+            Err(Failure::Arguments)
+        ));
     }
     let mut resume = args;
     resume[0] = "publish-prepare-resume".into();
-    assert!(matches!(Options::parse(&resume), Err(Failure::Arguments)));
+    assert!(matches!(
+        crate::native::arguments::parse(&resume),
+        Err(Failure::Arguments)
+    ));
     assert_eq!(execute(&resume), Err(Failure::Arguments));
     assert!(!directory.path().join("run").exists());
 }
@@ -97,13 +107,16 @@ fn batch_prepare_requires_all_file_selection_without_recovery_or_index_flags() {
     let index = args.iter().position(|a| a == "--file-index").unwrap();
     args.drain(index..=index + 1);
     assert!(matches!(
-        Options::parse(&args).unwrap().0,
-        Command::PublishPrepareBatch(_)
+        parse(&args).unwrap().command.unwrap(),
+        Invocation::PublishPrepareBatch(_)
     ));
     for extra in ["--file-index", "--source-run"] {
         let mut changed = args.clone();
         changed.extend([extra.into(), "0".into()]);
-        assert!(matches!(Options::parse(&changed), Err(Failure::Arguments)));
+        assert!(matches!(
+            crate::native::arguments::parse(&changed),
+            Err(Failure::Arguments)
+        ));
     }
 }
 #[test]

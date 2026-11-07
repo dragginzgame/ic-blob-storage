@@ -17,7 +17,7 @@ use std::path::Path;
 async fn setup(directory: &Path) -> (Fixture, Vec<UploadAdmissionRequest>) {
     let mut f = Fixture::with_profile(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -131,7 +131,7 @@ async fn standalone_publish_map_requires_every_completed_live_reference_and_pres
     confirm(&f, &manifest(directory.path(), 0)).await;
     let mut file_args = args(&mut f, directory.path(), "first-file").await;
     file_args[0] = "publish-file-status".into();
-    crate::reference_cli::change_native(&mut file_args, "--max-queries", "4");
+    crate::authenticated_cli::change(&mut file_args, "--max-queries", "4");
     file_args.extend(["--file-index".into(), "0".into()]);
     let first = run(&file_args, 0);
     assert_eq!(first["file_live"], true);
@@ -196,34 +196,34 @@ async fn standalone_publish_map_requires_every_completed_live_reference_and_pres
 #[tokio::test(flavor = "multi_thread")]
 async fn standalone_publish_map_refuses_bad_frozen_bytes_budget_and_operator_before_claiming_output()
  {
-    use crate::{account_native_cli::OUTSIDER_PEM, reference_cli::change_native};
+    use crate::{account_native_cli::OUTSIDER_PEM, authenticated_cli::change};
     let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let (mut f, _) = setup(directory.path()).await;
     let mut input = args(&mut f, directory.path(), "refused").await;
     input[0] = "publish-file-status".into();
-    change_native(&mut input, "--max-queries", "4");
+    change(&mut input, "--max-queries", "4");
     input.extend(["--file-index".into(), "2".into()]);
     assert_eq!(run(&input, 2)["error"], "arguments");
-    change_native(&mut input, "--file-index", "01");
+    change(&mut input, "--file-index", "01");
     assert_eq!(run(&input, 2)["error"], "arguments");
-    change_native(&mut input, "--file-index", "0");
-    change_native(&mut input, "--max-queries", "2");
+    change(&mut input, "--file-index", "0");
+    change(&mut input, "--max-queries", "2");
     assert_eq!(run(&input, 3)["error"], "reply_limit");
     assert!(!directory.path().join("refused").exists());
     input = args(&mut f, directory.path(), "refused").await;
-    change_native(&mut input, "--max-queries", "3");
+    change(&mut input, "--max-queries", "3");
     assert_eq!(run(&input, 3)["error"], "reply_limit");
     assert!(!directory.path().join("refused").exists());
-    change_native(&mut input, "--max-queries", "6");
+    change(&mut input, "--max-queries", "6");
     std::fs::write(directory.path().join("wrong.pem"), OUTSIDER_PEM).unwrap();
-    change_native(
+    change(
         &mut input,
         "--operator-identity",
         directory.path().join("wrong.pem").to_str().unwrap(),
     );
     assert_eq!(run(&input, 3)["error"], "identity_binding");
     assert!(!directory.path().join("refused").exists());
-    change_native(
+    change(
         &mut input,
         "--operator-identity",
         directory.path().join("tenant.pem").to_str().unwrap(),

@@ -1,5 +1,6 @@
 //! Real signed batch queries preserve reservation history and restored fences.
 use super::*;
+use crate::authenticated_cli::live;
 use crate::{
     account_native_cli::signer,
     authenticated_cli::{PEM, run},
@@ -24,7 +25,7 @@ pub(super) async fn setup_batch() -> Fixture {
 async fn setup_profile(envelope: Envelope) -> Fixture {
     let mut f = Fixture::with_profile(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -187,13 +188,7 @@ async fn standalone_batch_check_observes_absence_original_reservation_and_same_r
     let mut f = setup().await;
     let d = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let p = freeze(&f, d.path()).await;
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string();
+    let url = live(&mut f.harness.pic).await;
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let absent = run(&args(&f, d.path(), &url, "absent").await, 0);
     assert_eq!(absent["blocked"], false);
@@ -283,13 +278,7 @@ async fn standalone_batch_check_retains_history_exhaustion_after_unexposed_cance
         .await
         .unwrap()
         .unwrap();
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string();
+    let url = live(&mut f.harness.pic).await;
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let report = run(&args(&f, d.path(), &url, "capacity").await, 0);
     assert_eq!(report["files"][0]["status"], "not_visible");

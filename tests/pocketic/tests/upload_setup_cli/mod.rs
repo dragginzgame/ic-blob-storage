@@ -6,7 +6,7 @@ mod inputs;
 mod phases;
 use crate::{
     account_native_cli::OUTSIDER_PEM,
-    authenticated_cli::{PEM, run},
+    authenticated_cli::{PEM, change, run},
     submission_proxy::{Dispatch, Proxy, Reply},
 };
 use ic_blob_storage_contracts::dto::configuration::ServiceInstallationInput;
@@ -65,10 +65,7 @@ fn save(path: &Path, value: &[u8]) {
         .unwrap();
     file.write_all(value).unwrap();
 }
-fn change(args: &mut [String], flag: &str, value: &str) {
-    let n = args.iter().position(|a| a == flag).unwrap();
-    args[n + 1] = value.into();
-}
+
 impl Client {
     pub fn new(
         permission: UploadManifestRequest,

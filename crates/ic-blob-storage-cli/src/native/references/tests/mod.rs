@@ -1,5 +1,5 @@
-use super::super::arguments::Command;
 use super::*;
+use crate::native::arguments::{parse, schema::Invocation};
 use ic_blob_storage_contracts::dto::reference::ReferenceReceiptResponse;
 use ic_blob_storage_contracts::dto::reference::status::ReferenceStatusResponse;
 use ic_host_fs::testing::FixtureDirectory;
@@ -67,8 +67,17 @@ fn saved_exact_requests_bind_tenant_and_scope_before_identity_or_network() {
     ] {
         std::fs::write(&path, &encoded).unwrap();
         let args = arguments(kind, &path);
-        let Command::Reference(mut input) = Options::parse(&args).unwrap().0 else {
-            panic!("wrong command")
+        let parsed = parse(&args).unwrap().command.unwrap();
+        let (parsed, kind) = match parsed {
+            Invocation::ReferenceReceipt(args) => (args, Kind::Receipt),
+            Invocation::ReferenceStatus(args) => (args, Kind::Status),
+            _ => panic!("wrong command"),
+        };
+        let mut input = Input {
+            service: parsed.connection.service,
+            namespace: parsed.connection.namespace,
+            kind,
+            request: parsed.input.request,
         };
         let inspection = open(&input, c.upload.tenant).unwrap();
         assert_eq!(
@@ -123,12 +132,7 @@ fn saved_exact_requests_bind_tenant_and_scope_before_identity_or_network() {
 #[test]
 fn historical_success_failure_and_absence_never_observe_current_liveness_or_fence() {
     let c = command();
-    let options = Options::parse(&arguments(
-        "reference-receipt",
-        std::path::Path::new("unused"),
-    ))
-    .unwrap()
-    .1;
+    let options = crate::native::tests::output_options(c.upload.tenant);
     for result in [
         Ok(ReferenceChange::Changed),
         Ok(ReferenceChange::Unchanged),
@@ -185,12 +189,7 @@ fn current_liveness_and_restore_fence_are_independent_bounded_observations() {
         upload: c.upload,
         reference: c.reference,
     };
-    let options = Options::parse(&arguments(
-        "reference-status",
-        std::path::Path::new("unused"),
-    ))
-    .unwrap()
-    .1;
+    let options = crate::native::tests::output_options(c.upload.tenant);
     for (live, fenced) in [(true, false), (true, true), (false, true)] {
         let bytes = ic_blob_storage_contracts::wire::encode_response(
             REFERENCE_STATUS_METHOD,

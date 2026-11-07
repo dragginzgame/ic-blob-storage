@@ -10,10 +10,7 @@ pub(crate) async fn native_requests(
     directory: &Path,
     url: &str,
 ) -> (Vec<String>, Vec<String>) {
-    let key = directory.join("tenant.pem");
-    let root = directory.join("root.der");
-    fs::write(&key, crate::authenticated_cli::PEM).unwrap();
-    fs::write(&root, pic.root_key().await.unwrap().unwrap()).unwrap();
+    let (key, root) = crate::authenticated_cli::identity_files(pic, directory, "tenant.pem").await;
     let receipt = directory.join("receipt.wire");
     let status = directory.join("status.wire");
     fs::write(
@@ -60,9 +57,4 @@ pub(crate) async fn native_requests(
         args("reference-receipt", &receipt),
         args("reference-status", &status),
     )
-}
-
-pub(crate) fn change_native(args: &mut [String], flag: &str, value: &str) {
-    let index = args.iter().position(|s| s == flag).unwrap();
-    args[index + 1] = value.into();
 }

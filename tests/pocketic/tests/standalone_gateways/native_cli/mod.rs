@@ -1,5 +1,6 @@
 //! Signed gateway decisions through standalone, with occupied unrelated owners.
 use super::{super::*, sync};
+use crate::authenticated_cli::live;
 use crate::{account_native_cli::signer, gateway_native_cli::GatewayCli};
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
@@ -9,7 +10,7 @@ use ic_testkit::pocket_ic::PocketIcBuilder;
 async fn standalone_signed_gateway_decisions_preserve_uncertainty_and_occupied_restore_fences() {
     let mut f = sync::fixture_with_operator(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -34,13 +35,7 @@ async fn standalone_signed_gateway_decisions_preserve_uncertainty_and_occupied_r
     f.prepare(f.uploader, &request).await.unwrap();
     let scope = f.operator_scope();
     let root = f.harness.pic.root_key().await.unwrap().unwrap();
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string();
+    let url = live(&mut f.harness.pic).await;
     let cli = GatewayCli::new(scope, fake_principal(9), url, &root, "standalone");
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let source = f

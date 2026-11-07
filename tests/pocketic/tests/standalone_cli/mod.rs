@@ -1,23 +1,11 @@
 //! Actual signed query subprocess; no simulated caller and no provider effects.
 use super::*;
-use crate::authenticated_cli::{PEM, arguments, run};
+use crate::authenticated_cli::live;
+use crate::authenticated_cli::{arguments, change, run};
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::Value;
-fn change(args: &mut [String], flag: &str, value: &str) {
-    let index = args.iter().position(|s| s == flag).unwrap();
-    args[index + 1] = value.into();
-}
-
-async fn live(f: &mut Fixture) -> String {
-    f.harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string()
-}
 
 fn funding_history(args: &[String], fenced: bool) {
     let mut history = args.to_vec();
@@ -45,7 +33,7 @@ fn funding_history(args: &[String], fenced: bool) {
 async fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_restore_status() {
     let mut f = Fixture::with_harness(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -66,11 +54,10 @@ async fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_
         .await
         .unwrap();
     let directory = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
-    let key = directory.path().join("identity.pem");
-    let root = directory.path().join("root.der");
-    std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().await.unwrap().unwrap()).unwrap();
-    let url = live(&mut f).await;
+    let (key, root) =
+        crate::authenticated_cli::identity_files(&f.harness.pic, directory.path(), "identity.pem")
+            .await;
+    let url = live(&mut f.harness.pic).await;
     let args = arguments("status", f.operator_scope(), f.operator, &url, &key, &root);
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let value = run(&args, 0);
@@ -115,7 +102,7 @@ async fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let mut args = args;
-    change(&mut args, "--url", &live(&mut f).await);
+    change(&mut args, "--url", &live(&mut f.harness.pic).await);
     let restored = run(&args, 0);
     funding_history(&args, true);
     assert!(restored.get("reads").is_none());
@@ -139,7 +126,7 @@ async fn standalone_authenticated_cli_verifies_trust_identity_scope_and_passive_
         )
         .await
         .unwrap();
-    change(&mut args, "--url", &live(&mut f).await);
+    change(&mut args, "--url", &live(&mut f.harness.pic).await);
     assert_eq!(run(&args, 3)["error"], "denied");
     args[0] = "funding-history".into();
     assert_eq!(run(&args, 3)["error"], "denied");

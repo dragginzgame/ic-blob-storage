@@ -1,5 +1,6 @@
 //! The same executable refuses an unconfirmed or restored standalone object before HTTP.
 use super::super::*;
+use crate::authenticated_cli::live;
 use crate::{
     account_native_cli::signer,
     authenticated_cli::{PEM, run},
@@ -55,10 +56,6 @@ fn arguments(
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-#[expect(
-    clippy::too_many_lines,
-    reason = "Keep refusal and restore observations on one reference while proving no provider GET"
-)]
 async fn standalone_native_download_refuses_unconfirmed_and_restored_references_without_provider_get()
  {
     let temp = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
@@ -69,7 +66,7 @@ async fn standalone_native_download_refuses_unconfirmed_and_restored_references_
     std::fs::create_dir(&report).unwrap();
     let mut f = Fixture::with_harness(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -115,13 +112,7 @@ async fn standalone_native_download_refuses_unconfirmed_and_restored_references_
     listener.set_nonblocking(true).unwrap();
     let gateway = format!("http://{}/", listener.local_addr().unwrap());
     std::fs::write(report.join("fixture-plan.json"),serde_json::to_vec(&serde_json::json!({"evidence":"local_unconfirmed_standalone","max_cli_invocations":2,"max_source_gets":0,"deployed_provider_requests":0,"attached_provider_cycles":"0"})).unwrap()).unwrap();
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string();
+    let url = live(&mut f.harness.pic).await;
     for (label, error) in [
         ("unconfirmed", "download_unavailable"),
         ("restored", "download_fenced"),

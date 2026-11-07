@@ -69,15 +69,25 @@ fn relationship(request: AccountInspectionRequest) -> AccountRelationshipView {
 fn explicit_kind_and_complete_installed_account_scope_are_required() {
     for kind in [Kind::Balance, Kind::PaymentRelationship] {
         let request = request(kind);
-        assert!(matches!(Options::parse(&arguments(request)).unwrap().0,
-            super::super::arguments::Command::InspectAccount(value) if value == request));
+        assert!(
+            matches!(crate::native::arguments::parse(&arguments(request)).unwrap().command.unwrap(),
+            crate::native::arguments::schema::Invocation::InspectAccount(value) if value.input.input.kind == request.kind
+                && value.connection.service == request.scope.service && value.connection.namespace == request.scope.namespace
+                && value.input.cashier == request.scope.cashier && value.input.payment_account == request.scope.payment_account)
+        );
     }
     let mut args = arguments(request(Kind::Balance));
     args.pop();
     args.pop();
-    assert!(matches!(Options::parse(&args), Err(Failure::Arguments)));
+    assert!(matches!(
+        crate::native::arguments::parse(&args),
+        Err(Failure::Arguments)
+    ));
     args.extend(["--kind".into(), "both".into()]);
-    assert!(matches!(Options::parse(&args), Err(Failure::Arguments)));
+    assert!(matches!(
+        crate::native::arguments::parse(&args),
+        Err(Failure::Arguments)
+    ));
 }
 
 #[test]
@@ -93,7 +103,10 @@ fn reported_balance_keeps_independent_full_width_amounts_without_credit() {
         }),
     };
     assert_eq!(decode(request, &encoded(&response)), Ok(response.clone()));
-    let output = output(&response, &Options::parse(&arguments(request)).unwrap().1);
+    let output = output(
+        &response,
+        &crate::native::tests::output_options(request.scope.service),
+    );
     assert_eq!(output["provider_report"]["total"], u128::MAX.to_string());
     assert_eq!(output["scope"]["namespace"], u128::MAX.to_string());
     assert_eq!(output["provider_credit"], "not_established");
@@ -109,7 +122,10 @@ fn relationship_json_preserves_signed_and_arbitrary_width_decimal_values() {
         observation: Observation::Relationship(Box::new(relationship(request))),
     };
     assert_eq!(decode(request, &encoded(&response)), Ok(response.clone()));
-    let output = output(&response, &Options::parse(&arguments(request)).unwrap().1);
+    let output = output(
+        &response,
+        &crate::native::tests::output_options(request.scope.service),
+    );
     let report = &output["provider_report"];
     assert_eq!(
         report["spending_limit_per_day"],

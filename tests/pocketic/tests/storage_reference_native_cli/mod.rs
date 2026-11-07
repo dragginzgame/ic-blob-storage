@@ -1,8 +1,8 @@
 //! Local provider facts substitute completion/settlement; tenant queries are signed.
 use super::*;
 use crate::{
-    authenticated_cli::run,
-    reference_cli::{change_native, native_requests},
+    authenticated_cli::{change, run},
+    reference_cli::native_requests,
 };
 use blob_test_protocol::storage::ProviderFact;
 use ic_blob_storage_contracts::dto::reference::ReferenceAction;
@@ -17,15 +17,9 @@ use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 
 async fn live(f: &mut Fixture, receipt: &mut [String], status: &mut [String]) {
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string();
+    let url = crate::authenticated_cli::live(&mut f.harness.pic).await;
     for args in [receipt, status] {
-        change_native(args, "--url", &url);
+        change(args, "--url", &url);
     }
 }
 async fn apply(f: &Fixture, command: ReferenceCommand) {
@@ -135,7 +129,7 @@ async fn failed_receipt(
     .unwrap();
     live(f, receipt, status).await;
     let mut failure = receipt.to_vec();
-    change_native(&mut failure, "--request", path.to_str().unwrap());
+    change(&mut failure, "--request", path.to_str().unwrap());
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     assert_eq!(
         run(&failure, 0)["result"],
@@ -154,7 +148,7 @@ async fn failed_receipt(
 async fn signed_history_stays_successful_after_release_while_current_liveness_and_fence_change() {
     let mut f = Fixture::with_operator(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -232,7 +226,7 @@ async fn signed_history_stays_successful_after_release_while_current_liveness_an
         .unwrap();
     live(&mut f, &mut receipt, &mut status).await;
     phase(&f, &receipt, &status, false, true).await;
-    change_native(
+    change(
         &mut failure,
         "--url",
         &receipt[receipt.iter().position(|s| s == "--url").unwrap() + 1],

@@ -4,6 +4,24 @@ Packages: `ic-blob-storage`, `ic-blob-storage-canister`, `blob-admission-probe`,
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.74.3] - Unreleased
+
+### 🔧 Changed
+
+- Refresh compatible Platform, Storage and Wire patches while preserving endpoint
+  bytes, stored records, exact retries and installation fences.
+- Adopt Testkit 0.90 with an explicit fixture-owned five-minute request budget at
+  every PocketIC builder, retaining the separate startup/scenario deadlines and
+  existing recovery/teardown. Remove three unused multipart MIME dependencies
+  ([#118](https://github.com/dragginzgame/ic-blob-storage/issues/118)).
+- Adopt Shared Tooling 0.31.1's Bash 3.2 checksum-helper fix for contributor
+  setup and release checks. Stop replaying Shared's generic download/retry/checksum
+  fixture in Blob's tooling target; retain tool admission and evidence checks.
+- Share signed CLI fixture identity/root files, numeric-loopback startup and
+  argument editing across standalone and storage qualification; remove duplicate
+  editors and unused length-lint exceptions while preserving scenario authority,
+  create-only evidence, refusal and restore-fencing assertions.
+
 ## [0.74.2] - 2026-11-06
 
 ### 🔧 Changed

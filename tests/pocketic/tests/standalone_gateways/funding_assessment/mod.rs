@@ -1,5 +1,6 @@
 //! Passive signed funding queries beside an occupied standalone upload and stopped Cashier.
 use super::{super::*, sync};
+use crate::authenticated_cli::live;
 use crate::{account_native_cli::signer, funding_assessment_cli::AssessmentCli};
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
@@ -9,7 +10,7 @@ use ic_testkit::pocket_ic::PocketIcBuilder;
 async fn standalone_signed_funding_assessment_preserves_occupied_and_restored_state() {
     let mut f = sync::fixture_with_operator(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -39,13 +40,7 @@ async fn standalone_signed_funding_assessment_preserves_occupied_and_restored_st
         .await
         .unwrap();
     let root = f.harness.pic.root_key().await.unwrap().unwrap();
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string();
+    let url = live(&mut f.harness.pic).await;
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let source = f
         .harness

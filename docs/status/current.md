@@ -1,4 +1,200 @@
-# Current status — 2026-11-06
+# Current status — 2026-11-07
+
+## Authorized delivery in progress
+
+The maintainer requested deployment and issue reconciliation. Deliver the reviewed
+Client 0.73.2 and Engine 0.74.3 patch batch, in that order, to `origin/main` and
+crates.io through Shared 0.31.1's captured batch. Contracts is unchanged. Earlier
+"no delivery" statements below describe implementation-time authority, now
+superseded for this batch. Preserve all retained batches and provider obligations;
+this request selects library delivery, not live canister replacement or paid probes.
+Close #118 only after its migration and qualification reach default main; #5,
+#6, #31 and #34 still require application/provider acceptance.
+
+## Pending published upstream adoption — Client 0.73.2 / Engine 0.74.3
+
+Official crates.io metadata selects **Build 0.77.0 / Platform 0.23.5 / Storage
+0.68.3 / Testkit 0.90.0 / Wire-Derive 0.17.6**. Host Foundation 0.74.4, Tools
+0.83.0, Runtime 0.19.5 and Types 0.18.2 are already current. The Build catalog
+requirement advances to 0.77; compatible patch selections remain in the shared
+lock. Preserve the incoming SmallVec 1.16.5 selection. No package versions were
+prepared, and no stage, commit, release, push or provider effect is authorized.
+
+Published Build 0.77's source-evidence, Cargo qualification and release-editor
+sources match 0.76 byte-for-byte. Blob has no callers of its retired cache-timing
+getters, so no wrapper/caller migration is needed. Platform facade production
+source matches the prior qualified patch. Incoming Runtime 0.19.5 and Storage
+0.68.3 were already locked when Testkit adoption began. Runtime consolidates
+IC system-byte copies and preserves protected-task order; Storage batches small
+fixed-width B-tree key reads without changing persisted images. Their focused
+qualification and Testkit 0.90's constructor-budget migration are recorded below. The new
+Wire field adapters remain unselected: no owned DTO, saved representation,
+authentication, decoder limit or exact retry bytes change.
+
+The canonical exporter adopts **Shared 0.31.1** at
+`5efbda2ab81ad84e30f490f3137d8ef083c303d2` (171 files), fixing Bash 3.2 parsing
+of the checksum NUL reader. VERSION/changelog metadata declare 0.31.1 despite the
+commit title `0.31.2`. The runner, batch schema, release defaults and retained
+batch custody are unchanged. `AGENTS.md` selects the same policy.
+
+**Earlier Build 0.76 qualification:** tool preparation and offline admission
+passed for that editor and Testkit 0.89.4 CLI; PocketIC remains 16.1.0. Linux/Rust 1.99.1 focused
+checks passed: strict CLI all-target/all-feature Clippy, 129 Contracts codec and
+malformed-input tests, standalone release Wasm, the exact CLI-carrier installation
+and snapshot-rollback/fencing cases, dependency/source/deployment boundaries,
+metadata-editor render/rollback and checksum evidence. That run
+verified all 13 IC selections against official non-yanked registry checksums.
+Cargo/lock/compiler/snapshot inputs stayed fixed throughout that qualification. No workspace/full release gate ran.
+Retain official registry metadata and focused logs under
+`target/upstream-adoption-20261107/`; snapshot impact/refresh is in
+`target/shared-tooling-0311/`. Native macOS, new browser/II and live-provider
+qualification are not claimed.
+
+The current Build **0.77.0** publication is independently verified at registry
+checksum `41883c4420ed9c70d4a0be08718141675001315f1f1964e13169b253bbb3ee01`,
+VCS `9d87394919b812cb6de55a9abd6dd2fd026c9070`. Only Build changed in this
+follow-up's lock update; all existing supplier selections and cleanup work remain.
+The canonical installer reused the admitted published 0.77 editor payload without
+removing earlier tool generations. Strict all-target/all-feature CLI Clippy,
+offline editor admission, dependency/source boundaries and deployment exclusions
+pass. Actual Client metadata render/rollback qualification passed using the real
+0.77 editor over all 13 members, preserving supplier entries and unselected groups.
+Documentation references and whitespace checks also pass. No full release gate ran.
+Retain `target/build077-adoption-20261107/` for registry selection, module hashes,
+lock comparison and focused logs. Earlier installed-IC proofs retain their original
+Build graph; no new service/browser/provider or native macOS qualification is claimed.
+No package versions, stage, commit, push, release or provider effect occurred.
+
+## Pending Testkit 0.90 adoption — issue #118
+
+The official registry now supplies Testkit **0.90.0**, checksum
+`aeeb9dd0920b5a4343aed61f2cb7c0266488823dab5f7b19e0b632b54b7d8f5a`, VCS
+`c03161b9f1395c343756fda6b8721e957798c3df`. Platform **0.23.5** is independently
+verified as the latest published facade and stays selected. No sibling override
+or source edit is used. The root Testkit catalog/lock selects 0.90; all 20 fixture
+builders explicitly receive Blob's `support::REQUEST_TIMEOUT` (300 seconds),
+preserving the published 0.89 default. Startup remains 30 seconds, with independent
+signed-CLI and scenario budgets. Existing runtime/server custody and operation
+identity are unchanged. No local timeout framework or compatibility alias was added.
+The inventory found no direct attachment/listing calls, unbounded setter or
+consumers of the other retired Testkit 0.90 API families. Three unused MIME packages
+are removed through Testkit's HTTP feature reduction; other suppliers stay selected.
+Focused Linux / Rust 1.99.1 qualification passes: strict all-target/all-feature
+native Testkit-consumer Clippy, canonical 0.90 CLI/server setup and offline
+admission, actual probe/standalone Wasm and native CLI preparation, 129 Contracts
+and 280 Engine unit tests, all 77 non-browser standalone cases, and five selected
+storage cases. The storage selections cover signed reference/funding history,
+restore fences, genuine signed-ingress rejection and saved-request recovery, and
+accepted funding whose callback traps. Five opt-in Chromium cases were ignored
+(four standalone, one storage); no browser/II result is claimed. Native runtime
+custody, same-release recovery and uncertainty remain covered on this graph.
+Dependency/source boundaries, pins, deployed dependency exclusions, the unchanged
+0.77 editor's refreshed offline admission, formatting and documentation links pass.
+Cargo/lock/compiler/snapshot fingerprints stayed fixed through qualification.
+
+[#118](https://github.com/dragginzgame/ic-blob-storage/issues/118) remains open:
+GitHub default `main` still selects Testkit 0.89.1 and zero-argument builders.
+This local migration meets its focused implementation criteria, but is not yet
+on the default branch. Reconcile after authorized delivery; no stage, commit,
+push, release or deployment occurred. Retain source inventory, registry/lock
+selections, exact commands and logs under `target/testkit090-adoption-20261107/`.
+Earlier tests keep their original supplier graphs; no native macOS, live-provider
+or full release qualification is claimed.
+
+## Pending consumer tooling roster cleanup
+
+`shared-tooling-tests` no longer invokes Shared's generic
+`test-tool-downloads.sh` download/retry/checksum matrix. Shared owns that producer
+proof; the snapshot-owned script and integrity checks remain intact. Blob keeps
+the actual Testkit/Make admission and failure-routing fixture, tooling evidence
+archive/retention fixture, compiler, logging, completion and release-validation
+checks. Focused Testkit/release-editor forwarding and ordered failure-propagation
+checks pass with substitute tools; actual tooling evidence selection, archive
+round trips and failure retention pass. Snapshot integrity passes for all 171
+files. Logs remain in `target/tooling-roster-20261107/`. This is a target-roster
+change, not a tool-admission policy change or a measured speed-up; the full
+tooling/release suites were not rerun. No staging, commit or delivery occurred.
+
+## Pending native CLI simplification
+
+The same Client 0.73.2 / Engine 0.74.3 batch removes the native CLI's intermediate
+`Command` enum and separate execution match. The typed Clap `Invocation` now owns
+one exhaustive dispatch. Command-specific gateway/release admission still precedes
+connection trust validation, runtime creation and handler I/O. The synchronous
+offline commands still bypass runtime creation. Existing handler inputs, signed
+journals, retry rules, output shapes and exit classifications are unchanged.
+Parser tests inspect the actual Clap values; projection-only tests supply explicit
+passive options instead of depending on the retired command representation.
+
+The installed history, local-body verification and funding-absence cases share
+identity/root-file setup, numeric-loopback startup and argument editing through
+the existing authenticated-CLI helper. Scenarios still choose every authority,
+installation profile, budget and assertion and own their stop/restart sequence.
+No probe, journal or publication/session controller was removed. Focused Linux /
+Rust 1.99.1 validation passed: strict all-target/all-feature CLI Clippy, standalone
+target Clippy, 122 CLI and seven probe-tool unit tests, 77 installed standalone
+cases, formatting and documentation references. The four opt-in Chromium cases
+were not run. The initial unit run passed 119 CLI cases; three local-socket cases
+were refused by the sandbox and passed on focused retries with local networking.
+Both failed and passing logs remain in `target/cli-simplification-20261107/`.
+Canonical offline Testkit admission and fixture/CLI preparation passed; dependency,
+compiler and snapshot inputs remained fixed. No full workspace/release gate,
+native macOS or new live-provider acceptance is claimed. Nothing was staged,
+committed, released or pushed; no sibling source or live installation changed.
+
+The production follow-up shares input preparation and execution for the five
+native upload commands in the existing connection adapter. Each invocation still
+selects its original operation and supplies a journal directory only for mutations.
+The CLI-only `upload_setup::run` returns its report directly instead of forcing
+five callers to discard a richer result; publication still consumes the unchanged
+`execute` / `SetupOutcome` path for typed observations and recovery decisions.
+No file format, authority check, decoder bound, effect order or retry rule changed.
+Focused Linux / Rust 1.99.1 checks passed: strict all-target/all-feature CLI Clippy,
+four upload/request tests, four typed-grammar tests, native CLI build and the exact
+installed upload-setup journey covering all five commands, lost/pending replies,
+revocation and restore fences. Formatting and documentation links pass. Commands
+and logs remain under `target/cli-upload-dispatch-20261107/`. Offline managed
+Testkit admission passed; unchanged standalone Wasm and dependency/compiler/
+snapshot inputs were retained. No full gate, browser, macOS or live-provider
+qualification was rerun; nothing was staged, committed or delivered.
+
+The file-input follow-up consolidates bounded nonempty consumption of an already
+admitted descriptor for ordinary input files, frozen publication metadata and
+recovery packets. Published Host FS still owns regular-file, size/growth and
+allocation checks. Callers retain their existing path-following/confinement rules,
+held directory handles and opening-error mapping; the separate no-follow reader
+is unchanged. No path is reopened, and no new mode, dependency or saved format was
+introduced. Frozen-root coverage additionally checks empty and zero-budget reads
+after namespace replacement. Strict CLI Clippy, 31 focused local filesystem/
+upload-input/publication-recovery tests, formatting and documentation links pass
+on Linux/Rust 1.99.1. Logs/commands remain in `target/cli-opened-reads-20261107/`;
+dependency/compiler/snapshot inputs stayed fixed. No installed-IC/full gate or
+live-provider checks were rerun. Incoming PocketIC support/certificate-test edits
+were left intact; nothing was staged or delivered.
+
+### Further fixture consolidation
+
+The same Engine batch extends those existing helpers through native reference,
+publication, account, gateway and upload-setup fixtures. The separate reference
+argument editor and four identical private editors are removed; callers use
+`authenticated_cli::change` directly. Loopback wrappers which only started the
+simulator are gone. Ordinary identity/root fixtures use the original shared
+writer; create-new evidence writers and distinct tenant/uploader identities stay
+with their scenario owners. The publication-map URL normalization remains local:
+PocketIC's already-live URL getter may return localhost, which that scenario
+rewrites under its existing literal-loopback policy. No provider callback,
+publication controller, paid operation or product code changed in this follow-up.
+Two now-unneeded length-lint expectations were deleted. Focused Linux / Rust
+1.99.1 checks passed: strict standalone/storage Clippy, 77 installed standalone
+cases, the exact storage reference-history/recovery case and exact funding-history/
+recovery case, formatting and documentation links. The four opt-in Chromium cases
+were compiled but not run. Offline managed Testkit admission preceded installed
+checks; the previously prepared CLI and Wasm selection is unchanged. Cargo/lock,
+compiler and snapshot hashes remained fixed. Raw checks and exact commands remain
+under `target/cli-fixture-consolidation-20261107/`, including initial compiler/lint
+refusals and their corrections. Earlier CLI implementation proofs keep their
+original source scope; unchanged product checks are reused. No full gate, native
+macOS or live-provider qualification was added, and nothing was staged or delivered.
 
 ## Delivered Engine 0.74.2 — Shared 0.31 batch
 

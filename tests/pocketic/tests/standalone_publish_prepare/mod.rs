@@ -1,5 +1,6 @@
 //! Signed indexed setup, distinct actors and lost-reply recovery against real IC state.
 use super::*;
+use crate::authenticated_cli::live;
 use crate::{
     account_native_cli::OUTSIDER_PEM,
     authenticated_cli::{PEM, run},
@@ -124,15 +125,6 @@ fn plan(
     })
     .collect()
 }
-async fn live(fixture: &mut Fixture) -> String {
-    fixture
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string()
-}
 
 async fn batch_args(fixture: &Fixture, directory: &Path, url: &str) -> Vec<String> {
     let mut args = args(fixture, directory, url, false, "original").await;
@@ -182,7 +174,7 @@ async fn standalone_batch_prepare_keeps_distinct_file_journals_and_observes_both
     let permissions =
         crate::standalone_publish_check::freeze_files(&fixture, directory.path(), &[1024, 2048])
             .await;
-    let backend = live(&mut fixture).await;
+    let backend = live(&mut fixture.harness.pic).await;
     let proxy = Proxy::sequence(backend, batch_plan(&fixture, directory.path(), None));
     let args = batch_args(&fixture, directory.path(), &proxy.url).await;
     let report = run(&args, 0);
@@ -218,7 +210,7 @@ async fn standalone_batch_prepare_stops_after_lost_ack_and_recovers_only_origina
         let directory = Directory::new("batch-lost-");
         crate::standalone_publish_check::freeze_files(&fixture, directory.path(), &[1024, 2048])
             .await;
-        let backend = live(&mut fixture).await;
+        let backend = live(&mut fixture.harness.pic).await;
         let proxy = Proxy::sequence(backend, batch_plan(&fixture, directory.path(), Some(lost)));
         assert_eq!(
             run(&batch_args(&fixture, directory.path(), &proxy.url).await, 3)["error"],
@@ -268,7 +260,7 @@ async fn standalone_indexed_prepare_persists_two_distinct_signed_claims_and_reco
     let mut fixture = setup().await;
     let directory = Directory::new("acknowledged-");
     let permission = freeze(&fixture, directory.path()).await;
-    let backend = live(&mut fixture).await;
+    let backend = live(&mut fixture.harness.pic).await;
     let proxy = Proxy::sequence(backend, plan(&fixture, directory.path(), [Reply::Pass; 2]));
     let report = run(
         &args(&fixture, directory.path(), &proxy.url, false, "original").await,
@@ -331,7 +323,7 @@ async fn standalone_indexed_prepare_recovers_lost_admission_and_preparation_resp
             "lost-preparation-"
         });
         freeze(&fixture, directory.path()).await;
-        let backend = live(&mut fixture).await;
+        let backend = live(&mut fixture.harness.pic).await;
         let mut replies = [Reply::Pass; 2];
         replies[lost_stage] = Reply::Drop;
         let proxy = Proxy::sequence(backend, plan(&fixture, directory.path(), replies));
@@ -384,7 +376,7 @@ async fn standalone_indexed_prepare_refuses_wrong_role_changed_journal_and_withd
     let mut fixture = setup().await;
     let directory = Directory::new("refusals-");
     let permission = freeze(&fixture, directory.path()).await;
-    let url = live(&mut fixture).await;
+    let url = live(&mut fixture.harness.pic).await;
     let mut wrong = args(&fixture, directory.path(), &url, false, "wrong").await;
     let flag = wrong
         .iter()
@@ -441,7 +433,7 @@ async fn standalone_indexed_prepare_partial_preparation_claim_never_allows_an_up
     let mut fixture = setup().await;
     let directory = Directory::new("partial-claim-");
     freeze(&fixture, directory.path()).await;
-    let backend = live(&mut fixture).await;
+    let backend = live(&mut fixture.harness.pic).await;
     let proxy = Proxy::sequence(
         backend,
         plan(&fixture, directory.path(), [Reply::Drop, Reply::Pass]),

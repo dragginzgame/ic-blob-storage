@@ -4,6 +4,20 @@ Packages: `ic-blob-storage-client`, `ic-blob-storage-cli`.
 
 Independent releases start after coordinated 0.65.0; [shared history](../history.md) retains earlier entries once.
 
+## [0.73.2] - Unreleased
+
+### 🔧 Changed
+
+- Use IC Build 0.77 for native CLI source evidence and optional package
+  qualification, preserving CLI behavior and the replicated Client boundary.
+- Dispatch native commands directly from the typed Clap invocation; remove the
+  intermediate command catalog and repeated execution match. Share the five
+  upload commands' input preparation and CLI report projection while retaining
+  pre-effect trust checks, exact request journals and internal publication outcomes.
+- Share bounded nonempty reads of admitted file descriptors across ordinary,
+  frozen-input and recovery commands; retain each caller's opening authority and
+  error classifications.
+
 ## [0.73.1] - 2026-11-06
 
 ### 🔧 Changed

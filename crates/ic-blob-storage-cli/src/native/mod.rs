@@ -140,6 +140,13 @@ pub(super) fn run() -> ExitCode {
 
 fn read(path: &Path, maximum: u64) -> Result<Vec<u8>, Failure> {
     let file = ic_host_fs::read::open_regular_file(path).map_err(|_| Failure::File)?;
+    read_opened(file, maximum)
+}
+
+/// Consume the admitted descriptor without reopening its path. Host owns regular-file,
+/// size/growth and allocation checks; Blob inputs additionally require nonempty bytes.
+/// Opening authority and its error classification stay with each caller.
+fn read_opened(file: std::fs::File, maximum: u64) -> Result<Vec<u8>, Failure> {
     let maximum = usize::try_from(maximum).map_err(|_| Failure::File)?;
     let bytes = ic_host_fs::read::read_opened_file(file, maximum).map_err(|_| Failure::File)?;
     if bytes.is_empty() {
@@ -193,122 +200,87 @@ fn execute(args: &[String]) -> Result<serde_json::Value, Failure> {
 }
 
 fn execute_invocation(invocation: arguments::schema::Cli) -> Result<serde_json::Value, Failure> {
-    use arguments::schema::Invocation as I;
     if invocation.version {
         return Ok(json!({"tool":"blob-storage","version":env!("CARGO_PKG_VERSION")}));
     }
-    let (command, options) = match invocation.command.ok_or(Failure::Arguments)? {
-        I::PublishInputs(input) => return publish_inputs::run(input),
-        I::InstallationCheck(input) => return installation_check::run(input),
-        I::AccountLinkInputs(input) => return account_link_inputs::run(input),
-        I::ReferenceInputs(input) => return reference_inputs::run(input),
-        I::UploadInputs(input) => return upload_inputs::run(input),
-        command => command.into_online()?,
-    };
-    let runtime = tokio::runtime::Builder::new_current_thread()
-        .enable_all()
-        .build()
-        .map_err(|_| Failure::Transport)?;
-    runtime.block_on(observe(&command, &options))
+    invocation.command.ok_or(Failure::Arguments)?.execute()
 }
 
-async fn observe(
-    command: &arguments::Command,
+async fn observe_funding_history(
     options: &arguments::Options,
+    scope: ic_blob_storage_contracts::dto::operator::OperatorScope,
+    cursor: Option<&Path>,
 ) -> Result<serde_json::Value, Failure> {
-    match command {
-        arguments::Command::PublishSession(input) => publish_session::run(options, input).await,
-        arguments::Command::PublishMap(input) => publish_map::run(options, input).await,
-        arguments::Command::UploadSetup(input) => upload_setup::run(options, input)
-            .await
-            .map(|outcome| outcome.report),
-        arguments::Command::PublishCheck(input) => publish_check::run(options, input).await,
-        arguments::Command::PublishPrepare(input) => publish_prepare::run(options, input).await,
-        arguments::Command::PublishPrepareBatch(input) => {
-            publish_prepare::batch::run(options, input).await
-        }
-        arguments::Command::InspectAccount(input) => account::run(options, *input).await,
-        arguments::Command::FundingAssessment(input) => {
-            funding_assessment::run(options, *input).await
-        }
-        arguments::Command::GatewayControl(input) => gateway_controls::run(options, input).await,
-        arguments::Command::Reference(input) => references::run(options, input).await,
-        arguments::Command::FundingOutcome(input) => funding_outcome::run(options, *input).await,
-        arguments::Command::UploadHistory(input) => upload_history::run(options, input).await,
-        arguments::Command::CertificateAssessment(input) => {
-            certificate_assessment::run(options, input).await
-        }
-        arguments::Command::SubmitReference(input) => submit_reference::run(options, input).await,
-        arguments::Command::Download(input) => download::run(options, input).await,
-        arguments::Command::FundingHistory { scope, cursor } => {
-            let request = history::request(*scope, cursor.as_deref())?;
-            let response = query(
-                options,
-                request.scope.service,
-                protocol::FUNDING_HISTORY_METHOD,
-                wire::encode_request(protocol::FUNDING_HISTORY_METHOD, request)
-                    .map_err(|_| Failure::Arguments)?,
-            )
-            .await?;
-            history::output(
-                request,
-                &response,
-                options.actor,
-                options.network,
-                options.url.as_str(),
-            )
-        }
-        arguments::Command::VerifyUpload {
-            service,
-            namespace,
-            permission,
-            body,
-            max_bytes,
-        } => {
-            let verification = verify_upload::Verification::open(
-                *service,
-                *namespace,
-                options.actor,
-                permission,
-                body,
-                *max_bytes,
-            )?;
-            let response = query(
-                options,
-                verification.permission.upload.service,
-                protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
-                wire::encode_request(
-                    protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
-                    verification.permission,
-                )
-                .map_err(|_| Failure::Arguments)?,
-            )
-            .await?;
-            verification.finish(
-                &response,
-                options.actor,
-                options.network,
-                options.url.as_str(),
-            )
-        }
-        arguments::Command::Status { scope } => {
-            let response = query(
-                options,
-                scope.service,
-                LOCAL_STATUS_METHOD,
-                wire::encode_request(protocol::LOCAL_STATUS_METHOD, scope)
-                    .map_err(|_| Failure::Arguments)?,
-            )
-            .await?;
-            let status = reply::decode(&response, *scope)?;
-            Ok(reply::output(
-                &status,
-                options.actor,
-                options.network,
-                options.url.as_str(),
-            ))
-        }
-    }
+    let request = history::request(scope, cursor)?;
+    let response = query(
+        options,
+        request.scope.service,
+        protocol::FUNDING_HISTORY_METHOD,
+        wire::encode_request(protocol::FUNDING_HISTORY_METHOD, request)
+            .map_err(|_| Failure::Arguments)?,
+    )
+    .await?;
+    history::output(
+        request,
+        &response,
+        options.actor,
+        options.network,
+        options.url.as_str(),
+    )
+}
+
+async fn observe_upload(
+    options: &arguments::Options,
+    service: Principal,
+    namespace: u128,
+    input: &arguments::schema::VerifyUpload,
+) -> Result<serde_json::Value, Failure> {
+    let verification = verify_upload::Verification::open(
+        service,
+        namespace,
+        options.actor,
+        &input.permission,
+        &input.body,
+        input.max_bytes,
+    )?;
+    let response = query(
+        options,
+        verification.permission.upload.service,
+        protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
+        wire::encode_request(
+            protocol::UPLOAD_MANIFEST_INSPECT_METHOD,
+            verification.permission,
+        )
+        .map_err(|_| Failure::Arguments)?,
+    )
+    .await?;
+    verification.finish(
+        &response,
+        options.actor,
+        options.network,
+        options.url.as_str(),
+    )
+}
+
+async fn observe_status(
+    options: &arguments::Options,
+    scope: ic_blob_storage_contracts::dto::operator::OperatorScope,
+) -> Result<serde_json::Value, Failure> {
+    let response = query(
+        options,
+        scope.service,
+        LOCAL_STATUS_METHOD,
+        wire::encode_request(protocol::LOCAL_STATUS_METHOD, scope)
+            .map_err(|_| Failure::Arguments)?,
+    )
+    .await?;
+    let status = reply::decode(&response, scope)?;
+    Ok(reply::output(
+        &status,
+        options.actor,
+        options.network,
+        options.url.as_str(),
+    ))
 }
 
 fn agent(options: &arguments::Options) -> Result<Agent, Failure> {

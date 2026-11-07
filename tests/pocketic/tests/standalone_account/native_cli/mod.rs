@@ -1,5 +1,6 @@
 //! Actual standalone account read updates signed by the native operator client.
 use super::{configure, fixture_with_operator};
+use crate::authenticated_cli::live;
 use crate::{
     account_native_cli::{NativeAccountCli, signer},
     support::Harness,
@@ -10,7 +11,7 @@ use ic_testkit::pocket_ic::PocketIcBuilder;
 async fn standalone_native_account_observations_keep_scope_reports_and_restore_fences() {
     let mut f = fixture_with_operator(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -20,13 +21,7 @@ async fn standalone_native_account_observations_keep_scope_reports_and_restore_f
     .await;
     let scope = f.operator_scope();
     let root = f.harness.pic.root_key().await.unwrap().unwrap();
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string();
+    let url = live(&mut f.harness.pic).await;
     let cli = NativeAccountCli::new(scope, &url, root, "standalone");
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     cli.reports(|kind, bytes| configure(&f, kind, bytes)).await;

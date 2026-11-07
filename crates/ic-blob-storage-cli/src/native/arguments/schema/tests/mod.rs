@@ -221,6 +221,8 @@ fn production_invocation_keeps_non_utf8_paths_native() {
     let matches = crate::native::arguments::invocation(&args)
         .unwrap()
         .unwrap();
-    let (_, options) = matches.command.unwrap().into_online().unwrap();
-    assert_eq!(options.identity.as_os_str(), path);
+    let Invocation::Status(args) = matches.command.unwrap() else {
+        panic!("status invocation")
+    };
+    assert_eq!(args.connection.identity.as_os_str(), path);
 }

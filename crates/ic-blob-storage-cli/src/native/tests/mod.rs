@@ -6,6 +6,15 @@ use ic_blob_storage_contracts::dto::operator::*;
 fn actor() -> Principal {
     Principal::self_authenticating([42])
 }
+pub(in crate::native) fn output_options(actor: Principal) -> arguments::Options {
+    arguments::Options {
+        network: "ic",
+        url: "https://icp-api.io".parse().unwrap(),
+        identity: "unused.pem".into(),
+        actor,
+        root_key: None,
+    }
+}
 fn options() -> Vec<String> {
     [
         "status",
@@ -39,8 +48,10 @@ fn change(args: &mut [String], flag: &str, value: &str) {
 
 #[test]
 fn arguments_require_complete_identity_scope_and_explicit_trust() {
-    assert!(matches!(arguments::Options::parse(&options()).unwrap().0,
-        arguments::Command::Status { scope } if scope.namespace == u128::MAX));
+    assert!(
+        matches!(arguments::parse(&options()).unwrap().command.unwrap(),
+        arguments::schema::Invocation::Status(args) if args.connection.namespace == u128::MAX)
+    );
     for (flag, value) in [
         ("--url", "http://example.com"),
         ("--url", "http://localhost:8080"),
@@ -57,25 +68,16 @@ fn arguments_require_complete_identity_scope_and_explicit_trust() {
     ] {
         let mut args = options();
         change(&mut args, flag, value);
-        assert!(matches!(
-            arguments::Options::parse(&args),
-            Err(Failure::Arguments)
-        ));
+        assert!(matches!(execute(&args), Err(Failure::Arguments)));
     }
     let mut args = options();
     args.truncate(args.len() - 2);
-    assert!(matches!(
-        arguments::Options::parse(&args),
-        Err(Failure::Arguments)
-    ));
+    assert!(matches!(execute(&args), Err(Failure::Arguments)));
     change(&mut args, "--network", "ic");
     change(&mut args, "--url", "https://icp-api.io");
-    assert!(arguments::Options::parse(&args).is_ok());
+    assert_eq!(execute(&args), Err(Failure::File));
     args.extend(["--operator".into(), actor().to_text()]);
-    assert!(matches!(
-        arguments::Options::parse(&args),
-        Err(Failure::Arguments)
-    ));
+    assert!(matches!(execute(&args), Err(Failure::Arguments)));
 }
 
 #[test]
@@ -83,10 +85,7 @@ fn unknown_commands_never_fall_through_to_operator_status() {
     for command in ["stats", "status-extra", "revoke-gateways", "unknown"] {
         let mut args = options();
         args[0] = command.into();
-        assert!(matches!(
-            arguments::Options::parse(&args),
-            Err(Failure::Arguments)
-        ));
+        assert!(matches!(execute(&args), Err(Failure::Arguments)));
     }
 }
 
@@ -99,7 +98,7 @@ fn parsed_command_requires_its_identity_role_and_refuses_the_other_flag() {
         .unwrap();
     operator[identity] = "--actor".into();
     assert!(matches!(
-        arguments::Options::parse(&operator),
+        arguments::parse(&operator),
         Err(Failure::Arguments)
     ));
 
@@ -118,7 +117,7 @@ fn parsed_command_requires_its_identity_role_and_refuses_the_other_flag() {
         "root.der".into(),
     ]);
     assert!(matches!(
-        arguments::Options::parse(&actor_args),
+        arguments::parse(&actor_args),
         Err(Failure::Arguments)
     ));
     let identity = actor_args
@@ -127,12 +126,12 @@ fn parsed_command_requires_its_identity_role_and_refuses_the_other_flag() {
         .unwrap();
     actor_args[identity] = "--actor".into();
     assert!(matches!(
-        arguments::Options::parse(&actor_args).unwrap().0,
-        arguments::Command::Reference(_)
+        arguments::parse(&actor_args).unwrap().command.unwrap(),
+        arguments::schema::Invocation::ReferenceStatus(_)
     ));
     actor_args.extend(["--operator".into(), actor().to_text()]);
     assert!(matches!(
-        arguments::Options::parse(&actor_args),
+        arguments::parse(&actor_args),
         Err(Failure::Arguments)
     ));
 }

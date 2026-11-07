@@ -87,7 +87,7 @@ fn arguments() -> Vec<String> {
 fn proposed_intent_retains_exact_width_and_absent_target_without_authority_claims() {
     let reply = response();
     assert_eq!(decode(request(), &bytes(&reply)), Ok(reply.clone()));
-    let options = Options::parse(&arguments()).unwrap().1;
+    let options = crate::native::tests::output_options(request().scope.service);
     let value = output(&options, &reply);
     assert_eq!(value["request"]["operation"], u128::MAX.to_string());
     assert_eq!(value["request"]["offered"], u128::MAX.to_string());
@@ -106,14 +106,14 @@ fn proposed_intent_retains_exact_width_and_absent_target_without_authority_claim
     args.pop();
     args.pop();
     assert!(matches!(
-        Options::parse(&args).unwrap().0,
-        super::super::arguments::Command::FundingAssessment(Request {
-            target_balance: None,
-            ..
-        })
+        crate::native::arguments::parse(&args).unwrap().command.unwrap(),
+        crate::native::arguments::schema::Invocation::FundingAssessment(args) if args.input.input.target_balance.is_none()
     ));
     args.extend(["--provider-qualified".into(), "true".into()]);
-    assert!(matches!(Options::parse(&args), Err(Failure::Arguments)));
+    assert!(matches!(
+        crate::native::arguments::parse(&args),
+        Err(Failure::Arguments)
+    ));
 }
 #[test]
 fn decoder_preserves_contract_refusal_codes() {

@@ -1,5 +1,5 @@
-use super::super::arguments::Command;
 use super::*;
+use crate::native::arguments::{parse, schema::Invocation};
 use ic_blob_storage_contracts::dto::reference::ReferenceUpload;
 use ic_blob_storage_contracts::dto::upload::certificate::UploadCertificateAssessmentResponse;
 use ic_host_fs::testing::FixtureDirectory;
@@ -52,9 +52,13 @@ fn saved_permission_scope_and_uploader_are_checked_before_identity_or_transport(
     let bytes = ic_blob_storage_contracts::document::encode(p).unwrap();
     std::fs::write(&path, &bytes).unwrap();
     let mut args = arguments(p, &path);
-    let (command, _) = Options::parse(&args).unwrap();
-    let Command::CertificateAssessment(mut input) = command else {
+    let Invocation::CertificateAssessment(parsed) = parse(&args).unwrap().command.unwrap() else {
         panic!("wrong command")
+    };
+    let mut input = Input {
+        service: parsed.connection.service,
+        namespace: parsed.connection.namespace,
+        permission: parsed.input.permission,
     };
     assert_eq!(open(&input, p.uploader).unwrap().0, p);
     assert_eq!(open(&input, p.upload.tenant), Err(Failure::Denied));
@@ -76,9 +80,7 @@ fn saved_permission_scope_and_uploader_are_checked_before_identity_or_transport(
 #[test]
 fn json_preserves_full_width_identity_and_never_turns_a_snapshot_into_authority() {
     let p = permission();
-    let options = Options::parse(&arguments(p, std::path::Path::new("unused")))
-        .unwrap()
-        .1;
+    let options = crate::native::tests::output_options(p.uploader);
     {
         let response = UploadCertificateAssessmentResponse {
             permission: p,

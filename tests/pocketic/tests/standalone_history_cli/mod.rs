@@ -1,6 +1,6 @@
 //! Signed one-page inventory preserves filtered progress and inspection-only restoration.
 use super::*;
-use crate::authenticated_cli::{PEM, run};
+use crate::authenticated_cli::{change, identity_files, live, run};
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
@@ -9,24 +9,8 @@ use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 use std::path::Path;
 
-async fn live(f: &mut Fixture, args: &mut [String]) {
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap();
-    change(args, "--url", url.as_str());
-}
-fn change(args: &mut [String], flag: &str, value: &str) {
-    let index = args.iter().position(|s| s == flag).unwrap();
-    args[index + 1] = value.into();
-}
 async fn arguments(f: &Fixture, directory: &Path) -> Vec<String> {
-    let key = directory.join("operator.pem");
-    let root = directory.join("root.der");
-    std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().await.unwrap().unwrap()).unwrap();
+    let (key, root) = identity_files(&f.harness.pic, directory, "operator.pem").await;
     [
         "upload-history",
         "--network",
@@ -145,7 +129,7 @@ fn rejected_cursor(args: &[String], path: &Path, next: &Value) {
 async fn standalone_history_cli_follows_empty_progress_and_retains_inventory_after_upgrade() {
     let mut f = Fixture::with_harness(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -174,7 +158,7 @@ async fn standalone_history_cli_follows_empty_progress_and_retains_inventory_aft
     let saved = dir.path().join("cursor.json");
     let mut args = arguments(&f, dir.path()).await;
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
-    live(&mut f, &mut args).await;
+    change(&mut args, "--url", &live(&mut f.harness.pic).await);
     let empty = run(&args, 0);
     assert_eq!(empty["entries"], json!([]));
     assert_eq!(empty["scanned"], "64");
@@ -205,7 +189,7 @@ async fn standalone_history_cli_follows_empty_progress_and_retains_inventory_aft
         .await
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
-    live(&mut f, &mut args).await;
+    change(&mut args, "--url", &live(&mut f.harness.pic).await);
     let restored = run(&cursor(&args, &saved, &empty["next"]), 0);
     assert_eq!(restored["entries"], resumed["entries"]);
     assert_eq!(restored["fenced"], true);

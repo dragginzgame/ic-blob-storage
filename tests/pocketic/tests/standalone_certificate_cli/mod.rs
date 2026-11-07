@@ -1,6 +1,6 @@
 //! Signed native assessment uses production host facts; no provider or update dispatch.
 use super::*;
-use crate::authenticated_cli::{PEM, run};
+use crate::authenticated_cli::run;
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
@@ -8,14 +8,8 @@ use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
 async fn live(f: &mut Fixture, args: &mut [String]) {
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap();
-    let index = args.iter().position(|s| s == "--url").unwrap();
-    args[index + 1] = url.to_string();
+    let url = crate::authenticated_cli::live(&mut f.harness.pic).await;
+    crate::authenticated_cli::change(args, "--url", &url);
 }
 
 async fn args(
@@ -23,11 +17,9 @@ async fn args(
     dir: &std::path::Path,
     permission: UploadAdmissionRequest,
 ) -> Vec<String> {
-    let key = dir.join("identity.pem");
-    let root = dir.join("root.der");
+    let (key, root) =
+        crate::authenticated_cli::identity_files(&f.harness.pic, dir, "identity.pem").await;
     let saved = dir.join("permission.wire");
-    std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().await.unwrap().unwrap()).unwrap();
     std::fs::write(
         &saved,
         ic_blob_storage_contracts::document::encode(permission).unwrap(),
@@ -89,7 +81,7 @@ fn rejects_changed_permission_and_trust(
 async fn standalone_certificate_cli_preserves_exact_intent_and_lifecycle_refusals() {
     let mut f = Fixture::with_harness(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )

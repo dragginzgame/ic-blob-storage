@@ -24,7 +24,7 @@ struct Headless {
 impl Headless {
     async fn new() -> Self {
         let harness = Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )

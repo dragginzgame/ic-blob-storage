@@ -43,6 +43,10 @@ mod tests;
 
 pub(super) use ic_blob_storage_pocketic_tests::installation::fixture_path;
 
+/// Blob-owned per-exchange request budget, preserving the prior five-minute limit.
+/// This is separate from server startup, signed CLI and scenario deadlines.
+pub(super) const REQUEST_TIMEOUT: Duration = Duration::from_secs(300);
+
 pub(super) struct Harness {
     // Every harness owns an isolated server. Its process cleanup stops all
     // instances, including on panic; async clients issue no requests from Drop.
@@ -52,7 +56,7 @@ pub(super) struct Harness {
 
 impl Harness {
     pub async fn new() -> Self {
-        Self::with_builder(PocketIcBuilder::new().with_application_subnet()).await
+        Self::with_builder(PocketIcBuilder::new(REQUEST_TIMEOUT).with_application_subnet()).await
     }
 
     pub async fn with_builder(builder: PocketIcBuilder) -> Self {

@@ -1,6 +1,7 @@
 //! Actual signed session phases, bounded control and one-pass frozen-body reuse.
-use super::reference_cli::change_native;
 use super::*;
+use crate::authenticated_cli::change;
+use crate::authenticated_cli::live;
 use crate::{
     authenticated_cli::PEM, native_session::NativeSession, standalone_publish_check::freeze_files,
     standalone_publish_map::confirm, standalone_publish_prepare::Directory,
@@ -64,7 +65,7 @@ async fn fixture(directory: &Path) -> (Fixture, Vec<UploadManifestRequest>, Stri
     // browser suite keeps tenant/verifier independent of the uploader/operator.
     let mut f = Fixture::with_profile(
         Harness::with_builder(
-            ic_testkit::pocket_ic::PocketIcBuilder::new()
+            ic_testkit::pocket_ic::PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -92,13 +93,7 @@ async fn fixture(directory: &Path) -> (Fixture, Vec<UploadManifestRequest>, Stri
             .unwrap()
         })
         .collect();
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string();
+    let url = live(&mut f.harness.pic).await;
     (f, files, url)
 }
 fn phase(session: &mut NativeSession, frame: &Value) -> Value {
@@ -111,7 +106,6 @@ fn phase(session: &mut NativeSession, frame: &Value) -> Value {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn standalone_publication_session_retains_transfer_before_dispatch_and_recovers_without_upload()
  {
-    use crate::reference_cli::change_native;
     let directory = Directory::new("session-transfer-");
     let path = directory.path();
     let (mut f, _, url) = fixture(path).await;
@@ -161,7 +155,7 @@ async fn standalone_publication_session_retains_transfer_before_dispatch_and_rec
         "--source-session".into(),
         path.join("original").display().to_string(),
     ]);
-    change_native(
+    change(
         &mut args,
         "--run-dir",
         path.join("recovered").to_str().unwrap(),
@@ -191,7 +185,7 @@ async fn standalone_publication_session_retains_transfer_before_dispatch_and_rec
     );
     std::fs::write(path.join("original-transfer.json"), &bytes).unwrap();
     std::fs::write(original.join("transfer.json"), b"{").unwrap();
-    change_native(
+    change(
         &mut args,
         "--run-dir",
         path.join("partial").to_str().unwrap(),
@@ -212,13 +206,12 @@ fn recover_preparation(
     label: &str,
     original: &str,
 ) {
-    use crate::reference_cli::change_native;
-    change_native(
+    change(
         args,
         "--source-session",
         directory.join(source).to_str().unwrap(),
     );
-    change_native(args, "--run-dir", directory.join(label).to_str().unwrap());
+    change(args, "--run-dir", directory.join(label).to_str().unwrap());
     let mut session = NativeSession::start(args);
     assert_eq!(session.read()["event"], "ready");
     let recovered = phase(&mut session, &json!({"phase":"prepare","index":0}));
@@ -254,7 +247,7 @@ async fn standalone_publication_session_refuses_retired_verifier_controls_before
         &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
         &before,
     );
-    change_native(
+    change(
         &mut args,
         "--run-dir",
         directory.path().join("wrong-verifier").to_str().unwrap(),
@@ -288,7 +281,7 @@ async fn standalone_publication_session_reuses_cached_batch_and_checks_selected_
     .await;
     // Multiple signed updates and observations share this total session budget.
     // Allow parallel installed-test load; the separate idle test checks expiry.
-    change_native(&mut args, "--timeout-seconds", "120");
+    change(&mut args, "--timeout-seconds", "120");
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
     // This invocation has authenticated both preparation roles and pinned its
@@ -403,7 +396,7 @@ async fn standalone_publication_session_bounds_steps_and_exits_idle_with_stdin_s
         "budget",
     )
     .await;
-    change_native(&mut args, "--max-steps", "1");
+    change(&mut args, "--max-steps", "1");
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
     assert_eq!(
@@ -411,12 +404,12 @@ async fn standalone_publication_session_bounds_steps_and_exits_idle_with_stdin_s
         false
     );
     assert_eq!(session.finish(0)["code"], "step_budget_exhausted");
-    change_native(
+    change(
         &mut args,
         "--run-dir",
         directory.path().join("idle").to_str().unwrap(),
     );
-    change_native(&mut args, "--timeout-seconds", "1");
+    change(&mut args, "--timeout-seconds", "1");
     let mut session = NativeSession::start(&args);
     assert_eq!(session.read()["event"], "ready");
     session.wait_for_deadline();
@@ -444,12 +437,12 @@ async fn standalone_publication_session_recovers_original_setup_after_control_lo
     let original = prepared["original_run"].as_str().unwrap();
     let signed = std::fs::read(Path::new(original).join("admission/signed-request.cbor")).unwrap();
     assert_eq!(session.finish(3)["error"], "transport");
-    change_native(
+    change(
         &mut args,
         "--run-dir",
         directory.path().join("recovery").to_str().unwrap(),
     );
-    change_native(&mut args, "--max-steps", "1");
+    change(&mut args, "--max-steps", "1");
     args.extend([
         "--source-session".into(),
         directory.path().join("original").display().to_string(),
@@ -480,12 +473,12 @@ async fn standalone_publication_session_recovers_original_setup_after_control_lo
         &before,
     );
     // A status-only recovery must retain sources that this run never used.
-    change_native(
+    change(
         &mut args,
         "--source-session",
         directory.path().join("repeated-recovery").to_str().unwrap(),
     );
-    change_native(
+    change(
         &mut args,
         "--run-dir",
         directory.path().join("status-only").to_str().unwrap(),
@@ -509,7 +502,7 @@ async fn standalone_publication_session_recovers_original_setup_after_control_lo
         &before,
     );
     std::fs::write(Path::new(original).join("manifest.wire"), b"DIDL").unwrap();
-    change_native(
+    change(
         &mut args,
         "--run-dir",
         directory.path().join("tampered").to_str().unwrap(),
@@ -550,17 +543,17 @@ async fn standalone_publication_session_refuses_changed_or_partial_source_before
         "--source-session".into(),
         directory.path().join("original").display().to_string(),
     ]);
-    change_native(
+    change(
         &mut args,
         "--run-dir",
         directory.path().join("changed").to_str().unwrap(),
     );
-    change_native(&mut args, "--gateway", "https://127.0.0.1:65529");
+    change(&mut args, "--gateway", "https://127.0.0.1:65529");
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     assert_eq!(NativeSession::start(&args).finish(3)["error"], "binding");
     assert!(!directory.path().join("changed").exists());
-    change_native(&mut args, "--gateway", "https://127.0.0.1:65530");
-    change_native(
+    change(&mut args, "--gateway", "https://127.0.0.1:65530");
+    change(
         &mut args,
         "--run-dir",
         directory.path().join("partial").to_str().unwrap(),

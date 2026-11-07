@@ -1,5 +1,5 @@
 //! Shared signed account client journey; all provider reports are local substitutes.
-use crate::authenticated_cli::{PEM, arguments, run};
+use crate::authenticated_cli::{PEM, arguments, change, run};
 use ic_blob_storage_contracts::dto::account::AccountInspectionKind as Kind;
 use ic_blob_storage_contracts::dto::account::AccountInspectionRequest;
 use ic_blob_storage_contracts::dto::operator::OperatorScope;
@@ -168,10 +168,7 @@ fn save(path: &std::path::Path, bytes: &[u8]) {
         .write_all(bytes)
         .unwrap();
 }
-fn change(args: &mut [String], flag: &str, value: &str) {
-    let i = args.iter().position(|s| s == flag).unwrap();
-    args[i + 1] = value.into();
-}
+
 fn wire(value: &str) -> Vec<u8> {
     ic_platform::candid_parser::parse_idl_args(value)
         .unwrap()

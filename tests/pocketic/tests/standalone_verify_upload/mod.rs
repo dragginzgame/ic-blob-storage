@@ -1,24 +1,12 @@
 //! Authenticated historical manifest + native byte verification, with no provider effects.
 use super::*;
-use crate::authenticated_cli::{PEM, run};
+use crate::authenticated_cli::{change, identity_files, live, run};
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
 use ic_blob_storage_pocketic_tests::service_calls::ServiceCallExt;
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
 
-async fn live(f: &mut Fixture) -> String {
-    f.harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string()
-}
-fn change(args: &mut [String], flag: &str, value: &str) {
-    let index = args.iter().position(|s| s == flag).unwrap();
-    args[index + 1] = value.into();
-}
 fn rejects_changed_bytes(args: &[String], body: &std::path::Path, original: &[u8]) {
     let mut corrupt = original.to_vec();
     corrupt[1024 * 1024] ^= 1;
@@ -44,7 +32,7 @@ fn rejects_wrong_root(args: &[String], root: &std::path::Path) {
 async fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_restore_fences() {
     let mut f = Fixture::with_harness(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -72,20 +60,17 @@ async fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_re
         .unwrap()
         .unwrap();
     let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
-    let key = dir.path().join("identity.pem");
-    let root = dir.path().join("root.der");
+    let (key, root) = identity_files(&f.harness.pic, dir.path(), "identity.pem").await;
     let saved = dir.path().join("permission.wire");
     let body = dir.path().join("body");
     let original = vec![42; 10 * 1024 * 1024];
-    std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().await.unwrap().unwrap()).unwrap();
     std::fs::write(
         &saved,
         ic_blob_storage_contracts::document::encode(permission).unwrap(),
     )
     .unwrap();
     std::fs::write(&body, &original).unwrap();
-    let url = live(&mut f).await;
+    let url = live(&mut f.harness.pic).await;
     let mut args: Vec<String> = [
         "verify-upload",
         "--network",
@@ -116,7 +101,7 @@ async fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_re
     f.harness.pic.stop_live().await.unwrap();
     f.prepare(f.uploader, &manifest).await.unwrap();
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
-    change(&mut args, "--url", &live(&mut f).await);
+    change(&mut args, "--url", &live(&mut f.harness.pic).await);
     let report = run(&args, 0);
     assert_eq!(report["observation"], "local_upload_bytes");
     assert_eq!(
@@ -150,7 +135,7 @@ async fn standalone_verify_upload_uses_signed_original_manifest_and_preserves_re
         .await
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
-    change(&mut args, "--url", &live(&mut f).await);
+    change(&mut args, "--url", &live(&mut f.harness.pic).await);
     let restored = run(&args, 0);
     assert_eq!(restored["content_digest"], report["content_digest"]);
     assert_eq!(restored["retry_authorized"], false);

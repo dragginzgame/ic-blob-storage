@@ -1,6 +1,7 @@
 //! Paid outcomes are explicit fixture substitutes; CLI uses genuine signed queries.
 use super::*;
-use crate::authenticated_cli::{PEM, arguments, run};
+use crate::authenticated_cli::live;
+use crate::authenticated_cli::{arguments, run};
 use ic_host_fs::testing::FixtureDirectory;
 use ic_platform::agent::{BasicIdentity, Identity};
 use ic_testkit::pocket_ic::PocketIcBuilder;
@@ -85,14 +86,10 @@ fn outcomes(f: &Fixture, args: &[String], uncertain: Intent, first: &Value) -> V
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-#[expect(
-    clippy::too_many_lines,
-    reason = "One signed CLI journey retains its cursor and exact funding outcomes through restore"
-)]
 async fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_after_restore() {
     let mut f = Fixture::with_operator(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -124,18 +121,10 @@ async fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_af
         .await
         .unwrap();
     let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
-    let key = dir.path().join("key.pem");
-    let root = dir.path().join("root.der");
+    let (key, root) =
+        crate::authenticated_cli::identity_files(&f.harness.pic, dir.path(), "key.pem").await;
     let cursor = dir.path().join("cursor.json");
-    std::fs::write(&key, PEM).unwrap();
-    std::fs::write(&root, f.harness.pic.root_key().await.unwrap().unwrap()).unwrap();
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string();
+    let url = live(&mut f.harness.pic).await;
     let args = arguments(
         "funding-history",
         f.funding_scope(),
@@ -175,13 +164,7 @@ async fn authenticated_funding_history_cli_recovers_cursor_and_exact_outcomes_af
         .await
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string();
+    let url = live(&mut f.harness.pic).await;
     let index = tail.iter().position(|s| s == "--url").unwrap();
     tail[index + 1] = url.clone();
     let restored = run(&tail, 0);

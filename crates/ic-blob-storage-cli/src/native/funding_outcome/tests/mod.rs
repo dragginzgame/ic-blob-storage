@@ -1,5 +1,5 @@
-use super::super::arguments::Command;
 use super::*;
+use crate::native::arguments::{parse, schema::Invocation};
 use ic_blob_storage_contracts::dto::funding::FundingPhase;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeResponse;
 use ic_blob_storage_contracts::dto::funding::outcome::FundingReportedBalance;
@@ -56,23 +56,29 @@ fn render(view: Option<&FundingOutcomeResponse>) -> Value {
             Ok::<_, FundingOutcomeFailure>(view),
         )
         .unwrap(),
-        &Options::parse(&args()).unwrap().1,
+        &crate::native::tests::output_options(input().scope.payment_account),
     )
     .unwrap()
 }
 
 #[test]
 fn exact_original_amounts_and_optional_target_are_required_before_transport() {
-    let Command::FundingOutcome(parsed) = Options::parse(&args()).unwrap().0 else {
+    let Invocation::FundingOutcome(parsed) = parse(&args()).unwrap().command.unwrap() else {
         panic!("wrong command")
     };
-    assert_eq!(parsed, input());
+    assert_eq!(parsed.input.input.operation, input().operation);
+    assert_eq!(parsed.input.input.offered, input().offered);
+    assert_eq!(parsed.input.input.target_balance, input().target_balance);
+    assert_eq!(parsed.connection.service, input().scope.service);
+    assert_eq!(parsed.connection.namespace, input().scope.namespace);
+    assert_eq!(parsed.input.cashier, input().scope.cashier);
+    assert_eq!(parsed.input.payment_account, input().scope.payment_account);
     let mut targeted = args();
     targeted.extend(["--target-balance".into(), u128::MAX.to_string()]);
-    let Command::FundingOutcome(parsed) = Options::parse(&targeted).unwrap().0 else {
+    let Invocation::FundingOutcome(parsed) = parse(&targeted).unwrap().command.unwrap() else {
         panic!("wrong command")
     };
-    assert_eq!(parsed.target_balance, Some(u128::MAX));
+    assert_eq!(parsed.input.input.target_balance, Some(u128::MAX));
     for flag in ["--operation", "--offered", "--target-balance"] {
         for invalid in [
             "0",
@@ -165,7 +171,7 @@ fn absence_and_transport_facts_never_establish_credit_or_retry_authority() {
 
 #[test]
 fn exact_intent_conflict_binding_and_decode_failure_remain_observable() {
-    let options = Options::parse(&args()).unwrap().1;
+    let options = crate::native::tests::output_options(input().scope.payment_account);
     let refused: Result<Option<FundingOutcomeResponse>, _> = Err(FundingOutcomeFailure::Conflict);
     assert_eq!(
         output(

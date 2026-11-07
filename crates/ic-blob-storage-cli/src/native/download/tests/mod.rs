@@ -152,7 +152,7 @@ fn output_stays_partial_until_verified_and_existing_verified_output_is_never_rep
 
 #[test]
 fn tenant_download_arguments_require_explicit_origin_project_budget_and_request() {
-    use crate::native::arguments::{Command, Options};
+    use crate::native::arguments::schema::Invocation;
     let p = Principal::self_authenticating([1]).to_text();
     let args: Vec<String> = [
         "download",
@@ -183,8 +183,11 @@ fn tenant_download_arguments_require_explicit_origin_project_budget_and_request(
     .map(str::to_owned)
     .collect();
     assert!(matches!(
-        Options::parse(&args).unwrap().0,
-        Command::Download(_)
+        crate::native::arguments::parse(&args)
+            .unwrap()
+            .command
+            .unwrap(),
+        Invocation::Download(_)
     ));
     for (flag, value) in [
         ("--gateway", "http://gateway.example"),
@@ -195,6 +198,9 @@ fn tenant_download_arguments_require_explicit_origin_project_budget_and_request(
         let mut invalid = args.clone();
         let i = invalid.iter().position(|v| v == flag).unwrap();
         invalid[i + 1] = value.into();
-        assert!(matches!(Options::parse(&invalid), Err(Failure::Arguments)));
+        assert!(matches!(
+            crate::native::execute(&invalid),
+            Err(Failure::Arguments)
+        ));
     }
 }

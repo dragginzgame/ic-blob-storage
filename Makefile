@@ -150,7 +150,6 @@ shared-tooling-tests:
 	+bash scripts/ci/test-consumer-fixture-completion.sh
 	+bash scripts/ci/test-rust-compiler.sh
 	+bash scripts/ci/check-validation-logging.sh
-	+bash scripts/ci/test-tool-downloads.sh
 	+$(MAKE) --no-print-directory tooling-evidence-check
 	+bash scripts/ci/test-testkit-commands.sh
 	+$(MAKE) --no-print-directory release-validation-check

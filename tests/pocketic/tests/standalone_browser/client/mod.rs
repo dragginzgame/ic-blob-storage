@@ -1,6 +1,7 @@
 //! Current native tooling supplies exact files and real signed standalone requests.
 use super::super::*;
 use super::BrowserPreparation;
+use crate::authenticated_cli::live;
 use crate::{
     account_native_cli::OUTSIDER_PEM,
     authenticated_cli::{PEM, run_with_tls_roots},
@@ -54,7 +55,7 @@ impl Trial {
         let principal = |seed| BasicIdentity::from_raw_key(&[seed; 32]).sender().unwrap();
         let mut f = Fixture::with_profile(
             Harness::with_builder(
-                PocketIcBuilder::new()
+                PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                     .with_nns_subnet()
                     .with_application_subnet(),
             )
@@ -81,13 +82,7 @@ impl Trial {
             f.harness.pic.root_key().await.unwrap().unwrap(),
         )
         .unwrap();
-        let url = f
-            .harness
-            .pic
-            .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-            .await
-            .unwrap()
-            .to_string();
+        let url = live(&mut f.harness.pic).await;
         Self {
             f,
             url,

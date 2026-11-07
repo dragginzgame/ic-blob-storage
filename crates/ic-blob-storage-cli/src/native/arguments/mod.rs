@@ -24,316 +24,372 @@ pub(super) struct Options {
     pub root_key: Option<PathBuf>,
 }
 
-pub(super) enum Command {
-    PublishSession(super::publish_session::Input),
-    PublishMap(super::publish_map::Input),
-    PublishPrepareBatch(super::publish_prepare::Input),
-    PublishPrepare(super::publish_prepare::Input),
-    PublishCheck(super::publish_check::Input),
-    UploadSetup(super::upload_setup::Input),
-    Download(super::download::Input),
-    GatewayControl(super::gateway_controls::Input),
-    FundingAssessment(
-        ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest,
-    ),
-    InspectAccount(ic_blob_storage_contracts::dto::account::AccountInspectionRequest),
-    Reference(super::references::Input),
-    FundingOutcome(ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest),
-    UploadHistory(super::upload_history::Input),
-    CertificateAssessment(super::certificate_assessment::Input),
-    SubmitReference(super::submit_reference::Input),
-    Status {
-        scope: OperatorScope,
-    },
-    FundingHistory {
-        scope: OperatorScope,
-        cursor: Option<PathBuf>,
-    },
-    VerifyUpload {
-        service: Principal,
-        namespace: u128,
-        permission: PathBuf,
-        body: PathBuf,
-        max_bytes: std::num::NonZeroU64,
-    },
-}
-
-impl Options {
-    #[cfg(test)]
-    pub fn parse(args: &[String]) -> Result<(Command, Self), Failure> {
-        parse(args)?
-            .command
-            .ok_or(Failure::Arguments)?
-            .into_online()
-    }
-}
 impl schema::Connection {
-    fn finish(self, actor: Principal, command: Command) -> Result<(Command, Options), Failure> {
+    // The five CLI commands share request admission/execution, but each selects
+    // its own operation and supplies a journal directory only for mutations.
+    fn upload_setup(
+        self,
+        actor: Principal,
+        kind: super::upload_setup::Kind,
+        request: PathBuf,
+        directory: Option<PathBuf>,
+    ) -> Result<serde_json::Value, Failure> {
+        let input = super::upload_setup::Input {
+            kind,
+            service: self.service,
+            namespace: self.namespace,
+            request,
+            directory,
+        };
+        self.run(actor, &input, super::upload_setup::run)
+    }
+
+    fn run<T>(
+        self,
+        actor: Principal,
+        input: &T,
+        run: impl AsyncFnOnce(&Options, &T) -> Result<serde_json::Value, Failure>,
+    ) -> Result<serde_json::Value, Failure> {
         let network = self.network.as_str();
         validate_url(&self.url, network, self.root_key.is_some())?;
-        Ok((
-            command,
-            Options {
-                network,
-                url: self.url,
-                root_key: self.root_key,
-                actor,
-                identity: self.identity,
-            },
-        ))
+        let options = Options {
+            network,
+            url: self.url,
+            root_key: self.root_key,
+            actor,
+            identity: self.identity,
+        };
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .map_err(|_| Failure::Transport)?;
+        runtime.block_on(run(&options, input))
     }
 }
-impl<T: clap::Args> schema::Tenant<T> {
-    fn convert(
-        self,
-        build: impl FnOnce(Principal, u128, &'static str, T) -> Result<Command, Failure>,
-    ) -> Result<(Command, Options), Failure> {
-        let command = build(
-            self.connection.service,
-            self.connection.namespace,
-            self.connection.network.as_str(),
-            self.input,
-        )?;
-        self.connection.finish(self.actor, command)
-    }
-}
-impl<T: clap::Args> schema::Operator<T> {
-    fn convert(
-        self,
-        build: impl FnOnce(Principal, u128, T) -> Command,
-    ) -> Result<(Command, Options), Failure> {
-        let command = build(
-            self.connection.service,
-            self.connection.namespace,
-            self.input,
-        );
-        self.connection.finish(self.authority, command)
-    }
-}
-impl<T: clap::Args> schema::Operator<schema::Payer<T>> {
-    fn paid(
-        self,
-        build: impl FnOnce(OperatorScope, T) -> Command,
-    ) -> Result<(Command, Options), Failure> {
-        self.convert(|service, namespace, input| {
-            build(
-                OperatorScope {
-                    service,
-                    namespace,
-                    cashier: input.cashier,
-                    payment_account: input.payment_account,
-                },
-                input.input,
-            )
-        })
+impl<T: clap::Args> schema::Payer<T> {
+    fn scope(&self, connection: &schema::Connection) -> OperatorScope {
+        OperatorScope {
+            service: connection.service,
+            namespace: connection.namespace,
+            cashier: self.cashier,
+            payment_account: self.payment_account,
+        }
     }
 }
 impl Invocation {
     #[expect(
         clippy::too_many_lines,
-        reason = "One exhaustive typed command projection keeps the grammar-to-workflow mapping auditable; trust policy remains in the shared scoped conversions"
+        reason = "One exhaustive invocation match validates scope and dispatches directly without a second command catalog"
     )]
-    pub fn into_online(self) -> Result<(Command, Options), Failure> {
+    pub(super) fn execute(self) -> Result<serde_json::Value, Failure> {
         use schema::Invocation as I;
         match self {
-            I::AdmitUpload(args) => args.convert(|service, namespace, _, input| {
-                Ok(Command::UploadSetup(super::upload_setup::Input {
-                    kind: super::upload_setup::Kind::Admit,
-                    service,
-                    namespace,
-                    request: input.request,
-                    directory: Some(input.run_dir),
-                }))
-            }),
-            I::PrepareUpload(args) => args.convert(|service, namespace, _, input| {
-                Ok(Command::UploadSetup(super::upload_setup::Input {
-                    kind: super::upload_setup::Kind::Prepare,
-                    service,
-                    namespace,
-                    request: input.request,
-                    directory: Some(input.run_dir),
-                }))
-            }),
-            I::RevokeUpload(args) => args.convert(|service, namespace, _, input| {
-                Ok(Command::UploadSetup(super::upload_setup::Input {
-                    kind: super::upload_setup::Kind::Revoke,
-                    service,
-                    namespace,
-                    request: input.request,
-                    directory: Some(input.run_dir),
-                }))
-            }),
-            I::UploadPermission(args) => args.convert(|service, namespace, _, input| {
-                Ok(Command::UploadSetup(super::upload_setup::Input {
-                    kind: super::upload_setup::Kind::Permission,
-                    service,
-                    namespace,
-                    request: input.request,
-                    directory: None,
-                }))
-            }),
-            I::UploadManifest(args) => args.convert(|service, namespace, _, input| {
-                Ok(Command::UploadSetup(super::upload_setup::Input {
-                    kind: super::upload_setup::Kind::Manifest,
-                    service,
-                    namespace,
-                    request: input.request,
-                    directory: None,
-                }))
-            }),
-            I::ReferenceReceipt(args) => args.convert(|service, namespace, _, input| {
-                Ok(Command::Reference(super::references::Input {
-                    service,
-                    namespace,
+            I::PublishInputs(input) => super::publish_inputs::run(input),
+            I::InstallationCheck(input) => super::installation_check::run(input),
+            I::AccountLinkInputs(input) => super::account_link_inputs::run(input),
+            I::ReferenceInputs(input) => super::reference_inputs::run(input),
+            I::UploadInputs(input) => super::upload_inputs::run(input),
+            I::AdmitUpload(args) => args.connection.upload_setup(
+                args.actor,
+                super::upload_setup::Kind::Admit,
+                args.input.request,
+                Some(args.input.run_dir),
+            ),
+            I::PrepareUpload(args) => args.connection.upload_setup(
+                args.actor,
+                super::upload_setup::Kind::Prepare,
+                args.input.request,
+                Some(args.input.run_dir),
+            ),
+            I::RevokeUpload(args) => args.connection.upload_setup(
+                args.actor,
+                super::upload_setup::Kind::Revoke,
+                args.input.request,
+                Some(args.input.run_dir),
+            ),
+            I::UploadPermission(args) => args.connection.upload_setup(
+                args.actor,
+                super::upload_setup::Kind::Permission,
+                args.input.request,
+                None,
+            ),
+            I::UploadManifest(args) => args.connection.upload_setup(
+                args.actor,
+                super::upload_setup::Kind::Manifest,
+                args.input.request,
+                None,
+            ),
+            I::ReferenceReceipt(args) => {
+                let input = args.input;
+                let input = super::references::Input {
+                    service: args.connection.service,
+                    namespace: args.connection.namespace,
                     kind: super::references::Kind::Receipt,
                     request: input.request,
-                }))
-            }),
-            I::ReferenceStatus(args) => args.convert(|service, namespace, _, input| {
-                Ok(Command::Reference(super::references::Input {
-                    service,
-                    namespace,
+                };
+                args.connection
+                    .run(args.actor, &input, super::references::run)
+            }
+            I::ReferenceStatus(args) => {
+                let input = args.input;
+                let input = super::references::Input {
+                    service: args.connection.service,
+                    namespace: args.connection.namespace,
                     kind: super::references::Kind::Status,
                     request: input.request,
-                }))
-            }),
-            I::SubmitReference(args) => args.convert(|service, namespace, _, input| {
-                Ok(Command::SubmitReference(super::submit_reference::Input {
-                    service,
-                    namespace,
+                };
+                args.connection
+                    .run(args.actor, &input, super::references::run)
+            }
+            I::SubmitReference(args) => {
+                let input = args.input;
+                let input = super::submit_reference::Input {
+                    service: args.connection.service,
+                    namespace: args.connection.namespace,
                     request: input.request,
                     directory: input.run_dir,
-                }))
-            }),
-            I::Download(args) => args.convert(|service, namespace, network, input| {
-                validate_url(&input.gateway, network, network == "local")?;
-                Ok(Command::Download(super::download::Input {
-                    service,
-                    namespace,
+                };
+                args.connection
+                    .run(args.actor, &input, super::submit_reference::run)
+            }
+            I::Download(args) => {
+                let input = args.input;
+                validate_url(
+                    &input.gateway,
+                    args.connection.network.as_str(),
+                    args.connection.network.as_str() == "local",
+                )?;
+                let input = super::download::Input {
+                    service: args.connection.service,
+                    namespace: args.connection.namespace,
                     request: input.request,
                     project: input.project,
                     gateway: input.gateway,
                     directory: input.run_dir,
                     max_bytes: input.max_bytes,
-                }))
-            }),
-            I::VerifyUpload(args) => args.convert(|service, namespace, _, input| {
-                Ok(Command::VerifyUpload {
-                    service,
-                    namespace,
+                };
+                args.connection
+                    .run(args.actor, &input, super::download::run)
+            }
+            I::VerifyUpload(args) => {
+                let input = args.input;
+                let input = (args.connection.service, args.connection.namespace, input);
+                args.connection
+                    .run(args.actor, &input, async |options, input| {
+                        super::observe_upload(options, input.0, input.1, &input.2).await
+                    })
+            }
+            I::CertificateAssessment(args) => {
+                let input = args.input;
+                let input = super::certificate_assessment::Input {
+                    service: args.connection.service,
+                    namespace: args.connection.namespace,
                     permission: input.permission,
-                    body: input.body,
-                    max_bytes: input.max_bytes,
-                })
-            }),
-            I::CertificateAssessment(args) => args.convert(|service, namespace, _, input| {
-                Ok(Command::CertificateAssessment(super::certificate_assessment::Input {
-                    service,
-                    namespace,
-                    permission: input.permission,
-                }))
-            }),
-            I::UploadHistory(args) => args.convert(|service, namespace, input| {
-                Command::UploadHistory(super::upload_history::Input {
-                    service,
-                    namespace,
+                };
+                args.connection
+                    .run(args.actor, &input, super::certificate_assessment::run)
+            }
+            I::UploadHistory(args) => {
+                let input = args.input;
+                let input = super::upload_history::Input {
+                    service: args.connection.service,
+                    namespace: args.connection.namespace,
                     filter: input.filter,
                     cursor: input.cursor,
-                })
-            }),
-            I::Status(args) => args.paid(|scope, _| Command::Status { scope }),
-            I::FundingHistory(args) => args.paid(|scope, input| {
-                Command::FundingHistory { scope, cursor: input.cursor }
-            }),
-            I::InspectAccount(args) => args.paid(|scope, input| {
-                Command::InspectAccount(ic_blob_storage_contracts::dto::account::AccountInspectionRequest {
+                };
+                args.connection
+                    .run(args.authority, &input, super::upload_history::run)
+            }
+            I::Status(args) => {
+                let input = args.input.scope(&args.connection);
+                args.connection
+                    .run(args.authority, &input, async |options, input| {
+                        super::observe_status(options, *input).await
+                    })
+            }
+            I::FundingHistory(args) => {
+                let scope = args.input.scope(&args.connection);
+                let input = args.input.input;
+                let input = (scope, input.cursor);
+                args.connection
+                    .run(args.authority, &input, async |options, input| {
+                        super::observe_funding_history(options, input.0, input.1.as_deref()).await
+                    })
+            }
+            I::InspectAccount(args) => {
+                let scope = args.input.scope(&args.connection);
+                let input = args.input.input;
+                let input = ic_blob_storage_contracts::dto::account::AccountInspectionRequest {
                     scope,
                     kind: input.kind,
-                })
-            }),
-            I::FundingAssessment(args) => args.paid(|scope, input| {
-                Command::FundingAssessment(ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest {
-                    scope,
-                    operation: input.operation,
-                    offered: input.offered,
-                    target_balance: input.target_balance,
-                })
-            }),
-            I::FundingOutcome(args) => args.paid(|scope, input| {
-                Command::FundingOutcome(ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest {
-                    scope,
-                    operation: input.operation,
-                    offered: input.offered,
-                    target_balance: input.target_balance,
-                })
-            }),
-            I::SyncGateways(args) => args.paid(|scope, input| {
-                Command::GatewayControl(super::gateway_controls::Input {
+                };
+                args.connection
+                    .run(args.authority, &input, async |options, input| {
+                        super::account::run(options, *input).await
+                    })
+            }
+            I::FundingAssessment(args) => {
+                let scope = args.input.scope(&args.connection);
+                let input = args.input.input;
+                let input = ic_blob_storage_contracts::dto::funding::assessment::FundingPreparationRequest {
+                        scope,
+                        operation: input.operation,
+                        offered: input.offered,
+                        target_balance: input.target_balance,
+                    };
+                args.connection
+                    .run(args.authority, &input, async |options, input| {
+                        super::funding_assessment::run(options, *input).await
+                    })
+            }
+            I::FundingOutcome(args) => {
+                let scope = args.input.scope(&args.connection);
+                let input = args.input.input;
+                let input =
+                    ic_blob_storage_contracts::dto::funding::outcome::FundingOutcomeRequest {
+                        scope,
+                        operation: input.operation,
+                        offered: input.offered,
+                        target_balance: input.target_balance,
+                    };
+                args.connection
+                    .run(args.authority, &input, async |options, input| {
+                        super::funding_outcome::run(options, *input).await
+                    })
+            }
+            I::SyncGateways(args) => {
+                let scope = args.input.scope(&args.connection);
+                let input = args.input.input;
+                let input = super::gateway_controls::Input {
                     scope,
                     action: super::gateway_controls::Action::Sync,
                     directory: input.run_dir,
-                })
-            }),
-            I::CancelGatewaySync(args) => args.paid(|scope, input| {
-                Command::GatewayControl(super::gateway_controls::Input {
+                };
+                args.connection
+                    .run(args.authority, &input, super::gateway_controls::run)
+            }
+            I::CancelGatewaySync(args) => {
+                let scope = args.input.scope(&args.connection);
+                let input = args.input.input;
+                let input = super::gateway_controls::Input {
                     scope,
                     action: super::gateway_controls::Action::Cancel(input.sequence),
                     directory: input.run_dir,
-                })
-            }),
-            I::RevokeGateway(args) => args.paid(|scope, input| {
-                Command::GatewayControl(super::gateway_controls::Input {
+                };
+                args.connection
+                    .run(args.authority, &input, super::gateway_controls::run)
+            }
+            I::RevokeGateway(args) => {
+                let scope = args.input.scope(&args.connection);
+                let input = args.input.input;
+                let input = super::gateway_controls::Input {
                     scope,
                     action: super::gateway_controls::Action::Revoke(input.gateway),
                     directory: input.run_dir,
-                })
-            }),
-            I::PublishCheck(args) => args.convert(|service, namespace, _, input| {
-                Ok(Command::PublishCheck(check_input(
-                    service, namespace, input.files, input.max_queries,
-                )))
-            }),
-            I::PublishMap(args) => args.convert(|service, namespace, network, input| {
-                map_input(service, namespace, network, input, super::publish_map::Selection::Batch)
-            }),
-            I::PublishFileStatus(args) => args.convert(|service, namespace, network, input| {
-                map_input(service, namespace, network, input.map, super::publish_map::Selection::File(input.file_index))
-            }),
-            I::PublishPrepare(args) => args.convert(|service, namespace, _, input| {
-                Ok(Command::PublishPrepare(prepare_input(
-                    service, namespace, input.file_index, input.prepare, None,
-                )))
-            }),
-            I::PublishPrepareResume(args) => args.convert(|service, namespace, _, input| {
-                Ok(Command::PublishPrepare(prepare_input(
-                    service, namespace, input.indexed.file_index, input.indexed.prepare, Some(input.source_run),
-                )))
-            }),
-            I::PublishPrepareBatch(args) => args.convert(|service, namespace, _, input| {
-                Ok(Command::PublishPrepareBatch(prepare_input(
-                    service, namespace, 0, input, None,
-                )))
-            }),
-            I::PublishSession(args) => args.convert(|service, namespace, network, input| {
-                validate_url(&input.gateway, network, network == "local")?;
-                Ok(Command::PublishSession(super::publish_session::Input {
+                };
+                args.connection
+                    .run(args.authority, &input, super::gateway_controls::run)
+            }
+            I::PublishCheck(args) => {
+                let input = args.input;
+                let input = check_input(
+                    args.connection.service,
+                    args.connection.namespace,
+                    input.files,
+                    input.max_queries,
+                );
+                args.connection
+                    .run(args.actor, &input, super::publish_check::run)
+            }
+            I::PublishMap(args) => {
+                let input = args.input;
+                let input = map_input(
+                    args.connection.service,
+                    args.connection.namespace,
+                    args.connection.network.as_str(),
+                    input,
+                    super::publish_map::Selection::Batch,
+                )?;
+                args.connection
+                    .run(args.actor, &input, super::publish_map::run)
+            }
+            I::PublishFileStatus(args) => {
+                let input = args.input;
+                let input = map_input(
+                    args.connection.service,
+                    args.connection.namespace,
+                    args.connection.network.as_str(),
+                    input.map,
+                    super::publish_map::Selection::File(input.file_index),
+                )?;
+                args.connection
+                    .run(args.actor, &input, super::publish_map::run)
+            }
+            I::PublishPrepare(args) => {
+                let input = args.input;
+                let input = prepare_input(
+                    args.connection.service,
+                    args.connection.namespace,
+                    input.file_index,
+                    input.prepare,
+                    None,
+                );
+                args.connection
+                    .run(args.actor, &input, super::publish_prepare::run)
+            }
+            I::PublishPrepareResume(args) => {
+                let input = args.input;
+                let input = prepare_input(
+                    args.connection.service,
+                    args.connection.namespace,
+                    input.indexed.file_index,
+                    input.indexed.prepare,
+                    Some(input.source_run),
+                );
+                args.connection
+                    .run(args.actor, &input, super::publish_prepare::run)
+            }
+            I::PublishPrepareBatch(args) => {
+                let input = args.input;
+                let input = prepare_input(
+                    args.connection.service,
+                    args.connection.namespace,
+                    0,
+                    input,
+                    None,
+                );
+                args.connection
+                    .run(args.actor, &input, super::publish_prepare::batch::run)
+            }
+            I::PublishSession(args) => {
+                let input = args.input;
+                validate_url(
+                    &input.gateway,
+                    args.connection.network.as_str(),
+                    args.connection.network.as_str() == "local",
+                )?;
+                let input = super::publish_session::Input {
                     host_release: host_release()?,
                     source_session: input.source,
                     browser_selection: input.browser_selection,
                     operator_identity: input.operator_identity,
                     gateway: input.gateway,
                     max_steps: input.max_steps,
-                    prepare: prepare_input(service, namespace, 0, input.prepare, None),
-                }))
-            }),
-            I::AccountLinkInputs(_)
-            | I::InstallationCheck(_)
-            | I::UploadInputs(_)
-            | I::PublishInputs(_)
-            | I::ReferenceInputs(_) => Err(Failure::Arguments),
+                    prepare: prepare_input(
+                        args.connection.service,
+                        args.connection.namespace,
+                        0,
+                        input.prepare,
+                        None,
+                    ),
+                };
+                args.connection
+                    .run(args.actor, &input, super::publish_session::run)
+            }
         }
     }
 }
+
 fn check_input(
     service: Principal,
     namespace: u128,
@@ -377,9 +433,9 @@ fn map_input<const QUERIES: u64>(
     network: &str,
     input: schema::Map<QUERIES>,
     selection: super::publish_map::Selection,
-) -> Result<Command, Failure> {
+) -> Result<super::publish_map::Input, Failure> {
     validate_url(&input.gateway, network, network == "local")?;
-    Ok(Command::PublishMap(super::publish_map::Input {
+    Ok(super::publish_map::Input {
         host_release: host_release()?,
         selection,
         operator_identity: input.operator_identity,
@@ -390,7 +446,7 @@ fn map_input<const QUERIES: u64>(
             input.checks.files,
             input.checks.max_queries,
         ),
-    }))
+    })
 }
 pub(super) fn validate_url(url: &Url, network: &str, explicit_root: bool) -> Result<(), Failure> {
     if !url.username().is_empty()

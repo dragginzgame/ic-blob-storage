@@ -62,13 +62,7 @@ impl RecoveryDirectory {
                 }
                 _ => Failure::File,
             })?;
-            let limit = usize::try_from(maximum).map_err(|_| Failure::File)?;
-            let bytes =
-                ic_host_fs::read::read_opened_file(file, limit).map_err(|_| Failure::File)?;
-            if bytes.is_empty() {
-                return Err(Failure::File);
-            }
-            Ok(bytes)
+            crate::native::read_opened(file, maximum)
         }
         #[cfg(not(unix))]
         {

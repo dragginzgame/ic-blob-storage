@@ -167,6 +167,10 @@ post-link Binaryen transform. Consumers select their own root profiles; these
 settings do not transfer to downstream Canic builds. These local
 canister cases do not establish deployed provider or Canic application behavior.
 Testkit/PocketIC own client/server compatibility and managed server lifetime.
+Blob explicitly selects `support::REQUEST_TIMEOUT` (300 seconds) at every native
+fixture builder, preserving its prior request bound. One Testkit exchange budget
+covers dispatch, response bodies and polling; the fixture's 30-second startup
+bound, signed CLI deadlines and individual scenario budgets remain separate.
 Blob has no independent crate-version/server-version equality gate. The
 snapshot-owned `ci/ic-tools.tsv` retains the complete upstream executable
 catalog. Blob selects only Binaryen
@@ -200,7 +204,9 @@ continuous evidence recording and separates source/local/live observations.
 docs, audits and rules; it verifies supported local targets, not anchors or remote
 URLs. `make shared-tooling-tests` exercises consumer fixture completion, evidence
 archive, local lockfile and actual Testkit/Make forwarding
-with offline substitutes. Dependency changes follow the
+with offline substitutes. Shared's generic download/retry/checksum fixture stays
+with its producer and is not part of this target. Blob retains its tool-admission
+routing, failure propagation and evidence-retention checks. Dependency changes follow the
 [focused adoption contract](../cargo-graph-checks.md#focused-dependency-adoption-contract):
 admit each actual locked graph and policy before lint and artifact checks,
 preserving separate qualification for native hosts and installed IC behavior.

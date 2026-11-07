@@ -1,7 +1,7 @@
 //! Shared actual signed operator decisions; provider gateway lists are local substitutes.
 use crate::{
     account_native_cli::{OUTSIDER_PEM, signer},
-    authenticated_cli::{PEM, arguments, run},
+    authenticated_cli::{PEM, arguments, change, run},
     submission_proxy::{Dispatch, Proxy, Reply},
 };
 use blob_test_protocol::SourceMode;
@@ -406,10 +406,7 @@ impl GatewayCli {
         assert_eq!(status["gateways"]["members"], json!([]));
     }
 }
-fn change(args: &mut [String], flag: &str, value: &str) {
-    let i = args.iter().position(|s| s == flag).unwrap();
-    args[i + 1] = value.into();
-}
+
 fn save(path: &std::path::Path, bytes: &[u8]) {
     use std::io::Write;
     std::fs::OpenOptions::new()

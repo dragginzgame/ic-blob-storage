@@ -1,8 +1,9 @@
 //! Signed submission/inspection preserves actual standalone phase and restore refusals.
 use super::*;
+use crate::authenticated_cli::live;
 use crate::{
-    authenticated_cli::run,
-    reference_cli::{change_native, native_requests},
+    authenticated_cli::{change, run},
+    reference_cli::native_requests,
     submission_proxy::{Dispatch, Proxy, Reply},
 };
 use ic_blob_storage_pocketic_tests::fixture_calls::REPLY_BYTES;
@@ -13,14 +14,6 @@ use ic_testkit::pocket_ic::PocketIcBuilder;
 use serde_json::{Value, json};
 use std::path::{Path, PathBuf};
 
-async fn live(f: &mut Fixture) -> String {
-    f.harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string()
-}
 fn refused(args: &[String], code: &str) {
     assert_eq!(run(args, 3)["error"], code);
 }
@@ -81,7 +74,7 @@ async fn unknown_submission(
     );
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let mut args = submission(receipt, &directory);
-    change_native(&mut args, "--url", &proxy.url);
+    change(&mut args, "--url", &proxy.url);
     let value = run(&args, if reply == Reply::Pending { 0 } else { 3 });
     save(report, "unknown-submission.json", &value);
     match reply {
@@ -108,8 +101,8 @@ async fn unknown_submission(
     // Recovery uses the dispatch copy and never repeats the update. A refused
     // lookup cannot establish the original result or turn uncertainty into absence.
     let mut recover = receipt.to_vec();
-    change_native(&mut recover, "--url", &proxy.url);
-    change_native(
+    change(&mut recover, "--url", &proxy.url);
+    change(
         &mut recover,
         "--request",
         directory.join("reference.wire").to_str().unwrap(),
@@ -156,16 +149,16 @@ async fn phase_submission(
 async fn authority(f: &Fixture, receipt: &[String], directory: &Path) {
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     let mut wrong = receipt.to_vec();
-    change_native(&mut wrong, "--namespace", "1");
+    change(&mut wrong, "--namespace", "1");
     refused(&wrong, "binding");
     wrong.clone_from_slice(receipt);
-    change_native(&mut wrong, "--actor", &f.operator.to_text());
+    change(&mut wrong, "--actor", &f.operator.to_text());
     // Named operators/controllers cannot use a tenant's saved intent.
     refused(&wrong, "denied");
     let untrusted = directory.join("untrusted.der");
     std::fs::write(&untrusted, [1, 2, 3]).unwrap();
     wrong.clone_from_slice(receipt);
-    change_native(&mut wrong, "--root-key", untrusted.to_str().unwrap());
+    change(&mut wrong, "--root-key", untrusted.to_str().unwrap());
     refused(&wrong, "transport");
     unchanged(
         &f.harness.pic.get_stable_memory(f.service).await.unwrap(),
@@ -185,9 +178,9 @@ async fn restored(
         .await
         .unwrap();
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
-    let url = live(f).await;
+    let url = live(&mut f.harness.pic).await;
     for args in [&mut *receipt, status] {
-        change_native(args, "--url", &url);
+        change(args, "--url", &url);
         refused(args, "reference_unconfirmed");
     }
     current.operation -= 1;
@@ -278,9 +271,9 @@ async fn prepared(
         .unwrap()
         .unwrap();
     f.prepare(f.uploader, manifest).await.unwrap();
-    let url = live(f).await;
+    let url = live(&mut f.harness.pic).await;
     for args in [receipt, status] {
-        change_native(args, "--url", &url);
+        change(args, "--url", &url);
         refused(args, "reference_unconfirmed");
     }
 }
@@ -291,7 +284,7 @@ async fn prepared(
 async fn journey(reply: Reply, label: &str) {
     let mut f = Fixture::with_harness(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -314,7 +307,7 @@ async fn journey(reply: Reply, label: &str) {
     };
     let dir = FixtureDirectory::new(&std::env::temp_dir(), "blob-test").unwrap();
     let report = report_directory(&f, dir.path(), label, permission.upload.bytes).await;
-    let url = live(&mut f).await;
+    let url = live(&mut f.harness.pic).await;
     let (mut receipt, mut status) = native_requests(&f.harness.pic, input, dir.path(), &url).await;
     let before = f.harness.pic.get_stable_memory(f.service).await.unwrap();
     for args in [&receipt, &status] {

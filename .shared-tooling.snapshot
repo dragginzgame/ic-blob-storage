@@ -1,8 +1,8 @@
 # Shared Tooling snapshot v1
-# version	0.31.0
+# version	0.31.1
 format	1
 source	https://github.com/dragginzgame/shared-tooling
-revision	74313941af2fce4399bec0e6909ca6229673c3f8
+revision	5efbda2ab81ad84e30f490f3137d8ef083c303d2
 # entrypoint	DRAGGINZGAME.md
 # entrypoint	docs/principles/README.md
 # entrypoint	docs/principles/decision-artifact-discipline.md
@@ -132,7 +132,7 @@ file	68b4c6d68b807a6c491404654b68203cff29e8a6af4dd48a6fd0e2906ef0d313	-	docs/pri
 file	457fd38e0073c91ba470b918d4facd9faac3c5200ebd38c97e9d6b76acdaea55	-	docs/principles/simplicity-and-maintainability.md
 file	ca7f97ab18edabde94fb209480cad84070f68e403feea4558a63501b02e517e1	-	docs/consuming-snapshots.md
 file	162617ce20162932ec03c925eebc88d699c147d63d4602bdb957e3df38692d59	-	docs/supported-hosts.md
-file	163ee69a2de9d371432462e47bdf09d9d1655e590567a2ed386ef7ba56d896c0	x	scripts/ci/verify-file-checksum.sh
+file	578a5f7217e378280fe378328d39e4b7dcea653bd868159b57362461bd4e8555	x	scripts/ci/verify-file-checksum.sh
 file	23c23beef41fda5f0acc1a404e40b04e5c362399a415524f16dbc4899120a5dd	x	scripts/ci/verify-shared-tooling-snapshot.sh
 file	7c5e7b847b14dd2a735160b8e6f136079066aa15d9044dfb1d004c86bb703801	x	scripts/dev/cloc.sh
 file	536f38d9707575badfd983c4b1168f62035a2276d8c440c3954ca98b1beab701	-	rules/changelogs.md

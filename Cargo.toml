@@ -51,7 +51,7 @@ ic-blob-storage-pocketic-tests = { path = "tests/pocketic", version = "0.74.2" }
 # Production dependencies
 clap = { version = "4.6.7", default-features = false, features = ["std", "help", "usage", "error-context"] }
 hex = "0.4.3"
-ic-build = "0.75.0"
+ic-build = "0.77.0"
 ic-host-artifacts = { version = "0.74.1", default-features = false }
 ic-host-fs = { version = "0.74.1", default-features = false }
 ic-host-http = { version = "0.74.1", default-features = false }
@@ -73,7 +73,7 @@ url = "2.5.8"
 
 # Tests and tooling only
 ic-host-tools = { version = "0.83.0", default-features = false }
-ic-testkit = "0.89.1"
+ic-testkit = "0.90.0"
 
 [workspace.lints.rust]
 missing_docs = "deny"

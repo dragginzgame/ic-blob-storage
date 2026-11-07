@@ -1,5 +1,6 @@
 //! Native local upload setup with real tenant/uploader signing and fenced history.
 use super::*;
+use crate::authenticated_cli::live;
 use crate::{
     account_native_cli::signer,
     upload_setup_cli::{Client, uploader},
@@ -10,7 +11,7 @@ async fn standalone_signed_upload_setup_recovers_lost_and_pending_replies_then_c
 {
     let mut f = Fixture::with_profile(
         Harness::with_builder(
-            PocketIcBuilder::new()
+            PocketIcBuilder::new(crate::support::REQUEST_TIMEOUT)
                 .with_nns_subnet()
                 .with_application_subnet(),
         )
@@ -26,13 +27,7 @@ async fn standalone_signed_upload_setup_recovers_lost_and_pending_replies_then_c
     f.enroll(f.operator).await.unwrap();
     let input = f.manifest();
     let trusted = f.harness.pic.root_key().await.unwrap().unwrap();
-    let url = f
-        .harness
-        .pic
-        .make_live_with_params(None, None, Some(vec!["127.0.0.1".into()]), None)
-        .await
-        .unwrap()
-        .to_string();
+    let url = live(&mut f.harness.pic).await;
     let body = vec![42; usize::try_from(input.permission.upload.bytes).unwrap()];
     let host = f.configuration(f.operator).await.unwrap();
     let client = Client::new(
