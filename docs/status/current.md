@@ -1,5 +1,27 @@
 # Current status — 2026-11-07
 
+## Contracts and Client delivered; next Engine candidate
+
+Contracts **0.73.1** is published from `83b9a9610de66c61909faddd74ff106bf86e399b`
+(`contracts-v0.73.1`, batch `batch-E3If_blf`); Client **0.74.0** is published from
+`441e466a89390dc69252f826795b3da31248f4ed` (`client-v0.74.0`, batch `batch-FVPHuT6k`).
+Independent remote/default-branch/tag and non-yanked registry archive/source checks
+pass. Readback records are retained in `target/blob-upstream-delivery-20261107/`.
+Both captured full gates passed: 644 native tests, 82 Client installed cases and
+162 Engine installed cases, strict Clippy, boundaries, docs, tool/release fixtures,
+Wasm and actual archive verification. This is Linux/Rust 1.99.1 evidence, not native
+macOS or live Caffeine/browser qualification.
+
+The normal checkout is reconciled to Client delivery. A concurrent lock update was
+preserved durably on `preserve/upstream-after-client-capture-20261107` (`4e540cf5`)
+and reapplied here. It selects Wire/Derive 0.17.9, Storage 0.68.5, Generic Array
+0.14.9 and Crypto Common 0.1.6. Registry releases/checksums and actual source were
+reviewed: Wire's codec source is unchanged; Storage combines cell-header writes
+without changing layout. This is the next Engine 0.74.4 candidate, not a change
+to either completed captured batch or evidence reused across different graphs.
+Its full required gate and publication remain pending. No live canister replacement
+or paid provider effect is selected. The initial plan/evidence follows below.
+
 ## Pending upstream adoption and delegated delivery
 
 The maintainer authorized adoption and publication for this repository. Select

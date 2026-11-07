@@ -1,20 +1,29 @@
 <p align="center">
 
-Pending adoption selects published Build 0.78.0, Wire/Derive 0.17.8, Host
-Artifacts/FS/HTTP/Process 0.75.0, Host Tools 0.84.0, Platform 0.24.0 and
-Testkit 0.91.0. Types 0.18.2 and Runtime 0.19.5 retain their canonical identities.
-Released sources were checked against registry checksums. The prepared explicit
-Candid configuration addresses Platform's removed unconfigured decoder shortcuts;
-Blob does not use its retired offline key derivation. Testkit still introduces
-Platform 0.23.6 in the native-only simulator graph, separately from deployed
-Platform 0.24. Contributor tools require explicit preparation before offline checks.
-
   <img src="https://raw.githubusercontent.com/dragginzgame/shared-assets/main/ic-blob-storage/ic-blob-storage-readme-header.svg" alt="IC Blob Storage — Uploads, verifies, and tracks large files" width="100%">
 </p>
 
 # Dependency setup
 
 ## Current adoption
+
+Contracts **0.73.1** and Client **0.74.0** are published and independently verified.
+Their captured graph selected Build 0.78.0, Wire/Derive 0.17.8, Host
+Artifacts/FS/HTTP/Process 0.75.0, Host Tools 0.84.0, Platform 0.24.0 and
+Testkit 0.91.0. The next Engine **0.74.4** candidate also preserves the incoming
+Wire/Derive 0.17.9, Storage 0.68.5, Generic Array 0.14.9 and Crypto Common 0.1.6
+resolution. Wire's codec source is unchanged; Storage combines the cell-header
+writes while preserving layout bytes. Published metadata and source were inspected.
+Types 0.18.2 and Runtime 0.19.5 retain their canonical identities.
+
+The explicit Candid configuration addresses Platform's removed unconfigured decoder
+shortcuts; Blob does not use its retired offline key derivation. Testkit still
+introduces Platform 0.23.6 in the native-only simulator graph, separately from
+deployed Platform 0.24. Contributor tools require explicit preparation before
+offline checks. Rust 1.99.1 remains minimum and pinned compiler. The lockfile and
+[current handoff](status/current.md) identify the exact qualified batch and limits.
+
+### Previous deliveries
 
 Delivered Contracts **0.73.0**, Client **0.73.2** and Engine **0.74.3** record their
 source-bound selections in the group receipts and [current handoff](status/current.md).

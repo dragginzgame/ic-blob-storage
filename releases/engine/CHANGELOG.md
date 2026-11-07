@@ -8,9 +8,12 @@ Independent releases start after coordinated 0.65.0; [shared history](../history
 
 ### 🔧 Changed
 
-- Adopt Platform 0.24, Wire 0.17.8 and Testkit 0.91, aligning native Host 0.75
+- Adopt Platform 0.24, Wire 0.17.9 and Testkit 0.91, aligning native Host 0.75
   error identities. Keep canonical Types 0.18.2 and Runtime 0.19.5, service
   endpoints, decoder budgets, stable schemas and exact retries unchanged.
+- Use Storage 0.68.5's combined cell-header write without changing layout bytes,
+  allocation ownership or recovery semantics. Preserve the incoming compatible
+  Generic Array/Crypto Common resolution alongside this dependency update.
 - Adopt Shared Tooling 0.31.5's release-check isolation and portable fixture
   fixes, completed release-guide closure and fresh LOC scratch handling.
 
