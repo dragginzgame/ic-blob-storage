@@ -1,0 +1,8 @@
+/target/
+/.tools/
+/.toko-tooling-refresh.*/
+/.agents/
+/.aws/
+/.codex/
+**/*.rs.bk
+.DS_Store

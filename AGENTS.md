@@ -1,0 +1,88 @@
+# AGENTS.md
+
+Apply the installed [Toko Tooling baseline](TOKO-TOOLING.md) and its
+revision-bound references. [.toko-tooling.snapshot](.toko-tooling.snapshot) owns
+the selected payload; never hand-edit managed files or use a moving sibling
+checkout as executable tooling.
+
+Read [the current handoff](docs/status/current.md) first.
+
+## Scope
+
+- This is the independent clean-start rewrite. The sibling
+  `../ic-blob-storage-legacy` is read-only historical evidence unless separately
+  authorized. Do not copy its architecture, tests, recovery state or dependencies
+  by default; establish a current consumer need first.
+- Legacy provider obligations and path-bound recovery records remain with the
+  legacy repository. Never resume or import them through this fresh checkout.
+- There is no installed service, frozen API, migration or deployment runner yet.
+  The maintainer selected `0.100.0` as the rewrite version, inherited from the root
+  workspace. Keep publication disabled until a separately authorized release.
+  Existing crates.io versions are not reset by this rewrite.
+- Production crates belong under `crates/`. Add qualification packages only for
+  real installed behavior; do not create tooling-holder packages or placeholder
+  tests. Use Rust 1.100.0 and edition 2024 with the inherited common lint policy.
+- The accepted [crate layout](docs/design/ic-blob-storage-design.md#selected-crate-layout)
+  uses a thin standalone host and a Canic-owned adapter. The maintainer-approved
+  qualification location is `qualification/crates/`, with packages belonging to
+  the root workspace and lockfile; it does not establish a separate workspace.
+- No initial commit, remote creation, push, publication or live-provider effect
+  is implied by the local scaffold. Custom future deployment entrypoints must
+  admit the tooling snapshot before effects.
+
+## Checks
+
+Prepare with `make install-tools`; `make ci` is the aggregate gate for tooling,
+formatting, strict Clippy, reference behavior, Rustdoc and documentation links.
+Use `make test-references` for the focused in-memory reference tests. No installed
+service behavior is qualified yet. Package inventory is `make deps-list`;
+`make update` delegates to the shared `deps-update` target for Cargo lock updates.
+LOC is `toko-cloc`. An exact tooling-pin change still requires the authenticated
+`make toko-tooling-update` installation after updating Cargo.lock.
+
+## Learn from the predecessor before subsystem work
+
+- Before implementing or substantially changing a subsystem, inspect the relevant
+  legacy Blob Storage implementation and regression tests. Consult its change
+  history and investigations where they explain a fix, recovery rule or tradeoff.
+  Identify the original problem, the established solution and which assumptions
+  change in this rewrite. This is targeted research, not a full legacy audit for
+  every routine edit.
+- Reuse or adapt sound first-party solutions where they fit the chosen contract;
+  independent reimplementation is not itself a benefit. Explain concrete reasons
+  for replacing a solved mechanism. Repository size or age alone is not a reason,
+  and reuse does not authorize importing the old architecture or feature set wholesale.
+- Bring applicable failure and regression cases into this workspace's qualification
+  and verify them here. Cover identity/authorization, malformed input, interrupted
+  operations, retry and recovery where the selected subsystem owns those obligations.
+  Historical passing tests do not establish correctness of a new implementation.
+- Cite the inspected source or revision when explaining a concrete carryover.
+  Distinguish adapted code from retained invariants, algorithms, API ergonomics and
+  independently implemented lessons. Explain replacements, exclusions and deferrals,
+  including changed consumer or recovery obligations. Keep the legacy research
+  read-only under the scope rules above.
+
+## Architecture check after every push
+
+- After every successful push to this repository, review the pushed changes and
+  their affected owners for architectural sediment before completing the delivery
+  handoff. Use the revision-bound [complexity review](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/audits/complexity-and-technical-debt.md)
+  within that scope; this is not a full-repository audit or broad test gate.
+- Check that Blob's library, standalone host, Canic adapter, client and provider
+  boundary still have the responsibilities in the design. Look for duplicated
+  policy/state, unused abstractions, speculative modes, obsolete compatibility
+  paths and old mechanisms left alongside their replacements. Confirm that legacy
+  carryovers have a current consumer reason and were requalified here.
+- For code pushes, inspect product, test and tooling growth separately using
+  existing LOC/dependency reports where useful. Explain material growth and trace
+  the real callers; fewer lines alone do not establish a simpler or safer design.
+  State when a comparable prior baseline is unavailable. For documentation-only
+  pushes, check scope and architectural consistency without rerunning code suites.
+- Report the pushed commit(s), reviewed scope, findings, justified retention and
+  next actions concisely in the delivery summary and current handoff. Track any
+  deferred actionable work in owning GitHub issues, not a new local debt ledger.
+  Do not declare the architecture clean when required evidence is missing.
+- This check does not authorize another push, unrelated repairs or a new audit
+  framework. Preserve necessary authorization, persistence and recovery guarantees
+  when proposing simplification. The aim is a codebase the maintainer can understand
+  and change, without returning to an unmaintainable accumulation of mechanisms.
