@@ -52,15 +52,51 @@ Provider-object resolution, supported live account binding and a production
 management runner remain unimplemented. API and persistence are experimental;
 these local tests do not establish D0/D1 completion or provider closure.
 
+The native [admin command](crates/ic-blob-storage-admin/src/main.rs) supports
+authenticated inspection and guarded drain dispatch. Run `make test-management` for the actual binary against
+a disposable local IC HTTP gateway, or view its inputs with:
+
+```sh
+cargo run --offline --locked -p ic-blob-storage-admin -- inspect --help
+```
+
+`inspect` requires the endpoint and canister, manager Ed25519 PEM, independently
+trusted network root key (DER), original `blob_init` Wire request, reviewed
+uncompressed Wasm and expected state format (`1`). It never discovers a trust root
+from the endpoint. It verifies the module hash before and after the replicated
+inspection and refuses mismatches. Success reports observations, not continuity
+or permission to activate. `prepare-drain` takes the same target inputs plus
+`--attempt` and `--record`: it writes one original signed request and its binding
+into a new private directory, without submitting it. `observe-drain` takes those
+target inputs and the original `--record` and authenticates that request's status.
+It never renews or resubmits it. An empty/partial directory stays claimed; preserve
+it on failure. Unknown, pending or forgotten outcomes are refusals, not permission
+to retry. A historical drain acknowledgment does not describe current admission.
+The claim's parent must exist and remain under the operator's exclusive control;
+inputs must be bounded regular files. A prepared request expires after two minutes,
+but expiry neither deletes the claim nor establishes what happened to it.
+`dispatch-drain` takes the original target inputs and `--record`, plus `--custody`
+and `--checkout`. It admits the trusted checkout's tooling snapshot, locks the
+target, rechecks its configuration and active attempt, and durably claims the
+attempt before submitting the original unexpired packet. All managers must use
+one operator-controlled custody root. Preserve it and the request directory:
+even an empty dispatch claim bars another submission or replacement request.
+After interruption, use `observe-drain`; an unknown outcome cannot authorize retry.
+This deliberately may strand a request that was never sent. The checkout and its
+execution environment are trusted inputs, not a sandbox for arbitrary Makefiles.
+Stop, upgrade, restore and activation commands remain absent. Native transport/crypto
+dependencies stay out of the canister graph.
+
 The previous implementation, Git history and provider/recovery custody are in
 `../ic-blob-storage-legacy` (see its `LEGACY.md`) and the private
 [legacy GitHub repository](https://github.com/dragginzgame/ic-blob-storage-legacy).
 Existing crates.io releases remain the legacy line. The rewrite's first GitHub
-checkpoint is `0.100.0`; this checkpoint is `0.100.2`, inherited from the root
+checkpoint is `0.100.0`; the latest checkpoint is `0.100.2` and current development
+is `0.100.3`, inherited from the root
 workspace version. Publication remains disabled. This is a new breaking release
 line, not a registry version reset or a migration for existing installations.
 
-The workspace has two product crates under `crates/`, Rust 1.100.0 / edition 2024
+The workspace has three product crates under `crates/`, Rust 1.100.0 / edition 2024
 and published Toko Tooling 0.43.1. GitHub development uses the `0.100` branch of
 `dragginzgame/ic-blob-storage`. There is no release/deployment configuration.
 

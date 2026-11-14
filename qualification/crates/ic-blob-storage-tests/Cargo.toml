@@ -14,10 +14,13 @@ ignored = ["toko-tooling"]
 
 [dev-dependencies]
 ic-blob-storage.workspace = true
+ic-host-fs.workspace = true
+ic-platform = { workspace = true, features = ["agent", "ic-protocol"] }
 ic-platform-types.workspace = true
 ic-testkit.workspace = true
 ic-wire.workspace = true
 serde.workspace = true
+sha2.workspace = true
 tokio.workspace = true
 toko-tooling.workspace = true
 

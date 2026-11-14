@@ -199,6 +199,7 @@ and installed test package now exist; the browser client remains future work.
 crates/
   ic-blob-storage/           # Reusable service library; exists today
   ic-blob-storage-canister/  # Experimental standalone Wire host
+  ic-blob-storage-admin/     # Native inspection, drain custody and guarded dispatch
 clients/
   browser/                  # Client/example using the selected external SDK
 qualification/
@@ -206,7 +207,7 @@ qualification/
     ic-blob-storage-tests/  # Real host Wasm exercised in PocketIC
 ```
 
-The two production crates share the root Cargo workspace and lockfile. The
+The three production crates share the root Cargo workspace and lockfile. The
 standalone host depends on the library, captures callers, mounts endpoints,
 supplies memory grants and composes lifecycle hooks. It owns no alternate ledger
 or business rules. The library exports no canister endpoints merely by linking it.
@@ -235,8 +236,10 @@ workspace requires an actual integration dependency constraint and its recorded
 disposition; directory placement alone does not justify one.
 
 Extract a runtime-free contracts package only when the remote client needs shared
-types without service storage dependencies. A separate Rust client package or CLI
-also needs an actual caller. Do not pre-create the predecessor's five-package
+types without service storage dependencies. The native admin binary now has an
+actual operator need: authenticate the existing management inspection before
+building a state-changing runner. It consumes the same protocol types and the
+Platform Agent; the service library does not depend on it. Do not pre-create the predecessor's five-package
 layout or its independent release groups.
 
 Canic stays out of the library's dependencies, ordinary tests and standalone
@@ -561,7 +564,7 @@ the full trusted-management policy below still gates effect-capable deployment.
 
 Runtime 0.22.3 supplies caller/time and lifecycle exports, Wire 0.22.1 and Endpoint
 0.13.1 own bounded RPC, and Storage 0.74.1 owns allocation/Cell mechanics. Testkit
-0.104.1 owns explicit authenticated PocketIC 16.1.0 setup and server custody.
+0.105.0 owns explicit authenticated PocketIC 16.1.0 setup and server custody.
 All were selected from stable non-yanked registry releases; no sibling source or
 retired Memory runtime is used. Ordinary RPC admission precedes ingress copying;
 Runtime lifecycle hooks copy the IC-bounded ingress before explicit Wire decoding.
@@ -576,6 +579,27 @@ consumer needs one small bounded control store and one gate; no legacy code or
 recovery state was imported. D0/D1 and live provider guarantees remain open.
 
 ### Selected initial policy: trusted management path, no rollback
+
+Version 0.100.3 starts the native path with `ic-blob-storage-admin inspect`.
+The operator supplies a target/API URL, Ed25519 manager PEM, independently trusted
+network root DER, exact expected Wire `blob_init` payload, reviewed uncompressed
+Wasm and expected record format. Platform Agent authenticates module-hash reads
+before and after the replicated `blob_management` update. The command compares
+the response's identity/configuration/format and reports the current attempt/gate.
+It bounds file and HTTP response sizes and the whole network operation's duration;
+an error returns no successful observation. HTTPS is required except loopback HTTP.
+No trust-root discovery, state-changing retry, deployment or activation exists.
+TCP-error retries are disabled; upstream HTTP behavior is not an exactly-one-POST
+guarantee or a general mutation-recovery policy. No operation journal is necessary for the
+read-only service method, even though it runs through an IC update.
+
+These authenticated observations are not atomic across management changes and
+cannot prove absence of an intervening same-Wasm upgrade or snapshot restore.
+They grant no activation permission. `make test-management` exercises the actual
+binary through a local IC HTTP gateway with a separately obtained fixture root;
+it verifies signed-ingress/certificate handling locally, not mainnet or Caffeine.
+Platform 0.33.2 (Agent 0.49.3), Clap 4.6.7 and URL 2.5.8 are the selected native
+suppliers; native crypto/HTTP dependencies do not enter the standalone Wasm graph.
 
 Select a restricted controller-management path, not a Blob-owned continuity or
 recovery framework. Supported controllers are trusted to use that path and install
@@ -662,6 +686,55 @@ installation binding and successful reopen checks. This is protection within the
 trusted path, not a proof against controller bypass or snapshot restoration.
 
 ### Interrupted management operations
+
+The first request-custody slice adds `prepare-drain` and `observe-drain`. Preparation
+authenticates the existing installation, requires active admission and the explicitly
+supplied next attempt, then signs a two-minute `blob_update(Drain(attempt))` request.
+Host FS 0.78.0 creates one private claim directory and durably publishes an immutable
+Wire intent and exact signed CBOR packet with owner-only file permissions. The intent
+binds URL, network root-key hash, target, manager/configuration, Wasm hash, state
+format, attempt and packet hash. Private keys are never retained in the claim.
+The parent is operator-controlled with no concurrent namespace replacement. Even
+an empty directory remains claimed after interruption; no overwrite, cleanup,
+automatic repair or replacement identity is permitted. A publication error may
+leave complete files visible and is still a refusal.
+
+Observation validates both bounded files and their correspondence to the supplied
+target inputs, derives the original IC request ID from strictly decoded call
+content, and authenticates only that request's status. Decoding the packet is not
+signature authentication or replay permission. It does not submit a call or mint a
+new packet. A matching closed-attempt reply establishes the historical acknowledgment,
+not current admission; reject, pending, unknown or pruned outcomes return refusal.
+Expiry does not authorize renewal. No permanent outcome-retention guarantee is made:
+if the IC has forgotten the reply, this slice remains unresolved.
+
+Neither preparation nor observation dispatches the drain. `dispatch-drain` admits
+the trusted checkout through the shared tooling check, requiring the binary's exact
+snapshot receipt. It then loads the original packet, rejects expiry, and acquires
+a Host FS exclusive lock under the single operator-controlled custody root, scoped
+by network root-key hash and target. All supported managers must use this root;
+deleting claims, substituting its namespace or using another root is outside the
+trusted arrangement. The checkout, Makefile and inherited execution environment
+are also trusted; the admission command is not a sandbox.
+
+Under the lock, dispatch rejects any existing per-attempt claim, rechecks the host
+and active next attempt, and rechecks expiry. It durably publishes the original
+request ID in that attempt's claim before invoking Platform with the saved packet.
+Any claim entry, including an empty one, bars another submission: a new record or
+request ID cannot evade it. A crash or publication failure may strand an unsent
+request. Preserve both directories and observe the original outcome; unknown status
+is not proof that no effect occurred. No fresh signature, automatic retry or claim
+repair exists. The lock covers inspection through the submission result; it does
+not constrain controllers using other tools or promise exactly one HTTP exchange.
+
+Installed qualification runs the actual dispatcher with competing processes and a
+held target lock, checks tooling refusals before custody creation, and models a
+post-claim/pre-transmission interruption that a replacement request cannot bypass.
+A fresh CLI observes the original outcome independently of dispatch stdout. Checks
+also cover partial/existing request claims, target/packet mismatch, unchanged stable
+bytes before dispatch, and historical observation after a later drain.
+Stop/upgrade/start and their original-request custody remain unimplemented. Do not
+generalize this drain claim into a provider-obligation ledger.
 
 The management entrypoint must bind the target/network, current and intended Wasm
 hashes, exact upgrade arguments and selected upgrade options before dispatch. It
@@ -861,6 +934,26 @@ copying legacy DTOs, billing/funding configuration or recovery machinery. Native
 tests verify unchanged backing bytes; installed tests exercise manager refusal,
 replicated-only dispatch, strict framing and configuration preservation across
 upgrades. No legacy code or custody was imported.
+
+The native inspector also reviewed the legacy [query adapter](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/query/mod.rs)
+and [installation-check regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/installation_check/tests/mod.rs).
+Retain explicit signer/root selection, bounded observations and the distinction
+between a proposal and an authenticated installed outcome. Use a replicated
+inspection update for this management consumer, rather than treating a query
+result as sufficient. Omit the legacy run-directory/report framework because
+this command neither dispatches a state-changing operation nor owns recovery
+custody. The local HTTP qualification uses the real native binary and host;
+the old test results are not reused as evidence of the new transport.
+
+For request custody, review also used the legacy [signed-update owner](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/signed_update/mod.rs)
+and [claim/recovery regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/signed_update/tests/mod.rs).
+Retain original signed bytes, durable claim-before-dispatch ordering, refusal to
+reuse partial claims, bounded correspondence checks and inspection without renewal.
+The new implementation uses shared Host FS publication and Platform protocol/status
+APIs directly for one drain operation. It does not copy the generic dispatch/report
+engine or legacy run custody. Local qualification rechecks the retained invariants
+with this host and binary, including the guarded dispatch boundary and original
+outcome observation. Stop/upgrade/start recovery remains deferred.
 
 ### First implementation: local object references
 

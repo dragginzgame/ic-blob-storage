@@ -1,5 +1,44 @@
 # Changelog
 
+## [0.100.3] - 2026-11-14
+
+GitHub development checkpoint on branch `0.100`; not published to crates.io.
+
+### ▶️ Try it
+
+After `make install-tools`, run `make test-management` to exercise the native
+inspection and guarded drain commands against a disposable local host through signed IC requests.
+For its explicit inputs, run `cargo run --offline --locked -p ic-blob-storage-admin -- inspect --help`.
+`prepare-drain --help` and `observe-drain --help` describe immutable request
+preparation and original-outcome observation; neither command submits the drain.
+`dispatch-drain --help` describes the tooling checkout and shared custody root
+required to submit that original request.
+
+### ➕ Added
+
+- Add a native management inspection command. It authenticates the installed
+  Wasm hash and replicated host response against an explicitly supplied trust root,
+  then compares the admitted identity, configuration and record format. It reports
+  current maintenance state without activating or upgrading the installation.
+- Qualify the actual binary through a local IC HTTP gateway, including wrong-root,
+  artifact, configuration, format and caller refusals. Provider operations remain
+  outside this slice.
+- Prepare one signed drain request in a new private claim directory, binding its
+  target, trust root, configuration, artifact and exact maintenance attempt.
+  Observe its authenticated original outcome without renewal or resubmission;
+  incomplete claims and unavailable outcomes remain unresolved.
+- Dispatch that original drain under an exclusive target lock after tooling and
+  host admission. A durable per-attempt claim precedes submission and bars another
+  request ID from bypassing uncertainty. Installed qualification covers competing
+  processes, tooling refusal and a simulated interruption before transmission.
+  Stop/upgrade/start and activation remain unimplemented.
+
+### 🔧 Tooling
+
+- Adopt Testkit 0.105.0 and rebuild its matching server helper. Our fresh-instance
+  tests already avoid the retired baseline-pool APIs; PocketIC stays at 16.1.0.
+  Run `make install-test-server` to refresh the prepared helper after updating.
+
 ## [0.100.2] - 2026-11-14
 
 GitHub development checkpoint on branch `0.100`; not published to crates.io.
