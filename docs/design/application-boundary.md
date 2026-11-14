@@ -1,8 +1,9 @@
 # Application and host boundary
 
-Design continuation, 2026-11-14. This specifies the next integration of the
+Design continuation, 2026-11-14. This specifies the integration boundaries of the
 [offline asset catalog](../../crates/ic-blob-storage/examples/local_asset/main.rs),
-not an installed host, wire schema or provider qualification. The first reference
+and the [installed reference application](reference-application.md), with local
+catalog qualification distinguished from the unimplemented provider journey. The first reference
 consumer is a public asset catalog with two uploaders and distinct references for
 `scene` and `preview`. It is a reference application, not a selected production
 Dragginz asset pipeline. The [main design](ic-blob-storage-design.md) owns scope,
@@ -15,6 +16,13 @@ configured Blob application authority; separate host B owns Blob state. The brow
 authenticates as uploader U. Inter-canister forwarding presents A, not U, to B;
 the application must authorize the exact principal U will use directly at B.
 User/session mapping stays with A. See [IC caller identity](https://docs.internetcomputer.org/concepts/principals/).
+
+A calls the existing `blob_query` from an update to obtain a replicated observation.
+The [IC specification](https://docs.internetcomputer.org/references/ic-interface-spec/)
+permits update-context inter-canister calls to ordinary query methods. No additional
+inspection endpoint or composite query is needed. B still captures A as caller;
+the originating browser's identity is not forwarded. The response describes B's
+state at execution, not a lock across A's later callback or catalog mutation.
 
 | Call | Captured caller at destination | Responsibility |
 | --- | --- | --- |
@@ -131,17 +139,17 @@ code from these files is copied in this continuation.
 | Witness | Present evidence or required installed check |
 | --- | --- |
 | Unknown release, delayed authorization, then cleanup | New owner-local regression exercises cleanup both before and after local registration; late authorization replay cannot resurrect the use |
-| Cancellation while publication waits on Blob | Installed application callback must refuse publication even if its delayed observation says Live |
-| Catalog removed but release reply lost | Installed application retains exact cleanup intent; replacement asset and reference remain untouched |
-| Browser impersonates A, or A proxies a bound U call | Actual signed endpoint calls must refuse claimed identity substitution |
+| Cancellation while publication waits on Blob | Installed real application refuses a pending cross-subnet publication after local cancellation |
+| Catalog removed but cleanup reply discarded or remote call fails | Installed application retains exact cleanup intent across upgrade; replacement asset and reference remain untouched |
+| Browser impersonates A, or another uploader knows an ID | Signed host tests cover direct identities; installed application captures its caller and denies another user's draft operations |
 | Two reserved roots have different uploaders/deadlines | Local root-resolution regression checks the original grant, first reference and accounting; another grant or attachment cannot substitute authority |
 | G1 cancelled/expired, G2 attempts root reuse, G1 registration arrives late | Owner-local regression refuses G2 without reserving its IDs and refuses G1 registration; an installed root-only endpoint must preserve that rule |
 
 The first and final two rows have local regressions. The first models an unresolved authorization
 by applying it after an unknown release, not an IC transport schedule. Existing
-example tests cover local publication/refusal. Add installed checks with a real
-host and application after D0; no empty qualification package or simulated host is
-needed to record these obligations.
+example tests cover local publication/refusal. The installed application now
+qualifies its durable decisions and actual callbacks separately from the D0 gate;
+an integrated provider transfer/read journey still requires that contract.
 
 The [signed standalone witness](../../qualification/crates/ic-blob-storage-tests/tests/signed.rs)
 now exercises the existing production host through an owned PocketIC HTTP gateway.
@@ -159,6 +167,28 @@ This carries forward the inspected legacy certificate-boundary rule that the roo
 locates the original permission, plus its reference-result distinction between an
 old outcome, current liveness and retry authority. It uses existing Platform Agent
 and Wire APIs, with no CLI journal, provider proof, adapter or product change.
-The application authority here is a native signer: this does not qualify application
+The application authority in that test is a native signer; it does not qualify
 canister forwarding, cancellation during a callback, network interruption or recovery
-of a usable provider certificate. Those acceptance rows above remain open.
+of a usable provider certificate.
+
+`make test-application` separately installs the real Blob host and the product
+[reference application](reference-application.md). The application has immutable users/target, durable drafts
+and bounded-wait calls, with no automatic retry. It exposes catalog operations,
+not arbitrary Blob command forwarding. The installed test qualifies publication
+and cancellation across actual calls, delayed authorization, exact retry after a
+discarded cleanup reply, stopped-host failures, same-format upgrade and capacity
+exhaustion with cleanup still possible. Publication leaves Blob stable bytes unchanged.
+
+The targeted legacy review rechecked its host caller capture and
+[reference-status regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/tests/reference_status_boundary/mod.rs).
+Retain exact caller/target checks and inspection after release or suspension; use
+the existing rewrite projection instead of legacy tenant/binding DTOs and fences.
+The [legacy browser publication flow](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/clients/browser/publication.js)
+and its [regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/tests/browser/publication.mjs)
+reinforce original-input binding and cancellation rechecks after awaits. The
+[recovery orchestration](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/workflow/installation/recovery/mod.rs)
+also revalidates its original binding after asynchronous effects. Retain those
+invariants here through one immutable draft and final local checks; omit the
+legacy catalog framework, recovery fences and platform-history machinery.
+No legacy code was copied. These witnesses qualify the local reference application,
+not a live provider, arbitrary state replacement or production asset pipeline.

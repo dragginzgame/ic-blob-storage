@@ -200,6 +200,7 @@ crates/
   ic-blob-storage/           # Reusable service library; exists today
   ic-blob-storage-canister/  # Experimental standalone Wire host
   ic-blob-storage-admin/     # Native maintenance custody and post-start verification
+  ic-blob-storage-reference-app/ # Standalone durable application catalog
 clients/
   browser/                  # Client/example using the selected external SDK
 qualification/
@@ -208,12 +209,16 @@ qualification/
     ic-blob-storage-reply-probe/ # Installed codec-failure rollback fixture
 ```
 
-The three production crates share the root Cargo workspace and lockfile. The
+The four production crates share the root Cargo workspace and lockfile. The
 standalone host depends on the library, captures callers, mounts endpoints,
 supplies memory grants and composes lifecycle hooks. It owns no alternate ledger
 or business rules. The library exports no canister endpoints merely by linking it.
 Canic owns its adapter in the Canic repository and depends on this same library;
 it does not depend on the standalone executable.
+
+The [reference application](reference-application.md) owns its bounded drafts,
+publication decisions and cleanup intent in a separate canister. It calls the
+standalone host's existing methods; it adds no Blob ledger or generic adapter.
 
 Initially organize the library by upload, objects/references, persistence and the
 concrete Caffeine boundary, introducing modules as behavior arrives. Keep one
@@ -937,7 +942,7 @@ Current progress is by accepted capability, not a percentage of code written:
 | Gate | Current disposition | Next evidence needed |
 | --- | --- | --- |
 | D0 | Open; protocol candidate reviewed, no supported independent Rust contract selected | Provider-backed enrollment/ABI, object scope, enforced bounds, authority recovery/lifetime and charge closure |
-| D1 | Local policy, durable host, signed calls, integrity example and native maintenance qualified separately | Selected D0 contract, integrated SDK upload/read and application publication/cleanup across awaits |
+| D1 | Local policy, durable host/application, cross-canister publication/cleanup, signed calls, integrity example and native maintenance qualified separately | Selected D0 contract and integrated SDK upload/read through the application |
 | D2 | Not started; no fresh account/target or bounded live run selected | D0 contract and an identified authorized installation with durable obligation custody |
 | D3 | Ownership selected; standalone independence preserved | Canic-owned adapter and actual composed application qualification |
 | D4 | Not claimed; finite history and small-store limits remain explicit | Representative workload measurements and a qualified retention/compaction and operating policy |
@@ -1128,9 +1133,10 @@ Its private catalog stores reference IDs, not another liveness ledger. Publicati
 checks the exact authorization/reference; exact replay preserves the existing use.
 Removal compares the expected reference so a delayed request cannot remove a
 replacement. These synchronous heap operations are neither a persistent application
-catalog nor an atomic remote transaction. Installed application callback races and
-provider transfer remain unqualified; [application-boundary.md](application-boundary.md)
-owns those requirements.
+catalog nor an atomic remote transaction. The separate [reference application](reference-application.md)
+now qualifies durable catalog decisions and actual callback interleaving. Provider
+transfer remains unqualified; [application-boundary.md](application-boundary.md)
+owns that integration boundary.
 
 ### Selective legacy reuse
 
@@ -1162,6 +1168,7 @@ opened or reverified. Read its LEGACY.md before separately authorized recovery.
 | `make test-standalone` | Actual host caller rules, bounded history, drain/reopen and retained state; optional explicit predecessor artifact | Provider protocol, arbitrary schema migration or forced-snapshot detection |
 | `make test-endpoints` | Raw frame compatibility, pre-copy rejection, exact/excess limits; separate installed encoding-failure rollback probe | Async provider callbacks or a second production host |
 | `make test-signed` | Actual signatures and verified replies, identity separation, original upload inspection after discarding a reply, non-resurrecting cleanup | Application-canister forwarding/callback races, network-fault recovery or usable certificate recovery |
+| `make test-application` | Durable application catalog, actual inter-canister identity, cancellation during replicated inspection, interrupted cleanup, bounded history and same-format application upgrade | Provider transfer, certificate recovery, arbitrary migration or snapshot continuity |
 | `make test-management` | Actual native custody, original-request observation, stop/upgrade/start/activation and populated state across a different artifact hash | Mainnet, macOS execution, fresh provisioning, arbitrary replacement compatibility or controller bypass |
 
 Canic's [integration ownership](https://github.com/dragginzgame/canic/blob/abca3139783db93cd6f124749e4c08d30a042f94/docs/design/canic-system-design.md#11-authentication-and-service-composition)

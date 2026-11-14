@@ -59,6 +59,10 @@ on the production host and encoding-failure rollback in a qualification-only pro
 These checks do not qualify Caffeine or a production management runner.
 `make test-signed` checks signed application/uploader calls and authenticated replies
 through the local gateway, including inspection after deliberately discarding a reply.
+`make test-application` exercises the product reference application and Blob host:
+durable drafts/catalog, replicated inspection, cancellation during publication,
+interrupted cleanup, bounded history and application upgrades. No provider transfer
+is implemented; publication means the owning user's catalog decision.
 `make test-management` tests native inspection, guarded maintenance and explicit
 activation through signed requests and certificate verification against an owned
 local HTTP gateway/root. It covers custody, interruption boundaries and reopened

@@ -4,6 +4,11 @@
 
 ### Added
 
+- Add a standalone reference application with durable user-owned drafts, catalog
+  publication and irreversible cancellation before remote reference cleanup.
+  `make test-application` exercises the real application and Blob Wasm together,
+  including delayed publication, interrupted cleanup and application upgrades.
+  Standalone use remains independent of Canic.
 - Add `make test-signed` to qualify application/uploader identity separation through
   the installed host's local HTTP gateway, verified responses, original-upload
   inspection after a discarded registration reply and cleanup without resurrection.
@@ -11,6 +16,10 @@
 
 ### Changed
 
+- Adopt Toko Tooling 0.43.2 through the authenticated snapshot installer, Host FS
+  0.79.0 (with matching Artifacts/Process), and Testkit 0.106.0. Qualify the final
+  delivery lock's Platform 0.33.4 and Runtime/macros/guard 0.22.5 patches; preserve
+  existing filesystem/simulator interfaces without compatibility wrappers.
 - Reconcile the design with the implemented host and full native maintenance path.
   Replace accumulated implementation history with current rules, a compact legacy
   reuse record and explicit D0–D4 evidence gaps; retain detailed history by revision.

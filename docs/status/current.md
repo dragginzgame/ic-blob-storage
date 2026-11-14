@@ -5,15 +5,20 @@
 The endpoint migration, signed application/uploader qualification and reconciled
 design are pushed to `origin/0.100` at
 [7832c4f](https://github.com/dragginzgame/ic-blob-storage/commit/7832c4f1fe631c07dadaee913c7ba1ae624f32f9),
-verified by `git ls-remote` with a clean matching worktree before this handoff update.
+with delivery/review handoff at
+[337cdd6](https://github.com/dragginzgame/ic-blob-storage/commit/337cdd6301068093d8faa9a50b62f203a7d00c35).
 Version remains **0.100.4** with Unreleased notes; no tag, registry publication,
 live deployment or Caffeine call occurred. [Issue #1](https://github.com/dragginzgame/ic-blob-storage/issues/1)
 is closed; its earlier local-only validation is now delivered by that commit.
-This handoff-only follow-up records delivery and the post-push review below.
+The maintainer selected **reference application first** and requested delivery.
+The prepared changes add one product application crate, replacing the temporary
+forwarding fixture, plus Toko Tooling 0.43.2, Host FS/Artifacts/Process 0.79.0 and
+Testkit 0.106.0. Final delivery also qualifies the current lock's Platform 0.33.4
+and Runtime/macros/guard 0.22.5 patches; no unrelated product code changed.
 The [D0–D4 table](../design/ic-blob-storage-design.md#9-delivery-and-acceptance)
 separates implemented local behavior from missing provider/application evidence.
 Private repo `dragginzgame/ic-blob-storage` (1457703306), branch `0.100`, HTTPS origin.
-Rust 1.100.0 / edition 2024; Toko Tooling 0.43.1. Three product crates and
+Rust 1.100.0 / edition 2024; Toko Tooling 0.43.2. Four product crates and
 `qualification/crates/` share the approved root workspace/lockfile; no Canic dependency.
 
 ## Current implementation
@@ -39,6 +44,16 @@ Standalone development remains independent. Canic owns its future Service adapte
 The application owns [catalog publication and lost-reply cleanup](../design/application-boundary.md);
 publication does not establish private serving.
 
+The [standalone reference application](../design/reference-application.md) has
+immutable users/Blob target and one governed, bounded durable record: sixteen
+lifetime drafts, original authorization/reference identity and local disposition.
+The catalog is derived from Published drafts. Cancellation persists before calls;
+exact authorization reconciliation precedes release. Delayed replies cannot undo
+cancellation; unresolved cleanup survives ordinary upgrade. It uses existing Blob
+methods with captured callers and no command passthrough, automatic retries,
+provider effects or second Blob ledger. Publication accepts the owning user's
+decision, not an independent read-verification proof. API/format remain unfrozen.
+
 Admission closes on drain while cleanup, inspection and historical replay remain
 available. Upgrade requires drain and remains drained on reopen; stale activation
 cannot reopen a later attempt. The native CLI binds explicit target, manager PEM,
@@ -50,56 +65,50 @@ is not current continuity or activation approval.
 
 Dispatch admits tooling through a trusted checkout, locks the target and rechecks
 eligibility/expiry before claiming and sending. Host FS owns durability/locking;
-Platform owns transport/status. Every supported manager must preserve one shared
-custody root. Alternate roots, controller bypass and arbitrary Makefiles are outside
-this trusted arrangement. See [management rules](../design/ic-blob-storage-design.md#interrupted-management-operations).
-Stop requires the exact drained attempt and running artifact/controller. Upgrade
-requires the original stop acknowledgment and stopped state, binding uncompressed
-replacement Wasm ≤1 MiB and fixed arguments. Same-Wasm upgrades still require the
-original outcome. Start and activation require matching predecessor claims and
-original acknowledgments; reopening verifies artifact/configuration/format/attempt.
-Candidate compatibility needs operator review; no reinstall/rollback/restart fallback
-or automatic compensation exists. No snapshot freshness proof exists; unrestricted
-controllers can bypass the supported management arrangement.
+Platform owns transport/status. Every supported manager preserves one shared
+custody root. [Management rules](../design/ic-blob-storage-design.md#interrupted-management-operations)
+require original stop/upgrade/start acknowledgments and matching artifact,
+configuration, format and attempt. Candidate compatibility needs operator review;
+no automatic compensation, reinstall/rollback fallback or snapshot freshness proof
+exists. Alternate roots, arbitrary Makefiles and unrestricted controllers can
+bypass this trusted arrangement.
 
-## Endpoint migration evidence
+## Qualification evidence
 
-`make test-endpoints test-standalone test-management` passed: raw-frame qualification,
-standalone lifecycle and both native management tests. The frame test checks exact
-responses, malformed/truncated/trailing/wrong-direction/wrong-method input, exact and
-excess byte limits, denied callers and replicated management. It also passed against
-the saved pre-migration Wasm. A separate qualification-only canister forces the
-selected encoder to trap after a stable write and verifies rollback, with a successful
-write as control. Production Blob has no fault mode or second engine.
+The [pushed evidence](https://github.com/dragginzgame/ic-blob-storage/blob/337cdd6301068093d8faa9a50b62f203a7d00c35/docs/status/current.md#endpoint-migration-evidence)
+records passing endpoint, standalone, signed and native management checks, selected
+strict Clippy, formatting, Rustdoc and links. It retains the predecessor Wasm hash
+and old-to-new upgrade witness, populated same-format state preservation, reply
+encoding rollback and original management custody. These are not arbitrary schema
+migration, live IC/provider, macOS or snapshot-freshness qualifications. Runtime
+tests remain valid for the unchanged production source; they were not all rerun.
 
-The populated standalone witness passed with `BLOB_PREVIOUS_WASM` selecting the old
-host and upgrades selecting the replacement. Its state, permissions, references,
-accounting and closed admission survived. Saved predecessor SHA-256:
-`a3ba5bd978a9330e516e0697cdb7a4882a97e1ba663fc2f6bf507dc019566397`.
-The artifact is local build evidence at `target/endpoint-migration/before.wasm`,
-not a committed release asset. Default standalone testing still upgrades the current
-artifact. Native management also retains its distinct-hash populated-state witness;
-that is same-format qualification, not arbitrary schema/code compatibility.
+`make test-application` passes (7.09 s on the final delivery lock) with both real Wasm modules on separate
+PocketIC subnets. It qualifies owner checks, exact retries, shared-object references,
+catalog-name collision/replacement, cancellation during a pending publication read,
+pending authorization/cancellation, discarded cleanup reply, stopped-host failures,
+cleanup after same-format app upgrade and full-history cleanup while Blob is drained.
+Publication leaves Blob stable bytes unchanged. Historical replies are not current
+draft state. App lifecycle evidence uses stop/drain/upgrade/start; pending-call
+upgrade refusal, arbitrary migration and snapshot continuity are not qualified.
+Strict workspace/all-target Clippy, host/app Wasm Clippy, Rustdoc, formatting,
+documentation links, dependency inventory and diff checks pass. Existing unrelated
+runtime suites were not repeated. On the final delivery lock, `make test-management`
+passes both native custody and changed-artifact lifecycle tests (70.46 s), and
+`make test-endpoints` passes installed frame/rollback checks (6.74 s).
+The [application boundary](../design/application-boundary.md#evidence-and-acceptance)
+records pinned legacy publication/recovery lessons and their deliberate exclusions.
 
-Strict selected native/Wasm Clippy, formatting, Rustdoc and documentation links
-passed. The Wasm graph excludes Endpoint, Canic, Agent, HTTP, Testkit and Candid.
-No full CI, live IC/provider or macOS
-execution qualification is claimed. Current LOC is **2,702 product / 4,248 tests /
-396 examples**, **+34 / +593 / +0** from 4709158. The new fixture/tests account for
-test growth; production adds only private hooks. No external version changed.
-Runtime/macros/guard 0.22.4, Types 0.20.4, Wire 0.22.1, Storage 0.74.1, Platform
-0.33.3 (native), Testkit 0.105.0, Host FS 0.78.0 and PocketIC 16.1.0 remain selected.
-
-`make test-signed` passed with strict Clippy against the production Wasm and owned
-local HTTP gateway. Application, manager and two uploaders use distinct signing
-identities. It checks caller separation, discarded registration reply then original
-inspection from a fresh Agent, repeat-registration refusal, overlapping references,
-cleanup and non-resurrecting replay. Queries verify signatures; updates verify
-certified outcomes against the independent fixture root. Wrong-root inspection
-specifically fails certificate verification. Latest formatting/links/diff checks pass.
-This adds 289 test LOC, no product code or dependencies. The [application boundary](../design/application-boundary.md#evidence-and-acceptance)
-records its legacy comparison and limits: native application signer, no application
-canister forwarding/callback race, actual network fault or provider-proof recovery.
+Current LOC is **3,199 product / 4,561 tests / 396 examples**: **+497 / +313 / +0**
+from 337cdd6. Product growth is the actual application protocol, draft owner and
+entrypoints; there is no retained forwarding fixture or generic workflow engine.
+The adoption adds no product/test source or compatibility layer. Full locked
+metadata and affected native graphs pass. The authenticated exporter admits all
+49 snapshot files; their payload is unchanged in 0.43.2. `make toko-tooling-update`
+rebuilt/admitted the Testkit 0.106.0 CLI and checked the retained PocketIC server.
+Types 0.20.4, Wire 0.22.1, Storage 0.74.1 and PocketIC 16.1.0 remain selected.
+The earlier dependency-only checks excluded newer Platform patches; delivery
+checks now target the actual final lock, including Platform 0.33.4/Runtime 0.22.5.
 
 ## Provider gate and next work
 
@@ -116,31 +125,19 @@ provider certificate/upload/read journey. Do not repeat unchanged broad searches
 invent local mechanisms as provider evidence. Push only when requested, then perform
 the required affected-scope architecture review.
 The next provider-facing step needs supported contract evidence and a fresh target;
-local test additions alone cannot advance that gate. Documentation links and diff
-checks passed after the reconciliation; unchanged runtime suites were not rerun.
+local test additions alone cannot advance that gate. The reference app now supplies
+the selected local consumer. Next integration needs the selected SDK/provider
+contract and an actual transfer/read journey; avoid adding speculative app modes.
 
 ## Post-push architecture review
 
-**PASS in affected structural scope; no actionable sediment finding.** Reviewed
-7832c4f against 4709158 using the pinned
-[complexity method](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/audits/complexity-and-technical-debt.md),
-its common contract/simplicity guidance/IC addendum and
-[overlay at the pushed revision](https://github.com/dragginzgame/ic-blob-storage/blob/7832c4f1fe631c07dadaee913c7ba1ae624f32f9/AGENTS.md).
-Source inspection traced three ordinary methods and lifecycle hooks through private
-codecs to Platform's sole executor/reply; Service retains permissions/state and
-Wire retains framing. No new product mode, format, persistent state or fallback.
-Endpoint dependencies/helpers are removed, not retained alongside replacements.
-The probe's fault selector and predecessor-Wasm test input are qualification-only.
-Make targets and tests consume the actual host; fixture duplication supplies an
-independent rollback witness without exposing production failure injection.
-Rehearsals: another ordinary method uses the same private codecs and existing
-Service policy; a Canic adapter composes Service at its own mounting/lifecycle owner.
-Neither requires a replacement framework or a second state implementation here.
-Measured LOC is 2668/3655/396 → 2702/4248/396: +34 product, +593 tests, no example
-growth. No external version changed; the Wasm graph excludes Canic/Endpoint and
-native/test dependencies. Existing passing runtime evidence above was reused.
-This structural review does not qualify provider support, Wasm size/performance,
-macOS or snapshot recovery. The handoff follow-up changes no runtime/tooling code.
+The [retained review](https://github.com/dragginzgame/ic-blob-storage/blob/337cdd6301068093d8faa9a50b62f203a7d00c35/docs/status/current.md#post-push-architecture-review)
+passed for 7832c4f against 4709158 using the pinned complexity method and overlay.
+It covers endpoint retirement, private codecs and their installed/signed witnesses;
+it does not cover the current unpushed reference application. Blob's existing library,
+host and admin sources remain unchanged. After the next requested push, review
+the new application state/async/lifecycle boundary and its measured growth without
+implying a provider proof.
 
 Legacy remains read-only at private `dragginzgame/ic-blob-storage-legacy`, revision
 `25bed1352f3d2b9659f0d2583f50fa9af859ea84`. Design §12 records inspected owners/tests

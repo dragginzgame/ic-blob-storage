@@ -134,8 +134,8 @@ checkpoint is `0.100.0`; the current checkpoint is `0.100.4`, inherited from the
 workspace version. Publication remains disabled. This is a new breaking release
 line, not a registry version reset or a migration for existing installations.
 
-The workspace has three product crates under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.43.1. GitHub development uses the `0.100` branch of
+The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
+and published Toko Tooling 0.43.2. GitHub development uses the `0.100` branch of
 `dragginzgame/ic-blob-storage`. There is no release/deployment configuration.
 
 The [selected crate layout](docs/design/ic-blob-storage-design.md#selected-crate-layout)
@@ -155,6 +155,7 @@ make test-example-local
 make test-standalone
 make test-endpoints
 make test-signed
+make test-application
 make deps-list
 toko-cloc
 ```
@@ -175,6 +176,11 @@ separation, original-upload inspection after a discarded reply, replay refusal a
 reference cleanup, with response verification against the fixture's independent root.
 It models reply loss by discarding a completed response; it supplies no certificate
 recovery, live provider or application-canister forwarding guarantee.
+`make test-application` runs the [standalone reference application](docs/design/reference-application.md)
+and the real Blob host. The application owns bounded durable drafts and a per-user
+catalog; Blob remains the reference/accounting owner. The test exercises replicated
+inspection, cancellation during publication, interrupted cleanup, shared objects,
+capacity exhaustion and application upgrades. It performs no provider transfer.
 
 `make deps-list` lists workspace package versions and release groups. `make update`
 delegates to Toko Tooling's `make deps-update` (`cargo update -v`), updating locks

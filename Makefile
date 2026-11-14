@@ -7,7 +7,7 @@ LOCAL_TOOL_CHECK_TARGETS += test-server-check
 include vendor/toko-tooling/make/consumer.mk
 include vendor/toko-tooling/make/cargo-dependencies.mk
 
-.PHONY: help deps update clippy test-references test-caffeine test-local example-local test-example-local docs-check documentation-links-check ci install-test-server test-server-check clippy-host build-host test-standalone build-admin test-management build-reply-probe test-endpoints test-signed
+.PHONY: help deps update clippy test-references test-caffeine test-local example-local test-example-local docs-check documentation-links-check ci install-test-server test-server-check clippy-host build-host test-standalone build-admin test-management build-reply-probe test-endpoints test-signed build-reference-app test-application
 
 help:
 	@printf '%s\n' \
@@ -22,6 +22,7 @@ help:
 	  'make test-standalone              Build and test the installed host locally' \
 	  'make test-endpoints               Test installed frame admission and reply rollback' \
 	  'make test-signed                  Test signed application and uploader calls locally' \
+	  'make test-application             Test durable catalog and cleanup between canisters' \
 	  'make test-management              Test native inspection and maintenance locally' \
 	  'make example-local               Run the offline application walkthrough' \
 	  'make test-example-local          Check catalog and read-completion boundaries' \
@@ -78,6 +79,17 @@ test-signed: build-host
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-tests --test signed -- -D warnings
 	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
 	  BLOB_WASM="$$wasm" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage-tests --test signed
+
+build-reference-app: toko-tooling-check
+	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-reference-app --target wasm32-unknown-unknown --release -- -D warnings
+	@mkdir -p target
+	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked -p ic-blob-storage-reference-app --target wasm32-unknown-unknown --release --message-format=json > target/blob-reference-app-artifacts.jsonl
+
+test-application: build-host build-reference-app
+	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-tests --test application -- -D warnings
+	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
+	  app="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_reference_app") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one application Wasm artifact") end' target/blob-reference-app-artifacts.jsonl)" && \
+	  BLOB_WASM="$$wasm" BLOB_REFERENCE_APP="$$app" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage-tests --test application
 
 build-admin: toko-tooling-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-admin --bin ic-blob-storage-admin -- -D warnings
