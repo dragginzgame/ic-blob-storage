@@ -2,24 +2,16 @@
 
 ## Delivery and accepted scope
 
-**0.100.4** is pushed to `origin/0.100` at
-[102edcd](https://github.com/dragginzgame/ic-blob-storage/commit/102edcd5d00c5e34dc76bdf66acc2d228962bb6e),
-with handoff/review at [4709158](https://github.com/dragginzgame/ic-blob-storage/commit/4709158fb9e0322e2313bd0ef2a7d20f4e97e281).
-The endpoint migration for [issue #1](https://github.com/dragginzgame/ic-blob-storage/issues/1)
-and signed application/uploader qualification are **local, uncommitted and unpushed**.
-Version remains 0.100.4 with an Unreleased
-changelog entry. Issue #1 is closed with [qualification evidence](https://github.com/dragginzgame/ic-blob-storage/issues/1#issuecomment-6880727720)
-and explicit pending-delivery status. No tag, publication, live deployment or Caffeine call occurred.
-The latest continuation reconciles stale design/README claims and consolidates
-implementation history into current rules and a pinned legacy-reuse record.
-Its [D0–D4 status table](../design/ic-blob-storage-design.md#9-delivery-and-acceptance)
-states remaining evidence; no product behavior or qualification claim changed.
-Pending-change review traced the explicit host hooks through the selected Platform
-generator and compared the retired Endpoint helpers. No actionable defect found:
-caller capture, pre-copy admission, trapping replies and storage ownership remain
-intact. Test-only fixtures introduce no second service engine; the Wasm graph
-still excludes native/test dependencies. This is a local source/graph review,
-not the required post-push review or additional runtime qualification.
+The endpoint migration, signed application/uploader qualification and reconciled
+design are pushed to `origin/0.100` at
+[7832c4f](https://github.com/dragginzgame/ic-blob-storage/commit/7832c4f1fe631c07dadaee913c7ba1ae624f32f9),
+verified by `git ls-remote` with a clean matching worktree before this handoff update.
+Version remains **0.100.4** with Unreleased notes; no tag, registry publication,
+live deployment or Caffeine call occurred. [Issue #1](https://github.com/dragginzgame/ic-blob-storage/issues/1)
+is closed; its earlier local-only validation is now delivered by that commit.
+This handoff-only follow-up records delivery and the post-push review below.
+The [D0–D4 table](../design/ic-blob-storage-design.md#9-delivery-and-acceptance)
+separates implemented local behavior from missing provider/application evidence.
 Private repo `dragginzgame/ic-blob-storage` (1457703306), branch `0.100`, HTTPS origin.
 Rust 1.100.0 / edition 2024; Toko Tooling 0.43.1. Three product crates and
 `qualification/crates/` share the approved root workspace/lockfile; no Canic dependency.
@@ -127,8 +119,29 @@ The next provider-facing step needs supported contract evidence and a fresh targ
 local test additions alone cannot advance that gate. Documentation links and diff
 checks passed after the reconciliation; unchanged runtime suites were not rerun.
 
-The [retained post-push review](https://github.com/dragginzgame/ic-blob-storage/blob/4709158fb9e0322e2313bd0ef2a7d20f4e97e281/docs/status/current.md#validation-and-retained-push-review)
-passed for 102edcd against 2051ec2; it does not cover this unpushed migration.
+## Post-push architecture review
+
+**PASS in affected structural scope; no actionable sediment finding.** Reviewed
+7832c4f against 4709158 using the pinned
+[complexity method](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/audits/complexity-and-technical-debt.md),
+its common contract/simplicity guidance/IC addendum and
+[overlay at the pushed revision](https://github.com/dragginzgame/ic-blob-storage/blob/7832c4f1fe631c07dadaee913c7ba1ae624f32f9/AGENTS.md).
+Source inspection traced three ordinary methods and lifecycle hooks through private
+codecs to Platform's sole executor/reply; Service retains permissions/state and
+Wire retains framing. No new product mode, format, persistent state or fallback.
+Endpoint dependencies/helpers are removed, not retained alongside replacements.
+The probe's fault selector and predecessor-Wasm test input are qualification-only.
+Make targets and tests consume the actual host; fixture duplication supplies an
+independent rollback witness without exposing production failure injection.
+Rehearsals: another ordinary method uses the same private codecs and existing
+Service policy; a Canic adapter composes Service at its own mounting/lifecycle owner.
+Neither requires a replacement framework or a second state implementation here.
+Measured LOC is 2668/3655/396 → 2702/4248/396: +34 product, +593 tests, no example
+growth. No external version changed; the Wasm graph excludes Canic/Endpoint and
+native/test dependencies. Existing passing runtime evidence above was reused.
+This structural review does not qualify provider support, Wasm size/performance,
+macOS or snapshot recovery. The handoff follow-up changes no runtime/tooling code.
+
 Legacy remains read-only at private `dragginzgame/ic-blob-storage-legacy`, revision
 `25bed1352f3d2b9659f0d2583f50fa9af859ea84`. Design §12 records inspected owners/tests
 and keep/replace decisions, now including endpoint bounds, codec traps and avoiding
