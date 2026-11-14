@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## [0.100.5] - 2026-11-14
+
+GitHub development checkpoint on branch `0.100`; not published to crates.io.
+
 ### Added
 
 - Add a standalone reference application with durable user-owned drafts, catalog
@@ -18,7 +22,7 @@
 
 - Adopt Toko Tooling 0.43.2 through the authenticated snapshot installer, Host FS
   0.79.0 (with matching Artifacts/Process), and Testkit 0.106.0. Qualify the final
-  delivery lock's Platform 0.33.4 and Runtime/macros/guard 0.22.5 patches; preserve
+  checkpoint lock's Platform 0.33.5 and Runtime/macros/guard 0.22.5 patches; preserve
   existing filesystem/simulator interfaces without compatibility wrappers.
 - Reconcile the design with the implemented host and full native maintenance path.
   Replace accumulated implementation history with current rules, a compact legacy
@@ -31,6 +35,18 @@
 - Add `make test-endpoints` for installed raw-frame compatibility and a separate
   qualification-only reply probe for rollback after encoding failure. Standalone
   upgrade tests accept `BLOB_PREVIOUS_WASM` to qualify a real predecessor artifact.
+
+### ▶️ Try it
+
+Run the standalone reference application and Blob host together in local PocketIC:
+
+```sh
+make install-tools
+make test-application
+```
+
+See the [reference application guide](docs/design/reference-application.md) for
+its endpoints, limits and cleanup rules. This journey makes no provider calls.
 
 ## [0.100.4] - 2026-11-14
 

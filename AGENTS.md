@@ -21,6 +21,11 @@ Read [the current handoff](docs/status/current.md) first.
   `0.100.0` is its first GitHub checkpoint. Keep publication disabled until a
   separately authorized release.
   Existing crates.io versions are not reset by this rewrite.
+- In this repository, a maintainer request to "push" means a new GitHub version
+  checkpoint: increment the current patch version unless an exact version is
+  specified, finalize its changelog and push the coordinated workspace/lock update.
+  Delivery-only handoff/review commits belong to that same checkpoint and do not
+  trigger another version increment. Registry publication remains separately gated.
 - Production crates belong under `crates/`. Add qualification packages only for
   real installed behavior; do not create tooling-holder packages or placeholder
   tests. Use Rust 1.100.0 and edition 2024 with the inherited common lint policy.

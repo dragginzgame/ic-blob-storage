@@ -1265,7 +1265,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage"
-version = "0.100.4"
+version = "0.100.5"
 dependencies = [
  "ic-platform-types",
  "ic-storage",
@@ -1277,7 +1277,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-admin"
-version = "0.100.4"
+version = "0.100.5"
 dependencies = [
  "clap",
  "ic-blob-storage",
@@ -1293,7 +1293,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-canister"
-version = "0.100.4"
+version = "0.100.5"
 dependencies = [
  "ic-blob-storage",
  "ic-platform-runtime",
@@ -1305,7 +1305,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-reference-app"
-version = "0.100.4"
+version = "0.100.5"
 dependencies = [
  "ic-blob-storage",
  "ic-platform-runtime",
@@ -1318,7 +1318,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-reply-probe"
-version = "0.100.4"
+version = "0.100.5"
 dependencies = [
  "ic-platform-runtime",
  "ic-wire",
@@ -1328,7 +1328,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-tests"
-version = "0.100.4"
+version = "0.100.5"
 dependencies = [
  "ic-blob-storage",
  "ic-blob-storage-reference-app",
@@ -1418,9 +1418,9 @@ dependencies = [
 
 [[package]]
 name = "ic-platform"
-version = "0.33.4"
+version = "0.33.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "959cfca0933238dfb426f3deb356b7d5c27ee594f714cb61eca1a610b3e4ae44"
+checksum = "9e61489a7377a2a67791f949a70976ec1445c75ac3dcc0ab5229cc1ea569385a"
 dependencies = [
  "ic-agent",
  "ic-certification",

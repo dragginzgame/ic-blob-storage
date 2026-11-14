@@ -130,7 +130,7 @@ The previous implementation, Git history and provider/recovery custody are in
 `../ic-blob-storage-legacy` (see its `LEGACY.md`) and the private
 [legacy GitHub repository](https://github.com/dragginzgame/ic-blob-storage-legacy).
 Existing crates.io releases remain the legacy line. The rewrite's first GitHub
-checkpoint is `0.100.0`; the current checkpoint is `0.100.4`, inherited from the root
+checkpoint is `0.100.0`; the current checkpoint is `0.100.5`, inherited from the root
 workspace version. Publication remains disabled. This is a new breaking release
 line, not a registry version reset or a migration for existing installations.
 

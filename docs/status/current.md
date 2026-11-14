@@ -4,15 +4,17 @@
 
 The standalone reference application and dependency adoption are pushed to
 `origin/0.100` at [5301b3a](https://github.com/dragginzgame/ic-blob-storage/commit/5301b3a87a04131e21011226b3150525dc2b8d53).
-Version remains **0.100.4**, with Unreleased notes; no tag, registry publication,
-live deployment or Caffeine call occurred. The earlier endpoint migration and
+The maintainer clarified that "push" means a new GitHub version checkpoint;
+**0.100.5** finalizes these changes and the changelog. Delivery-only review commits
+share that checkpoint. No tag, registry publication, live deployment or Caffeine
+call occurred. The earlier endpoint migration and
 signed qualification remain at [337cdd6](https://github.com/dragginzgame/ic-blob-storage/commit/337cdd6301068093d8faa9a50b62f203a7d00c35).
 Private repository `dragginzgame/ic-blob-storage`, branch `0.100`, HTTPS origin.
 Four product crates and `qualification/crates/` share the approved root workspace
 and lockfile. Standalone development remains independent of Canic.
 
 Rust 1.100.0 / edition 2024; Toko Tooling 0.43.2, Host FS/Artifacts/Process 0.79.0,
-Testkit 0.106.0, Platform 0.33.4, Runtime/macros/guard 0.22.5, Types 0.20.4,
+Testkit 0.106.0, Platform 0.33.5, Runtime/macros/guard 0.22.5, Types 0.20.4,
 Wire 0.22.1, Storage 0.74.1 and PocketIC 16.1.0. Delivery qualified the newer
 Platform patches present in the final lock, superseding the earlier adoption-only
 checks. Snapshot installation authenticated all 49 unchanged payload files and
@@ -57,8 +59,9 @@ reinstall/rollback fallback or snapshot freshness proof exists.
 
 ## Qualification evidence
 
-On the delivered lock, `make test-application` passes (7.09 s), `make test-management`
-passes both custody/lifecycle tests (70.46 s), and `make test-endpoints` passes (6.74 s).
+For 0.100.5, `make test-application` passes (7.38 s), `make test-management`
+passes both custody/lifecycle tests (69.72 s), and the built admin reports 0.100.5.
+The unchanged endpoint/rollback witness passed at 5301b3a (6.74 s).
 The app witness installs both real Wasm modules on separate PocketIC subnets: owner
 checks, exact retries, shared references, name replacement, cancellation during
 publication, pending authorization, discarded cleanup reply, stopped-host failures,
