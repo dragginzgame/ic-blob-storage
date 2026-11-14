@@ -98,6 +98,17 @@ Read-only contract/source review comes first. Any live witness needs separately
 authorized effects and retained obligations. If independent access is unsupported,
 stop this delivery path and return the product choice to the maintainer.
 
+D0 requires provider-backed contract answers, not a live test of an unimplemented
+host. D1 qualifies the resulting installed local rules with labelled substitutes;
+D2 supplies fresh live observations under that contract. The
+[field enforcement matrix and qualification sequence](caffeine-contract-review.md#field-enforcement-required-before-registration)
+specify the next witnesses and stopping points. The legacy November deletion
+follow-up still did not establish closure. The maintainer subsequently approved
+an experimental local service model while this gate remains open: local registration
+and declared-byte accounting may be rehearsed without certificate issuance,
+deployment or settlement. This does not freeze provider identities, API or
+persistence, or permit an effect-capable service backed by ephemeral state.
+
 ## 3. Scope and exclusions
 
 | Responsibility | Initial disposition |
@@ -544,9 +555,10 @@ and effects. No legacy bytes or obligations are reinterpreted or cleared.
 These are acceptance gates, not authorization for deployment or paid effects.
 Local models and substitutes prove local behavior; they cannot close provider
 guarantees. A successful provider sample does not establish future retention.
-The maintainer selected `0.100.0` as the rewrite release line, inherited from the
-root workspace. Publication remains separate and disabled until an authorized
-release; this selection supplies no migration for legacy installations.
+The maintainer selected the `0.100` rewrite line, starting with the `0.100.0`
+GitHub checkpoint. Development versions inherit from the root workspace.
+Publication remains separate and disabled until an authorized release; this
+selection supplies no migration for legacy installations.
 
 Use owner-local behavioral tests for accounting, authority and state transitions.
 Add an installed canister qualification package only when it tests real behavior.
@@ -674,6 +686,131 @@ The catalog must still enforce application authorization, immutable reference
 targets and one owner per actual provider object. There is no byte accounting,
 settlement, serialization, upgrade claim or network effect in this component.
 It must become part of the production owner, not a parallel test-only catalog.
+
+### Local Caffeine read verification
+
+Development version 0.100.1 adds a sequential root/length/metadata verifier for
+the reviewed SDK 1.1.2 algorithm. It retains fixed hash state, with explicit
+metadata and per-append budgets, and rejects corruption, truncation and excess
+bytes. The [implementation/reuse record](caffeine-contract-review.md#implemented-local-read-verification)
+identifies adapted first-party source, frozen SDK vectors and the scoped dependency.
+It establishes local integrity only. The caller must supply an independently
+trusted declaration, require successful transport EOF and publish only the exact
+checked bytes after success. It neither authenticates malicious upload declarations
+nor closes provider feasibility. Account identity and persistent state stay unfrozen.
+
+The same development version adds bounded manifest preflight, reusing the tree
+and metadata owner without retaining leaves. The
+[manifest reuse record](caffeine-contract-review.md#implemented-local-manifest-preflight)
+documents the adapted legacy checks and four regression tests. A consistent
+manifest may still claim a false byte length; this check cannot authorize storage
+exposure or replace provider enforcement. No service API or storage format follows
+from this local input check.
+
+### Experimental local service model
+
+The maintainer approved this provisional step on 2026-11-14. The
+[local owner](../../crates/ic-blob-storage/src/local/mod.rs) composes grants,
+manifest admission, root matching, the existing reference owner and three byte
+counters. It emits no credentials and makes no persistent or provider guarantee.
+One model has one immutable application authority; hosts supply actual captured
+Principal identities and clock readings. There is no public endpoint or operator
+role framework. `ic-platform-types` 0.20.3 supplies identity types, with default
+features disabled; the registry identified it as current stable/non-yanked when
+selected. No IC runtime or protocol adapter is introduced.
+
+Within this model only, root plus declared length identifies a matching use under
+one hypothetical fixed provider binding. A second upload ID attaches a distinct
+reference to an Open owner and cannot register again. Conflicting lengths and
+competing reservations refuse. This is not a qualified deletion identity; actual
+owner/project/bucket and callback mapping remain D0 inputs.
+
+Before registration, releasing the known first reference cancels its grant;
+explicit expiry does the same byte cleanup with a distinct historical state.
+These unexposed roots can be reserved anew with fresh upload/reference IDs. Old
+references retain their original grant binding, so delayed release cannot cancel
+the new reservation. Once registered, final release closes the root permanently
+in this model. Released/retired IDs are never evicted or reused. Exact authorization
+replay returns the stored request and current disposition, not renewed permission;
+registration replay refuses, and inspection produces no upload proof.
+
+Admission checks R + L and R + E using **declared** bytes, and reserves lifetime
+record slots. Registration transfers R into L/E; reference attachment does not
+count another copy. Final release removes L only. There is deliberately no operation
+that lowers E or declares settlement. Record occupancy comes from the maps rather
+than duplicate counters. These synchronous heap operations return ordinary errors
+before changes; they do not establish stable-memory transactions or upgrade safety.
+The eventual durable integration must replace this owner's heap backing or retire
+it, not keep a second independent policy engine.
+
+Targeted legacy review covered [admission conversion](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/admission/mod.rs),
+[admission regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/tests/admission_boundary/mod.rs),
+[permission/clock checks](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/model/service/upload/validation/mod.rs)
+and [reservation capacity](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/model/catalog/admission/capacity/mod.rs).
+Retain immutable replay, captured-caller permissions, clock/deadline refusal and
+reservation-before-consumption rules. Reimplement their composition for one fixed
+application using the existing rewrite reference owner. Omit tenant enrollment,
+generations, funding, stable stores and recovery fences because this local model
+has none of those consumers or effects. The legacy multi-store architecture is
+not carried over. Nine [local tests](../../crates/ic-blob-storage/src/local/tests.rs)
+requalify the applicable failure cases and new shared-owner semantics through
+`make test-local`; no installed qualification package is implied.
+
+### Offline application walkthrough
+
+The [local asset example](../../crates/ic-blob-storage/examples/local_asset/main.rs),
+run with `make example-local`, is the first caller outside the library's tests.
+It uses two synthetic uploader Principals and the existing frozen SDK vector for
+5 MiB + 17 bytes with original length/type metadata. An application-owned catalog
+contains asset names and their distinct references; the local Blob model remains
+the only grant/reference/accounting owner. No new package, dependency, API or
+provider transfer implementation was added.
+
+The walkthrough cancels an unconsumed draft, publishes two verified references to
+one object, rejects a corrupt read, compensates a catalog-name collision by
+releasing only the fresh unpublished reference, and replaces an asset while another
+use protects its object. Exact publication replay returns success without releasing
+the committed reference; delayed removal or republication cannot affect the replacement.
+It runs at its six-reference lifetime limit, including cancelled/released names.
+Final counters retain 5,242,897 unresolved declared bytes despite zero live bytes.
+The example's assertions check this path; they are not installed-provider evidence.
+
+The application read loop uses a fixed 64 KiB frame and requires successful EOF
+before calling the verifier's finish operation. The expected root, length and
+metadata come from the original fixture, not from the response. Four focused
+[example tests](../../crates/ic-blob-storage/examples/local_asset/tests.rs)
+cover transport error after all expected bytes, truncation/trailing bytes,
+cancellation after verification and refused catalog mutations.
+The in-memory fixture supplies a complete response; this is not a browser client,
+HTTP implementation, persistent catalog or atomic remote transaction. A real
+application must retain its publication/release intents across remote failures;
+this example's assertions and synchronous heap cleanup are not that mechanism.
+
+Two private [catalog helpers](../../crates/ic-blob-storage/examples/local_asset/catalog.rs)
+replace the example's unconditional insertion/removal. Fresh commit still requires
+the caller's successful original read; the helper then checks the exact stored
+authorization and current reference liveness before insertion. An existing matching
+entry permits replay; a second asset cannot reuse its reference. Removal compares
+both asset name and expected reference before releasing it. A missing entry only
+replays removal when that reference is already released/retired. The map stores
+no separate liveness or verified flag, and Blob keeps the retired identities.
+This is current catalog inspection, not a historical publication receipt after
+removal, provider availability proof or general application transaction framework.
+
+Targeted legacy review read the [browser publication helper](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/clients/browser/publication.js)
+and its [frozen-input regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/tests/browser/publication.mjs).
+Retain independently trusted immutable input and original metadata, and refusal
+before publication on corruption or size mismatch. The example's code is newly
+written; the fixed hash observations reuse the already documented first-party
+vectors. Omit the legacy patched SDK, asynchronous prepared handles, certificate
+journals, gateway budgets and recovery clients: no transfer or external effect is
+performed here. Actual Canic/application integration remains a separate boundary.
+The retry extension also reviewed the legacy [reference receipt regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/tests/reference_receipts/mod.rs)
+and [reference submission outcome tests](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/submit_reference/tests/mod.rs).
+Retain exact intent matching and the distinction between historical outcomes,
+current liveness and permission to retry. The example implements its catalog
+comparison directly; it imports no legacy command format, receipt store, signer
+or dispatch journal.
 
 ### Earlier design review
 

@@ -5,7 +5,7 @@ SHELL := /bin/bash
 include vendor/toko-tooling/make/consumer.mk
 include vendor/toko-tooling/make/cargo-dependencies.mk
 
-.PHONY: help deps update clippy test-references docs-check documentation-links-check ci
+.PHONY: help deps update clippy test-references test-caffeine test-local example-local test-example-local docs-check documentation-links-check ci
 
 help:
 	@printf '%s\n' \
@@ -14,6 +14,10 @@ help:
 	  'make fmt / fmt-check              Format / check workspace source' \
 	  'make clippy                      Strict native compilation and lint checks' \
 	  'make test-references             Bounded object-reference behavior tests' \
+	  'make test-caffeine               Caffeine stream and manifest integrity tests' \
+	  'make test-local                  Local grant, reference and accounting tests' \
+	  'make example-local               Run the offline application walkthrough' \
+	  'make test-example-local          Check catalog and read-completion boundaries' \
 	  'make docs-check                  Strict Rustdoc checks' \
 	  'make documentation-links-check   Check repository Markdown links' \
 	  'make deps                        Fetch the locked dependencies' \
@@ -37,7 +41,19 @@ docs-check:
 test-references:
 	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --lib references::tests
 
+test-caffeine:
+	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --lib caffeine::tests
+
+test-local:
+	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --lib local::tests
+
+example-local:
+	CARGO_BUILD_WARNINGS=deny cargo run --offline --locked -p ic-blob-storage --example local_asset
+
+test-example-local:
+	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --example local_asset
+
 documentation-links-check:
 	@find docs -type f -name '*.md' -print0 | xargs -0 perl vendor/toko-tooling/scripts/ci/check-documentation-links.pl --root . *.md
 
-ci: toko-tooling-check fmt-check clippy test-references docs-check documentation-links-check
+ci: toko-tooling-check fmt-check clippy test-references test-caffeine test-local example-local test-example-local docs-check documentation-links-check

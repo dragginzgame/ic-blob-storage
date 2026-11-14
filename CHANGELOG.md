@@ -1,6 +1,50 @@
 # Changelog
 
-## [0.100.0] - Unreleased
+## [0.100.1] - Unreleased
+
+### ➕ Added
+
+- Add bounded streaming verification against the application's original Caffeine
+  root, length and metadata. Adapt the legacy implementation into one local
+  verifier, without retaining file bytes or introducing transfer/recovery state.
+- Add bounded manifest preflight using the same tree/metadata rules. Reject
+  inconsistent declarations without retaining their chunk lists; success does
+  not authenticate declared length or establish provider-enforced limits.
+- Add an experimental local service model for application-authorized grants,
+  uploader-only registration, shared object references and declared-byte limits.
+  Cancellation/expiry preserve retired identities; final release retains unresolved
+  usage. No persistence, certificate issuance or settlement is implemented.
+- Add an offline application example that verifies a multi-chunk read before
+  catalog publication, shares an object between assets, and releases abandoned or
+  rejected uses without claiming provider settlement. Run `make example-local`.
+  Exact publication retries preserve the committed use, while conditional removal
+  protects replacements from delayed requests; released uses cannot be republished.
+
+### 🧪 Testing
+
+- Add `make test-caffeine` and twelve integrity tests covering frozen SDK vectors,
+  uneven trees, metadata normalization, corrupt/truncated/reordered content and
+  rejection without state changes. Keep provider availability and admission
+  enforcement outside these local proofs.
+- Cover manifest count/work limits, reordered/substituted leaves and metadata,
+  and consistent manifests with false declared lengths.
+- Add `make test-local` with nine composed lifecycle cases covering cross-user
+  refusal, immutable replay, duplicate object use, cancellation/registration order,
+  stale releases, expiry and cleanup at byte/record capacity.
+- Add four example checks for read completion, cancellation after verification,
+  exact request binding, and catalog refusals that preserve existing uses.
+  `make test-example-local` selects these checks; CI also runs the walkthrough,
+  including publication replay and stale removal after an asset-name replacement.
+
+### 📚 Documentation
+
+- Specify local versus provider enforcement for upload declarations and the
+  qualification sequence for size mismatches, lost authority and final release.
+  Incorporate the legacy deletion follow-up without treating it as closure proof.
+
+## [0.100.0] - 2026-11-14
+
+GitHub development checkpoint on branch `0.100`; not published to crates.io.
 
 ### ⚠️ Breaking
 

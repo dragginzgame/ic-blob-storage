@@ -1,21 +1,42 @@
 # IC Blob Storage
 
-Clean-start rewrite workspace. The first implemented component is
-[bounded object references](crates/ic-blob-storage/src/references/mod.rs): overlapping
-application uses, idempotent successful retain/release, permanent released IDs and
-irreversible closing on final release. It adds no product dependencies.
+Clean-start rewrite workspace. [Bounded object references](crates/ic-blob-storage/src/references/mod.rs)
+support overlapping application uses, historical replay and irreversible closing.
+[Streaming Caffeine verification](crates/ic-blob-storage/src/caffeine/mod.rs) checks
+downloaded bytes against the application's original root, length and metadata
+without retaining the file. It uses the reviewed SDK 1.1.2 tree profile and `sha2`.
+[Manifest preflight](crates/ic-blob-storage/src/caffeine/manifest.rs) checks bounded
+chunk counts, metadata and tree consistency without retaining the chunk list.
+It does not authenticate the declared byte length or authorize an upload.
 
-This is an in-memory domain component with an experimental Rust API, not an
-installed storage service. Authentication, provider-object resolution, persistence,
-uploads and Caffeine integration are not implemented.
+The [experimental local model](crates/ic-blob-storage/src/local/mod.rs) composes
+these rules with application/uploader permissions, exact grant replay, shared
+root ownership and separate reserved/live/unresolved declared-byte accounting.
+It emits no certificates and cannot settle provider obligations. Its heap state
+must not back real uploads; API, provider identity and persistence stay unfrozen.
+
+Run `make example-local` for the [offline application walkthrough](crates/ic-blob-storage/examples/local_asset/main.rs).
+Two synthetic users share one 5 MiB + 17 byte object between two catalog assets.
+It demonstrates cancellation, verified publication, corrupt-read refusal, cleanup
+after a catalog collision and final release with unresolved declared usage retained.
+Exact publication retries preserve the existing use; commit rechecks liveness and
+removal compares the expected reference so delayed requests cannot remove a replacement.
+The application owns its catalog; Blob owns its grants and references. No service
+or SDK transfer is installed or contacted by this example.
+
+These are in-memory components with experimental Rust APIs, not an installed
+storage service. Ingress authentication, qualified provider-object resolution,
+persistence, uploads and Caffeine network integration are not implemented. Verification proves supplied
+byte integrity; the caller must also require successful transport EOF and keep
+output private until verification succeeds. It proves no provider availability.
 
 The previous implementation, Git history and provider/recovery custody are in
 `../ic-blob-storage-legacy` (see its `LEGACY.md`) and the private
 [legacy GitHub repository](https://github.com/dragginzgame/ic-blob-storage-legacy).
-Existing crates.io releases remain the legacy line. The rewrite targets
-`0.100.0`, inherited from the root workspace version. Publication remains disabled;
-this is a new breaking release line, not a registry version reset or a migration
-for existing installations.
+Existing crates.io releases remain the legacy line. The rewrite's first GitHub
+checkpoint is `0.100.0`; current development is `0.100.1`, inherited from the root
+workspace version. Publication remains disabled. This is a new breaking release
+line, not a registry version reset or a migration for existing installations.
 
 The workspace has one product crate under `crates/`, Rust 1.100.0 / edition 2024
 and published Toko Tooling 0.43.0. GitHub development uses the `0.100` branch of
@@ -31,6 +52,10 @@ in its own repository.
 ```sh
 make install-tools
 make test-references
+make test-caffeine
+make test-local
+make example-local
+make test-example-local
 make ci
 make deps-list
 toko-cloc

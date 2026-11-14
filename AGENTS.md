@@ -16,8 +16,9 @@ Read [the current handoff](docs/status/current.md) first.
 - Legacy provider obligations and path-bound recovery records remain with the
   legacy repository. Never resume or import them through this fresh checkout.
 - There is no installed service, frozen API, migration or deployment runner yet.
-  The maintainer selected `0.100.0` as the rewrite version, inherited from the root
-  workspace. Keep publication disabled until a separately authorized release.
+  The rewrite uses the `0.100` release line, inherited from the root workspace;
+  `0.100.0` is its first GitHub checkpoint. Keep publication disabled until a
+  separately authorized release.
   Existing crates.io versions are not reset by this rewrite.
 - Production crates belong under `crates/`. Add qualification packages only for
   real installed behavior; do not create tooling-holder packages or placeholder
@@ -29,12 +30,19 @@ Read [the current handoff](docs/status/current.md) first.
 - No initial commit, remote creation, push, publication or live-provider effect
   is implied by the local scaffold. Custom future deployment entrypoints must
   admit the tooling snapshot before effects.
+- The maintainer explicitly approved the experimental local service model while
+  D0 remains open: no deployment or certificate issuance, declared-byte accounting,
+  no settlement claim, and unfrozen API/persistence. This permits local domain work;
+  it does not qualify the provider binding or authorize effect-capable hosting.
 
 ## Checks
 
 Prepare with `make install-tools`; `make ci` is the aggregate gate for tooling,
-formatting, strict Clippy, reference behavior, Rustdoc and documentation links.
-Use `make test-references` for the focused in-memory reference tests. No installed
+formatting, strict Clippy, local behavior, Rustdoc and documentation links.
+Use `make test-references` for the in-memory reference tests and `make test-caffeine`
+for streaming and manifest integrity tests. `make test-local` checks the composed
+grant/reference/accounting model. `make example-local` runs the offline application
+walkthrough; `make test-example-local` checks its catalog and read-completion boundaries. No installed
 service behavior is qualified yet. Package inventory is `make deps-list`;
 `make update` delegates to the shared `deps-update` target for Cargo lock updates.
 LOC is `toko-cloc`. An exact tooling-pin change still requires the authenticated

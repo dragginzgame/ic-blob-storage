@@ -1,9 +1,12 @@
-//! Provider-independent Blob Storage domain operations.
+//! Blob Storage domain operations and local Caffeine content verification.
 //!
-//! The first slice implements bounded references for one registered object.
-//! It is an in-memory domain component, not an installed storage service.
-//! The service library will own authorization rules, persistent state and unique
-//! provider-object resolution. Hosts capture callers, supply memory allocations
-//! and compose endpoints and lifecycle hooks. Those integrations are not yet built.
+//! The experimental local model composes grants, application references and
+//! declared-byte accounting with the manifest check. Streaming verification
+//! checks actual bytes against an independently trusted declaration.
+//! These are local components, not an installed storage service. Hosts must
+//! capture callers and supply memory/lifecycle composition. Durable state,
+//! qualified provider identity and authority issuance are not yet built.
 
+pub mod caffeine;
+pub mod local;
 pub mod references;
