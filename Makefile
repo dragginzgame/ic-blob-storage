@@ -20,7 +20,7 @@ help:
 	  'make test-local                  Local grant, reference and accounting tests' \
 	  'make install-test-server         Explicit authenticated local simulator setup' \
 	  'make test-standalone              Build and test the installed host locally' \
-	  'make test-management              Test native inspection and guarded drain locally' \
+	  'make test-management              Test native inspection and maintenance locally' \
 	  'make example-local               Run the offline application walkthrough' \
 	  'make test-example-local          Check catalog and read-completion boundaries' \
 	  'make docs-check                  Strict Rustdoc checks' \

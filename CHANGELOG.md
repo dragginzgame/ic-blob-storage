@@ -1,5 +1,37 @@
 # Changelog
 
+## [0.100.4] - 2026-11-14
+
+GitHub development checkpoint on branch `0.100`; not published to crates.io.
+
+### ➕ Added
+
+- Extend original-request custody to stopping a drained host. Stop requires the
+  current closed maintenance attempt and manager/controller identity; observation
+  checks platform status without restarting the canister or renewing the request.
+- Prepare, dispatch and observe one ordinary upgrade linked to the acknowledged
+  stop request. Bind exact replacement Wasm and fixed arguments, preserve a durable
+  claim before transmission, and require the original outcome even for same-Wasm
+  upgrades. Rejection never triggers reinstall, restart or another submission.
+- Add start request custody linked to the original stop and upgrade. Validate both
+  dispatch claims, then verify the running host's replacement artifact, configuration,
+  format and current drained attempt. Historical start acknowledgment cannot approve
+  an active or later attempt; automatic activation remains absent.
+- Add explicit activation chained to verified reopening and the same custody root.
+  Require original start acknowledgment and all predecessor claims, retain the
+  activation request before dispatch, and distinguish its historical outcome from
+  current admission. A delayed activation cannot reopen a newer drain.
+- Extend native lifecycle qualification with reserved, live and closing objects,
+  overlapping/released references and two uploaders. Upgrade to a distinct Wasm
+  hash using labelled custom metadata, then check preserved declarations, permissions,
+  accounting, historical replay and cleanup before accepting fresh work.
+
+### 🔧 Dependencies
+
+- Adopt Platform 0.33.3 in the root catalog, matching the existing lock selection.
+  Preserve the existing Runtime 0.22.4 / Types 0.20.4 graph and other dependencies;
+  enable management types only for the native admin. No Blob API migration is needed.
+
 ## [0.100.3] - 2026-11-14
 
 GitHub development checkpoint on branch `0.100`; not published to crates.io.

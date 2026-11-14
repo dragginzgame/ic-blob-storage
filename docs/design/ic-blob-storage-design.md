@@ -199,7 +199,7 @@ and installed test package now exist; the browser client remains future work.
 crates/
   ic-blob-storage/           # Reusable service library; exists today
   ic-blob-storage-canister/  # Experimental standalone Wire host
-  ic-blob-storage-admin/     # Native inspection, drain custody and guarded dispatch
+  ic-blob-storage-admin/     # Native maintenance custody and post-start verification
 clients/
   browser/                  # Client/example using the selected external SDK
 qualification/
@@ -562,7 +562,7 @@ lost management replies, destructive-operation refusal or snapshot freshness.
 No external awaits, timers, provider callbacks or certificates are implemented;
 the full trusted-management policy below still gates effect-capable deployment.
 
-Runtime 0.22.3 supplies caller/time and lifecycle exports, Wire 0.22.1 and Endpoint
+Runtime 0.22.4 supplies caller/time and lifecycle exports, Wire 0.22.1 and Endpoint
 0.13.1 own bounded RPC, and Storage 0.74.1 owns allocation/Cell mechanics. Testkit
 0.105.0 owns explicit authenticated PocketIC 16.1.0 setup and server custody.
 All were selected from stable non-yanked registry releases; no sibling source or
@@ -588,7 +588,8 @@ before and after the replicated `blob_management` update. The command compares
 the response's identity/configuration/format and reports the current attempt/gate.
 It bounds file and HTTP response sizes and the whole network operation's duration;
 an error returns no successful observation. HTTPS is required except loopback HTTP.
-No trust-root discovery, state-changing retry, deployment or activation exists.
+That inspector adds no trust-root discovery, state-changing retry or fresh install.
+Explicit maintenance and activation commands are described below.
 TCP-error retries are disabled; upstream HTTP behavior is not an exactly-one-POST
 guarantee or a general mutation-recovery policy. No operation journal is necessary for the
 read-only service method, even though it runs through an IC update.
@@ -598,7 +599,7 @@ cannot prove absence of an intervening same-Wasm upgrade or snapshot restore.
 They grant no activation permission. `make test-management` exercises the actual
 binary through a local IC HTTP gateway with a separately obtained fixture root;
 it verifies signed-ingress/certificate handling locally, not mainnet or Caffeine.
-Platform 0.33.2 (Agent 0.49.3), Clap 4.6.7 and URL 2.5.8 are the selected native
+Platform 0.33.3 (Agent 0.49.3), Clap 4.6.7 and URL 2.5.8 are the selected native
 suppliers; native crypto/HTTP dependencies do not enter the standalone Wasm graph.
 
 Select a restricted controller-management path, not a Blob-owned continuity or
@@ -733,8 +734,116 @@ post-claim/pre-transmission interruption that a replacement request cannot bypas
 A fresh CLI observes the original outcome independently of dispatch stdout. Checks
 also cover partial/existing request claims, target/packet mismatch, unchanged stable
 bytes before dispatch, and historical observation after a later drain.
-Stop/upgrade/start and their original-request custody remain unimplemented. Do not
-generalize this drain claim into a provider-obligation ledger.
+Version 0.100.4 extends the same custody owner with stop, without a parallel journal
+or transport. `prepare-stop` and `dispatch-stop` require the exact current closed
+maintenance attempt, a running platform state, the expected module hash and the
+manager among the platform controllers. Stop is addressed to the IC management
+canister and routed using the Blob target as effective canister ID. Platform owns
+the management DTOs and bounded Candid codec; the Blob host stays Wire-only.
+The saved packet's recipient, method and exact target argument distinguish stop
+from drain. The existing intent format and drain claim names stay valid; stop gets
+a separate per-attempt claim under the same target lock. The attempt is a local
+admission rule: the platform stop argument does not enforce Blob attempt identity.
+
+`observe-stop` authenticates the original request status and a replicated platform
+status call, including the expected artifact/controller binding. It needs no call
+to the stopped Blob host. It reports original acknowledgment, rejection, pending
+or unavailable outcome separately from platform running/stopping/stopped; only a
+stopped observation succeeds. This does not prove that a missing original request
+executed. Nor does it authorize restart: start requires the original stop and
+upgrade acknowledgments before dispatch. A rejection or
+timeout cannot erase the claim or cause automatic restart. Qualification checks
+controller refusal, activation/new-attempt refusal, actual stop, original-outcome
+observation and refusal after the guarded start has made the host running again.
+`prepare-upgrade`, `dispatch-upgrade` and `observe-upgrade` extend this owner with
+one ordinary upgrade. Inputs retain the old artifact and add the reviewed replacement
+Wasm and original stop record. Preparation requires that stop's authenticated
+acknowledgment, matching attempt, old module/controller binding and current stopped
+state. Dispatch repeats those checks under the target lock and additionally matches
+the stop request ID to its per-attempt dispatch claim. Unknown stop outcome refuses
+even if another request has left the platform stopped.
+
+The existing intent/packet format binds the complete `install_code` argument:
+target, exact replacement bytes, ordinary upgrade with omitted flags (run the old
+pre-upgrade hook and replace heap), fixed Wire `blob_post_upgrade(())`, and no sender
+version assertion. An immutable `predecessor.id` binds the original stop. There is
+no override for installation mode, hooks or arguments. The first direct-upload
+profile bounds uncompressed replacement Wasm to 1 MiB and signed packets to 2 MiB;
+larger/chunked installations are outside this slice. Operator review establishes
+state compatibility; a valid Wasm header alone does not qualify arbitrary code.
+
+An irreversible per-attempt upgrade claim precedes transmission. A different
+request ID cannot bypass it. Observation authenticates the original request's
+successful result and the replacement module/controller binding with platform
+stopped. A matching module hash cannot resolve an unknown original result, including
+same-Wasm upgrades. Rejection preserves the claim and causes no reinstall, rollback,
+restart or fresh request. Installed qualification covers actual same-Wasm upgrade,
+independent original-outcome observation, predecessor mismatch, replacement-request
+refusal, retained state/closed admission after start, and invalid-Wasm rejection
+without fallback.
+
+`prepare-start`, `dispatch-start` and `observe-start` reuse that same owner. The
+original stop and upgrade records, old/new artifacts and exact attempt remain
+explicit inputs. Preparation and dispatch require authenticated acknowledgment of
+both predecessors and current stopped state with the replacement artifact/controller.
+The start record links the upgrade's request ID; its bounded predecessor chain is
+start → upgrade → stop. Dispatch validates both predecessor claims under the target
+lock before publishing its own per-attempt start claim. No generic workflow graph,
+new journal or automatic retry is added.
+
+A start acknowledgment is followed by authenticated running-state inspection and
+replicated Blob inspection between module-hash reads. The replacement artifact,
+installation/configuration, record format, exact maintenance attempt and closed
+admission must all match. A failure preserves the actual start exposure; it never
+stops again, starts again or activates as compensation. `observe-start` requires
+that original acknowledgment and repeats the current-state checks. Running state
+cannot establish an unknown original outcome, and an old success cannot approve
+an active or newer attempt. These are observations within the trusted serialized
+management arrangement, not snapshot-continuity proof or activation permission.
+Qualification exercises the actual start, fresh-process recovery, corrupt direct
+and transitive predecessor claims, unresolved/rejected upgrade refusal, replacement
+start refusal and later activation/drain refusal without changing stable state.
+
+`prepare-activate`, `dispatch-activate` and `observe-activate` extend the same
+custody owner with `--start-record`. Preparation and dispatch authenticate the
+original start acknowledgment and recheck the replacement host's exact currently
+drained attempt. Dispatch verifies all three predecessor claims under the target
+lock and durably claims this attempt's activation before sending the original
+Wire `Activate(attempt)` request. The service independently checks the actual
+manager and exact current attempt at execution; delayed activation of an older
+attempt refuses even if native preflight observed it before a newer drain.
+
+Activation observation requires the original reply's matching active attempt,
+then authenticated running-state, artifact/configuration/format and current active
+attempt checks. Unknown original outcome cannot borrow an active-state observation.
+A historical acknowledgment followed by a newer drain is reported as a refusal
+to confirm current admission, preserving custody without retry or compensation.
+The native path does not renew or resubmit activation, even though the service
+supports exact-attempt replay. Forgotten original outcomes remain unresolved.
+This initial path activates only after its acknowledged stop/upgrade/start chain;
+canceling a drain without upgrading is not implemented. Qualification exercises
+actual activation, fresh-process observation, missing predecessor claims, unsent
+replacement requests, historical observation after a newer drain and a delayed
+activation reaching the host. No domain state or format is added. Do not generalize
+these management claims into a provider-obligation ledger or snapshot freshness proof.
+
+The [populated native lifecycle qualification](../../qualification/crates/ic-blob-storage-tests/tests/management/lifecycle.rs)
+retains four upload identities across drain, stop, upgrade, start and explicit
+activation. Its objects include a reserved grant, an Open object shared by two
+uploaders with one released reference, and a Closing object with unresolved
+declared exposure. All declarations, reference dispositions, owners and R/L/E
+counters are compared after drain, reopen and activation. Cross-uploader inspection
+and uploader-owned release remain refused. Historical retain cannot resurrect a
+released reference; final release and cancellation reduce live/reserved usage while
+unresolved exposure survives. Fresh admission succeeds only after activation.
+
+This fixture appends a labelled [Wasm custom section](https://webassembly.github.io/spec/core/binary/modules.html#custom-section)
+to the production artifact, producing a distinct hash while preserving executable
+code and the storage schema. The native commands keep the original artifact bound
+to predecessor custody and validate the replacement after upgrade/start/activation;
+inspection using the old artifact refuses afterward. The same-Wasm regression is
+retained separately. Neither case qualifies a schema migration, arbitrary candidate
+code or actual provider bytes. No extra production mode, crate or dependency exists.
 
 The management entrypoint must bind the target/network, current and intended Wasm
 hashes, exact upgrade arguments and selected upgrade options before dispatch. It
@@ -746,11 +855,11 @@ same-Wasm upgrade and its hooks ran exactly once.
 | Interruption | Required disposition |
 | --- | --- |
 | Drain reply lost | Inspect/recover the same attempt; do not create a new attempt as an automatic retry |
-| Stop times out or its reply is lost | Observe authenticated platform status; proceed only after stopped. Do not start the canister to make the stop error disappear |
+| Stop times out or its reply is lost | Recover the original acknowledgment and observe authenticated stopped state before proceeding. Do not start the canister to make the stop error disappear |
 | Upgrade reply lost | Resolve the original request and exact target/artifact outcome; do not blindly dispatch another install or run hooks again |
 | Definitive upgrade rejection | Keep the old instance drained and inspect the failure; no reinstall, snapshot fallback or automatic reactivation |
-| Start reply lost | Observe platform status, then the matching attempt's closed admission; platform running does not mean Blob is active |
-| Activation reply lost | Inspect/retry only that attempt; a newer drain must remain closed |
+| Start reply lost | Recover the original acknowledgment, then verify running state, the replacement artifact/configuration/format and the matching attempt's closed admission; running alone cannot acknowledge start |
+| Activation reply lost | Observe the original request and current attempt without resubmission; a newer drain must remain closed |
 
 The first profile uses ordinary state-preserving upgrade with heap replacement
 and without skipping pre-upgrade hooks. Reject caller overrides, replacement
@@ -794,6 +903,13 @@ and effects. No legacy bytes or obligations are reinterpreted or cleared.
 These are acceptance gates, not authorization for deployment or paid effects.
 Local models and substitutes prove local behavior; they cannot close provider
 guarantees. A successful provider sample does not establish future retention.
+The 0.100.4 local evidence covers installed caller rules, bounded domain state,
+maintenance custody and reopening; streaming integrity and catalog publication
+have separate local witnesses. **D1 is not declared complete:** there is no
+provider-facing certificate endpoint or integrated provider upload/read journey.
+The populated lifecycle witness narrows the management gap; it cannot select the
+missing D0 contract or qualify certificate recovery, retention or charge closure.
+Do not add speculative management machinery to stand in for that provider evidence.
 The maintainer selected the `0.100` rewrite line, starting with the `0.100.0`
 GitHub checkpoint. Development versions inherit from the root workspace.
 Publication remains separate and disabled until an authorized release; this
@@ -953,7 +1069,31 @@ The new implementation uses shared Host FS publication and Platform protocol/sta
 APIs directly for one drain operation. It does not copy the generic dispatch/report
 engine or legacy run custody. Local qualification rechecks the retained invariants
 with this host and binary, including the guarded dispatch boundary and original
-outcome observation. Stop/upgrade/start recovery remains deferred.
+outcome observation. For the stop extension, review also read the legacy
+[standalone lifecycle regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/standalone_lifecycle/mod.rs).
+Retain the requirement that stop/start preserves state and does not silently reopen
+admission; qualify it through the real native command and installed host here.
+Do not import legacy IC-history recovery, funding/gateway fences or automatic resume:
+this rewrite selects a trusted management path and one explicit admission owner.
+The upgrade extension preserves the same ordinary-upgrade/rejection lessons and
+uses the installed host for same-Wasm and invalid-module outcomes. Review also read
+the legacy [install-code cooldown helper](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/install_code/mod.rs);
+its fixed debt-draining rounds are not copied without a demonstrated fixture need.
+Start retains the legacy stop/start state-preservation and closed-admission lessons,
+qualified through the native command here. Explicit activation also reviewed the
+legacy [recovery orchestration](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/workflow/installation/recovery/mod.rs)
+and [platform-history proof owner](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/recovery/mod.rs).
+Retain explicit operator authorization, rechecking the installed binding after
+asynchronous work and preserving obligations on refusal. The rewrite's existing
+synchronous manager/attempt check closes the delayed-activation race; native
+custody owns serialized management observations. The selected trusted-management
+policy replaces legacy history acquisition and sealed continuity proofs; no such
+proof or arbitrary-snapshot recovery is claimed. No legacy code was copied.
+The populated lifecycle case carries forward the legacy regression for released
+objects whose unresolved obligations survive upgrade and explicit resume. Its
+fixture uses declared-byte exposure, rather than importing legacy physical/billing
+counters or treating registration as provider evidence; local cleanup must leave
+that exposure intact. Both live and Closing objects are checked here.
 
 ### First implementation: local object references
 

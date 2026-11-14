@@ -84,15 +84,51 @@ even an empty dispatch claim bars another submission or replacement request.
 After interruption, use `observe-drain`; an unknown outcome cannot authorize retry.
 This deliberately may strand a request that was never sent. The checkout and its
 execution environment are trusted inputs, not a sandbox for arbitrary Makefiles.
-Stop, upgrade, restore and activation commands remain absent. Native transport/crypto
-dependencies stay out of the canister graph.
+`prepare-stop`, `dispatch-stop` and `observe-stop` use the same target inputs and
+request custody. Preparation takes the exact current drained `--attempt`; dispatch
+also takes the shared `--custody` and trusted `--checkout`. The manager must be a
+platform controller. Stop refuses active admission or a newer attempt and records
+its own per-attempt claim under the same target lock. Observation works while Blob
+is stopped: it reports original request status and authenticated platform state
+separately. A stopped observation does not establish that the original request
+executed or that restarting is safe. No automatic start or stop resubmission exists.
+`prepare-upgrade`, `dispatch-upgrade` and `observe-upgrade` also take `--stop-record`
+and `--next-wasm`. Keep `--wasm` as the original artifact; supply the reviewed
+replacement separately (uncompressed, at most 1 MiB). Preparation requires the
+original stop acknowledgment and a stopped target; dispatch additionally matches
+that stop's durable claim in the shared custody root. The request uses ordinary
+upgrade with the fixed Wire post-upgrade argument. No install/reinstall, argument
+override, skipped hook or state replacement option exists. Observation requires
+the original upgrade acknowledgment and replacement module hash, even for a
+same-Wasm upgrade. Rejection or uncertainty preserves custody and bars redispatch.
+`prepare-start`, `dispatch-start` and `observe-start` retain the same inputs and
+add `--upgrade-record`. Start requires acknowledged original stop and upgrade
+requests plus a stopped target with the replacement artifact. Dispatch checks both
+predecessor claims under the shared lock before claiming its own request. After
+starting, it verifies the running platform, replacement artifact, configuration,
+record format and current drained attempt. `observe-start` repeats that verification
+against the original start acknowledgment; running state alone is insufficient.
+An active or newer attempt refuses, and no command automatically activates Blob.
+`prepare-activate`, `dispatch-activate` and `observe-activate` add `--start-record`.
+Activation requires the original start acknowledgment and the current drained
+attempt on the admitted replacement host. Dispatch checks the stop, upgrade and
+start claims under the same lock, then claims the activation before sending it.
+The host checks the manager and exact attempt again at execution. Observation
+requires the original activation acknowledgment and matching current active state;
+a later drain invalidates that observation without authorizing another submission.
+There is no restore command. Native transport/crypto dependencies stay out of the
+canister graph.
+
+`make test-management` exercises both same-Wasm maintenance and a populated lifecycle
+with a different artifact hash. The latter adds only a labelled custom section to
+the production Wasm: it tests artifact binding and preserved obligations, not a
+schema migration or compatibility with arbitrary replacement code.
 
 The previous implementation, Git history and provider/recovery custody are in
 `../ic-blob-storage-legacy` (see its `LEGACY.md`) and the private
 [legacy GitHub repository](https://github.com/dragginzgame/ic-blob-storage-legacy).
 Existing crates.io releases remain the legacy line. The rewrite's first GitHub
-checkpoint is `0.100.0`; the latest checkpoint is `0.100.2` and current development
-is `0.100.3`, inherited from the root
+checkpoint is `0.100.0`; the current checkpoint is `0.100.4`, inherited from the root
 workspace version. Publication remains disabled. This is a new breaking release
 line, not a registry version reset or a migration for existing installations.
 

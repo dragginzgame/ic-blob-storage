@@ -13,7 +13,7 @@ ignored = ["toko-tooling"]
 clap.workspace = true
 ic-blob-storage.workspace = true
 ic-host-fs.workspace = true
-ic-platform = { workspace = true, features = ["agent", "ic-protocol"] }
+ic-platform = { workspace = true, features = ["agent", "ic-protocol", "management-canister-types"] }
 ic-wire.workspace = true
 serde.workspace = true
 sha2.workspace = true

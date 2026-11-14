@@ -8,7 +8,7 @@ members = [
 resolver = "3"
 
 [workspace.package]
-version = "0.100.3"
+version = "0.100.4"
 edition = "2024"
 rust-version = "1.100.0"
 license-file = "LICENSE.md"
@@ -18,7 +18,7 @@ publish = false
 clap = { version = "4.6.7", features = ["derive"] }
 ic-blob-storage = { path = "crates/ic-blob-storage" }
 ic-host-fs = { version = "0.78.0", default-features = false }
-ic-platform = { version = "0.33.2", default-features = false }
+ic-platform = { version = "0.33.3", default-features = false }
 ic-platform-runtime = { version = "0.22.3", default-features = false }
 ic-platform-types = { version = "0.20.3", default-features = false }
 ic-storage = "0.74.1"

@@ -1,6 +1,6 @@
-//! Native management inspection and guarded dispatch of an immutable drain request.
+//! Native inspection and request custody through maintenance and explicit activation.
 
-mod drain;
+mod management;
 
 use clap::{Args, Parser, Subcommand};
 use ic_blob_storage::{
@@ -66,6 +66,126 @@ enum Command {
         #[arg(long)]
         checkout: PathBuf,
     },
+    /// Retain a signed stop request for the exact current drained attempt.
+    PrepareStop {
+        #[command(flatten)]
+        target: Target,
+        /// New immutable claim directory under a trusted, existing parent.
+        #[arg(long)]
+        record: PathBuf,
+        /// Exact current closed maintenance attempt.
+        #[arg(long)]
+        attempt: std::num::NonZeroU64,
+    },
+    /// Submit the original stop under the same target lock used for drain.
+    DispatchStop {
+        #[command(flatten)]
+        target: Target,
+        #[arg(long)]
+        record: PathBuf,
+        /// Single trusted custody root used by all managers of this target.
+        #[arg(long)]
+        custody: PathBuf,
+        /// Trusted Blob checkout with this binary's admitted tooling snapshot.
+        #[arg(long)]
+        checkout: PathBuf,
+    },
+    /// Observe original stop status and authenticated platform state; never restart.
+    ObserveStop {
+        #[command(flatten)]
+        target: Target,
+        #[arg(long)]
+        record: PathBuf,
+    },
+    /// Retain an ordinary upgrade request chained to an acknowledged stop.
+    PrepareUpgrade {
+        #[command(flatten)]
+        input: UpgradeInput,
+        /// Exact stopped maintenance attempt.
+        #[arg(long)]
+        attempt: std::num::NonZeroU64,
+    },
+    /// Submit the original upgrade once; never reinstall or fall back after failure.
+    DispatchUpgrade {
+        #[command(flatten)]
+        input: UpgradeInput,
+        /// Same trusted custody root used for the preceding stop.
+        #[arg(long)]
+        custody: PathBuf,
+        #[arg(long)]
+        checkout: PathBuf,
+    },
+    /// Authenticate the original upgrade outcome and replacement artifact while stopped.
+    ObserveUpgrade(UpgradeInput),
+    /// Retain a start request chained to acknowledged stop and upgrade requests.
+    PrepareStart {
+        #[command(flatten)]
+        input: StartInput,
+        #[arg(long)]
+        attempt: std::num::NonZeroU64,
+    },
+    /// Start the admitted upgraded host once and verify it remains drained.
+    DispatchStart {
+        #[command(flatten)]
+        input: StartInput,
+        #[arg(long)]
+        custody: PathBuf,
+        #[arg(long)]
+        checkout: PathBuf,
+    },
+    /// Recover the original start outcome and verify the current reopened host.
+    ObserveStart(StartInput),
+    /// Retain explicit activation for an acknowledged start and current drained attempt.
+    PrepareActivate {
+        #[command(flatten)]
+        input: ActivationInput,
+        #[arg(long)]
+        attempt: std::num::NonZeroU64,
+    },
+    /// Recheck verified reopening and submit the original activation once.
+    DispatchActivate {
+        #[command(flatten)]
+        input: ActivationInput,
+        #[arg(long)]
+        custody: PathBuf,
+        #[arg(long)]
+        checkout: PathBuf,
+    },
+    /// Observe original activation and current admission without retrying.
+    ObserveActivate(ActivationInput),
+}
+
+#[derive(Args)]
+struct ActivationInput {
+    #[command(flatten)]
+    start: StartInput,
+    /// Original acknowledged start request directory.
+    #[arg(long)]
+    start_record: PathBuf,
+}
+
+#[derive(Args)]
+struct StartInput {
+    #[command(flatten)]
+    upgrade: UpgradeInput,
+    /// Original acknowledged upgrade request directory.
+    #[arg(long)]
+    upgrade_record: PathBuf,
+}
+
+#[derive(Args)]
+struct UpgradeInput {
+    #[command(flatten)]
+    target: Target,
+    /// Operation claim directory: new for preparation, original for dispatch/observation.
+    #[arg(long)]
+    record: PathBuf,
+    /// Original acknowledged stop request directory for this same target/attempt.
+    #[arg(long)]
+    stop_record: PathBuf,
+    /// Independently reviewed replacement Wasm, uncompressed and at most 1 MiB.
+    #[arg(long)]
+    next_wasm: PathBuf,
 }
 
 #[derive(Args)]
@@ -182,6 +302,10 @@ impl Context {
     }
 
     async fn inspect(&self) -> Result<ManagementView, String> {
+        self.inspect_artifact(&self.wasm_hash).await
+    }
+
+    async fn inspect_artifact(&self, expected: &[u8; 32]) -> Result<ManagementView, String> {
         let target = self
             .canister
             .as_slice()
@@ -198,7 +322,7 @@ impl Context {
             .read_state_canister_module_hash(target)
             .await
             .map_err(|_| "module hash authentication failed")?;
-        if observed != self.wasm_hash {
+        if observed != *expected {
             return Err("installed Wasm does not match the admitted artifact".into());
         }
         let bytes = self
@@ -227,7 +351,7 @@ impl Context {
             .read_state_canister_module_hash(target)
             .await
             .map_err(|_| "module hash authentication failed")?;
-        if observed != self.wasm_hash {
+        if observed != *expected {
             return Err("installed Wasm changed during inspection".into());
         }
         Ok(view)
@@ -250,9 +374,22 @@ async fn run(command: Command) -> Result<String, String> {
             target,
             record,
             attempt,
-        } => drain::prepare(&Context::new(target)?, &record, attempt.get()).await,
+        } => {
+            management::prepare(
+                &Context::new(target)?,
+                &record,
+                attempt.get(),
+                management::Operation::Drain,
+            )
+            .await
+        }
         Command::ObserveDrain { target, record } => {
-            drain::observe(&Context::new(target)?, &record).await
+            management::observe(
+                &Context::new(target)?,
+                &record,
+                management::Operation::Drain,
+            )
+            .await
         }
         Command::DispatchDrain {
             target,
@@ -260,8 +397,183 @@ async fn run(command: Command) -> Result<String, String> {
             custody,
             checkout,
         } => {
-            drain::admit_tooling(&checkout).await?;
-            drain::dispatch(&Context::new(target)?, &record, &custody).await
+            management::admit_tooling(&checkout).await?;
+            management::dispatch(
+                &Context::new(target)?,
+                &record,
+                &custody,
+                management::Operation::Drain,
+            )
+            .await
+        }
+        Command::PrepareStop {
+            target,
+            record,
+            attempt,
+        } => {
+            management::prepare(
+                &Context::new(target)?,
+                &record,
+                attempt.get(),
+                management::Operation::Stop,
+            )
+            .await
+        }
+        Command::DispatchStop {
+            target,
+            record,
+            custody,
+            checkout,
+        } => {
+            management::admit_tooling(&checkout).await?;
+            management::dispatch(
+                &Context::new(target)?,
+                &record,
+                &custody,
+                management::Operation::Stop,
+            )
+            .await
+        }
+        Command::ObserveStop { target, record } => {
+            management::observe(&Context::new(target)?, &record, management::Operation::Stop).await
+        }
+        Command::PrepareUpgrade { input, attempt } => {
+            let wasm = read(&input.next_wasm, 1024 * 1024)?;
+            management::prepare(
+                &Context::new(input.target)?,
+                &input.record,
+                attempt.get(),
+                management::Operation::Upgrade {
+                    wasm: &wasm,
+                    stop_record: &input.stop_record,
+                },
+            )
+            .await
+        }
+        Command::DispatchUpgrade {
+            input,
+            custody,
+            checkout,
+        } => {
+            management::admit_tooling(&checkout).await?;
+            let wasm = read(&input.next_wasm, 1024 * 1024)?;
+            management::dispatch(
+                &Context::new(input.target)?,
+                &input.record,
+                &custody,
+                management::Operation::Upgrade {
+                    wasm: &wasm,
+                    stop_record: &input.stop_record,
+                },
+            )
+            .await
+        }
+        Command::ObserveUpgrade(input) => {
+            let wasm = read(&input.next_wasm, 1024 * 1024)?;
+            management::observe(
+                &Context::new(input.target)?,
+                &input.record,
+                management::Operation::Upgrade {
+                    wasm: &wasm,
+                    stop_record: &input.stop_record,
+                },
+            )
+            .await
+        }
+        Command::PrepareStart { input, attempt } => {
+            let wasm = read(&input.upgrade.next_wasm, 1024 * 1024)?;
+            management::prepare(
+                &Context::new(input.upgrade.target)?,
+                &input.upgrade.record,
+                attempt.get(),
+                management::Operation::Start {
+                    wasm: &wasm,
+                    stop_record: &input.upgrade.stop_record,
+                    upgrade_record: &input.upgrade_record,
+                },
+            )
+            .await
+        }
+        Command::DispatchStart {
+            input,
+            custody,
+            checkout,
+        } => {
+            management::admit_tooling(&checkout).await?;
+            let wasm = read(&input.upgrade.next_wasm, 1024 * 1024)?;
+            management::dispatch(
+                &Context::new(input.upgrade.target)?,
+                &input.upgrade.record,
+                &custody,
+                management::Operation::Start {
+                    wasm: &wasm,
+                    stop_record: &input.upgrade.stop_record,
+                    upgrade_record: &input.upgrade_record,
+                },
+            )
+            .await
+        }
+        Command::ObserveStart(input) => {
+            let wasm = read(&input.upgrade.next_wasm, 1024 * 1024)?;
+            management::observe(
+                &Context::new(input.upgrade.target)?,
+                &input.upgrade.record,
+                management::Operation::Start {
+                    wasm: &wasm,
+                    stop_record: &input.upgrade.stop_record,
+                    upgrade_record: &input.upgrade_record,
+                },
+            )
+            .await
+        }
+        Command::PrepareActivate { input, attempt } => {
+            let wasm = read(&input.start.upgrade.next_wasm, 1024 * 1024)?;
+            management::prepare(
+                &Context::new(input.start.upgrade.target)?,
+                &input.start.upgrade.record,
+                attempt.get(),
+                management::Operation::Activate {
+                    wasm: &wasm,
+                    stop_record: &input.start.upgrade.stop_record,
+                    upgrade_record: &input.start.upgrade_record,
+                    start_record: &input.start_record,
+                },
+            )
+            .await
+        }
+        Command::DispatchActivate {
+            input,
+            custody,
+            checkout,
+        } => {
+            management::admit_tooling(&checkout).await?;
+            let wasm = read(&input.start.upgrade.next_wasm, 1024 * 1024)?;
+            management::dispatch(
+                &Context::new(input.start.upgrade.target)?,
+                &input.start.upgrade.record,
+                &custody,
+                management::Operation::Activate {
+                    wasm: &wasm,
+                    stop_record: &input.start.upgrade.stop_record,
+                    upgrade_record: &input.start.upgrade_record,
+                    start_record: &input.start_record,
+                },
+            )
+            .await
+        }
+        Command::ObserveActivate(input) => {
+            let wasm = read(&input.start.upgrade.next_wasm, 1024 * 1024)?;
+            management::observe(
+                &Context::new(input.start.upgrade.target)?,
+                &input.start.upgrade.record,
+                management::Operation::Activate {
+                    wasm: &wasm,
+                    stop_record: &input.start.upgrade.stop_record,
+                    upgrade_record: &input.start.upgrade_record,
+                    start_record: &input.start_record,
+                },
+            )
+            .await
         }
     }
 }

@@ -1,0 +1,567 @@
+//! Immutable maintenance-request custody and guarded dispatch; no renewal or resubmission.
+
+mod activate;
+mod start;
+mod stop;
+mod upgrade;
+
+use super::{Context, read};
+use ic_blob_storage::{
+    local::Error,
+    protocol::{Command, Installation, Outcome, RPC_LIMITS},
+};
+use ic_host_fs::durable::{self, PublicationMode, WriteOptions};
+use ic_platform::{
+    Principal,
+    agent::{CallResponse, EffectiveId, RequestId, RequestStatusResponse, to_request_id},
+    ic_protocol::{EnvelopeContent, decode_call_content_strict},
+};
+use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
+use std::{
+    path::Path,
+    process::Stdio,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
+
+const LIMITS: ic_wire::Limits = ic_wire::Limits {
+    bytes: 16 * 1024,
+    allocation: 128 * 1024,
+    nodes: 1024,
+    depth: 16,
+};
+
+#[derive(Clone, Copy)]
+pub(super) enum Operation<'a> {
+    Drain,
+    Stop,
+    Upgrade {
+        wasm: &'a [u8],
+        stop_record: &'a Path,
+    },
+    Start {
+        wasm: &'a [u8],
+        stop_record: &'a Path,
+        upgrade_record: &'a Path,
+    },
+    Activate {
+        wasm: &'a [u8],
+        stop_record: &'a Path,
+        upgrade_record: &'a Path,
+        start_record: &'a Path,
+    },
+}
+
+impl<'a> Operation<'a> {
+    fn name(self) -> &'static str {
+        match self {
+            Self::Drain => "drain",
+            Self::Stop => "stop",
+            Self::Upgrade { .. } => "upgrade",
+            Self::Start { .. } => "start",
+            Self::Activate { .. } => "activate",
+        }
+    }
+
+    fn recipient(self, context: &Context) -> Principal {
+        match self {
+            Self::Drain | Self::Activate { .. } => context.canister,
+            Self::Stop | Self::Upgrade { .. } | Self::Start { .. } => {
+                Principal::management_canister()
+            }
+        }
+    }
+
+    fn method(self) -> &'static str {
+        match self {
+            Self::Drain | Self::Activate { .. } => "blob_update",
+            Self::Stop => "stop_canister",
+            Self::Upgrade { .. } => "install_code",
+            Self::Start { .. } => "start_canister",
+        }
+    }
+
+    fn argument(self, context: &Context, attempt: u64) -> Result<Vec<u8>, String> {
+        match self {
+            Self::Drain => argument(&Command::Drain(attempt)),
+            Self::Activate { .. } => argument(&Command::Activate(attempt)),
+            Self::Stop | Self::Start { .. } => stop::argument(context),
+            Self::Upgrade { wasm, .. } => upgrade::argument(context, wasm),
+        }
+    }
+
+    async fn admit(self, context: &Context, attempt: u64) -> Result<(), String> {
+        if let Self::Activate { wasm, .. } = self {
+            let original = self
+                .predecessor(context, attempt)?
+                .expect("start predecessor");
+            // Observe the original start and recheck the currently drained host.
+            // The service checks manager and exact attempt again when activation executes.
+            start::observe(
+                context,
+                &original.id,
+                attempt,
+                request_status(context, &original.id).await?,
+                wasm,
+            )
+            .await?;
+            return Ok(());
+        }
+        if let Self::Upgrade { stop_record, .. } = self {
+            return upgrade::admit(context, stop_record, attempt).await;
+        }
+        if let Self::Start {
+            wasm,
+            stop_record,
+            upgrade_record,
+        } = self
+        {
+            return start::admit(context, stop_record, upgrade_record, attempt, wasm).await;
+        }
+        let view = context.inspect().await?;
+        match self {
+            Self::Drain
+                if view.maintenance.active
+                    && view.maintenance.attempt.checked_add(1) == Some(attempt) =>
+            {
+                Ok(())
+            }
+            Self::Stop if !view.maintenance.active && view.maintenance.attempt == attempt => {
+                stop::admit(context).await
+            }
+            _ => Err(format!(
+                "current admission does not permit this {} attempt",
+                self.name()
+            )),
+        }
+    }
+
+    fn marker(self, attempt: u64) -> String {
+        match self {
+            // Preserve the 0.100.3 claim namespace and intent format.
+            Self::Drain => format!("attempt-{attempt}.claim"),
+            Self::Stop => format!("attempt-{attempt}.stop.claim"),
+            Self::Upgrade { .. } => format!("attempt-{attempt}.upgrade.claim"),
+            Self::Start { .. } => format!("attempt-{attempt}.start.claim"),
+            Self::Activate { .. } => format!("attempt-{attempt}.activate.claim"),
+        }
+    }
+
+    fn packet_limit(self) -> usize {
+        match self {
+            Self::Upgrade { .. } => 2 * 1024 * 1024,
+            _ => LIMITS.bytes,
+        }
+    }
+
+    fn predecessor(self, context: &Context, attempt: u64) -> Result<Option<Original>, String> {
+        if let Some((operation, record)) = self.parent() {
+            let original = load(context, record, operation)?;
+            if original.attempt != attempt {
+                return Err("predecessor attempt mismatch".into());
+            }
+            return Ok(Some(original));
+        }
+        Ok(None)
+    }
+
+    fn parent(self) -> Option<(Self, &'a Path)> {
+        match self {
+            Self::Activate {
+                wasm,
+                stop_record,
+                upgrade_record,
+                start_record,
+            } => Some((
+                Self::Start {
+                    wasm,
+                    stop_record,
+                    upgrade_record,
+                },
+                start_record,
+            )),
+            Self::Upgrade { stop_record, .. } => Some((Self::Stop, stop_record)),
+            Self::Start {
+                wasm,
+                stop_record,
+                upgrade_record,
+            } => Some((Self::Upgrade { wasm, stop_record }, upgrade_record)),
+            _ => None,
+        }
+    }
+
+    fn admit_custody(self, context: &Context, attempt: u64, target: &Path) -> Result<(), String> {
+        // The closed operation set bounds this chain: activate -> start -> upgrade -> stop.
+        if let Some((operation, record)) = self.parent() {
+            let previous = load(context, record, operation)?;
+            if previous.attempt != attempt
+                || read(&target.join(operation.marker(attempt)), 32)? != previous.id.to_vec()
+            {
+                return Err(format!(
+                    "{} dispatch claim does not match predecessor",
+                    operation.name()
+                ));
+            }
+            operation.admit_custody(context, attempt, target)?;
+        }
+        Ok(())
+    }
+}
+
+#[derive(Serialize, Deserialize)]
+struct Intent {
+    version: u8,
+    url: String,
+    canister: Principal,
+    configuration: Installation,
+    wasm_hash: [u8; 32],
+    root_hash: [u8; 32],
+    state_version: u32,
+    attempt: u64,
+    packet_hash: [u8; 32],
+}
+
+fn argument(command: &Command) -> Result<Vec<u8>, String> {
+    ic_wire::native::encode_request(
+        ic_wire::native::method_id("blob_update"),
+        command,
+        RPC_LIMITS,
+    )
+    .map_err(|_| "cannot encode admission command".into())
+}
+
+pub(super) async fn prepare(
+    context: &Context,
+    directory: &Path,
+    attempt: u64,
+    operation: Operation<'_>,
+) -> Result<String, String> {
+    operation.admit(context, attempt).await?;
+    let recipient = operation.recipient(context);
+    let target = EffectiveId::Canister(
+        context
+            .canister
+            .as_slice()
+            .try_into()
+            .map_err(|_| "invalid target")?,
+    );
+    let signed = context
+        .agent
+        .update(
+            &recipient
+                .as_slice()
+                .try_into()
+                .map_err(|_| "invalid recipient")?,
+            operation.method(),
+        )
+        .with_effective_canister_id(target.as_principal())
+        .with_arg(operation.argument(context, attempt)?)
+        .expire_after(Duration::from_secs(120))
+        .sign()
+        .map_err(|_| "cannot sign management request")?;
+    let intent = Intent {
+        version: 1,
+        url: context.url.clone(),
+        canister: context.canister,
+        configuration: context.configuration,
+        wasm_hash: context.wasm_hash,
+        root_hash: context.root_hash,
+        state_version: context.state_version,
+        attempt,
+        packet_hash: Sha256::digest(&signed.signed_update).into(),
+    };
+    let bytes =
+        ic_wire::native::encode(&intent, LIMITS).map_err(|_| "cannot encode management intent")?;
+    if signed.signed_update.len() > operation.packet_limit() {
+        return Err("signed management request exceeds record limit".into());
+    }
+    // A partial directory remains claimed. No automatic cleanup or repair on any
+    // failure, including a sync failure after publication. Parent custody is caller-owned.
+    let _directory = durable::create_private_directory(directory).map_err(|error| {
+        format!("cannot claim management directory; preserve any existing claim: {error}")
+    })?;
+    let options = WriteOptions {
+        mode: PublicationMode::CreateNew,
+        permissions: 0o600,
+    };
+    durable::write_bytes(&directory.join("intent.wire"), options, &bytes).map_err(|error| {
+        format!("management intent publication failed; preserve claim: {error}")
+    })?;
+    if let Some(previous) = operation.predecessor(context, attempt)? {
+        durable::write_bytes(
+            &directory.join("predecessor.id"),
+            options,
+            &previous.id.to_vec(),
+        )
+        .map_err(|_| "predecessor publication failed; preserve claim")?;
+    }
+    durable::write_bytes(
+        &directory.join("request.cbor"),
+        options,
+        &signed.signed_update,
+    )
+    .map_err(|error| {
+        format!("signed management request publication failed; preserve claim: {error}")
+    })?;
+    Ok(format!(
+        "Prepared {}: request_id={} attempt={attempt}; NOT submitted. Preserve the original claim; no renewal or retry is authorized.",
+        operation.name(),
+        signed.request_id
+    ))
+}
+
+struct Original {
+    attempt: u64,
+    packet: Vec<u8>,
+    id: RequestId,
+    expires_at: u64,
+}
+
+fn load(context: &Context, directory: &Path, operation: Operation<'_>) -> Result<Original, String> {
+    let intent: Intent =
+        ic_wire::native::decode(&read(&directory.join("intent.wire"), LIMITS.bytes)?, LIMITS)
+            .map_err(|_| "invalid management intent")?;
+    let packet = read(&directory.join("request.cbor"), operation.packet_limit())?;
+    let hash: [u8; 32] = Sha256::digest(&packet).into();
+    if intent.version != 1
+        || intent.url != context.url
+        || intent.canister != context.canister
+        || intent.configuration != context.configuration
+        || intent.root_hash != context.root_hash
+        || intent.wasm_hash != context.wasm_hash
+        || intent.state_version != context.state_version
+        || intent.attempt == 0
+        || intent.packet_hash != hash
+    {
+        return Err("management claim binding mismatch".into());
+    }
+    // Strictly inspect correspondence, not signature authenticity. The authenticated
+    // read_state result below establishes the original request's observed outcome.
+    if let Some(previous) = operation.predecessor(context, intent.attempt)?
+        && read(&directory.join("predecessor.id"), 32)? != previous.id.to_vec()
+    {
+        return Err("predecessor identity mismatch".into());
+    }
+    let content = decode_call_content_strict(&packet, operation.packet_limit())
+        .map_err(|_| "invalid signed management content")?;
+    let EnvelopeContent::Call {
+        sender,
+        canister_id,
+        method_name,
+        arg,
+        sender_info,
+        ingress_expiry,
+        ..
+    } = &content
+    else {
+        return Err("management claim is not a call".into());
+    };
+    if sender.as_slice() != context.configuration.manager.as_slice()
+        || canister_id.as_slice() != operation.recipient(context).as_slice()
+        || method_name != operation.method()
+        || *arg != operation.argument(context, intent.attempt)?
+        || sender_info.is_some()
+    {
+        return Err("signed management fields do not match intent".into());
+    }
+    // Derive the request ID from original content; never regenerate a fresh signed call.
+    // Expired requests remain inspectable until the network forgets their outcomes.
+    let id = to_request_id(&content).map_err(|_| "cannot derive original request ID")?;
+    Ok(Original {
+        attempt: intent.attempt,
+        packet,
+        id,
+        expires_at: *ingress_expiry,
+    })
+}
+
+pub(super) async fn observe(
+    context: &Context,
+    directory: &Path,
+    operation: Operation<'_>,
+) -> Result<String, String> {
+    let original = load(context, directory, operation)?;
+    let status = request_status(context, &original.id).await?;
+    if let Operation::Activate { wasm, .. } = operation {
+        return activate::observe(context, &original.id, original.attempt, status, wasm).await;
+    }
+    if let Operation::Start { wasm, .. } = operation {
+        return start::observe(context, &original.id, original.attempt, status, wasm).await;
+    }
+    if let Operation::Upgrade { wasm, .. } = operation {
+        return upgrade::observe(context, &original.id, status, wasm).await;
+    }
+    if matches!(operation, Operation::Stop) {
+        return stop::observe(context, &original.id, status).await;
+    }
+    match status {
+        RequestStatusResponse::Replied(reply) => {
+            acknowledge(&original.id, original.attempt, &reply.arg, false)
+        }
+        RequestStatusResponse::Rejected(_) => {
+            Err("original drain was rejected; no retry authorized".into())
+        }
+        RequestStatusResponse::Unknown | RequestStatusResponse::Done => {
+            Err("original drain outcome unavailable; keep unresolved, no resubmission".into())
+        }
+        RequestStatusResponse::Received | RequestStatusResponse::Processing => {
+            Err("original drain remains pending; no resubmission".into())
+        }
+    }
+}
+
+async fn request_status(
+    context: &Context,
+    id: &RequestId,
+) -> Result<RequestStatusResponse, String> {
+    let target = EffectiveId::Canister(
+        context
+            .canister
+            .as_slice()
+            .try_into()
+            .map_err(|_| "invalid target")?,
+    );
+    let (status, _) = context
+        .agent
+        .request_status_raw(id, target)
+        .await
+        .map_err(|_| "original request status authentication failed")?;
+    Ok(status)
+}
+
+fn acknowledge(id: &RequestId, attempt: u64, bytes: &[u8], active: bool) -> Result<String, String> {
+    let operation = if active { "activation" } else { "drain" };
+    let result: Result<Outcome, Error> = ic_wire::native::decode_response(
+        ic_wire::native::method_id("blob_update"),
+        bytes,
+        RPC_LIMITS,
+    )
+    .map_err(|_| format!("invalid original {operation} reply"))?;
+    match result {
+        Ok(Outcome::Maintenance(state)) if state.attempt == attempt && state.active == active => {
+            Ok(format!(
+                "Original {operation} acknowledged: request_id={id} attempt={}; historical outcome only, not current admission or activation approval.",
+                attempt
+            ))
+        }
+        _ => Err(format!(
+            "original {operation} did not acknowledge the requested admission state"
+        )),
+    }
+}
+
+pub(super) async fn admit_tooling(checkout: &Path) -> Result<(), String> {
+    let snapshot = read(&checkout.join(".toko-tooling.snapshot"), 64 * 1024)?;
+    if snapshot
+        != include_bytes!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../.toko-tooling.snapshot"
+        ))
+    {
+        return Err("checkout tooling snapshot differs from this binary".into());
+    }
+    // The checkout, its Makefile and inherited execution environment are trusted
+    // operator inputs. This is shared admission, not a sandbox for arbitrary code.
+    let status = tokio::process::Command::new("make")
+        .current_dir(checkout)
+        .args(["--no-print-directory", "toko-tooling-check"])
+        .env_remove("MAKEFLAGS")
+        .env_remove("MFLAGS")
+        .env_remove("MAKEFILES")
+        .stdout(Stdio::null())
+        .stderr(Stdio::inherit())
+        .kill_on_drop(true)
+        .status()
+        .await
+        .map_err(|_| "cannot run tooling admission")?;
+    if !status.success() {
+        return Err("tooling admission refused dispatch".into());
+    }
+    Ok(())
+}
+
+fn unexpired(expires_at: u64) -> Result<(), String> {
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|_| "invalid local clock")?
+        .as_nanos();
+    if u128::from(expires_at) <= now {
+        return Err("original request expired; no renewal authorized".into());
+    }
+    Ok(())
+}
+
+pub(super) async fn dispatch(
+    context: &Context,
+    directory: &Path,
+    custody: &Path,
+    operation: Operation<'_>,
+) -> Result<String, String> {
+    let original = load(context, directory, operation)?;
+    unexpired(original.expires_at)?;
+    let network: String = context
+        .root_hash
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect();
+    let target_directory = custody.join(network).join(context.canister.to_text());
+    durable::prepare_private_parents(&target_directory)
+        .map_err(|_| "cannot admit target custody")?;
+    let file = durable::open_private_regular_lock_file(&target_directory.join("manager.lock"))
+        .map_err(|_| "cannot open management lock")?;
+    let _lock = durable::ExclusiveFileLock::try_acquire(file)
+        .map_err(|_| "target management is already locked")?;
+    let marker = target_directory.join(operation.marker(original.attempt));
+    // Presence of any entry (even partial or corrupt) conservatively bars dispatch.
+    match std::fs::symlink_metadata(&marker) {
+        Ok(_) => {
+            return Err(
+                "dispatch already claimed; observe the original request, never resubmit".into(),
+            );
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(_) => return Err("cannot inspect dispatch claim".into()),
+    }
+    operation.admit_custody(context, original.attempt, &target_directory)?;
+    operation.admit(context, original.attempt).await?;
+    unexpired(original.expires_at)?;
+    // This is an irreversible local exposure boundary, not proof of transmission.
+    // A crash or sync failure may strand a safe unsent request; never delete/retry it.
+    durable::write_bytes(
+        &marker,
+        WriteOptions {
+            mode: PublicationMode::CreateNew,
+            permissions: 0o600,
+        },
+        &original.id.to_vec(),
+    )
+    .map_err(|error| {
+        format!("dispatch claim failed; preserve custody and do not resubmit: {error}")
+    })?;
+    let target = EffectiveId::Canister(
+        context
+            .canister
+            .as_slice()
+            .try_into()
+            .map_err(|_| "invalid target")?,
+    );
+    match context.agent.update_signed(target, original.packet).await {
+        Ok(CallResponse::Response(bytes)) => match operation {
+            Operation::Drain => acknowledge(&original.id, original.attempt, &bytes, false),
+            Operation::Stop => stop::acknowledge(&original.id, &bytes),
+            Operation::Upgrade { .. } => upgrade::acknowledge(&original.id, &bytes),
+            Operation::Start { wasm, .. } => {
+                start::acknowledge(context, &original.id, original.attempt, &bytes, wasm).await
+            }
+            Operation::Activate { wasm, .. } => {
+                activate::acknowledge(context, &original.id, original.attempt, &bytes, wasm).await
+            }
+        },
+        Ok(CallResponse::Poll(_)) => {
+            Err("original request pending; observe it, do not resubmit".into())
+        }
+        Err(_) => Err(
+            "dispatch outcome uncertain; preserve custody and observe the original request".into(),
+        ),
+    }
+}

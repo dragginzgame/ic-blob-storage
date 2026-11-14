@@ -54,9 +54,10 @@ and read-completion boundaries. `make install-test-server` explicitly prepares t
 local simulator (also included in `make install-tools`); `make test-standalone` tests
 the actual production Wasm's callers and upgrades, independently of the native
 aggregate. These checks do not qualify Caffeine or a production management runner.
-`make test-management` tests native inspection and guarded drain dispatch through signed
-requests and certificate verification against an owned local HTTP gateway/root.
-It covers drain custody and interruption boundaries, not stop/upgrade/start or the live IC.
+`make test-management` tests native inspection, guarded maintenance and explicit
+activation through signed requests and certificate verification against an owned
+local HTTP gateway/root. It covers custody, interruption boundaries and reopened
+admission, not the live IC or provider effects.
 Package inventory is `make deps-list`;
 `make update` delegates to the shared `deps-update` target for Cargo lock updates.
 LOC is `toko-cloc`. An exact tooling-pin change still requires the authenticated

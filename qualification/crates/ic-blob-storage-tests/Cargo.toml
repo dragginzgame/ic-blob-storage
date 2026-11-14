@@ -24,5 +24,9 @@ sha2.workspace = true
 tokio.workspace = true
 toko-tooling.workspace = true
 
+[[test]]
+name = "management"
+path = "tests/management/mod.rs"
+
 [lints]
 workspace = true
