@@ -3,6 +3,7 @@ members = [
     "crates/ic-blob-storage",
     "crates/ic-blob-storage-admin",
     "crates/ic-blob-storage-canister",
+    "qualification/crates/ic-blob-storage-reply-probe",
     "qualification/crates/ic-blob-storage-tests",
 ]
 resolver = "3"
@@ -24,7 +25,6 @@ ic-platform-types = { version = "0.20.3", default-features = false }
 ic-storage = "0.74.1"
 ic-testkit = { version = "0.105.0", default-features = false }
 ic-wire = { version = "0.22.1", default-features = false }
-ic-wire-endpoint = { version = "0.13.1", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }
 sha2 = { version = "0.11.1", default-features = false }
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread", "time", "process"] }

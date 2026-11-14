@@ -7,7 +7,7 @@ LOCAL_TOOL_CHECK_TARGETS += test-server-check
 include vendor/toko-tooling/make/consumer.mk
 include vendor/toko-tooling/make/cargo-dependencies.mk
 
-.PHONY: help deps update clippy test-references test-caffeine test-local example-local test-example-local docs-check documentation-links-check ci install-test-server test-server-check clippy-host build-host test-standalone build-admin test-management
+.PHONY: help deps update clippy test-references test-caffeine test-local example-local test-example-local docs-check documentation-links-check ci install-test-server test-server-check clippy-host build-host test-standalone build-admin test-management build-reply-probe test-endpoints test-signed
 
 help:
 	@printf '%s\n' \
@@ -20,6 +20,8 @@ help:
 	  'make test-local                  Local grant, reference and accounting tests' \
 	  'make install-test-server         Explicit authenticated local simulator setup' \
 	  'make test-standalone              Build and test the installed host locally' \
+	  'make test-endpoints               Test installed frame admission and reply rollback' \
+	  'make test-signed                  Test signed application and uploader calls locally' \
 	  'make test-management              Test native inspection and maintenance locally' \
 	  'make example-local               Run the offline application walkthrough' \
 	  'make test-example-local          Check catalog and read-completion boundaries' \
@@ -72,10 +74,26 @@ test-standalone: build-host
 	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
 	  BLOB_WASM="$$wasm" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage-tests --test standalone
 
+test-signed: build-host
+	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-tests --test signed -- -D warnings
+	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
+	  BLOB_WASM="$$wasm" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage-tests --test signed
+
 build-admin: toko-tooling-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-admin --bin ic-blob-storage-admin -- -D warnings
 	@mkdir -p target
 	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked -p ic-blob-storage-admin --bin ic-blob-storage-admin --message-format=json > target/blob-admin-artifacts.jsonl
+
+build-reply-probe: toko-tooling-check
+	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-reply-probe --target wasm32-unknown-unknown --release -- -D warnings
+	@mkdir -p target
+	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked -p ic-blob-storage-reply-probe --target wasm32-unknown-unknown --release --message-format=json > target/blob-reply-probe-artifacts.jsonl
+
+test-endpoints: build-host build-reply-probe
+	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-tests --test endpoints -- -D warnings
+	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
+	  probe="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_reply_probe") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one reply probe artifact") end' target/blob-reply-probe-artifacts.jsonl)" && \
+	  BLOB_WASM="$$wasm" BLOB_REPLY_PROBE="$$probe" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage-tests --test endpoints
 
 test-management: build-host build-admin
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-tests --test management -- -D warnings

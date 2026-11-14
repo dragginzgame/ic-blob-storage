@@ -142,3 +142,23 @@ by applying it after an unknown release, not an IC transport schedule. Existing
 example tests cover local publication/refusal. Add installed checks with a real
 host and application after D0; no empty qualification package or simulated host is
 needed to record these obligations.
+
+The [signed standalone witness](../../qualification/crates/ic-blob-storage-tests/tests/signed.rs)
+now exercises the existing production host through an owned PocketIC HTTP gateway.
+Distinct deterministic signing identities represent application, manager and two
+uploaders. Wrong callers cannot authorize/register; uploaders cannot release or
+retain application references or inspect application-wide usage. A second uploader's
+attached use does not acquire the original uploader's registration right.
+After deliberately discarding a completed registration reply, a fresh Agent inspects
+the same upload and a repeat registration refuses. Application cleanup and historical
+authorization replay retain released references and unresolved declared exposure.
+Queries verify signatures and updates verify certified outcomes against the fixture's
+independently obtained root; a wrong root must fail certificate verification.
+
+This carries forward the inspected legacy certificate-boundary rule that the root
+locates the original permission, plus its reference-result distinction between an
+old outcome, current liveness and retry authority. It uses existing Platform Agent
+and Wire APIs, with no CLI journal, provider proof, adapter or product change.
+The application authority here is a native signer: this does not qualify application
+canister forwarding, cancellation during a callback, network interruption or recovery
+of a usable provider certificate. Those acceptance rows above remain open.

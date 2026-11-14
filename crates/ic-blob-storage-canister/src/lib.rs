@@ -1,6 +1,9 @@
 //! Experimental standalone host. All domain and admission rules live in the library.
 //! Exports only owned Wire methods; no Caffeine certificate, callback or network call.
 
+mod codec;
+
+use codec::{INIT, MANAGEMENT, QUERY, UPDATE, UPGRADE};
 use std::cell::RefCell;
 
 use ic_blob_storage::{
@@ -8,9 +11,7 @@ use ic_blob_storage::{
         Error,
         persistence::{STORAGE_AUTHORITY, STORAGE_KEY, Service},
     },
-    protocol::{
-        Command, Inspection, Installation, ManagementView, Observation, Outcome, RPC_LIMITS,
-    },
+    protocol::{Command, Inspection, Installation, ManagementView, Observation, Outcome},
 };
 use ic_platform_runtime::cdk::{self, api};
 use ic_storage::{
@@ -23,7 +24,7 @@ thread_local! {
     static SERVICE: RefCell<Option<Service<DefaultMemoryImpl>>> = const { RefCell::new(None) };
 }
 
-#[cdk::init(decode_with = "decode_install")]
+#[cdk::init(decode_with = "codec::decode::<Installation, INIT>")]
 fn init(input: Installation) {
     let service = Service::create(memory(true), api::canister_self(), input)
         .expect("Blob fresh installation");
@@ -40,14 +41,18 @@ fn pre_upgrade() {
     });
 }
 
-#[cdk::post_upgrade(decode_with = "decode_upgrade")]
+#[cdk::post_upgrade(decode_with = "codec::decode::<(), UPGRADE>")]
 fn post_upgrade() {
     let service = Service::open(memory(false), api::canister_self()).expect("Blob existing state");
     assert!(service.is_drained(), "upgrade must retain closed admission");
     SERVICE.with_borrow_mut(|state| *state = Some(service));
 }
 
-#[ic_wire_endpoint::update(request = RPC_LIMITS, response = RPC_LIMITS)]
+#[cdk::update(
+    guard = "codec::admit::<UPDATE>",
+    decode_with = "codec::decode::<Command, UPDATE>",
+    encode_with = "codec::encode::<Result<Outcome, Error>, UPDATE>"
+)]
 fn blob_update(command: Command) -> Result<Outcome, Error> {
     SERVICE.with_borrow_mut(|state| {
         state
@@ -57,7 +62,11 @@ fn blob_update(command: Command) -> Result<Outcome, Error> {
     })
 }
 
-#[ic_wire_endpoint::query(request = RPC_LIMITS, response = RPC_LIMITS)]
+#[cdk::query(
+    guard = "codec::admit::<QUERY>",
+    decode_with = "codec::decode::<Inspection, QUERY>",
+    encode_with = "codec::encode::<Result<Observation, Error>, QUERY>"
+)]
 fn blob_query(request: Inspection) -> Result<Observation, Error> {
     SERVICE.with_borrow(|state| {
         state
@@ -68,7 +77,11 @@ fn blob_query(request: Inspection) -> Result<Observation, Error> {
 }
 
 // Read-only, but replicated: management callers must authenticate the update outcome.
-#[ic_wire_endpoint::update(request = RPC_LIMITS, response = RPC_LIMITS)]
+#[cdk::update(
+    guard = "codec::admit::<MANAGEMENT>",
+    decode_with = "codec::decode::<(), MANAGEMENT>",
+    encode_with = "codec::encode::<Result<ManagementView, Error>, MANAGEMENT>"
+)]
 fn blob_management() -> Result<ManagementView, Error> {
     SERVICE.with_borrow(|state| {
         state
@@ -108,24 +121,4 @@ fn memory(fresh: bool) -> RuntimeMemory<DefaultMemoryImpl> {
     runtime
         .open_memory(&StableKey::parse(STORAGE_KEY).unwrap())
         .expect("Blob lease")
-}
-
-#[expect(
-    clippy::needless_pass_by_value,
-    reason = "Runtime transfers the bounded ingress buffer"
-)]
-fn decode_install(bytes: Vec<u8>) -> Installation {
-    ic_wire_endpoint::decode_request(&bytes, ic_wire::native::method_id("blob_init"), RPC_LIMITS)
-}
-
-#[expect(
-    clippy::needless_pass_by_value,
-    reason = "Runtime transfers the bounded ingress buffer"
-)]
-fn decode_upgrade(bytes: Vec<u8>) {
-    ic_wire_endpoint::decode_request(
-        &bytes,
-        ic_wire::native::method_id("blob_post_upgrade"),
-        RPC_LIMITS,
-    )
 }

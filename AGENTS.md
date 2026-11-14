@@ -53,7 +53,12 @@ runs the offline application walkthrough; `make test-example-local` checks its c
 and read-completion boundaries. `make install-test-server` explicitly prepares the
 local simulator (also included in `make install-tools`); `make test-standalone` tests
 the actual production Wasm's callers and upgrades, independently of the native
-aggregate. These checks do not qualify Caffeine or a production management runner.
+aggregate. Set `BLOB_PREVIOUS_WASM` to install an explicitly selected predecessor
+before upgrading to the current artifact. `make test-endpoints` checks raw frames
+on the production host and encoding-failure rollback in a qualification-only probe.
+These checks do not qualify Caffeine or a production management runner.
+`make test-signed` checks signed application/uploader calls and authenticated replies
+through the local gateway, including inspection after deliberately discarding a reply.
 `make test-management` tests native inspection, guarded maintenance and explicit
 activation through signed requests and certificate verification against an owned
 local HTTP gateway/root. It covers custody, interruption boundaries and reopened

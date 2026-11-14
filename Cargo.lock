@@ -1299,7 +1299,17 @@ dependencies = [
  "ic-platform-runtime",
  "ic-storage",
  "ic-wire",
- "ic-wire-endpoint",
+ "serde",
+ "toko-tooling",
+]
+
+[[package]]
+name = "ic-blob-storage-reply-probe"
+version = "0.100.4"
+dependencies = [
+ "ic-platform-runtime",
+ "ic-wire",
+ "serde",
  "toko-tooling",
 ]
 
@@ -1526,29 +1536,6 @@ dependencies = [
  "postcard",
  "serde",
  "serde_bytes",
-]
-
-[[package]]
-name = "ic-wire-endpoint"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cf7f7bab68232e7ddf40574534da334f9105e1fb9a6c6d580a010e9348ef0c8"
-dependencies = [
- "ic-platform-runtime",
- "ic-wire",
- "ic-wire-endpoint-macros",
- "serde",
-]
-
-[[package]]
-name = "ic-wire-endpoint-macros"
-version = "0.13.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "53f4334a42acf91eb38f6ef173e5965ea48238af2be4429081b9c9ad9888b06e"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 3.0.10",
 ]
 
 [[package]]

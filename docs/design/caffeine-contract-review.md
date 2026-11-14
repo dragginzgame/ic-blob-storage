@@ -405,6 +405,12 @@ and defer provider identity/persistence types until the questions above close.
 | Client/SDK recovery | Recover an original usable proof without new issuance, or return explicitly blocked; interrupt tree/chunk replies and demonstrate only provider-qualified replay; reject corrupt, truncated and wrong-length reads against the original declaration |
 | Provider contract | Fresh supported enrollment, immutable/exclusive scope, malicious declaration rejection, final release racing old authority/delayed chunks, and attributable deletion/charge evidence |
 
+`make test-signed` now covers signed application/uploader calls to the local host,
+authenticated responses, original-upload inspection after discarding a registration
+reply and refusal of repeated registration. It exercises the existing experimental
+transition only: it neither issues nor recovers provider authority. The installed
+standalone row therefore remains partial, alongside the existing upgrade witness.
+
 Local and installed tests may use controlled gateway responses, clearly labelled
 as substitutes; those cannot establish the last row. A live trial needs separate
 effect authorization and a concrete bounded plan after the supported arrangement

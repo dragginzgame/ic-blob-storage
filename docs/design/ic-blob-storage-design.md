@@ -1,8 +1,8 @@
 # IC Blob Storage design
 
-Status: product scope and ownership accepted; revision 2 contracts proposed for
-review. API and persistence are not frozen; provider feasibility remains open.
-Date: 2026-11-14. Revised against the maintainer's design review.
+Status: accepted product scope and ownership; experimental local implementation.
+Provider contracts remain proposed; API and persistence are not frozen.
+Date: 2026-11-14. Reconciled with the current implementation and qualification.
 
 ## 1. Product direction
 
@@ -21,10 +21,10 @@ working upload/read/reference journey, and incremental qualification. Standalone
 use must be a first-class maintained path. Canic adds deployment and composition;
 it must not supply missing Blob business logic.
 
-Sections 1–4 retain the accepted product scope and ownership. Sections 5–8 select
-precise rules for the next implementation proposal, subject to D0 provider
-feasibility; they are not claims of implemented guarantees. This document does
-not adopt old APIs, formats, dependencies, deployments or recovery obligations.
+Sections 1–4 retain the accepted product scope and ownership. Sections 5–8 specify
+the selected rules, subject to D0 provider feasibility. The explicit experimental
+profiles and §12 distinguish current behavior from those intended guarantees.
+This document does not adopt old APIs, formats, deployments or recovery obligations.
 
 ## 2. First useful journey
 
@@ -205,6 +205,7 @@ clients/
 qualification/
   crates/
     ic-blob-storage-tests/  # Real host Wasm exercised in PocketIC
+    ic-blob-storage-reply-probe/ # Installed codec-failure rollback fixture
 ```
 
 The three production crates share the root Cargo workspace and lockfile. The
@@ -549,27 +550,46 @@ maintenance state from this same owner. It performs no stable write and remains
 available while drained. It is an update so a management transport can authenticate
 the replicated outcome; an ordinary query is not a substitute. Neither a decoded
 value nor the format version establishes the installed Wasm's identity or continuity
-after restore. The future runner must authenticate the outcome, compare it with
-its admitted target/configuration and qualify the artifact and management history
-separately before activation. PocketIC tests qualify the endpoint's execution and
-authorization, not live signed-ingress verification.
+after restore. The native admin authenticates the outcome and compares the admitted
+target/configuration and artifact. Its custody chain separately requires original
+management outcomes before activation. Local gateway tests exercise actual signed
+ingress and verified replies; they do not qualify the live IC or provider.
 
-The local qualification procedure uses a fresh simulator instance, explicit drain,
-stop, ordinary same-schema upgrade, start, inspection and activation. Its controller
-is retained by the fixture. It exercises replacement-argument refusal and failed
-pre-upgrade rollback. It does **not** qualify a production management entrypoint,
-lost management replies, destructive-operation refusal or snapshot freshness.
+Local qualification uses a fresh simulator instance, explicit drain, stop, ordinary
+same-schema upgrade, start, inspection and activation. The fixture retains the
+controller. Direct host tests cover replacement-argument refusal and pre-upgrade
+rollback; native CLI tests cover original-request custody and interrupted dispatch.
+The supported command set has no destructive replacement path. This does not
+establish snapshot freshness, live deployment or compatibility with arbitrary code.
 No external awaits, timers, provider callbacks or certificates are implemented;
 the full trusted-management policy below still gates effect-capable deployment.
 
-Runtime 0.22.4 supplies caller/time and lifecycle exports, Wire 0.22.1 and Endpoint
-0.13.1 own bounded RPC, and Storage 0.74.1 owns allocation/Cell mechanics. Testkit
+Runtime 0.22.4 supplies caller/time and generic entrypoint/lifecycle hooks, Wire
+0.22.1 owns bounded RPC codecs, and Storage 0.74.1 owns allocation/Cell mechanics. Testkit
 0.105.0 owns explicit authenticated PocketIC 16.1.0 setup and server custody.
 All were selected from stable non-yanked registry releases; no sibling source or
 retired Memory runtime is used. Ordinary RPC admission precedes ingress copying;
 Runtime lifecycle hooks copy the IC-bounded ingress before explicit Wire decoding.
 The library owns only its record format and semantics. Canic can supply a lease
 from its own combined bootstrap without adopting the standalone host.
+
+The [private host codecs](../../crates/ic-blob-storage-canister/src/codec.rs) replace
+Wire Endpoint for [issue #1](https://github.com/dragginzgame/ic-blob-storage/issues/1).
+Platform remains the sole export/copy/dispatch/reply owner. The guard checks the
+byte allowance and fixed Wire header before payload copying; decode/encode failures
+trap. Application authorization remains in Service and returns typed `Error::Denied`.
+`blob_management` remains a replicated update. Method names/IDs, `RPC_LIMITS`,
+caller capture, storage and lifecycle semantics are unchanged; Canic is optional.
+
+The [installed frame test](../../qualification/crates/ic-blob-storage-tests/tests/endpoints.rs)
+checks exact response frames, malformed/wrong-method/wrong-direction requests,
+exact/excess byte limits and denied callers. It passed against both the saved
+pre-migration host and its replacement. A separate installed reply probe forces
+bounded encoding to trap after a stable write and checks rollback against a
+successful-write control. Production responses are fixed-size; the probe qualifies
+the selected hooks without adding a production fault mode or a second Blob engine.
+The populated standalone witness also passed with the pre-migration Wasm installed
+first and the replacement used for upgrades, retaining identities and accounting.
 
 This carries forward the inspected legacy host's separate fresh/open paths and
 lifecycle regressions for retained identities, rejected replacement settings and
@@ -580,7 +600,7 @@ recovery state was imported. D0/D1 and live provider guarantees remain open.
 
 ### Selected initial policy: trusted management path, no rollback
 
-Version 0.100.3 starts the native path with `ic-blob-storage-admin inspect`.
+The native path starts with `ic-blob-storage-admin inspect`.
 The operator supplies a target/API URL, Ed25519 manager PEM, independently trusted
 network root DER, exact expected Wire `blob_init` payload, reviewed uncompressed
 Wasm and expected record format. Platform Agent authenticates module-hash reads
@@ -602,14 +622,15 @@ it verifies signed-ingress/certificate handling locally, not mainnet or Caffeine
 Platform 0.33.3 (Agent 0.49.3), Clap 4.6.7 and URL 2.5.8 are the selected native
 suppliers; native crypto/HTTP dependencies do not enter the standalone Wasm graph.
 
-Select a restricted controller-management path, not a Blob-owned continuity or
-recovery framework. Supported controllers are trusted to use that path and install
-only reviewed state-preserving code. Before D1, identify and qualify the exact
-standalone management entrypoint and, for D3, its Canic counterpart. Neither is
-implemented by this document. Keep management outside the reusable Blob engine.
+The selected policy is a restricted controller-management path. Supported controllers
+are trusted to use it and install only reviewed state-preserving code. The standalone
+native maintenance entrypoint is implemented and locally qualified below; fresh
+provisioning and the D3 Canic counterpart remain unimplemented. Management stays
+outside the reusable Blob engine, with no Blob-owned continuity/recovery framework.
 
-The path allows fresh installation only into a proven empty target with a newly
-admitted provider scope. For an existing Blob installation it mechanically refuses
+Any future provisioning path must allow fresh installation only into a proven empty
+target with a newly admitted provider scope. For an existing Blob installation the
+supported maintenance command set excludes
 snapshot load/import, reinstall, uninstall, arbitrary stable-state replacement and
 unreviewed controller changes. Missing local history never makes an existing target
 fresh. Refusal is before dispatch, even for an allegedly pre-exposure backup; do
@@ -688,7 +709,7 @@ trusted path, not a proof against controller bypass or snapshot restoration.
 
 ### Interrupted management operations
 
-The first request-custody slice adds `prepare-drain` and `observe-drain`. Preparation
+Drain custody uses `prepare-drain`, `dispatch-drain` and `observe-drain`. Preparation
 authenticates the existing installation, requires active admission and the explicitly
 supplied next attempt, then signs a two-minute `blob_update(Drain(attempt))` request.
 Host FS 0.78.0 creates one private claim directory and durably publishes an immutable
@@ -910,6 +931,22 @@ provider-facing certificate endpoint or integrated provider upload/read journey.
 The populated lifecycle witness narrows the management gap; it cannot select the
 missing D0 contract or qualify certificate recovery, retention or charge closure.
 Do not add speculative management machinery to stand in for that provider evidence.
+
+Current progress is by accepted capability, not a percentage of code written:
+
+| Gate | Current disposition | Next evidence needed |
+| --- | --- | --- |
+| D0 | Open; protocol candidate reviewed, no supported independent Rust contract selected | Provider-backed enrollment/ABI, object scope, enforced bounds, authority recovery/lifetime and charge closure |
+| D1 | Local policy, durable host, signed calls, integrity example and native maintenance qualified separately | Selected D0 contract, integrated SDK upload/read and application publication/cleanup across awaits |
+| D2 | Not started; no fresh account/target or bounded live run selected | D0 contract and an identified authorized installation with durable obligation custody |
+| D3 | Ownership selected; standalone independence preserved | Canic-owned adapter and actual composed application qualification |
+| D4 | Not claimed; finite history and small-store limits remain explicit | Representative workload measurements and a qualified retention/compaction and operating policy |
+
+The next provider-facing implementation requires the new D0 evidence above.
+Further local scaffolding or repeated searches of unchanged sources cannot supply
+it. Provider-call authorization remains in force, while outreach remains declined;
+neither changes the missing-contract boundary. Latest delivery and focused results
+are recorded in the [handoff](../status/current.md).
 The maintainer selected the `0.100` rewrite line, starting with the `0.100.0`
 GitHub checkpoint. Development versions inherit from the root workspace.
 Publication remains separate and disabled until an authorized release; this
@@ -923,9 +960,9 @@ selected contract; requalify them against this implementation rather than copyin
 the old suite wholesale. Do not test invented package structure. Each increment
 must leave the previously delivered journey usable and documented.
 
-The following are service acceptance scenarios. The first local reference slice
-below covers only their provider-independent reference behavior; the remaining
-scenarios are not placeholder tests or claimed as passing.
+The following are service acceptance requirements. Section 12 identifies the
+implemented local witnesses and their limits; this table alone does not claim
+that the provider-facing or application-callback scenarios pass.
 
 | Scenario | Required behavior |
 | --- | --- |
@@ -1000,10 +1037,10 @@ Maintainability is a continuing acceptance criterion; returning to an opaque
 | Provider deletion scope | Exclusive scope, immutable binding, one owner per actual object as selected in §5 | D0 identity freeze |
 | Client experience | Browser SDK example first; native tooling only for a demonstrated operator need | D1 transfer implementation |
 | Funding custody | Operator-provisioned account; establish actual upload/storage/download liability and cutoff, no automatic top-ups | D0 contract, D2 verification and any paid operation |
-| Catalog publication | Application decides whether verified reads are mandatory before catalog commit; no confidentiality guarantee | D1 example contract |
+| Catalog publication | Offline example requires verified reads; select the production application's trusted publication policy and await-safe cleanup | Integrated D1 application |
 | Supported file sizes and churn | Values derived from representative assets and measured budgets | D1 configuration, then D4 sizing |
 | Authority lifetime and closure | Qualify recovery, no-recreation rule, deletion and charge evidence; retain Closing otherwise | D0 protocol, D2 verification |
-| Lifecycle entrypoint | Qualify §8's trusted management path, call draining and restore refusal; this policy is selected, tooling is not | Before D1 lifecycle implementation/tests |
+| Lifecycle entrypoint | Native maintenance is locally qualified; fresh provisioning, provider-call draining and Canic integration remain open | Effect-capable D1/D2 deployment and D3 composition |
 | Sustained history | Retain finite pilot history; choose permanent stale-request refusal before any compaction | D4, before eviction |
 
 These choices can change the proposal. They are not excuses to fill in gaps with
@@ -1015,321 +1052,120 @@ outcome recording despite revocation and lifetime pilot replay protection. Those
 rules no longer wait on an API designer to invent a policy. Provider-supported
 field identities and enforceable bounds still require evidence.
 
-## 12. Evidence and review scope
+## 12. Current implementation and evidence
 
-### Lifecycle design continuation for 0.100.2
-
-Read-only review at legacy revision `25bed1352f3d2b9659f0d2583f50fa9af859ea84`
-covered [host reopening](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-canister/src/ops/mod.rs),
-[installed lifecycle regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/standalone_lifecycle/mod.rs),
-and the [continuity predicate](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/policy/recovery/mod.rs)
-with its [failure tests](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/policy/recovery/tests/mod.rs).
-Retain synchronous validated reopening, refusal of replacement configuration,
-preservation of released-but-unsettled obligations and rechecking after asynchronous
-observations. The old history predicate rejects incomplete history and replacement;
-its lifecycle tests also exercise management changes during recovery and repeated
-upgrades. These are useful regression requirements, not qualification of this rewrite.
-
-Do not copy the legacy per-owner fences, version-gap detector, platform-history
-recovery engine or funding/gateway restoration. The selected trusted management
-path has a narrower guarantee: refuse destructive dispatch and keep one admission
-gate closed until its current attempt is qualified. It cannot detect arbitrary
-controller bypass. The delayed-activation and lost-management-reply cases in §8
-are additional design requirements, not claims about legacy test coverage.
-That source review added no runtime code. The subsequent experimental installed
-profile in §8 implements local persistence, caller capture and upgrade tests with
-provider effects disabled. The production management entrypoint and Canic
-composition still require implementation and qualification; neither gate is closed.
-
-For management inspection, retain the legacy distinction between proposed input
-and installed configuration: its [configuration projection](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/installation/configuration/mod.rs)
-reads the durable record, while [offline installation checking](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/installation_check/mod.rs)
-does not establish an authenticated platform identity. The new projection uses
-the existing service fields and one shared record-version constant, without
-copying legacy DTOs, billing/funding configuration or recovery machinery. Native
-tests verify unchanged backing bytes; installed tests exercise manager refusal,
-replicated-only dispatch, strict framing and configuration preservation across
-upgrades. No legacy code or custody was imported.
-
-The native inspector also reviewed the legacy [query adapter](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/query/mod.rs)
-and [installation-check regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/installation_check/tests/mod.rs).
-Retain explicit signer/root selection, bounded observations and the distinction
-between a proposal and an authenticated installed outcome. Use a replicated
-inspection update for this management consumer, rather than treating a query
-result as sufficient. Omit the legacy run-directory/report framework because
-this command neither dispatches a state-changing operation nor owns recovery
-custody. The local HTTP qualification uses the real native binary and host;
-the old test results are not reused as evidence of the new transport.
-
-For request custody, review also used the legacy [signed-update owner](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/signed_update/mod.rs)
-and [claim/recovery regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/signed_update/tests/mod.rs).
-Retain original signed bytes, durable claim-before-dispatch ordering, refusal to
-reuse partial claims, bounded correspondence checks and inspection without renewal.
-The new implementation uses shared Host FS publication and Platform protocol/status
-APIs directly for one drain operation. It does not copy the generic dispatch/report
-engine or legacy run custody. Local qualification rechecks the retained invariants
-with this host and binary, including the guarded dispatch boundary and original
-outcome observation. For the stop extension, review also read the legacy
-[standalone lifecycle regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/standalone_lifecycle/mod.rs).
-Retain the requirement that stop/start preserves state and does not silently reopen
-admission; qualify it through the real native command and installed host here.
-Do not import legacy IC-history recovery, funding/gateway fences or automatic resume:
-this rewrite selects a trusted management path and one explicit admission owner.
-The upgrade extension preserves the same ordinary-upgrade/rejection lessons and
-uses the installed host for same-Wasm and invalid-module outcomes. Review also read
-the legacy [install-code cooldown helper](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/install_code/mod.rs);
-its fixed debt-draining rounds are not copied without a demonstrated fixture need.
-Start retains the legacy stop/start state-preservation and closed-admission lessons,
-qualified through the native command here. Explicit activation also reviewed the
-legacy [recovery orchestration](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/workflow/installation/recovery/mod.rs)
-and [platform-history proof owner](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/recovery/mod.rs).
-Retain explicit operator authorization, rechecking the installed binding after
-asynchronous work and preserving obligations on refusal. The rewrite's existing
-synchronous manager/attempt check closes the delayed-activation race; native
-custody owns serialized management observations. The selected trusted-management
-policy replaces legacy history acquisition and sealed continuity proofs; no such
-proof or arbitrary-snapshot recovery is claimed. No legacy code was copied.
-The populated lifecycle case carries forward the legacy regression for released
-objects whose unresolved obligations survive upgrade and explicit resume. Its
-fixture uses declared-byte exposure, rather than importing legacy physical/billing
-counters or treating registration as provider evidence; local cleanup must leave
-that exposure intact. Both live and Closing objects are checked here.
-
-### First implementation: local object references
-
-The [reference owner](../../crates/ic-blob-storage/src/references/mod.rs) implements
-bounded lifetime reference slots for one registered object. Seven
-[behavior tests](../../crates/ic-blob-storage/src/references/tests.rs), selected by
-`make test-references`, cover overlapping uses, irreversible closing, successful
-retain replay after release, repeated/unknown releases, capacity exhaustion with
-cleanup, and full-width IDs. No new dependency, crate or provider interface was
-introduced. This starts local domain work while D0 remains open; it freezes no
-provider identity, endpoint or persistence representation.
-
-Targeted review used the legacy [transition code](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/model/lifecycle/transition/mod.rs)
-and [lifecycle tests](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/model/lifecycle/tests.rs).
-Retain the solved invariants: released identities remain occupied, unknown release
-does not mutate state, and final release prohibits fresh references. Adapt the
-regression scenarios and nonzero 128-bit local reference names; no legacy source
-was copied. Replace its separate transition view and receipt layer here with one
-small owner because this slice has no durable backend or external effects.
-Successful retain of a released ID returns historical success without revival,
-as selected by this design, rather than exposing the old low-level refusal.
-
-Each release updates its existing record, so the local component needs no extra
-release receipt capacity. Rejected calls are not recorded; any future service
-promise to replay admitted failure outcomes requires its own bounded records.
-The catalog must still enforce application authorization, immutable reference
-targets and one owner per actual provider object. There is no byte accounting,
-settlement, serialization, upgrade claim or network effect in this component.
-It must become part of the production owner, not a parallel test-only catalog.
-
-### Local Caffeine read verification
-
-Development version 0.100.1 adds a sequential root/length/metadata verifier for
-the reviewed SDK 1.1.2 algorithm. It retains fixed hash state, with explicit
-metadata and per-append budgets, and rejects corruption, truncation and excess
-bytes. The [implementation/reuse record](caffeine-contract-review.md#implemented-local-read-verification)
-identifies adapted first-party source, frozen SDK vectors and the scoped dependency.
-It establishes local integrity only. The caller must supply an independently
-trusted declaration, require successful transport EOF and publish only the exact
-checked bytes after success. It neither authenticates malicious upload declarations
-nor closes provider feasibility. Account identity and persistent state stay unfrozen.
-
-The same development version adds bounded manifest preflight, reusing the tree
-and metadata owner without retaining leaves. The
-[manifest reuse record](caffeine-contract-review.md#implemented-local-manifest-preflight)
-documents the adapted legacy checks and four regression tests. A consistent
-manifest may still claim a false byte length; this check cannot authorize storage
-exposure or replace provider enforcement. No service API or storage format follows
-from this local input check.
+This section describes the current experimental implementation. The
+[current handoff](../status/current.md) owns delivery status and latest validation;
+[the retained review at 4709158](https://github.com/dragginzgame/ic-blob-storage/blob/4709158fb9e0322e2313bd0ef2a7d20f4e97e281/docs/design/ic-blob-storage-design.md#12-evidence-and-review-scope)
+preserves the earlier source inventory and incremental implementation history.
+Historical passing tests and live trials are not qualification of this rewrite.
 
 ### Experimental local service model
 
-The maintainer approved this provisional step on 2026-11-14. The
-[local owner](../../crates/ic-blob-storage/src/local/mod.rs) composes grants,
-manifest admission, root matching, the existing reference owner and three byte
-counters. It emits no credentials and makes no persistent or provider guarantee.
-One model has one immutable application authority; hosts supply actual captured
-Principal identities and clock readings. There is no public endpoint or operator
-role framework. `ic-platform-types` 0.20.3 supplies identity types, with default
-features disabled; the registry identified it as current stable/non-yanked when
-selected. No IC runtime or protocol adapter is introduced.
+The [local owner](../../crates/ic-blob-storage/src/local/mod.rs) composes manifest
+admission, grants, the existing reference owner and reserved/live/unresolved
+**declared-byte** accounting. The installed Service in §8 persists this same policy
+owner; there is no second durable policy engine. The heap model alone must not
+back real uploads. Hosts supply captured callers and time, never client-selected
+identity fields. One installation has one immutable application authority.
 
-Within this model only, root plus declared length identifies a matching use under
-one hypothetical fixed provider binding. A second upload ID attaches a distinct
-reference to an Open owner and cannot register again. Conflicting lengths and
-competing reservations refuse. This is not a qualified deletion identity; actual
-owner/project/bucket and callback mapping remain D0 inputs.
+Root plus declared length provisionally identifies a matching use within one
+hypothetical fixed provider binding. Conflicting lengths and competing reservations
+refuse. Matching use of an Open object attaches another reference, with no new
+registration right or additional stored-copy accounting. The provider's actual
+object/deletion identity remains a D0 input.
 
-Before registration, releasing the known first reference cancels its grant;
-explicit expiry does the same byte cleanup with a distinct historical state.
-Both permanently retire the root: new authorization/retention refuses with
-`RootRetired` (other validation/capacity errors can precede it). The root record
-keeps its original upload ID; declaration and grant disposition come from that
-upload, while each reference stores only its immutable root target. There is no
-separate retired-root registry, duplicate byte declaration or per-reference grant
-pointer. Once registered, final release closes the root permanently in this model.
-Released/retired IDs are never evicted or reused. Exact authorization
-replay returns the stored request and current disposition, not renewed permission;
-registration replay refuses, and inspection produces no upload proof.
+Each admitted root permanently names its original upload. Release of the known
+first reference before registration cancels its grant; explicit expiry records a
+different historical state. Both free the byte reservation but retire the root.
+Neither fresh IDs nor another uploader/deadline can restart it. Final release of
+a registered object makes it Closing. No identity eviction or settlement exists.
 
-Local `register(caller, root, now)` now follows that permanent root-to-upload link
-and rechecks the original uploader, disposition and deadline within the same
-synchronous transition. It replaces the upload-ID entrypoint; there is no second
-registration path or reusable eligibility token. Callers already supply a decoded
-root. Provider text parsing, endpoint authentication and usable certificates remain
-unimplemented. The [boundary evidence](application-boundary.md#evidence-and-acceptance)
-records the legacy resolver lesson and the multi-root regression.
+`register(caller, root, now)` follows that original upload and rechecks uploader,
+disposition and deadline in one synchronous transition. Exact authorization replay
+returns the original request and current disposition; registration replay refuses.
+Inspection never returns a usable provider proof. The Wire host exposes this local
+transition; provider certificate encoding, text parsing and callbacks remain absent.
+The [application boundary](application-boundary.md) specifies root ambiguity and
+remote publication/cleanup rules.
 
-`inspect_reference` returns a `ReferenceView` with the immutable root and current
-local status. The catalog can resolve its stored reference IDs without copying
-Blob's target mapping. Reserved, live, released and retired uses retain that same
-target; unknown IDs remain errors. Inspection is application-only, nonmutating and
-available at capacity. It grants no later mutation right or provider-availability
-claim. The view is projected from existing records, not persisted separately.
-This retains exact-target/current-liveness lessons from the legacy
-[reference inspection](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/workflow/references/status/mod.rs)
-and [boundary tests](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/tests/reference_status_boundary/mod.rs).
-The rewrite derives the root from its own reference ID instead of accepting a
-caller-supplied copy of the legacy upload binding. No service/tenant namespace,
-wire envelope, restoration flag or legacy inspection implementation is copied.
+Application-only reference inspection derives the immutable root and Reserved,
+Live, Released or Retired status from existing records, including at capacity.
+Object inspection derives the original upload, optional retention and live count.
+Absent retention means never registered; a released reference may coexist with an
+Open object. Registered history and Closing do not establish availability or
+settlement. Neither projection adds a persistent index, flag or mutation authority.
 
-`inspect_object` projects an `ObjectView` for one known root: its original
-`UploadView`, optional existing `RetentionState` and live-reference count. It is
-application-only and allocates no slots or history scan. `None` retention means
-never registered, including cancelled/expired grants; `Closing` keeps Registered
-history and unresolved declared usage. One released reference can coexist with
-an Open object. The example observes this before final release, then observes
-Closing without inferring settlement. No additional state enum, counter, index,
-deletion permission or provider observation is stored. This retains the legacy
-[upload status conversion](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/status/mod.rs)
-and [status regression](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/tests/upload_status/mod.rs)
-lesson that Registered history is distinct from present liveness; no legacy
-revocation, settlement, wire or restore mechanism is copied.
+Admission checks R + L and R + E and reserves lifetime record slots. Registration
+transfers R into L/E; attachment counts no additional copy; final release removes L
+only. Occupied slots derive from the maps. Ordinary domain errors precede mutation;
+the durable wrapper's subsequent write/encoding failures trap under §8's rollback
+rules. Cleanup updates admitted records without requiring additional receipt slots.
 
-Admission checks R + L and R + E using **declared** bytes, and reserves lifetime
-record slots. Registration transfers R into L/E; reference attachment does not
-count another copy. Final release removes L only. There is deliberately no operation
-that lowers E or declares settlement. Record occupancy comes from the maps rather
-than duplicate counters. These synchronous heap operations return ordinary errors
-before changes; they do not establish stable-memory transactions or upgrade safety.
-The eventual durable integration must replace this owner's heap backing or retire
-it, not keep a second independent policy engine.
+### References, integrity and application example
 
-The root rule retains the invariant in the legacy [root claims](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/model/lifecycle/roots/mod.rs)
-and [claim regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/model/lifecycle/roots/tests.rs):
-never reassign a root, and preserve original lookup/replay at capacity. It is
-implemented in this existing owner, without copying the legacy RootClaims map,
-tenant/namespace/incarnation index, stable codec or restoration machinery. Local
-regressions cover cancellation and expiry, changed uploader/deadline/IDs, delayed
-registration/replay, nonmutating refusal, distinct-content admission and continued
-sharing while Open. No root-only endpoint or callback has been qualified.
+The [reference owner](../../crates/ic-blob-storage/src/references/mod.rs) keeps
+bounded lifetime slots, irreversible Closing and non-resurrecting retain replay.
+Unknown release does not mutate state. It is used by the local model and Service,
+not a test-only alternative. `make test-references` checks its transitions;
+`make test-local` checks composed permissions, accounting and durable reopening.
 
-Targeted legacy review covered [admission conversion](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/admission/mod.rs),
-[admission regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/tests/admission_boundary/mod.rs),
-[permission/clock checks](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/model/service/upload/validation/mod.rs)
-and [reservation capacity](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/model/catalog/admission/capacity/mod.rs).
-Retain immutable replay, captured-caller permissions, clock/deadline refusal and
-reservation-before-consumption rules. Reimplement their composition for one fixed
-application using the existing rewrite reference owner. Omit tenant enrollment,
-generations, funding, stable stores and recovery fences because this local model
-has none of those consumers or effects. The legacy multi-store architecture is
-not carried over. Nine [local tests](../../crates/ic-blob-storage/src/local/tests.rs)
-requalify the applicable failure cases and new shared-owner semantics through
-`make test-local`. The later installed profile uses this same policy owner.
+The [verifier and manifest preflight](caffeine-contract-review.md#implemented-local-read-verification)
+use the reviewed SDK 1.1.2 tree/metadata algorithm. Verification requires an original
+trusted declaration, bounded appends and successful transport EOF; corruption,
+truncation and extra bytes refuse. Manifest consistency does not authenticate length
+or establish provider enforcement. The linked implementation/reuse records own the
+adapted first-party sources and frozen vectors; `make test-caffeine` checks them.
 
-### Offline application walkthrough
+The [offline asset example](../../crates/ic-blob-storage/examples/local_asset/main.rs)
+uses two synthetic users, one multi-chunk fixture and named catalog references.
+`make example-local` exercises verified publication, cancellation, corrupt-read
+refusal, collision cleanup, replacement while another use survives and final release
+with unresolved exposure retained. `make test-example-local` checks EOF failures,
+truncation/trailing data, cancellation and exact catalog mutation rules.
 
-The [local asset example](../../crates/ic-blob-storage/examples/local_asset/main.rs),
-run with `make example-local`, is the first caller outside the library's tests.
-It uses two synthetic uploader Principals and the existing frozen SDK vector for
-5 MiB + 17 bytes with original length/type metadata. An application-owned catalog
-contains asset names and their distinct references; the local Blob model remains
-the only grant/reference/accounting owner. No new package, dependency, API or
-provider transfer implementation was added.
+Its private catalog stores reference IDs, not another liveness ledger. Publication
+checks the exact authorization/reference; exact replay preserves the existing use.
+Removal compares the expected reference so a delayed request cannot remove a
+replacement. These synchronous heap operations are neither a persistent application
+catalog nor an atomic remote transaction. Installed application callback races and
+provider transfer remain unqualified; [application-boundary.md](application-boundary.md)
+owns those requirements.
 
-The walkthrough cancels a separate three-byte `abc` draft, proves that root cannot
-restart, and publishes two verified references to
-one object, rejects a corrupt read, compensates a catalog-name collision by
-releasing only the fresh unpublished reference, and replaces an asset while another
-use protects its object. Exact publication replay returns success without releasing
-the committed reference; delayed removal or republication cannot affect the replacement.
-It runs at its six-reference lifetime limit, including cancelled/released names.
-Final counters retain 5,242,897 unresolved declared bytes despite zero live bytes.
-The example's assertions check this path; they are not installed-provider evidence.
+### Selective legacy reuse
 
-The application read loop uses a fixed 64 KiB frame and requires successful EOF
-before calling the verifier's finish operation. The expected root, length and
-metadata come from the original fixture, not from the response. Four focused
-[example tests](../../crates/ic-blob-storage/examples/local_asset/tests.rs)
-cover transport error after all expected bytes, truncation/trailing bytes,
-cancellation after verification and refused catalog mutations.
-The in-memory fixture supplies a complete response; this is not a browser client,
-HTTP implementation, persistent catalog or atomic remote transaction. A real
-application must retain its publication/release intents across remote failures;
-this example's assertions and synchronous heap cleanup are not that mechanism.
+Legacy review is read-only at `25bed1352f3d2b9659f0d2583f50fa9af859ea84`.
+The table records the retained rules and deliberate replacements. Detailed source
+and regression links for the earlier slices remain in the pinned review above;
+provider and application companions retain their own source/reuse records.
 
-Two private [catalog helpers](../../crates/ic-blob-storage/examples/local_asset/catalog.rs)
-replace the example's unconditional insertion/removal. Fresh commit still requires
-the caller's successful original read; the helper then checks the exact stored
-authorization and current reference liveness before insertion. An existing matching
-entry permits replay; a second asset cannot reuse its reference. Removal compares
-both asset name and expected reference before releasing it. A missing entry only
-replays removal when that reference is already released/retired. The map stores
-no separate liveness or verified flag, and Blob keeps the retired identities.
-This is current catalog inspection, not a historical publication receipt after
-removal, provider availability proof or general application transaction framework.
+| Boundary and inspected evidence | Retain or adapt | Replace or omit, and why |
+| --- | --- | --- |
+| [Lifecycle transitions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/model/lifecycle/transition/mod.rs) and [tests](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/model/lifecycle/tests.rs) | Occupied released identities, unknown-release refusal, irreversible final release; nonzero 128-bit IDs | One reference owner replaces separate transition/receipt layers; admitted release needs no new receipt slot |
+| [Root claims](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/model/lifecycle/roots/mod.rs), admission/clock checks and status boundaries | Original root lifetime, immutable replay, caller/deadline checks, reservation first; historical registration distinct from current liveness | Derive mappings/projections from this model; no tenant/generation indexes, duplicate status ledger or provider claim |
+| [Host reopening](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-canister/src/ops/mod.rs) and [installed lifecycle regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/standalone_lifecycle/mod.rs) | Validated fresh/open distinction, replacement-config refusal, preserved released obligations and closed admission | One bounded record and trusted management path; no per-owner recovery fences, platform-history engine, automatic resume or fixed cooldown rounds without a fixture need |
+| [Signed-update custody](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/signed_update/mod.rs) and [claim regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/signed_update/tests/mod.rs) | Original bytes, durable claim before dispatch, refusal of partial claims, bounded binding checks, observation without renewal | Host FS and Platform APIs serve five explicit maintenance operations; no generic dispatch/report engine or imported recovery custody |
+| [Configuration projection](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/installation/configuration/mod.rs) and native inspection/recovery owners | Installed versus proposed state, explicit signer/root, original outcome versus current state, recheck after await | Replicated management inspection plus manager/attempt gate; no sealed continuity proof or snapshot detection claim |
+| [API owner](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-canister/src/api/mod.rs) and operations boundary | Pre-copy bounds, explicit codecs, trapping reply failure, one service owner | Three explicit Platform entrypoints replace catalog/manual reply machinery; no second executor or replacement framework |
+| [Provider review](caffeine-contract-review.md) and [application evidence](application-boundary.md#evidence-and-acceptance) | Trusted declaration/metadata, original grant resolution, exact intent matching, liveness distinct from retry permission | No patched transfer SDK, certificate journals, tenant routing or application recovery store without the selected provider/consumer contract |
 
-Targeted legacy review read the [browser publication helper](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/clients/browser/publication.js)
-and its [frozen-input regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/tests/browser/publication.mjs).
-Retain independently trusted immutable input and original metadata, and refusal
-before publication on corruption or size mismatch. The example's code is newly
-written; the fixed hash observations reuse the already documented first-party
-vectors. Omit the legacy patched SDK, asynchronous prepared handles, certificate
-journals, gateway budgets and recovery clients: no transfer or external effect is
-performed here. Actual Canic/application integration remains a separate boundary.
-The retry extension also reviewed the legacy [reference receipt regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/tests/reference_receipts/mod.rs)
-and [reference submission outcome tests](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/submit_reference/tests/mod.rs).
-Retain exact intent matching and the distinction between historical outcomes,
-current liveness and permission to retry. The example implements its catalog
-comparison directly; it imports no legacy command format, receipt store, signer
-or dispatch journal.
+The verifier/manifest companion identifies adapted source separately. The control,
+host, management and example slices retain/requalify invariants without copying
+legacy implementation. No legacy state, credential, provider obligation or journal
+was imported. The sibling was absent during review; its recovery custody was not
+opened or reverified. Read its LEGACY.md before separately authorized recovery.
 
-### Earlier design review
+### Qualification boundaries
 
-Revision 2 incorporates the maintainer's review and checks the linked public
-Caffeine guides and IC specifications on 2026-11-14. They establish the documented
-constraints cited in §§2, 7 and 8, not support for a private/lower-level Caffeine
-arrangement. The provider table deliberately keeps that distinction visible.
-The revision adds acceptance cases, not executable tests or qualified behavior.
-The legacy source review below is retained from revision 1; it was not repeated
-or treated as evidence of current provider support.
-
-At that review, the fresh [manifest](../../Cargo.toml), [library](../../crates/ic-blob-storage/src/lib.rs),
-[README](../../README.md) and [handoff](../status/current.md) were inspected. They
-contained an unpublished scaffold, not a service. The subsequent reference slice
-is described above; it does not qualify a service.
-
-Legacy review used GitHub commit `25bed1352f3d2b9659f0d2583f50fa9af859ea84`:
-
-- [Workspace](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/Cargo.toml)
-  and [public library surface](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/lib.rs): package/dependency and ownership evidence.
-- [README](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/README.md)
-  and [roadmap](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/docs/architecture/roadmap.md): consumer journeys and accumulated scope.
-- [Service contract](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/docs/architecture/service-contract.md): reviewed the ownership, upload/reference, accounting, funding and recovery sections as historical requirements evidence.
-- [Trusted registration](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/docs/architecture/trusted-registration.md): registration replaced independent completion verification; an older description of a verifier must not reintroduce it by accident.
-- [Provider review](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/docs/provider/provider-review.md)
-  and [service gaps](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/docs/acceptance/service-gaps.md): unresolved provider and consumer acceptance; historical trials do not qualify this rewrite.
+| Current witness | Established here | Still outside its claim |
+| --- | --- | --- |
+| `make test-standalone` | Actual host caller rules, bounded history, drain/reopen and retained state; optional explicit predecessor artifact | Provider protocol, arbitrary schema migration or forced-snapshot detection |
+| `make test-endpoints` | Raw frame compatibility, pre-copy rejection, exact/excess limits; separate installed encoding-failure rollback probe | Async provider callbacks or a second production host |
+| `make test-signed` | Actual signatures and verified replies, identity separation, original upload inspection after discarding a reply, non-resurrecting cleanup | Application-canister forwarding/callback races, network-fault recovery or usable certificate recovery |
+| `make test-management` | Actual native custody, original-request observation, stop/upgrade/start/activation and populated state across a different artifact hash | Mainnet, macOS execution, fresh provisioning, arbitrary replacement compatibility or controller bypass |
 
 Canic's [integration ownership](https://github.com/dragginzgame/canic/blob/abca3139783db93cd6f124749e4c08d30a042f94/docs/design/canic-system-design.md#11-authentication-and-service-composition)
-was checked against its local design and committed section: Blob owns service
-semantics; Canic owns mounting, memory, lifecycle and funding bindings. This is
-design alignment, not evidence that a rewrite adapter already exists. The local
-Canic checkout has unrelated changes and was not modified.
-
-The legacy sibling path named in the bootstrap handoff was absent in this
-environment, so no local legacy recovery state was opened. This was a targeted
-documentation, manifest and public-surface review, not a line-by-line audit of the
-old implementation or a fresh Caffeine protocol qualification. No historical
-implementation, tests, provider state or journals were copied.
+remains design alignment: Canic owns mounting/memory/lifecycle/funding bindings;
+Blob owns service semantics. No rewrite adapter is qualified here. Public provider
+and IC references establish only the specifically cited constraints. D0 remains
+open; local passing checks cannot turn historical traffic into a supported contract.

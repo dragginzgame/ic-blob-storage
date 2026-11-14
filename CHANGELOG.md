@@ -1,5 +1,28 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Add `make test-signed` to qualify application/uploader identity separation through
+  the installed host's local HTTP gateway, verified responses, original-upload
+  inspection after a discarded registration reply and cleanup without resurrection.
+  This changes no product API or dependencies and makes no provider-recovery claim.
+
+### Changed
+
+- Reconcile the design with the implemented host and full native maintenance path.
+  Replace accumulated implementation history with current rules, a compact legacy
+  reuse record and explicit D0–D4 evidence gaps; retain detailed history by revision.
+- Replace retiring Wire Endpoint attributes with Platform's generic guard and
+  codec hooks in the standalone host. Preserve method IDs, bounded Wire frames,
+  caller policy, reply traps and lifecycle/storage behavior; Canic stays optional
+  ([#1](https://github.com/dragginzgame/ic-blob-storage/issues/1)).
+- Remove `ic-wire-endpoint` and its macro package from the dependency graph.
+- Add `make test-endpoints` for installed raw-frame compatibility and a separate
+  qualification-only reply probe for rollback after encoding failure. Standalone
+  upgrade tests accept `BLOB_PREVIOUS_WASM` to qualify a real predecessor artifact.
+
 ## [0.100.4] - 2026-11-14
 
 GitHub development checkpoint on branch `0.100`; not published to crates.io.

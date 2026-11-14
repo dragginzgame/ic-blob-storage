@@ -17,7 +17,7 @@ ic-blob-storage.workspace = true
 ic-platform-runtime = { workspace = true, features = ["cdk"] }
 ic-storage.workspace = true
 ic-wire.workspace = true
-ic-wire-endpoint.workspace = true
+serde.workspace = true
 
 [dev-dependencies]
 toko-tooling.workspace = true

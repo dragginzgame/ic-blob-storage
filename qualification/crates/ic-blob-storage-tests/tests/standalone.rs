@@ -121,6 +121,11 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
         std::env::var_os("BLOB_WASM").expect("set BLOB_WASM to the built production artifact"),
     )
     .unwrap();
+    // Explicit previous artifact for a cross-version host migration witness;
+    // ordinary runs continue to exercise same-artifact reopening.
+    let installed_wasm = std::env::var_os("BLOB_PREVIOUS_WASM")
+        .map(|path| std::fs::read(path).unwrap())
+        .unwrap_or_else(|| wasm.clone());
     let server_directory = std::env::var_os("BLOB_TEST_SERVER")
         .expect("set BLOB_TEST_SERVER to the prepared absolute directory");
     let server = ic_testkit::pic::server_assets::check(Path::new(&server_directory))
@@ -142,7 +147,7 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
     pic.add_cycles(canister, 10_000_000_000_000).await;
     pic.install_canister(
         canister,
-        wasm.clone(),
+        installed_wasm,
         encode("blob_init", &input()),
         Some(pic_actor(9)),
     )

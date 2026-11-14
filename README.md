@@ -48,12 +48,14 @@ current maintenance state without writing storage. Management callers must
 authenticate its replicated result; the value alone proves neither module identity
 nor continuity after a snapshot restore.
 The host emits no Caffeine certificate or provider call.
-Provider-object resolution, supported live account binding and a production
-management runner remain unimplemented. API and persistence are experimental;
+Provider-object resolution and supported live account binding remain unimplemented.
+The native maintenance runner below is locally qualified; fresh provisioning and
+live deployment are not. API and persistence are experimental;
 these local tests do not establish D0/D1 completion or provider closure.
 
 The native [admin command](crates/ic-blob-storage-admin/src/main.rs) supports
-authenticated inspection and guarded drain dispatch. Run `make test-management` for the actual binary against
+authenticated inspection and guarded drain/stop/upgrade/start/activation. Run
+`make test-management` for the actual binary against
 a disposable local IC HTTP gateway, or view its inputs with:
 
 ```sh
@@ -140,6 +142,8 @@ The [selected crate layout](docs/design/ic-blob-storage-design.md#selected-crate
 keeps the host thin. Installed tests under `qualification/crates/` use the real
 production Wasm and share the root workspace/lockfile. Domain tests remain with
 the library. Canic owns its adapter and composed tests in its own repository.
+The standalone host uses Platform's generic entrypoint hooks and bounded Wire
+codecs directly; neither Wire Endpoint nor Canic is required.
 
 ```sh
 make install-tools
@@ -149,6 +153,8 @@ make test-local
 make example-local
 make test-example-local
 make test-standalone
+make test-endpoints
+make test-signed
 make deps-list
 toko-cloc
 ```
@@ -159,6 +165,16 @@ can prepare that server alone. `make test-standalone` lints/builds the productio
 Wasm and exercises callers, cleanup and repeated upgrades in a fresh local instance.
 It requires `wasm32-unknown-unknown` and makes no Caffeine calls. `make ci` is the
 separate aggregate native gate; installed testing is an explicit command.
+Set `BLOB_PREVIOUS_WASM=/absolute/path/to/previous.wasm` for a predecessor-to-current
+upgrade witness. `make test-endpoints` checks raw frames on the actual host and
+uses a separate, small qualification canister to force reply-encoding failure
+after a stable write. The latter tests rollback without a production fault mode.
+`make test-signed` exercises the production host through an owned local HTTP gateway
+with separate application, manager and uploader signing identities. It checks caller
+separation, original-upload inspection after a discarded reply, replay refusal and
+reference cleanup, with response verification against the fixture's independent root.
+It models reply loss by discarding a completed response; it supplies no certificate
+recovery, live provider or application-canister forwarding guarantee.
 
 `make deps-list` lists workspace package versions and release groups. `make update`
 delegates to Toko Tooling's `make deps-update` (`cargo update -v`), updating locks
