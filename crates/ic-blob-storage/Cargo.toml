@@ -12,6 +12,9 @@ ignored = ["toko-tooling"]
 
 [dependencies]
 ic-platform-types.workspace = true
+ic-storage.workspace = true
+ic-wire.workspace = true
+serde.workspace = true
 sha2.workspace = true
 
 [dev-dependencies]

@@ -5,8 +5,9 @@ Read-only review, 2026-11-14. This is the provider evidence companion to the
 not a selected production protocol or a qualification result for this checkout.
 
 **Finding:** the legacy project demonstrated independently installed Rust-host
-uploads. The reviewed public SDK explains how that worked. Supported enrollment,
-provider enforcement, safe recovery and final closure remain unestablished.
+uploads. The reviewed public SDK explains how that worked; an independent public
+Motoko consumer now supplies a concrete self-funded account integration to compare.
+Supported Rust enrollment, provider enforcement, safe recovery and final closure remain unestablished.
 Proceed with this concrete candidate; do not freeze its identities or persistence
 or describe the service as resumable yet.
 
@@ -26,10 +27,94 @@ a source selection for review, not a registry-freshness claim or dependency adop
 | [Provider SDK][sdk] and [Motoko boundary][mixin] | Expose certificate method, transfer shapes and callback signatures | Client/helper source does not establish the gateway's server-side validation or failure semantics |
 | [Current GitHub integration guide][hosting] | Says independently deployed exported apps must replace managed storage | Does not establish support for this lower-level arrangement; successful historical traffic does not settle support |
 | [Caffeine #16 — Clarify object-storage GC callback contract for non-Motoko consumers][gc-issue] | Existing question covers key mapping, callback failure, deletion, replay and billing | Still open with zero comments when checked; no provider answer to adopt |
+| [Rabbithole storage description][rabbit-storage] and [account integration][rabbit-account] | Independent consumer describes Caffeine-backed personal canisters; its public source funds the canister's own Cashier account | Motoko consumer implementation, not a Caffeine support commitment, server contract or live observation by this review |
 
-Only source, public guidance and retained first-party summaries were read. No
+Only source, public guidance and retained legacy summaries were read. No
 provider data URL, account, old journal, signing key or deployment was accessed.
 The legacy trial's live references and unresolved charges stay with its owner.
+
+### Independent-access follow-up for 0.100.2
+
+The November 14 follow-up checked Caffeine's public repository inventory, storage
+package guidance and exact protocol names, then followed the independent
+Rabbithole consumer. The Caffeine skills head still matched the pinned revision;
+issue #16 remained open with zero comments. The [export guide][hosting], updated
+November 13, still says independently deployed exports need replacement storage.
+Its scope does not establish the terms of a lower-level account integration.
+
+Rabbithole source is pinned to `baa4d86314822711735cc9860220c109210b1ce9`:
+
+- [CashierAccount.mo][rabbit-account] looks up the configured Cashier, reads the
+  canister's own account balance and attaches cycles to `account_top_up_v1` for
+  that same principal. It also manages account delegates and automatic funding.
+- [EncryptedStorageCanister.mo][rabbit-canister] includes the Caffeine storage
+  mixin and exposes an authorized setup path that ensures its bootstrap balance.
+- [Cashier.mo][rabbit-cashier] declares balance, pricing, overdraft and payment
+  relationship interfaces. Those types describe a consumer's expected API; they
+  do not specify enforcement, enrollment eligibility or the end of charge exposure.
+
+This is concrete independent-consumer evidence for a **self-funded canister
+account candidate**, alongside the legacy trial's separate payer/owner candidate.
+Neither account arrangement is selected for this rewrite. Do not infer supported
+Rust enrollment from Motoko source, or exclusive retention scope from an account
+principal. The inspected consumer uses the Motoko mixin; it supplies no independent
+specification of the non-Motoko deletion callbacks. No third-party implementation,
+automatic funding, delegation machinery or consumer deployment was adopted.
+
+The provider's [storage setup guidance][storage-guide] describes missing-account
+errors and redeployment within its managed setup. That is not an independently
+usable enrollment procedure. Its package helper and Rabbithole also declare
+different top-up argument/result shapes. Do not choose a binding by copying either
+snippet: the selected provider revision and supported ABI need explicit evidence.
+
+The next access question is now specific: **does Caffeine support a fresh,
+independently deployed Rust canister using its certified method/root reply and
+explicitly provisioned Cashier account, without Motoko weak-reference tracking
+or automatic-refill integration?** An affirmative answer must identify account
+provisioning, supported ABI/revision, payer and immutable project/bucket binding.
+Then the contract table below still needs enforced object bounds, original-proof
+recovery/lifetime and retention/charge closure. A self-funded account does not
+answer those questions or establish a finite liability cap.
+
+**Disposition:** no D0 requirement is newly qualified by this source review.
+It narrows the access candidate and avoids treating independent access as proven
+impossible. No additional provider-backed enrollment or server-semantics contract
+was found in the inspected sources; this is a search limit, not a claim that none
+exists. Further progress on these guarantees needs new provider evidence, not
+another broad search of these unchanged sources or an invented local mechanism.
+No question was posted and no provider/account call was made.
+
+### Prepared provider clarification — not sent
+
+Local clarification draft referencing [Caffeine issue #16][gc-issue]. The maintainer
+declined posting it and subsequently authorized Caffeine calls when ready.
+Provider-call approval does not authorize sending this message: retain these
+questions as design inputs, not a queued outreach task. The approval removes the
+earlier local-only action restriction; it supplies no missing provider guarantee.
+
+> We are narrowing the `ic-blob-storage` rewrite to upload authorization and explicit
+> application references, usable from an independently deployed Rust canister.
+> Before implementing the provider boundary, could you point us to the supported
+> contract/revision for this arrangement?
+>
+> 1. Is independent Rust access supported using
+>    `_immutableObjectStorageCreateCertificate(text)` and the IC-certified
+>    `{ method = "upload"; blob_hash }` reply? What is the supported Cashier
+>    enrollment and owner/project/bucket binding procedure? We would provision
+>    funding explicitly, without automatic refill or Motoko weak-reference tracking.
+> 2. What limits the lifetime of that proof and of an accepted, unfinished tree?
+>    Can the original recovered proof or delayed chunks recreate storage after
+>    final release/deletion? We need the existing expiry/revocation rules, including
+>    in-progress writes, rather than a new receipt service.
+> 3. What exactly identifies the object whose retention our callbacks control,
+>    and which length/tree/chunk bounds does the gateway enforce? What establishes
+>    the end of storage and charge exposure? The callback questions above remain
+>    relevant, particularly the meaning of deletion confirmation.
+>
+> The public SDK documents the client requests, and independent Motoko consumers
+> provide useful integration examples, but neither establishes these server-side
+> guarantees for a Rust host. Documentation or versioned protocol references are
+> sufficient; we are not requesting deployment, funding or a provider experiment.
 
 ## Candidate protocol: what actually crosses the boundary
 
@@ -42,6 +127,10 @@ This path needs **no host-to-provider certificate acquisition call**. The legacy
 [issuer][issuer] synchronously commits registration and possible exposure before
 returning that record. Its [boundary tests][issuer-tests] exercise actual-uploader
 checks, expiry/revocation, first-reference creation and repeat-issuance refusal.
+The [release/issuance ordering rule](ic-blob-storage-design.md#object-transitions-and-closure)
+therefore has no pending acquisition callback: cancellation first prevents issuance;
+issuance first records exposure that survives late delivery of the certified result.
+The local regression exercises both registration/cleanup orders, not IC delivery.
 
 | Boundary | Observed shape | Consequence for the rewrite |
 | --- | --- | --- |
@@ -74,7 +163,7 @@ checks, not evidence that malicious traffic cannot store more than admitted.
 
 | Contract | Available evidence | Required answer before selecting the profile |
 | --- | --- | --- |
-| Independent enrollment and account | Historical payer/owner setup and usable transfers | Is this Rust-host arrangement supported? How does a fresh installation obtain its account and permitted project/bucket binding? Which account incurs each charge? |
+| Independent enrollment and account | Historical Rust payer/owner setup and transfers; independent Motoko consumer self-funded account source | Is the Rust-host arrangement supported without Motoko tracking/automatic refill? How does a fresh installation obtain its account, supported ABI and permitted project/bucket binding? Which account incurs each charge? |
 | One provider-object owner | SDK uses owner/project/root plus bucket on writes; callbacks provide binary keys | What exact tuple identifies deletion scope? Are keys tree roots, chunks or both? Can another installation affect retention? Require exclusive scope or an independent retention handle; a local namespace number is not proof |
 | Exact bounded effect | Metadata/tree commitments and client byte count | Does the gateway reject inconsistent length/header/tree/chunk sizes and extra or substituted chunks? Which limits also bound partial/duplicate uploads? Until qualified, counters are declared usage, not a proven physical bound |
 | Authority recovery | Original request identity can be retained and its IC result queried | Will the gateway accept the recovered proof, within what window, and can the SDK resume with it without another certificate call or unsafe PUT replay? Absence of a result is not proof of no effect |
@@ -118,7 +207,9 @@ provider bound is established, any byte accounting remains **declared usage**.
 
 D0 selects a supported contract from provider-backed evidence; D1 implements it
 and checks the installed host with labelled substitutes; D2 exercises the same
-contract against a fresh, separately authorized provider installation. D0 does
+contract against a fresh, explicitly selected provider installation. The maintainer
+has authorized Caffeine calls when ready and local installed-host testing before
+D0 closes, with provider effects disabled during that experiment. D0 does
 not require a live test of a host that has not been implemented. Conversely, a
 successful D2 sample cannot supply missing general guarantees about old proofs,
 namespace isolation or future charges. A protocol change found during D2 returns
@@ -260,7 +351,7 @@ The later local control model separately uses Platform Types for caller identiti
 
 ## Implemented local manifest preflight
 
-The same pending 0.100.1 adds [check_manifest](../../crates/ic-blob-storage/src/caffeine/manifest.rs)
+The 0.100.1 checkpoint adds [check_manifest](../../crates/ic-blob-storage/src/caffeine/manifest.rs)
 for bounded checking of a proposed declaration before any future authorization.
 It adapts the length/count/metadata/root checks from the first-party
 [manifest constructor][manifest] at the pinned legacy revision. The caller supplies
@@ -274,7 +365,8 @@ decision. Decoders must bound inputs before allocating them. Unlike the legacy
 manifest object, this slice needs no owned chunk vector, range API, per-leaf read
 verification, builder, checkpoint, serialization or extra dependency. Those had
 different consumers; the rewrite currently needs only preflight and sequential
-read integrity. The production host/client callers remain unimplemented.
+read integrity. The experimental Wire host now calls this preflight through the
+library service; the production provider/client boundary remains unimplemented.
 
 Four additional owner-local tests adapt [legacy failure cases][manifest-tests]
 and check frozen SDK leaf/root observations. They cover full/partial and uneven
@@ -288,10 +380,11 @@ provider byte enforcement remains a D0 gate. No live provider claim follows.
 ## Next implementation boundary and acceptance
 
 The maintainer-approved [experimental local model](ic-blob-storage-design.md#experimental-local-service-model)
-now rehearses the synchronous transition below with declared-byte accounting,
-without persistence, certificate issuance, deployment or settlement. Its root
-matching is provisional, not the provider deletion key. After the contract selects
-identity and effect bounds, integrate the durable transition and standalone host:
+rehearses the synchronous transition below with declared-byte accounting. Its
+[installed profile](ic-blob-storage-design.md#experimental-installed-profile-in-01002)
+now adds bounded persistence and a local host, without certificates or settlement.
+Root matching remains provisional, not the provider deletion key. After the
+contract selects identity and effect bounds, qualify the effect-capable transition:
 application authorization/reservation → bound-uploader issuance → one object
 owner plus known first reference and possible exposure → irreversible Closing.
 For the observed protocol, registration happens **inside issuance before reply**,
@@ -330,6 +423,11 @@ is known. No live trial or provider message is initiated by this review.
 [billing]: https://help.caffeine.ai/hc/en-us/articles/49362898986644-File-Storage-Costs
 [troubleshooting]: https://help.caffeine.ai/hc/en-us/articles/46899784111380-File-Storage-Troubleshooting
 [gc-issue]: https://github.com/caffeinelabs/skills/issues/16
+[storage-guide]: https://github.com/caffeinelabs/skills/blob/59b9b29a4fad3828677c8b80ead0e06fdb40987e/skills/extension-object-storage/SKILL.md
+[rabbit-storage]: https://docs.rabbithole.app/how-it-works/storage/blob-storage
+[rabbit-account]: https://github.com/rabbithole-app/v2/blob/baa4d86314822711735cc9860220c109210b1ce9/apps/backend/src/BlobStorage/CashierAccount.mo
+[rabbit-canister]: https://github.com/rabbithole-app/v2/blob/baa4d86314822711735cc9860220c109210b1ce9/apps/backend/src/EncryptedStorageCanister.mo
+[rabbit-cashier]: https://github.com/rabbithole-app/v2/blob/baa4d86314822711735cc9860220c109210b1ce9/apps/backend/src/Types/Cashier.mo
 [issuer]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/certificate/mod.rs
 [issuer-tests]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/tests/certificate_boundary/mod.rs
 [manifest]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-contracts/src/identity/caffeine/manifest/mod.rs

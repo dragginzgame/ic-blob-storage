@@ -15,7 +15,7 @@ pub type UploadId = NonZeroU128;
 pub type Root = [u8; 32];
 
 /// Fixed bounds for one local model. Released/retired identities occupy slots.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Limits {
     /// Per-declaration hashing and content limits.
     pub manifest: ManifestLimits,
@@ -30,7 +30,7 @@ pub struct Limits {
 }
 
 /// Immutable application authorization. Knowledge of its fields conveys no rights.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct UploadRequest {
     /// One-use upload identity.
     pub id: UploadId,
@@ -47,7 +47,7 @@ pub struct UploadRequest {
 }
 
 /// Current disposition of a historical upload identity.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum UploadState {
     /// Capacity and the first reference name are reserved; no registration occurred.
     Reserved,
@@ -63,7 +63,7 @@ pub enum UploadState {
 }
 
 /// Authorized inspection or historical authorization replay; never a certificate.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct UploadView {
     /// Exact original authorization.
     pub request: UploadRequest,
@@ -72,7 +72,7 @@ pub struct UploadView {
 }
 
 /// Current application reference disposition, including pre-registration names.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum ReferenceStatus {
     /// Reserved by an unconsumed grant.
     Reserved,
@@ -86,7 +86,7 @@ pub enum ReferenceStatus {
 
 /// One reference's immutable target and current local disposition.
 /// This observation grants no authority and proves no provider availability.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct ReferenceView {
     /// Original root, preserved even when the reference is released or retired.
     pub root: Root,
@@ -96,7 +96,7 @@ pub struct ReferenceView {
 
 /// Read-only projection of a root's original grant and local retention.
 /// This is not provider presence, deletion permission, settlement or upload authority.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct ObjectView {
     /// Original upload lifetime; additional uses never replace it.
     pub original_upload: UploadView,
@@ -108,7 +108,7 @@ pub struct ObjectView {
 }
 
 /// Separate declared-byte counters; never add them as total physical storage.
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Usage {
     /// Bytes reserved by unconsumed grants.
     pub reserved_bytes: u64,
@@ -124,8 +124,12 @@ pub struct Usage {
 }
 
 /// A refused local operation. Ordinary errors leave all state unchanged.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum Error {
+    /// New work is disabled during maintenance; cleanup and historical replay remain available.
+    Maintenance,
+    /// A management request does not match the current or next maintenance attempt.
+    MaintenanceAttempt,
     /// The captured caller is not permitted to perform this operation.
     Denied,
     /// Anonymous or management principal cannot be an application/uploader.

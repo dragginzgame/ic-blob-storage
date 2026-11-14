@@ -62,6 +62,12 @@ rule permits compaction; no TTL-only eviction or generic receipt framework.
    retire it. Never request upload authority during this recovery. If authorization
    remains uncertain, keep the draft unpublished with cleanup pending.
 
+During the service's [upgrade drain](ic-blob-storage-design.md#admission-while-draining-and-reopening),
+existing-reference cleanup and historical replay remain permitted when state is
+valid. A replay that would create a previously absent grant is new admission and
+must wait. Keep that draft cancelled with cleanup pending; do not allocate new IDs
+or treat a maintenance refusal as proof that authorization never happened.
+
 The remote removal order deliberately differs from the synchronous heap example:
 catalog removal and Blob release cannot be one cross-canister transaction. A failed
 release may leave excess retention, but must not leave a published asset whose

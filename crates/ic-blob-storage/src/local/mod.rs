@@ -8,10 +8,12 @@
 //!
 //! Hosts must supply independently captured callers and clock readings, never
 //! caller claims from request fields. These synchronous operations perform no
-//! external awaits. Ordinary errors precede mutation. There is no persistence,
-//! upgrade, serialization, cloning or reset contract. Dropping this model loses
-//! its history: it MUST NOT back real upload authority or provider obligations.
+//! external awaits. Ordinary errors precede mutation. This heap owner has no
+//! standalone upgrade, serialization, cloning or reset contract. The bounded
+//! [`persistence::Service`] owns its durable representation and maintenance gate.
+//! Dropping a bare model loses history; it MUST NOT back real upload authority.
 
+pub mod persistence;
 mod types;
 pub use types::{
     Error, Limits, ObjectView, ReferenceStatus, ReferenceView, Root, UploadId, UploadRequest,
@@ -48,6 +50,7 @@ pub struct LocalModel {
     reserved_bytes: u64,
     live_bytes: u64,
     unresolved_bytes: u64,
+    active: bool,
 }
 
 impl LocalModel {
@@ -65,6 +68,7 @@ impl LocalModel {
             reserved_bytes: 0,
             live_bytes: 0,
             unresolved_bytes: 0,
+            active: true,
         })
     }
 
@@ -97,6 +101,7 @@ impl LocalModel {
             };
         }
         valid_principal(request.uploader)?;
+        self.admit()?;
         if now >= request.expires_at {
             return Err(Error::Expired);
         }
@@ -188,6 +193,7 @@ impl LocalModel {
         if caller != request.uploader {
             return Err(Error::Denied);
         }
+        self.admit()?;
         if upload.view.state != UploadState::Reserved {
             return Err(Error::NotReserved);
         }
@@ -246,6 +252,7 @@ impl LocalModel {
                 }
             };
         }
+        self.admit()?;
         if self.references.len() >= self.limits.references.get() {
             return Err(Error::Capacity);
         }
@@ -364,6 +371,14 @@ impl LocalModel {
             Ok(())
         } else {
             Err(Error::Denied)
+        }
+    }
+
+    fn admit(&self) -> Result<(), Error> {
+        if self.active {
+            Ok(())
+        } else {
+            Err(Error::Maintenance)
         }
     }
 

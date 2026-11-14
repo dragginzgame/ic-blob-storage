@@ -1,11 +1,13 @@
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 .SHELLFLAGS := -o pipefail -c
+LOCAL_TOOL_INSTALL_TARGETS += install-test-server
+LOCAL_TOOL_CHECK_TARGETS += test-server-check
 
 include vendor/toko-tooling/make/consumer.mk
 include vendor/toko-tooling/make/cargo-dependencies.mk
 
-.PHONY: help deps update clippy test-references test-caffeine test-local example-local test-example-local docs-check documentation-links-check ci
+.PHONY: help deps update clippy test-references test-caffeine test-local example-local test-example-local docs-check documentation-links-check ci install-test-server test-server-check clippy-host build-host test-standalone
 
 help:
 	@printf '%s\n' \
@@ -16,6 +18,8 @@ help:
 	  'make test-references             Bounded object-reference behavior tests' \
 	  'make test-caffeine               Caffeine stream and manifest integrity tests' \
 	  'make test-local                  Local grant, reference and accounting tests' \
+	  'make install-test-server         Explicit authenticated local simulator setup' \
+	  'make test-standalone              Build and test the installed host locally' \
 	  'make example-local               Run the offline application walkthrough' \
 	  'make test-example-local          Check catalog and read-completion boundaries' \
 	  'make docs-check                  Strict Rustdoc checks' \
@@ -45,7 +49,27 @@ test-caffeine:
 	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --lib caffeine::tests
 
 test-local:
-	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --lib local::tests
+	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --lib local::
+
+install-test-server: toko-tooling-check
+	@tool="$$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --lockfile Cargo.lock --bin ic-testkit-server --profile release --features cli)" && \
+	  "$$tool" setup --directory "$(CURDIR)/.tools/ic-testkit-server"
+
+test-server-check:
+	@tool="$$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-testkit --lockfile Cargo.lock --bin ic-testkit-server --profile release --features cli --check)" && \
+	  "$$tool" check --directory "$(CURDIR)/.tools/ic-testkit-server"
+
+clippy-host: toko-tooling-check
+	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-canister --target wasm32-unknown-unknown --release -- -D warnings
+
+build-host: clippy-host
+	@mkdir -p target
+	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked -p ic-blob-storage-canister --target wasm32-unknown-unknown --release --message-format=json > target/blob-wasm-artifacts.jsonl
+
+test-standalone: build-host
+	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-tests --test standalone -- -D warnings
+	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
+	  BLOB_WASM="$$wasm" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage-tests --test standalone
 
 example-local:
 	CARGO_BUILD_WARNINGS=deny cargo run --offline --locked -p ic-blob-storage --example local_asset

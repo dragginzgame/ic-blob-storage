@@ -1,5 +1,51 @@
 # Changelog
 
+## [0.100.2] - 2026-11-14
+
+GitHub development checkpoint on branch `0.100`; not published to crates.io.
+
+### ▶️ Try it
+
+From the repository root, prepare the Rust 1.100.0 `wasm32-unknown-unknown`
+target and run `make install-tools` once. Setup downloads authenticated tooling
+and PocketIC. Then run `make test-standalone`: it builds the production Wasm and
+checks caller refusals, shared references and state preservation across local
+upgrades. No credentials, Caffeine calls or paid provider effects are involved.
+
+### ✨ Added
+
+- Add an experimental thin standalone host and its installed PocketIC test package.
+  The library persists a bounded versioned control record through IC Storage,
+  preserving historical identities and unresolved declared exposure across upgrades.
+- Gate new work during maintenance while allowing cleanup and historical replay.
+  Upgrades require a prior drain; activation binds the current attempt, so an old
+  activation cannot reopen a later drain. Provider integration and the production
+  management runner remain unqualified; API and persistence remain experimental.
+- Add manager-only replicated inspection of the installed identity, immutable
+  configuration, state format and current maintenance attempt. Inspection does
+  not rewrite storage; installed tests check caller refusal and preservation
+  across repeated upgrades. This is a management preflight input, not a continuity proof.
+
+### 🔧 Tooling
+
+- Update the exact Toko Tooling selection and authenticated managed snapshot to
+  0.43.1. Existing dependency, formatting and LOC commands remain unchanged.
+
+### 📚 Documentation
+
+- Align issuance/release races with Caffeine's synchronous certified-reply path.
+  Retain exposure for delayed original replies; recovery uses the original proof
+  or reports blocked, with no fresh-issuance fallback or fictitious acquisition call.
+- Trace an independent public Caffeine consumer's self-funded account setup and
+  narrow the Rust enrollment question. Keep provider support, enforcement and
+  closure unqualified; adopt no third-party code or automatic funding machinery.
+- Specify one admission gate during draining/reopening, including cleanup and
+  late-result handling. Bind activation to the current maintenance attempt so a
+  delayed request cannot reopen a later drain.
+- Define lost stop/upgrade/start reply handling and forbid automatic destructive
+  recovery. Record legacy lifecycle lessons; the local host now exercises ordinary
+  upgrades, while the production management runner remains future work.
+
 ## [0.100.1] - 2026-11-14
 
 GitHub development checkpoint on branch `0.100`; not published to crates.io.

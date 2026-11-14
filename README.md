@@ -33,30 +33,41 @@ removal compares the expected reference so delayed requests cannot remove a repl
 The application owns its catalog; Blob owns its grants and references. No service
 or SDK transfer is installed or contacted by this example.
 
-These are in-memory components with experimental Rust APIs, not an installed
-storage service. Ingress authentication, qualified provider-object resolution,
-persistence, uploads and Caffeine network integration are not implemented. Verification proves supplied
-byte integrity; the caller must also require successful transport EOF and keep
-output private until verification succeeds. It proves no provider availability.
+The [durable service](crates/ic-blob-storage/src/local/persistence/mod.rs) now backs
+the same rules with a bounded, versioned IC Storage record. The experimental
+[standalone host](crates/ic-blob-storage-canister/src/lib.rs) captures IC callers
+and time, and mounts `blob_update` / `blob_query` using Wire. Its 64 upload and
+64 reference slots include historical identities. Reopening rebuilds indexes and
+accounting from validated records; no empty-state fallback exists.
+
+The configured manager drains admission before upgrades and activates the exact
+current maintenance attempt afterward. Cleanup and historical replay remain
+available while drained. The manager-only `blob_management` Wire update reports
+the bound installation principal, immutable configuration, record format and
+current maintenance state without writing storage. Management callers must
+authenticate its replicated result; the value alone proves neither module identity
+nor continuity after a snapshot restore.
+The host emits no Caffeine certificate or provider call.
+Provider-object resolution, supported live account binding and a production
+management runner remain unimplemented. API and persistence are experimental;
+these local tests do not establish D0/D1 completion or provider closure.
 
 The previous implementation, Git history and provider/recovery custody are in
 `../ic-blob-storage-legacy` (see its `LEGACY.md`) and the private
 [legacy GitHub repository](https://github.com/dragginzgame/ic-blob-storage-legacy).
 Existing crates.io releases remain the legacy line. The rewrite's first GitHub
-checkpoint is `0.100.0`; current development is `0.100.1`, inherited from the root
+checkpoint is `0.100.0`; this checkpoint is `0.100.2`, inherited from the root
 workspace version. Publication remains disabled. This is a new breaking release
 line, not a registry version reset or a migration for existing installations.
 
-The workspace has one product crate under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.43.0. GitHub development uses the `0.100` branch of
+The workspace has two product crates under `crates/`, Rust 1.100.0 / edition 2024
+and published Toko Tooling 0.43.1. GitHub development uses the `0.100` branch of
 `dragginzgame/ic-blob-storage`. There is no release/deployment configuration.
 
 The [selected crate layout](docs/design/ic-blob-storage-design.md#selected-crate-layout)
-adds a thin `ic-blob-storage-canister` host when endpoints exist. Installed tests
-will live under `qualification/crates/` and share the root workspace/lockfile.
-Current native reference tests stay with the library; there is no installed host
-requiring a qualification package yet. Canic owns its adapter and composed tests
-in its own repository.
+keeps the host thin. Installed tests under `qualification/crates/` use the real
+production Wasm and share the root workspace/lockfile. Domain tests remain with
+the library. Canic owns its adapter and composed tests in its own repository.
 
 ```sh
 make install-tools
@@ -65,10 +76,17 @@ make test-caffeine
 make test-local
 make example-local
 make test-example-local
-make ci
+make test-standalone
 make deps-list
 toko-cloc
 ```
+
+Run these from the repository root. `make install-tools` explicitly downloads and
+authenticates the selected tools and local PocketIC server; `make install-test-server`
+can prepare that server alone. `make test-standalone` lints/builds the production
+Wasm and exercises callers, cleanup and repeated upgrades in a fresh local instance.
+It requires `wasm32-unknown-unknown` and makes no Caffeine calls. `make ci` is the
+separate aggregate native gate; installed testing is an explicit command.
 
 `make deps-list` lists workspace package versions and release groups. `make update`
 delegates to Toko Tooling's `make deps-update` (`cargo update -v`), updating locks

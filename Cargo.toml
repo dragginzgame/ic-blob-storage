@@ -1,19 +1,31 @@
 [workspace]
-members = ["crates/ic-blob-storage"]
+members = [
+    "crates/ic-blob-storage",
+    "crates/ic-blob-storage-canister",
+    "qualification/crates/ic-blob-storage-tests",
+]
 resolver = "3"
 
 [workspace.package]
-version = "0.100.1"
+version = "0.100.2"
 edition = "2024"
 rust-version = "1.100.0"
 license-file = "LICENSE.md"
 publish = false
 
 [workspace.dependencies]
+ic-blob-storage = { path = "crates/ic-blob-storage" }
+ic-platform-runtime = { version = "0.22.3", default-features = false }
 ic-platform-types = { version = "0.20.3", default-features = false }
+ic-storage = "0.74.1"
+ic-testkit = { version = "0.104.1", default-features = false }
+ic-wire = { version = "0.22.1", default-features = false }
+ic-wire-endpoint = { version = "0.13.1", default-features = false }
+serde = { version = "1.0.229", features = ["derive"] }
 sha2 = { version = "0.11.1", default-features = false }
+tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread"] }
 # Source tooling only.
-toko-tooling = "=0.43.0"
+toko-tooling = "=0.43.1"
 
 [workspace.lints.cargo]
 unused_dependencies = "deny"

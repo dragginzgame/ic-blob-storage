@@ -15,7 +15,8 @@ Read [the current handoff](docs/status/current.md) first.
   by default; establish a current consumer need first.
 - Legacy provider obligations and path-bound recovery records remain with the
   legacy repository. Never resume or import them through this fresh checkout.
-- There is no installed service, frozen API, migration or deployment runner yet.
+- There is an experimental local standalone host, but no frozen API, migration
+  or production deployment runner yet.
   The rewrite uses the `0.100` release line, inherited from the root workspace;
   `0.100.0` is its first GitHub checkpoint. Keep publication disabled until a
   separately authorized release.
@@ -31,9 +32,15 @@ Read [the current handoff](docs/status/current.md) first.
   is implied by the local scaffold. Custom future deployment entrypoints must
   admit the tooling snapshot before effects.
 - The maintainer explicitly approved the experimental local service model while
-  D0 remains open: no deployment or certificate issuance, declared-byte accounting,
-  no settlement claim, and unfrozen API/persistence. This permits local domain work;
-  it does not qualify the provider binding or authorize effect-capable hosting.
+  D0 remains open, and subsequently authorized progressing to a locally installed
+  standalone host and Caffeine calls when ready. Carry that authorization forward;
+  do not request it again merely to cross the former no-deployment boundary.
+  Provider calls still require a concrete qualified operation, durable custody of
+  possible effects and an identified fresh target/account; authorization is not
+  evidence of provider support, bounded charges or closure. Keep declared-byte
+  accounting, no unsupported settlement claim and unfrozen API/persistence.
+  The earlier instruction against contacting Caffeine concerned external messages;
+  no issue comment, email or other outreach is authorized by provider-call approval.
 
 ## Checks
 
@@ -41,9 +48,13 @@ Prepare with `make install-tools`; `make ci` is the aggregate gate for tooling,
 formatting, strict Clippy, local behavior, Rustdoc and documentation links.
 Use `make test-references` for the in-memory reference tests and `make test-caffeine`
 for streaming and manifest integrity tests. `make test-local` checks the composed
-grant/reference/accounting model. `make example-local` runs the offline application
-walkthrough; `make test-example-local` checks its catalog and read-completion boundaries. No installed
-service behavior is qualified yet. Package inventory is `make deps-list`;
+grant/reference/accounting model and bounded durable reopening. `make example-local`
+runs the offline application walkthrough; `make test-example-local` checks its catalog
+and read-completion boundaries. `make install-test-server` explicitly prepares the
+local simulator (also included in `make install-tools`); `make test-standalone` tests
+the actual production Wasm's callers and upgrades, independently of the native
+aggregate. These checks do not qualify Caffeine or a production management runner.
+Package inventory is `make deps-list`;
 `make update` delegates to the shared `deps-update` target for Cargo lock updates.
 LOC is `toko-cloc`. An exact tooling-pin change still requires the authenticated
 `make toko-tooling-update` installation after updating Cargo.lock.

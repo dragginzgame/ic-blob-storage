@@ -23,7 +23,7 @@ use std::num::{NonZeroU128, NonZeroUsize};
 pub type ReferenceId = NonZeroU128;
 
 /// Current local lifetime of an admitted reference.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum ReferenceState {
     /// The application still requests retention.
     Live,
@@ -32,7 +32,7 @@ pub enum ReferenceState {
 }
 
 /// Local object retention, independent of provider availability or settlement.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum RetentionState {
     /// At least one reference remains live.
     Open,
@@ -41,7 +41,7 @@ pub enum RetentionState {
 }
 
 /// A refused reference mutation. Refusals never change the owner.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum ReferenceError {
     /// New references cannot be acquired after final release.
     Closing,
@@ -65,6 +65,24 @@ pub struct ObjectReferences {
 }
 
 impl ObjectReferences {
+    pub(crate) fn from_records(
+        records: BTreeMap<ReferenceId, ReferenceState>,
+        limit: NonZeroUsize,
+    ) -> Option<Self> {
+        if records.is_empty() || records.len() > limit.get() {
+            return None;
+        }
+        let live = records
+            .values()
+            .filter(|&&state| state == ReferenceState::Live)
+            .count();
+        Some(Self {
+            references: records,
+            live,
+            limit,
+        })
+    }
+
     /// Create an Open owner with its first live reference and a lifetime slot limit.
     ///
     /// The limit includes the first reference and all released identities. It

@@ -77,16 +77,21 @@ reported standalone uploads, the actual SDK/certificate path, relevant legacy
 regressions and the precise remaining provider questions. It establishes no new
 live qualification or supported enrollment arrangement.
 
+The [0.100.2 access follow-up](caffeine-contract-review.md#independent-access-follow-up-for-01002)
+adds an independent Motoko consumer's self-funded Cashier integration as a concrete
+candidate. It does not select that account arrangement or qualify Rust support,
+namespace isolation or closure. No funding subsystem is added to Blob.
+
 Complete this table with provider-backed answers and an identified protocol/SDK
 revision before freezing identities, APIs or persistence. No generic provider
 abstraction or speculative certificate format is a substitute.
 
 | Contract question | Required answer/evidence | Current disposition |
 | --- | --- | --- |
-| Independent access | Supported enrollment/authorization for this Rust host, not merely a Caffeine-generated app | Historical Rust-host transfers reported; current support/enrollment remains unestablished |
+| Independent access | Supported enrollment/authorization for this Rust host, not merely a Caffeine-generated app | Historical Rust transfers and independent Motoko account integration are evidence of feasibility; current Rust support/enrollment remains unestablished |
 | Account and namespace | Actual payer, namespace binding and exclusive retention/deletion scope | Require one immutable binding and exclusive scope; provider support unqualified |
 | Upload authority | Exact enforced fields, caller/bearer semantics, validity and in-progress transfer rules | Reviewed path uses an IC-certified method/root reply; provider enforcement remains unqualified |
-| Lost authority reply | Recovery of original usable proof, qualified equivalent proof, or explicit blocked outcome | Legacy retains original IC request identity; recovered-proof acceptance and SDK resume remain unqualified |
+| Lost authority reply | Recovery of the original usable proof, or explicit blocked outcome | Legacy retains original IC request identity; recovered-proof acceptance and SDK resume remain unqualified; no second issuance fallback |
 | Object identity and callbacks | Deletion scope/key, incarnation support, authenticated message source and exact meaning | Unqualified; unknown objects cannot grant deletion |
 | Authority lifetime | How old or delayed authority becomes incapable of recreating storage/charges | Unqualified; no arbitrary grace period |
 | Closure | Evidence of deletion and separate final charge cutoff, including late effects | Unqualified; retain unresolved Closing objects |
@@ -94,8 +99,10 @@ abstraction or speculative certificate format is a substitute.
 
 The feasibility witness must join independent host enrollment, account/namespace
 binding, usable upload authority, direct SDK transfer and the retention protocol.
-Read-only contract/source review comes first. Any live witness needs separately
-authorized effects and retained obligations. If independent access is unsupported,
+Read-only contract/source review comes first. The maintainer has authorized
+Caffeine calls when the implementation is ready; carry that authorization forward.
+A live witness still needs an identified fresh installation/account, explicit
+resource bounds and durable custody of all possible effects. If independent access is unsupported,
 stop this delivery path and return the product choice to the maintainer.
 
 D0 requires provider-backed contract answers, not a live test of an unimplemented
@@ -103,11 +110,15 @@ host. D1 qualifies the resulting installed local rules with labelled substitutes
 D2 supplies fresh live observations under that contract. The
 [field enforcement matrix and qualification sequence](caffeine-contract-review.md#field-enforcement-required-before-registration)
 specify the next witnesses and stopping points. The legacy November deletion
-follow-up still did not establish closure. The maintainer subsequently approved
-an experimental local service model while this gate remains open: local registration
-and declared-byte accounting may be rehearsed without certificate issuance,
-deployment or settlement. This does not freeze provider identities, API or
-persistence, or permit an effect-capable service backed by ephemeral state.
+follow-up still did not establish closure. The maintainer initially approved
+an experimental heap-only model, then expanded that scope to a locally installed
+standalone host and Caffeine calls when ready. Local caller and upgrade testing
+may therefore proceed with provider effects disabled while D0 remains open.
+This is experimental qualification, not D0/D1 completion or a frozen API/persistence
+format. Real upload authority still requires durable control state and the
+applicable provider contract; the existing heap-only model cannot supply it.
+Provider-call authorization does not authorize issue comments, email or other
+outreach, or importing the predecessor's accounts and outstanding obligations.
 
 ## 3. Scope and exclusions
 
@@ -181,18 +192,18 @@ needs them; Blob owns the durable work being resumed.
 
 ### Selected crate layout
 
-The maintainer accepted this layout on 2026-11-14. Only the library exists now;
-create the remaining packages when their callers and behavior exist.
+The maintainer accepted this layout on 2026-11-14. The library, experimental host
+and installed test package now exist; the browser client remains future work.
 
 ```text
 crates/
   ic-blob-storage/           # Reusable service library; exists today
-  ic-blob-storage-canister/  # Standalone host; add with real endpoints
+  ic-blob-storage-canister/  # Experimental standalone Wire host
 clients/
   browser/                  # Client/example using the selected external SDK
 qualification/
   crates/
-    ic-blob-storage-tests/  # Installed standalone behavior; add with the host
+    ic-blob-storage-tests/  # Real host Wasm exercised in PocketIC
 ```
 
 The two production crates share the root Cargo workspace and lockfile. The
@@ -209,17 +220,17 @@ or crate per noun. Directory modules keep their tests beside `mod.rs`; the curre
 reference owner and its tests remain one module with the same public Rust path.
 
 `qualification/` is for installed-service tests, not ordinary domain tests. Its
-first package will be an unpublished test-role member of the root workspace,
-using the real standalone Wasm artifact and selected local IC test environment.
-Start it when it can install the host, exercise actual signed callers/endpoints
-and verify the resulting state; add upgrade checks when persistent state exists.
+first package is an unpublished test-role member of the root workspace, using
+the real standalone Wasm artifact and PocketIC. It exercises captured IC callers,
+endpoints and upgrades. PocketIC supplies caller identities; this is not a live
+signed-ingress or provider-certificate witness.
 It must not contain a second Blob engine or a test-only canister standing in for
 the production host. Local substitutes cannot establish Caffeine guarantees.
 
 Keep native domain tests with their library owner. Canic composition tests stay
-in Canic; browser transfer tests stay with the client. Add focused installed-test
-commands with the qualification package. No empty package, second lockfile,
-generic harness or qualification command is needed today. A separate resolving
+in Canic; browser transfer tests stay with the client. `make test-standalone` owns
+the focused installed check. There is no empty package, second lockfile or generic
+harness. A separate resolving
 workspace requires an actual integration dependency constraint and its recorded
 disposition; directory placement alone does not justify one.
 
@@ -258,11 +269,11 @@ lease isolating retention could support another model later; it is not assumed.
 Resolve the provider key and compare declarations before accepting a new upload
 identity. A matching authorized use attaches a distinct reference to the same Open
 owner and counts no second stored copy. This is application-authorized reference
-acquisition, not permission for another provider upload. If transfer authority is
-still needed, resume the original object's qualified acquisition/recovery path;
-a second upload ID cannot bypass it. Conflicting declarations reject. Before
-first registration, concurrent grants for the same reserved key are refused;
-the client resumes the existing grant instead of creating competing owners.
+acquisition, not permission for another provider upload. Before first registration,
+the original bound uploader may consume its still-eligible grant; concurrent grants
+for the same reserved key are refused. After registration, missing authority requires
+qualified recovery of the original IC result, or remains blocked. Another upload ID
+cannot obtain fresh issuance. Conflicting declarations reject.
 Closing or Settled keys cannot be admitted as new objects in the initial release.
 The maintainer selected one upload lifetime per root on 2026-11-14, including
 cancelled/expired grants that never registered. Keep the original root claim for
@@ -348,11 +359,12 @@ independent verifier service, attestation worker or public "mark uploaded" sette
 in the proposed initial design. The application may require verified reads before
 publishing and must handle a later unavailable object.
 
-Registration commits before exposing usable upload authority, including before
-dispatch of any request that could create it. Grant consumption, object binding,
-first-reference creation, reservation transfer and possible exposure commit
-together. Expiry frees only a provably unexposed reservation. Revocation after
-exposure cannot retract a certificate or erase costs.
+For the reviewed Caffeine path, registration and the method/root reply are one
+synchronous host execution. Grant consumption, object binding, first-reference
+creation, reservation transfer and possible exposure commit before that reply can
+become usable IC-certified authority. There is no provider acquisition request or
+completion callback in this transition. Expiry frees only a provably unexposed
+reservation; later revocation cannot retract a committed reply or erase exposure.
 
 Distinct references protect overlapping application uses. Acquire the new
 reference before publishing a second asset; release the old one only when its
@@ -370,17 +382,27 @@ the local embedded case is described in §4.
 | Closing | No live references; irreversible refusal of new references and new upload-authority exposure | Record original outcomes and resolve outstanding obligations; never reopen |
 | Settled | Selected provider contract proves closure, including authority lifetime, deletion and charge cutoff | Inspection and historical replay only; retain callback/replay protection |
 
-A reserved, unexposed grant precedes these object states. A grant cannot cancel
-or expire away an Open/Closing object's exposure. Releasing the final reference
-also prevents an earlier pending grant from later exposing authority for that key.
+A reserved, unexposed grant precedes these object states. Release and synchronous
+issuance have two possible orders:
+
+| First committed transition | Later transition and retained obligation |
+| --- | --- |
+| Release cancels the reserved first reference | The root remains retired; delayed issuance refuses; no provider exposure was created |
+| Issuance registers the object and commits its reply | Final release enters Closing and retains exposure, even if the uploader has not received the IC-certified result |
+
+No later grant can replace that root's original lifetime. A grant cannot cancel
+or expire away an Open/Closing object's exposure. Refusing another issuance call
+does not stop delivery or independent recovery of an already committed IC result.
 
 Closing retains every issued, possibly issued or unresolved upload authority.
 Before settlement, prove that authority cannot recreate bytes or charges: for
 example, qualified revocation, or expiry plus an established bound on in-progress
-transfers. A deletion acknowledgment alone is insufficient. A delayed acquisition
-result is recorded but never reopens the object or authorizes its delivery to the
-client. If authority can remain usable, keep Closing with the unresolved reason
-and continue charging exposure capacity. An arbitrary grace period proves nothing.
+transfers. A deletion acknowledgment alone is insufficient. Late delivery of the
+original certified reply is covered by exposure already recorded at registration;
+it causes no new local transition and must not reopen the object. A cooperating
+client stops forwarding authority after learning of Closing, but that is not a
+provider guarantee. If authority can remain usable, keep Closing with its unresolved
+reason and exposure capacity occupied. An arbitrary grace period proves nothing.
 
 | Provider message/fact | Local meaning |
 | --- | --- |
@@ -420,14 +442,14 @@ A Closing object never reopens. Commit the outcome before optional follow-on wor
 that could trap; if outcome persistence itself fails, the original possible-effect
 record still prevents redispatch. Unauthenticated input is not outcome evidence.
 
-Lost-authority recovery must demonstrate one of: recovery of the original usable
-proof; an equivalent proof with qualified, bounded effects; or a blocked outcome.
-A method/hash descriptor or registered row is not necessarily that proof. Blob
-and its cooperating client must respect revocation and Closing; do not hand off
-usable authority just because the original request once succeeded. This cannot
-prevent possession or independent recovery of an original IC result; the provider's
-authority-lifetime rules must prevent recreation. Claim resumable upload only for
-the demonstrated SDK path.
+Lost-authority recovery must recover the original usable proof or report blocked.
+A method/hash descriptor or registered row is not that proof. Keep the original
+IC request identity; do not rerun the issuance endpoint or allocate a new upload ID
+to manufacture a replacement. An equivalent fresh proof would require a separately
+reviewed protocol change, not a retry mode in this design. Cooperating clients
+respect revocation and Closing, but cannot retract possession or independent
+recovery of the original IC result. Provider authority-lifetime rules must prevent
+recreation. Claim resumable upload only for the demonstrated SDK path.
 
 The [reviewed Caffeine path](caffeine-contract-review.md#candidate-protocol-what-actually-crosses-the-boundary)
 issues the descriptor in a synchronous host update; the client obtains its IC
@@ -493,6 +515,66 @@ Until that rule exists, no eviction or sustained-use claim is supported.
 
 ## 8. Persistence and lifecycle
 
+### Experimental installed profile in 0.100.2
+
+The authorized local host uses `local::persistence::Service` around the existing
+model, with one host-granted `blob.control.v1` Storage lease. One versioned Wire
+record contains the installation principal, immutable authorities/limits, current
+maintenance attempt, upload outcomes and reference targets/dispositions. Root
+indexes, live-reference counts and R/L/E counters are reconstructed, not persisted
+as independent authorities. Missing, foreign, unknown-version or inconsistent
+records refuse reopening. No restore, import, migration or repair path exists.
+
+This profile admits at most 64 historical uploads and 64 historical references.
+Its 64 KiB record bound and bounded Wire traversal apply before publication.
+Every successful mutation rewrites the finite record before replying. Errors in
+domain checks precede mutation; a later encoding/storage failure must trap so IC
+rollback covers the complete synchronous message. Native callers discard an owner
+after a panic. This deliberately simple whole-record strategy is experimental;
+it makes no large-store or sustained-churn performance claim.
+
+The library owns one admission gate and monotonic maintenance attempt. Only the
+configured manager can drain or activate. Replaying an old drain does not close a
+reactivated attempt; a stale activation cannot reopen a newer drain. New grants,
+references and registration refuse while drained, while historical success replay,
+inspection, release and expiry remain available under ordinary caller rules.
+The host rejects upgrades before draining and requires closed admission on reopen.
+
+The manager-only, zero-argument Wire update `blob_management` projects the bound
+installation principal, immutable configuration, record format version and current
+maintenance state from this same owner. It performs no stable write and remains
+available while drained. It is an update so a management transport can authenticate
+the replicated outcome; an ordinary query is not a substitute. Neither a decoded
+value nor the format version establishes the installed Wasm's identity or continuity
+after restore. The future runner must authenticate the outcome, compare it with
+its admitted target/configuration and qualify the artifact and management history
+separately before activation. PocketIC tests qualify the endpoint's execution and
+authorization, not live signed-ingress verification.
+
+The local qualification procedure uses a fresh simulator instance, explicit drain,
+stop, ordinary same-schema upgrade, start, inspection and activation. Its controller
+is retained by the fixture. It exercises replacement-argument refusal and failed
+pre-upgrade rollback. It does **not** qualify a production management entrypoint,
+lost management replies, destructive-operation refusal or snapshot freshness.
+No external awaits, timers, provider callbacks or certificates are implemented;
+the full trusted-management policy below still gates effect-capable deployment.
+
+Runtime 0.22.3 supplies caller/time and lifecycle exports, Wire 0.22.1 and Endpoint
+0.13.1 own bounded RPC, and Storage 0.74.1 owns allocation/Cell mechanics. Testkit
+0.104.1 owns explicit authenticated PocketIC 16.1.0 setup and server custody.
+All were selected from stable non-yanked registry releases; no sibling source or
+retired Memory runtime is used. Ordinary RPC admission precedes ingress copying;
+Runtime lifecycle hooks copy the IC-bounded ingress before explicit Wire decoding.
+The library owns only its record format and semantics. Canic can supply a lease
+from its own combined bootstrap without adopting the standalone host.
+
+This carries forward the inspected legacy host's separate fresh/open paths and
+lifecycle regressions for retained identities, rejected replacement settings and
+closed admission after upgrade (source links in §12). It deliberately excludes
+per-owner fences, IC-history recovery and funding/gateway subsystems. The current
+consumer needs one small bounded control store and one gate; no legacy code or
+recovery state was imported. D0/D1 and live provider guarantees remain open.
+
 ### Selected initial policy: trusted management path, no rollback
 
 Select a restricted controller-management path, not a Blob-owned continuity or
@@ -542,6 +624,74 @@ and [system API](https://docs.internetcomputer.org/references/ic-interface-spec/
    through the supported management procedure. Restore uncertainty without retry;
    resumption follows §7. Failed validation or unknown management continuity leaves
    new effects disabled. Do not infer continuity from a restored local ready flag.
+
+### Admission while draining and reopening
+
+Use one library-owned admission gate, composed by either host. Closing it is a
+durable synchronous transition before the manager requests stop. The host
+authenticates the configured management path; an uploader, application-authority
+request or ordinary request field cannot assert that management authorization.
+Do not add independent upload, reference, timer and provider readiness flags.
+The experimental durable service implements the local rules; provider-resume and
+production management rules remain future work.
+
+| Operation while admission is closed | Selected rule |
+| --- | --- |
+| Inspect existing validated state | Allow under the ordinary caller policy; inspection grants no authority |
+| Exact authorization or retain replay already recorded | Return the historical outcome without creating a record, reference or effect |
+| New grant, attachment, reference or registration | Refuse, even if capacity is available; do not consume its IDs |
+| Release an admitted reference or expire an unexposed grant | Allow local cleanup; preserve permanent identities and unresolved exposure |
+| Record a matched authentic result from an already dispatched operation | Preserve its outcome and obligation; do not chain another call or reopen admission |
+| Timer, retry, new deletion permission or other provider dispatch | Refuse new external effects; clearing timer demand alone is insufficient |
+
+These permissions apply only while the platform runs the canister and the accessed
+state is valid. A stopped canister serves no application calls. If durable roots
+cannot be validated on reopen, expose only safe host diagnostics, not cleanup over
+untrusted records. Unknown-reference cleanup still cannot declare completion;
+if resolving it requires a new authorization, the application keeps cleanup pending
+until admission reopens. Closed admission does not revoke an escaped certificate.
+
+Activation must refer to the **current maintenance attempt**, whose identity is
+retained across the upgrade and never reused. A later drain invalidates every
+earlier activation request, including a delayed retry after a lost reply. One
+current attempt and its disposition suffice; do not add an unbounded maintenance
+receipt ledger. Exact activation replay for that attempt may report its prior
+outcome, but cannot reactivate a later closed attempt. The manager serializes
+management work for the target; activation also requires its verified artifact,
+installation binding and successful reopen checks. This is protection within the
+trusted path, not a proof against controller bypass or snapshot restoration.
+
+### Interrupted management operations
+
+The management entrypoint must bind the target/network, current and intended Wasm
+hashes, exact upgrade arguments and selected upgrade options before dispatch. It
+retains enough original request identity to resolve a lost reply. These are
+management-operation facts, not a second Blob obligation ledger. Missing evidence
+leaves admission closed; a matching module hash alone cannot prove that a particular
+same-Wasm upgrade and its hooks ran exactly once.
+
+| Interruption | Required disposition |
+| --- | --- |
+| Drain reply lost | Inspect/recover the same attempt; do not create a new attempt as an automatic retry |
+| Stop times out or its reply is lost | Observe authenticated platform status; proceed only after stopped. Do not start the canister to make the stop error disappear |
+| Upgrade reply lost | Resolve the original request and exact target/artifact outcome; do not blindly dispatch another install or run hooks again |
+| Definitive upgrade rejection | Keep the old instance drained and inspect the failure; no reinstall, snapshot fallback or automatic reactivation |
+| Start reply lost | Observe platform status, then the matching attempt's closed admission; platform running does not mean Blob is active |
+| Activation reply lost | Inspect/retry only that attempt; a newer drain must remain closed |
+
+The first profile uses ordinary state-preserving upgrade with heap replacement
+and without skipping pre-upgrade hooks. Reject caller overrides, replacement
+installation arguments and destructive modes before dispatch. Old callbacks,
+Rust futures and heap readiness are not a persistence strategy. Downgrading code
+is not an automatic failure fallback: it needs its own reviewed state-compatible
+upgrade plan and the same stopped/reopen checks. State rollback remains forbidden.
+
+The IC [management contract](https://docs.internetcomputer.org/references/ic-interface-spec/management-canister/)
+specifies that a timed-out stop can leave a canister stopping and later stopped;
+starting during that interval aborts pending stop calls. It also defines upgrade
+options and atomic rejection of `install_code`. A missing response is not that
+definitive rejection. The conservative interruption rules above are this product's
+selected policy, not additional guarantees supplied by a module hash or timeout.
 
 The [interface specification](https://docs.internetcomputer.org/references/ic-interface-spec/)
 describes stopped canisters as having no outstanding responses. The [management
@@ -594,16 +744,20 @@ scenarios are not placeholder tests or claimed as passing.
 | Same provider key, conflicting declarations | Reject before reservation/exposure; preserve original owner |
 | Uploader knows another user's IDs | Refuse inspection/authority; neither uploader may mutate application references |
 | First-reference release races grant consumption | Serialize cancellation or live-reference release; no later authority exposure from the cancelled grant |
-| Final release races certificate acquisition/delivery | Commit Closing immediately; retain actual exposure/outcome; withhold new usable authority; never reopen |
+| Final release races synchronous issuance or delivery of its committed reply | Cancellation first refuses issuance; issuance first retains exposure through Closing, even when its certified reply arrives later; no reissuance or reopening |
 | Previously issued authority can still upload | Deletion acknowledgment does not settle; retain exposure until the qualified lifetime rule closes it |
 | Caller revoked during provider operation | Record authentic original result; withhold newly forbidden authority/effects |
 | Successful retain replayed after release | Return historical result without resurrection; current state stays released |
 | Capacity exhausted | New admissions reject; inspection, admitted release and bounded outcome recording remain possible |
 | Fresh request ID for unresolved object obligation | Reject bypass; retain original intent/outcome |
-| Lost certificate reply | Recover usable original/equivalent proof under qualified bounds, or explicitly report blocked; registration alone cannot pass |
+| Lost certificate reply | Recover the original usable proof under qualified bounds, or explicitly report blocked; registration alone and fresh issuance cannot pass |
 | Unknown, stale or duplicate provider callback | Authenticate and correlate; no deletion permission from absence, no new owner or duplicate accounting |
 | Old snapshot requested through supported management path | Refuse before load dispatch; this proves path refusal, not detection after a controller bypass |
 | Supported upgrade with unresolved domain obligations | Drain runtime callbacks; preserve identities, references, counters, released states and uncertainty; no automatic redispatch |
+| New work and late callbacks during drain | Refuse new admissions/effects while preserving authorized cleanup, historical replay and matched outcomes; timers cannot bypass the same gate |
+| Stop timeout or lost management reply | Keep admission closed; recover the original attempt and observe platform status before advancing; no blind upgrade replay |
+| Activation from attempt M arrives after a later drain N | Refuse M without reopening N, including after upgrade and after a lost activation reply |
+| Upgrade hook rejects or reopen validation fails | Retain the appropriate closed instance; no reinstall, empty-state initialization or automatic start/activation fallback |
 | Reopen invalid state or unknown management continuity | Remain non-effecting; no empty-state fallback or optimistic activation |
 | Malicious root/length/manifest mismatch | Admission refuses under the qualified enforcement model; skipping the SDK does not bypass bounds |
 | Multi-chunk download | Verify trusted original declaration; reject corruption, truncation, extra bytes and length mismatch without publishing partial output |
@@ -673,6 +827,40 @@ rules no longer wait on an API designer to invent a policy. Provider-supported
 field identities and enforceable bounds still require evidence.
 
 ## 12. Evidence and review scope
+
+### Lifecycle design continuation for 0.100.2
+
+Read-only review at legacy revision `25bed1352f3d2b9659f0d2583f50fa9af859ea84`
+covered [host reopening](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-canister/src/ops/mod.rs),
+[installed lifecycle regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/standalone_lifecycle/mod.rs),
+and the [continuity predicate](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/policy/recovery/mod.rs)
+with its [failure tests](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/policy/recovery/tests/mod.rs).
+Retain synchronous validated reopening, refusal of replacement configuration,
+preservation of released-but-unsettled obligations and rechecking after asynchronous
+observations. The old history predicate rejects incomplete history and replacement;
+its lifecycle tests also exercise management changes during recovery and repeated
+upgrades. These are useful regression requirements, not qualification of this rewrite.
+
+Do not copy the legacy per-owner fences, version-gap detector, platform-history
+recovery engine or funding/gateway restoration. The selected trusted management
+path has a narrower guarantee: refuse destructive dispatch and keep one admission
+gate closed until its current attempt is qualified. It cannot detect arbitrary
+controller bypass. The delayed-activation and lost-management-reply cases in §8
+are additional design requirements, not claims about legacy test coverage.
+That source review added no runtime code. The subsequent experimental installed
+profile in §8 implements local persistence, caller capture and upgrade tests with
+provider effects disabled. The production management entrypoint and Canic
+composition still require implementation and qualification; neither gate is closed.
+
+For management inspection, retain the legacy distinction between proposed input
+and installed configuration: its [configuration projection](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/installation/configuration/mod.rs)
+reads the durable record, while [offline installation checking](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/installation_check/mod.rs)
+does not establish an authenticated platform identity. The new projection uses
+the existing service fields and one shared record-version constant, without
+copying legacy DTOs, billing/funding configuration or recovery machinery. Native
+tests verify unchanged backing bytes; installed tests exercise manager refusal,
+replicated-only dispatch, strict framing and configuration preservation across
+upgrades. No legacy code or custody was imported.
 
 ### First implementation: local object references
 
@@ -816,7 +1004,7 @@ generations, funding, stable stores and recovery fences because this local model
 has none of those consumers or effects. The legacy multi-store architecture is
 not carried over. Nine [local tests](../../crates/ic-blob-storage/src/local/tests.rs)
 requalify the applicable failure cases and new shared-owner semantics through
-`make test-local`; no installed qualification package is implied.
+`make test-local`. The later installed profile uses this same policy owner.
 
 ### Offline application walkthrough
 

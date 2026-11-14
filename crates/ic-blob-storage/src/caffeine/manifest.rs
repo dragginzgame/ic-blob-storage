@@ -8,7 +8,7 @@ use super::{
 };
 
 /// Work budgets for one synchronous manifest check.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct ManifestLimits {
     /// Maximum declared content length; this does not authenticate that length.
     pub max_content_bytes: NonZeroU64,

@@ -45,7 +45,7 @@ pub struct Header<'a> {
 }
 
 /// A refused input or failed integrity comparison.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum VerificationError {
     /// No empty-object profile is qualified.
     EmptyContent,
