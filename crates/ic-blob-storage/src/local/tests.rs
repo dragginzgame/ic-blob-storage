@@ -3,11 +3,11 @@ use std::num::{NonZeroU64, NonZeroU128, NonZeroUsize};
 use ic_platform_types::Principal;
 
 use super::{
-    Error as E, Limits, LocalModel, ReferenceStatus as R, Root, UploadRequest, UploadState as U,
-    Usage,
+    Error as E, Limits, LocalModel, ObjectView, ReferenceStatus as R, ReferenceView, Root,
+    UploadRequest, UploadState as U, UploadView, Usage,
 };
 use crate::caffeine::{Header, ManifestLimits, VerificationError};
-use crate::references::ReferenceError;
+use crate::references::{ReferenceError, RetentionState};
 
 fn actor(value: u8) -> Principal {
     Principal::from_slice(&[value, 1])
@@ -70,10 +70,23 @@ fn state(m: &LocalModel, n: u128) -> U {
     m.inspect_upload(actor(1), id(n)).unwrap().state
 }
 
+fn reference(root: Root, status: R) -> ReferenceView {
+    ReferenceView { root, status }
+}
+
 #[test]
 fn overlapping_upload_ids_share_one_object_and_never_gain_second_registration() {
     let mut m = model();
     assert_eq!(admit(&mut m, request(1)), U::Reserved);
+    let mut expected_object = ObjectView {
+        original_upload: UploadView {
+            request: request(1),
+            state: U::Reserved,
+        },
+        retention: None,
+        live_references: 0,
+    };
+    assert_eq!(m.inspect_object(actor(1), abc()), Ok(expected_object));
     assert_eq!(
         usage(&m),
         Usage {
@@ -83,13 +96,18 @@ fn overlapping_upload_ids_share_one_object_and_never_gain_second_registration() 
             ..Usage::default()
         }
     );
-    m.register(actor(2), id(1), 11).unwrap();
+    m.register(actor(2), abc(), 11).unwrap();
     let second = UploadRequest {
         uploader: actor(3),
         ..request(2)
     };
     assert_eq!(admit(&mut m, second), U::Attached);
-    assert_eq!(m.register(actor(3), id(2), 12), Err(E::NotReserved));
+    expected_object.original_upload.state = U::Registered;
+    expected_object.retention = Some(RetentionState::Open);
+    expected_object.live_references = 2;
+    assert_eq!(m.inspect_object(actor(1), abc()), Ok(expected_object));
+    // An attached use does not become the root's original uploader.
+    assert_eq!(m.register(actor(3), abc(), 12), Err(E::Denied));
     assert_eq!(
         usage(&m),
         Usage {
@@ -101,9 +119,20 @@ fn overlapping_upload_ids_share_one_object_and_never_gain_second_registration() 
         }
     );
     m.release(actor(1), id(1)).unwrap();
-    assert_eq!(m.inspect_reference(actor(1), id(2)), Ok(R::Live));
+    expected_object.live_references = 1;
+    assert_eq!(m.inspect_object(actor(1), abc()), Ok(expected_object));
+    assert_eq!(
+        m.inspect_reference(actor(1), id(2)),
+        Ok(reference(abc(), R::Live))
+    );
+    // Releasing the original use does not retire the still-Open object.
+    m.retain(actor(1), abc(), id(7)).unwrap();
+    m.release(actor(1), id(7)).unwrap();
     assert_eq!(usage(&m).live_bytes, 3);
     m.release(actor(1), id(2)).unwrap();
+    expected_object.retention = Some(RetentionState::Closing);
+    expected_object.live_references = 0;
+    assert_eq!(m.inspect_object(actor(1), abc()), Ok(expected_object));
     assert_eq!(usage(&m).live_bytes, 0);
     assert_eq!(usage(&m).unresolved_bytes, 3);
     let before = usage(&m);
@@ -115,8 +144,62 @@ fn overlapping_upload_ids_share_one_object_and_never_gain_second_registration() 
         m.retain(actor(1), abc(), id(3)),
         Err(E::Reference(ReferenceError::Closing))
     );
-    assert_eq!(m.register(actor(2), id(1), 12), Err(E::NotReserved));
+    assert_eq!(m.register(actor(2), abc(), 12), Err(E::NotReserved));
     assert_eq!(usage(&m), before);
+}
+
+#[test]
+fn root_registration_resolves_the_original_uploader_deadline_and_first_reference() {
+    let mut m = model();
+    let original = request(u128::MAX);
+    let other_grant = UploadRequest {
+        root: other(),
+        bytes: 1,
+        uploader: actor(3),
+        expires_at: 12,
+        ..request(1)
+    };
+    admit(&mut m, original);
+    admit(&mut m, other_grant);
+    let before = usage(&m);
+    assert_eq!(m.register(actor(3), original.root, 11), Err(E::Denied));
+    assert_eq!(m.register(actor(2), other_grant.root, 11), Err(E::Denied));
+    assert_eq!(usage(&m), before);
+
+    // A newer grant for another root cannot replace this root's permission.
+    m.register(original.uploader, original.root, 12).unwrap();
+    assert_eq!(state(&m, u128::MAX), U::Registered);
+    assert_eq!(state(&m, 1), U::Reserved);
+    assert_eq!(
+        m.inspect_reference(actor(1), original.first_reference),
+        Ok(reference(abc(), R::Live))
+    );
+    assert_eq!(
+        m.inspect_reference(actor(1), other_grant.first_reference),
+        Ok(reference(other_grant.root, R::Reserved))
+    );
+    assert_eq!(usage(&m).reserved_bytes, 1);
+    assert_eq!(usage(&m).live_bytes, 3);
+    assert_eq!(usage(&m).unresolved_bytes, 3);
+    let before = usage(&m);
+    assert_eq!(
+        m.register(other_grant.uploader, other_grant.root, 12),
+        Err(E::Expired)
+    );
+    assert_eq!(usage(&m), before);
+    m.expire(actor(1), other_grant.id, 12).unwrap();
+    m.release(actor(1), original.first_reference).unwrap();
+    assert_eq!(
+        m.inspect_reference(actor(1), other_grant.first_reference),
+        Ok(reference(other_grant.root, R::Retired))
+    );
+    assert_eq!(
+        m.inspect_reference(actor(1), original.first_reference),
+        Ok(reference(original.root, R::Released))
+    );
+    assert_eq!(usage(&m).reserved_bytes, 0);
+    assert_eq!(usage(&m).live_bytes, 0);
+    assert_eq!(usage(&m).unresolved_bytes, 3);
 }
 
 #[test]
@@ -130,7 +213,7 @@ fn captured_actor_not_id_knowledge_controls_every_operation() {
     admit(&mut m, request(1));
     let before = usage(&m);
     for caller in [actor(1), actor(3), Principal::anonymous()] {
-        assert_eq!(m.register(caller, id(1), 11), Err(E::Denied));
+        assert_eq!(m.register(caller, abc(), 11), Err(E::Denied));
     }
     assert_eq!(m.inspect_upload(actor(3), id(1)), Err(E::Denied));
     assert_eq!(
@@ -142,6 +225,8 @@ fn captured_actor_not_id_knowledge_controls_every_operation() {
         assert_eq!(m.release(caller, id(1)), Err(E::Denied));
         assert_eq!(m.expire(caller, id(1), 100), Err(E::Denied));
         assert_eq!(m.inspect_reference(caller, id(1)), Err(E::Denied));
+        assert_eq!(m.inspect_object(caller, abc()), Err(E::Denied));
+        assert_eq!(m.inspect_object(caller, other()), Err(E::Denied));
         assert_eq!(m.usage(caller), Err(E::Denied));
     }
     assert_eq!(usage(&m), before);
@@ -202,61 +287,125 @@ fn retries_keep_the_original_request_and_cannot_renew_or_resurrect_it() {
         U::Reserved
     );
     assert_eq!(usage(&m), before);
-    assert_eq!(m.register(actor(2), req.id, 200), Err(E::Expired));
+    assert_eq!(m.register(actor(2), req.root, 200), Err(E::Expired));
     m.release(actor(1), req.first_reference).unwrap();
     assert_eq!(
         m.authorize(actor(1), req, &[], &[], 200).unwrap().state,
         U::Cancelled
     );
-    assert_eq!(m.register(actor(2), req.id, 11), Err(E::NotReserved));
+    assert_eq!(m.register(actor(2), req.root, 11), Err(E::NotReserved));
     assert_eq!(usage(&m).reserved_bytes, 0);
     assert_eq!(
         m.inspect_reference(actor(1), req.first_reference),
-        Ok(R::Retired)
+        Ok(reference(abc(), R::Retired))
     );
 }
 
 #[test]
-fn first_reference_release_serializes_with_registration_and_old_releases_are_harmless() {
-    let mut m = model();
-    admit(&mut m, request(1));
-    assert_eq!(
-        m.authorize(actor(1), request(2), &[abc()], &[], 10),
-        Err(E::ObjectReserved)
-    );
-    assert_eq!(
-        m.retain(actor(1), abc(), id(1)),
-        Err(E::ReferenceUnavailable)
-    );
-    m.release(actor(1), id(1)).unwrap();
-    assert_eq!(m.register(actor(2), id(1), 11), Err(E::NotReserved));
-    // A provably unexposed cancellation frees this root, but not its old IDs.
-    admit(&mut m, request(2));
-    let before = usage(&m);
-    m.release(actor(1), id(1)).unwrap();
-    assert_eq!(usage(&m), before);
-    assert_eq!(state(&m, 2), U::Reserved);
-    assert_eq!(
-        m.retain(actor(1), abc(), id(1)),
-        Err(E::ReferenceUnavailable)
-    );
-    m.register(actor(2), id(2), 11).unwrap();
-    m.release(actor(1), id(1)).unwrap();
-    assert_eq!(m.inspect_reference(actor(1), id(2)), Ok(R::Live));
-    m.release(actor(1), id(2)).unwrap();
-    assert_eq!(usage(&m).unresolved_bytes, 3);
-    assert_eq!(usage(&m).live_bytes, 0);
+fn cancellation_and_expiry_retire_roots_without_blocking_distinct_content() {
+    for expired in [false, true] {
+        let mut m = model();
+        admit(&mut m, request(1));
+        assert_eq!(
+            m.authorize(actor(1), request(2), &[abc()], &[], 10),
+            Err(E::ObjectReserved)
+        );
+        if expired {
+            m.expire(actor(1), id(1), 100).unwrap();
+        } else {
+            m.release(actor(1), id(1)).unwrap();
+        }
+        let before = usage(&m);
+        assert_eq!(before.reserved_bytes, 0);
+        assert_eq!(before.unresolved_bytes, 0);
+        assert_eq!(
+            m.inspect_object(actor(1), abc()),
+            Ok(ObjectView {
+                original_upload: UploadView {
+                    request: request(1),
+                    state: if expired { U::Expired } else { U::Cancelled }
+                },
+                retention: None,
+                live_references: 0,
+            })
+        );
+        // A new ID, later deadline or different uploader cannot reopen this root.
+        for uploader in [actor(2), actor(3)] {
+            assert_eq!(
+                m.authorize(
+                    actor(1),
+                    UploadRequest {
+                        uploader,
+                        expires_at: 300,
+                        ..request(2)
+                    },
+                    &[abc()],
+                    &[],
+                    101
+                ),
+                Err(E::RootRetired)
+            );
+        }
+        assert_eq!(m.retain(actor(1), abc(), id(2)), Err(E::RootRetired));
+        assert_eq!(m.register(actor(2), abc(), 101), Err(E::NotReserved));
+        assert_eq!(m.register(actor(2), other(), 101), Err(E::UnknownObject));
+        assert_eq!(
+            m.inspect_reference(actor(1), id(2)),
+            Err(E::UnknownReference)
+        );
+        assert_eq!(
+            m.retain(actor(1), abc(), id(1)),
+            Err(E::ReferenceUnavailable)
+        );
+        assert_eq!(
+            m.authorize(actor(1), request(1), &[], &[], 101)
+                .unwrap()
+                .state,
+            if expired { U::Expired } else { U::Cancelled }
+        );
+        m.release(actor(1), id(1)).unwrap();
+        assert_eq!(
+            m.inspect_reference(actor(1), id(1)),
+            Ok(reference(abc(), R::Retired))
+        );
+        assert_eq!(usage(&m), before);
+        // Refusal consumed no names; freed byte capacity can serve different content.
+        let distinct = UploadRequest {
+            root: other(),
+            bytes: 1,
+            expires_at: 300,
+            ..request(2)
+        };
+        assert_eq!(
+            m.authorize(actor(1), distinct, &[other()], &[], 102)
+                .unwrap()
+                .state,
+            U::Reserved
+        );
+        m.register(actor(2), other(), 103).unwrap();
+        m.release(actor(1), id(1)).unwrap();
+        assert_eq!(
+            m.inspect_reference(actor(1), id(2)),
+            Ok(reference(other(), R::Live))
+        );
+        m.release(actor(1), id(2)).unwrap();
+        assert_eq!(usage(&m).unresolved_bytes, 1);
+        assert_eq!(usage(&m).live_bytes, 0);
+    }
 }
 
 #[test]
 fn successful_retain_and_authorization_replays_never_reopen_a_released_reference() {
     let mut m = model();
     admit(&mut m, request(1));
-    m.register(actor(2), id(1), 11).unwrap();
+    m.register(actor(2), abc(), 11).unwrap();
     m.retain(actor(1), abc(), id(2)).unwrap();
     m.release(actor(1), id(2)).unwrap();
     m.retain(actor(1), abc(), id(2)).unwrap();
-    assert_eq!(m.inspect_reference(actor(1), id(2)), Ok(R::Released));
+    assert_eq!(
+        m.inspect_reference(actor(1), id(2)),
+        Ok(reference(abc(), R::Released))
+    );
     m.release(actor(1), id(1)).unwrap();
     let before = usage(&m);
     m.retain(actor(1), abc(), id(2)).unwrap();
@@ -269,6 +418,10 @@ fn successful_retain_and_authorization_replays_never_reopen_a_released_reference
     m.release(actor(1), id(2)).unwrap();
     assert_eq!(usage(&m), before);
     assert_eq!(m.retain(actor(1), other(), id(2)), Err(E::Conflict));
+    assert_eq!(
+        m.inspect_reference(actor(1), id(2)),
+        Ok(reference(abc(), R::Released))
+    );
     assert_eq!(
         m.authorize(
             actor(1),
@@ -299,7 +452,7 @@ fn root_conflicts_and_malformed_manifests_do_not_reserve_anything() {
             Err(E::Conflict)
         );
         if phase == U::Reserved {
-            m.register(actor(2), id(1), 11).unwrap();
+            m.register(actor(2), abc(), 11).unwrap();
         }
     }
     assert_eq!(usage(&m).uploads, before.uploads);
@@ -358,14 +511,29 @@ fn expiry_and_capacity_preserve_inspection_and_cleanup() {
     )
     .unwrap();
     admit(&mut m, request(1));
-    assert_eq!(m.register(actor(2), id(1), 9), Err(E::ClockReversed));
+    assert_eq!(m.register(actor(2), abc(), 9), Err(E::ClockReversed));
     assert_eq!(m.expire(actor(1), id(1), 99), Err(E::NotExpired));
-    assert_eq!(m.register(actor(2), id(1), 100), Err(E::Expired));
+    assert_eq!(m.register(actor(2), abc(), 100), Err(E::Expired));
     assert_eq!(usage(&m).reserved_bytes, 3);
     m.expire(actor(1), id(1), 100).unwrap();
     m.expire(actor(1), id(1), 101).unwrap();
     m.release(actor(1), id(1)).unwrap();
     assert_eq!(state(&m, 1), U::Expired);
+    assert_eq!(
+        m.inspect_object(actor(1), abc()),
+        Ok(ObjectView {
+            original_upload: UploadView {
+                request: request(1),
+                state: U::Expired
+            },
+            retention: None,
+            live_references: 0,
+        })
+    );
+    assert_eq!(
+        m.inspect_reference(actor(1), id(1)),
+        Ok(reference(abc(), R::Retired))
+    );
     assert_eq!(
         usage(&m),
         Usage {
@@ -378,7 +546,7 @@ fn expiry_and_capacity_preserve_inspection_and_cleanup() {
         m.authorize(actor(1), request(2), &[abc()], &[], 10),
         Err(E::Capacity)
     );
-    assert_eq!(m.register(actor(2), id(1), 11), Err(E::NotReserved));
+    assert_eq!(m.register(actor(2), abc(), 11), Err(E::NotReserved));
     assert_eq!(
         m.authorize(actor(1), request(1), &[], &[], 200)
             .unwrap()
@@ -395,7 +563,7 @@ fn expiry_and_capacity_preserve_inspection_and_cleanup() {
     )
     .unwrap();
     admit(&mut m, request(1));
-    m.register(actor(2), id(1), 11).unwrap();
+    m.register(actor(2), abc(), 11).unwrap();
     m.retain(actor(1), abc(), id(2)).unwrap();
     assert_eq!(m.retain(actor(1), abc(), id(3)), Err(E::Capacity));
     m.release(actor(1), id(1)).unwrap();
@@ -430,7 +598,7 @@ fn reservations_protect_both_byte_limits_and_final_release_cannot_free_exposure(
         );
         m.release(actor(1), id(1)).unwrap();
         assert_eq!(admit(&mut m, second), U::Reserved);
-        m.register(actor(2), id(2), 11).unwrap();
+        m.register(actor(2), other(), 11).unwrap();
         assert_eq!(usage(&m).reserved_bytes, 0);
         assert_eq!(usage(&m).live_bytes, 1);
         assert_eq!(usage(&m).unresolved_bytes, 1);
@@ -444,16 +612,78 @@ fn reservations_protect_both_byte_limits_and_final_release_cannot_free_exposure(
     )
     .unwrap();
     admit(&mut m, request(1));
-    m.register(actor(2), id(1), 11).unwrap();
+    m.register(actor(2), abc(), 11).unwrap();
     m.release(actor(1), id(1)).unwrap();
     assert_eq!(usage(&m).live_bytes, 0);
     assert_eq!(
         m.authorize(actor(1), second, &[other()], &[], 10),
         Err(E::Capacity)
     );
-    assert_eq!(m.inspect_reference(actor(1), id(1)), Ok(R::Released));
+    assert_eq!(
+        m.inspect_reference(actor(1), id(1)),
+        Ok(reference(abc(), R::Released))
+    );
     assert_eq!(m.expire(actor(1), id(1), u64::MAX), Err(E::NotReserved));
     assert_eq!(usage(&m).unresolved_bytes, 3);
+}
+
+#[test]
+fn delayed_authorization_must_be_resolved_before_cancelled_draft_cleanup_finishes() {
+    for registered_before_cleanup in [false, true] {
+        let mut m = model();
+        let original = request(1);
+        // The application has cancelled its draft, but authorization is unresolved.
+        // Absence is not a tombstone: it cannot prevent that request arriving later.
+        assert_eq!(
+            m.release(actor(1), original.first_reference),
+            Err(E::UnknownReference)
+        );
+        assert_eq!(usage(&m), Usage::default());
+        assert_eq!(admit(&mut m, original), U::Reserved);
+        if registered_before_cleanup {
+            m.register(original.uploader, original.root, 11).unwrap();
+        }
+        // Resolve the original intent, even if its first successful reply was lost.
+        let resolved = m.authorize(actor(1), original, &[], &[], 12).unwrap();
+        assert_eq!(resolved.request, original);
+        m.release(actor(1), original.first_reference).unwrap();
+        let terminal = if registered_before_cleanup {
+            R::Released
+        } else {
+            R::Retired
+        };
+        assert_eq!(
+            m.inspect_reference(actor(1), original.first_reference),
+            Ok(reference(original.root, terminal))
+        );
+        let after = usage(&m);
+        assert_eq!(after.reserved_bytes, 0);
+        assert_eq!(after.live_bytes, 0);
+        assert_eq!(
+            after.unresolved_bytes,
+            if registered_before_cleanup { 3 } else { 0 }
+        );
+        assert_eq!((after.uploads, after.references), (1, 1));
+        // A late exact authorization and repeated cleanup cannot revive the use.
+        assert_eq!(
+            m.authorize(actor(1), original, &[], &[], 13).unwrap().state,
+            if registered_before_cleanup {
+                U::Registered
+            } else {
+                U::Cancelled
+            }
+        );
+        assert_eq!(
+            m.register(original.uploader, original.root, 14),
+            Err(E::NotReserved)
+        );
+        m.release(actor(1), original.first_reference).unwrap();
+        assert_eq!(
+            m.inspect_reference(actor(1), original.first_reference),
+            Ok(reference(original.root, terminal))
+        );
+        assert_eq!(usage(&m), after);
+    }
 }
 
 #[test]
@@ -461,7 +691,8 @@ fn missing_ids_and_unregistered_objects_cannot_change_usage_or_reference_binding
     let mut m = model();
     admit(&mut m, request(1));
     let before = usage(&m);
-    assert_eq!(m.register(actor(2), id(2), 11), Err(E::UnknownUpload));
+    assert_eq!(m.inspect_object(actor(1), other()), Err(E::UnknownObject));
+    assert_eq!(m.register(actor(2), other(), 11), Err(E::UnknownObject));
     assert_eq!(m.release(actor(1), id(2)), Err(E::UnknownReference));
     assert_eq!(m.expire(actor(1), id(2), 100), Err(E::UnknownUpload));
     assert_eq!(m.retain(actor(1), other(), id(2)), Err(E::UnknownObject));

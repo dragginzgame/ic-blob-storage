@@ -43,10 +43,10 @@ pub(super) fn commit_verified(
     if stored.request != *original {
         return Err(Error::RequestChanged);
     }
-    let status = blob
+    let reference = blob
         .inspect_reference(application, original.first_reference)
         .map_err(Error::Blob)?;
-    if status != ReferenceStatus::Live {
+    if reference.status != ReferenceStatus::Live {
         return Err(Error::ReferenceNotLive);
     }
     if let Some(&reference) = catalog.get(asset) {
@@ -76,7 +76,7 @@ pub(super) fn remove(
     asset: &'static str,
     expected: ReferenceId,
 ) -> Result<(), Error> {
-    let status = blob
+    let reference = blob
         .inspect_reference(application, expected)
         .map_err(Error::Blob)?;
     match catalog.get(asset) {
@@ -85,7 +85,13 @@ pub(super) fn remove(
             catalog.remove(asset);
             Ok(())
         }
-        None if matches!(status, ReferenceStatus::Released | ReferenceStatus::Retired) => Ok(()),
+        None if matches!(
+            reference.status,
+            ReferenceStatus::Released | ReferenceStatus::Retired
+        ) =>
+        {
+            Ok(())
+        }
         _ => Err(Error::StaleRemoval),
     }
 }

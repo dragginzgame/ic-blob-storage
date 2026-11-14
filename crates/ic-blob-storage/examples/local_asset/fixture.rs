@@ -44,6 +44,15 @@ pub fn chunks() -> [Root; 6] {
     .map(hash)
 }
 
+// Separate frozen "abc" vector: cancelling it permanently retires that root.
+pub fn cancelled_request(uploader: Principal) -> UploadRequest {
+    UploadRequest {
+        root: hash("b5b435d47a4cce7dfec493b1e020c5308d9c7fe90add1aff510f9c2a9c4ea8e7"),
+        bytes: 3,
+        ..request(1, uploader)
+    }
+}
+
 pub fn limits() -> Limits {
     Limits {
         manifest: ManifestLimits {

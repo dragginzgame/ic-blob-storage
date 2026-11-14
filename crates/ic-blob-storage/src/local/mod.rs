@@ -2,6 +2,7 @@
 //!
 //! This is the sole local owner of grants, root matching, reference bindings and
 //! declared-byte accounting. Registered objects use the existing reference owner.
+//! Every admitted root keeps its original upload lifetime, even after cancellation.
 //! Roots identify objects only within this provisional model; no provider deletion
 //! scope is qualified. No certificate, provider message or settlement is produced.
 //!
@@ -13,7 +14,8 @@
 
 mod types;
 pub use types::{
-    Error, Limits, ReferenceStatus, Root, UploadId, UploadRequest, UploadState, UploadView, Usage,
+    Error, Limits, ObjectView, ReferenceStatus, ReferenceView, Root, UploadId, UploadRequest,
+    UploadState, UploadView, Usage,
 };
 
 use std::collections::BTreeMap;
@@ -31,16 +33,9 @@ struct Upload {
 }
 
 struct Object {
-    bytes: u64,
+    // Permanent root-to-lifetime binding. Its upload owns declaration and disposition.
+    upload: UploadId,
     references: Option<ObjectReferences>,
-}
-
-#[derive(Clone, Copy)]
-struct Reference {
-    root: Root,
-    // Predetermined references retain the grant identity even after cancellation,
-    // so an old release cannot affect a later reservation of the same root.
-    upload: Option<UploadId>,
 }
 
 /// Bounded local rehearsal of the service rules, with no provider effects.
@@ -49,7 +44,7 @@ pub struct LocalModel {
     limits: Limits,
     uploads: BTreeMap<UploadId, Upload>,
     objects: BTreeMap<Root, Object>,
-    references: BTreeMap<ReferenceId, Reference>,
+    references: BTreeMap<ReferenceId, Root>,
     reserved_bytes: u64,
     live_bytes: u64,
     unresolved_bytes: u64,
@@ -79,9 +74,10 @@ impl LocalModel {
     /// renewing deadlines, references or byte usage. A replay does not revalidate
     /// the supplied manifest: its original declaration was already admitted.
     /// New declarations must pass manifest preflight before any mutation.
+    /// Cancelled/expired roots cannot start another lifetime, even for a new uploader.
     /// # Errors
     /// Rejects wrong authority, conflicting identities, expired/invalid grants,
-    /// invalid manifests, competing reservations, Closing objects or capacity.
+    /// invalid manifests, competing reservations, retired roots, Closing objects or capacity.
     /// # Panics
     /// Panics if private record invariants are violated by an implementation defect.
     pub fn authorize(
@@ -121,10 +117,10 @@ impl LocalModel {
         )
         .map_err(Error::Manifest)?;
         let state = if let Some(object) = self.objects.get(&request.root) {
-            if object.bytes != request.bytes {
+            if self.uploads[&object.upload].view.request.bytes != request.bytes {
                 return Err(Error::Conflict);
             }
-            let references = object.references.as_ref().ok_or(Error::ObjectReserved)?;
+            let references = self.registered(request.root)?;
             if references.retention_state() == RetentionState::Closing {
                 return Err(Error::Reference(ReferenceError::Closing));
             }
@@ -154,7 +150,7 @@ impl LocalModel {
             self.objects.insert(
                 request.root,
                 Object {
-                    bytes: request.bytes,
+                    upload: request.id,
                     references: None,
                 },
             );
@@ -168,28 +164,26 @@ impl LocalModel {
                 admitted_at: now,
             },
         );
-        self.references.insert(
-            request.first_reference,
-            Reference {
-                root: request.root,
-                upload: Some(request.id),
-            },
-        );
+        self.references
+            .insert(request.first_reference, request.root);
         Ok(view)
     }
 
-    /// Consume the bound uploader's grant in one local transition.
+    /// Resolve a root to its original grant and consume it in one local transition.
     ///
     /// Creates the known first reference and transfers reserved bytes to live and
     /// unresolved declared usage together. Returns no upload authority. Repeating
-    /// registration, including through an attached upload ID, is refused.
+    /// registration is refused. Additional uses never replace the root's original
+    /// uploader, deadline or first reference. This accepts an already decoded root;
+    /// it defines neither a provider wire format nor a certificate endpoint.
     /// # Errors
-    /// Rejects unknown/wrong-uploader, consumed/retired or expired grants and a
+    /// Rejects unknown roots, wrong uploaders, consumed/retired or expired grants and a
     /// clock earlier than admission, without releasing their reservations.
     /// # Panics
     /// Panics if private record invariants are violated by an implementation defect.
-    pub fn register(&mut self, caller: Principal, id: UploadId, now: u64) -> Result<(), Error> {
-        let upload = self.uploads.get(&id).ok_or(Error::UnknownUpload)?;
+    pub fn register(&mut self, caller: Principal, root: Root, now: u64) -> Result<(), Error> {
+        let id = self.objects.get(&root).ok_or(Error::UnknownObject)?.upload;
+        let upload = &self.uploads[&id];
         let request = upload.view.request;
         if caller != request.uploader {
             return Err(Error::Denied);
@@ -213,7 +207,7 @@ impl LocalModel {
     }
 
     /// Explicitly retire an expired, unconsumed grant and release its byte reservation.
-    /// Retired names/history remain occupied. Repeating expiry of that grant succeeds.
+    /// Its root and names remain occupied. Repeating expiry of that grant succeeds.
     /// # Errors
     /// Rejects wrong authority, unknown/non-reserved grants or an unexpired deadline.
     pub fn expire(&mut self, caller: Principal, id: UploadId, now: u64) -> Result<(), Error> {
@@ -236,14 +230,16 @@ impl LocalModel {
     /// Historical successful retains replay without resurrection or extra usage.
     /// # Errors
     /// Rejects wrong authority/target, reserved/retired names, unknown/unregistered
-    /// objects, Closing objects or exhausted lifetime reference capacity.
+    /// objects, retired roots, Closing objects or exhausted lifetime reference capacity.
+    /// # Panics
+    /// Panics if private record invariants are violated by an implementation defect.
     pub fn retain(&mut self, caller: Principal, root: Root, id: ReferenceId) -> Result<(), Error> {
         self.application(caller)?;
-        if let Some(reference) = self.references.get(&id).copied() {
-            if reference.root != root {
+        if let Some(target) = self.references.get(&id).copied() {
+            if target != root {
                 return Err(Error::Conflict);
             }
-            return match self.reference_status(id, reference) {
+            return match self.reference_status(id, root) {
                 ReferenceStatus::Live | ReferenceStatus::Released => Ok(()),
                 ReferenceStatus::Reserved | ReferenceStatus::Retired => {
                     Err(Error::ReferenceUnavailable)
@@ -253,21 +249,23 @@ impl LocalModel {
         if self.references.len() >= self.limits.references.get() {
             return Err(Error::Capacity);
         }
-        let object = self.objects.get_mut(&root).ok_or(Error::UnknownObject)?;
+        self.registered(root)?;
+        let object = self.objects.get_mut(&root).unwrap();
         object
             .references
             .as_mut()
-            .ok_or(Error::ObjectReserved)?
+            .unwrap()
             .retain(id)
             .map_err(Error::Reference)?;
-        self.references.insert(id, Reference { root, upload: None });
+        self.references.insert(id, root);
         Ok(())
     }
 
     /// Release a reference, or cancel its still-unconsumed first-reference grant.
     ///
     /// Final live release removes logical usage but preserves unresolved usage.
-    /// Repeated release succeeds without touching a later reservation of the root.
+    /// Cancellation frees reserved bytes but permanently retires the root.
+    /// Repeated release succeeds without changing accounting or reusing names.
     /// No new slot is needed, including at capacity.
     /// # Errors
     /// Rejects wrong authority or an unknown reference. Refusals do not mutate state.
@@ -275,17 +273,17 @@ impl LocalModel {
     /// Panics if private record invariants are violated by an implementation defect.
     pub fn release(&mut self, caller: Principal, id: ReferenceId) -> Result<(), Error> {
         self.application(caller)?;
-        let reference = *self.references.get(&id).ok_or(Error::UnknownReference)?;
-        match self.reference_status(id, reference) {
+        let root = *self.references.get(&id).ok_or(Error::UnknownReference)?;
+        match self.reference_status(id, root) {
             ReferenceStatus::Reserved => {
-                self.retire(reference.upload.unwrap(), UploadState::Cancelled)
+                self.retire(self.objects[&root].upload, UploadState::Cancelled)
             }
             ReferenceStatus::Live => {
-                let object = self.objects.get_mut(&reference.root).unwrap();
+                let object = self.objects.get_mut(&root).unwrap();
                 let references = object.references.as_mut().unwrap();
                 references.release(id).map_err(Error::Reference)?;
                 if references.retention_state() == RetentionState::Closing {
-                    self.live_bytes -= object.bytes;
+                    self.live_bytes -= self.uploads[&object.upload].view.request.bytes;
                 }
             }
             ReferenceStatus::Released | ReferenceStatus::Retired => {}
@@ -304,17 +302,21 @@ impl LocalModel {
         Ok(view)
     }
 
-    /// Inspect current reference liveness as the application authority.
+    /// Inspect the immutable root and current disposition as the application authority.
+    /// Released/retired references preserve their target; inspection never reopens them.
     /// # Errors
     /// Rejects wrong authority or an unknown reference.
     pub fn inspect_reference(
         &self,
         caller: Principal,
         id: ReferenceId,
-    ) -> Result<ReferenceStatus, Error> {
+    ) -> Result<ReferenceView, Error> {
         self.application(caller)?;
-        let reference = *self.references.get(&id).ok_or(Error::UnknownReference)?;
-        Ok(self.reference_status(id, reference))
+        let root = *self.references.get(&id).ok_or(Error::UnknownReference)?;
+        Ok(ReferenceView {
+            root,
+            status: self.reference_status(id, root),
+        })
     }
 
     /// Inspect separate declared counters and lifetime record occupancy.
@@ -331,6 +333,32 @@ impl LocalModel {
         })
     }
 
+    /// Inspect a known root's original grant, local retention and live-use count.
+    ///
+    /// One synchronous observation uses existing records without scanning history
+    /// or allocating slots. It remains available at capacity and after retirement.
+    /// Registered history persists when retention becomes Closing; no settlement
+    /// or provider availability is inferred. It does not authorize a later effect.
+    /// # Errors
+    /// Rejects wrong application authority or a root that was never admitted.
+    /// # Panics
+    /// Panics if private record invariants are violated by an implementation defect.
+    pub fn inspect_object(&self, caller: Principal, root: Root) -> Result<ObjectView, Error> {
+        self.application(caller)?;
+        let object = self.objects.get(&root).ok_or(Error::UnknownObject)?;
+        Ok(ObjectView {
+            original_upload: self.uploads[&object.upload].view,
+            retention: object
+                .references
+                .as_ref()
+                .map(ObjectReferences::retention_state),
+            live_references: object
+                .references
+                .as_ref()
+                .map_or(0, ObjectReferences::live_count),
+        })
+    }
+
     fn application(&self, caller: Principal) -> Result<(), Error> {
         if caller == self.application {
             Ok(())
@@ -339,21 +367,24 @@ impl LocalModel {
         }
     }
 
-    fn reference_status(&self, id: ReferenceId, reference: Reference) -> ReferenceStatus {
-        if let Some(upload) = reference.upload {
-            match self.uploads[&upload].view.state {
-                UploadState::Reserved => return ReferenceStatus::Reserved,
-                UploadState::Cancelled | UploadState::Expired => return ReferenceStatus::Retired,
-                UploadState::Registered | UploadState::Attached => {}
-            }
+    fn registered(&self, root: Root) -> Result<&ObjectReferences, Error> {
+        let object = self.objects.get(&root).ok_or(Error::UnknownObject)?;
+        match self.uploads[&object.upload].view.state {
+            UploadState::Reserved => Err(Error::ObjectReserved),
+            UploadState::Cancelled | UploadState::Expired => Err(Error::RootRetired),
+            UploadState::Registered => Ok(object.references.as_ref().unwrap()),
+            UploadState::Attached => unreachable!("an attachment cannot own the root"),
         }
-        match self.objects[&reference.root]
-            .references
-            .as_ref()
-            .unwrap()
-            .reference_state(id)
-            .unwrap()
-        {
+    }
+
+    fn reference_status(&self, id: ReferenceId, root: Root) -> ReferenceStatus {
+        let references = match self.registered(root) {
+            Ok(references) => references,
+            Err(Error::ObjectReserved) => return ReferenceStatus::Reserved,
+            Err(Error::RootRetired) => return ReferenceStatus::Retired,
+            _ => unreachable!("admitted references have an object owner"),
+        };
+        match references.reference_state(id).unwrap() {
             ReferenceState::Live => ReferenceStatus::Live,
             ReferenceState::Released => ReferenceStatus::Released,
         }
@@ -363,7 +394,6 @@ impl LocalModel {
         let upload = self.uploads.get_mut(&id).unwrap();
         upload.view.state = state;
         let request = upload.view.request;
-        self.objects.remove(&request.root);
         self.reserved_bytes -= request.bytes;
     }
 }

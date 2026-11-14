@@ -1,194 +1,143 @@
 # Current status — 2026-11-14
 
-This is the independent clean-start Blob Storage rewrite. One unpublished
-`ic-blob-storage` crate implements an experimental local grant/reference/accounting
-model, streaming Caffeine root verification and manifest preflight. Direct product
-dependencies are `sha2` 0.11.1 and `ic-platform-types` 0.20.3, both with default
-features disabled. There are no endpoints, persistent service or network integration.
-Rust 1.100.0 / edition 2024 and authenticated Toko Tooling 0.43.0 remain selected.
+## Delivered checkpoint
 
-## GitHub checkpoint and next development
+Development version **0.100.1** was committed and pushed to `origin/0.100` at
+[8cb3c40](https://github.com/dragginzgame/ic-blob-storage/commit/8cb3c40bdd09e36f4f92c410f8773a361f398706).
+GitHub branch readback confirmed that exact SHA. That checkpoint includes the
+local model and example. The post-push handoff, application boundary and permanent
+root-retirement, root-registration and inspection changes remain local;
+the index is empty. No tag, crates.io publication or live-provider effect occurred.
+`publish = false` remains inherited.
+The private repository is `dragginzgame/ic-blob-storage` (ID 1457703306), default
+branch `0.100`; origin is `https://github.com/dragginzgame/ic-blob-storage.git`.
 
-The first checkpoint, `0.100.0`, was pushed to branch `0.100` at
-[ad0b926](https://github.com/dragginzgame/ic-blob-storage/commit/ad0b92603fdae0ca5ce268fd9ab912d0b923efdb).
-GitHub readback confirmed that exact branch head. The fresh repository is private,
-ID 1457703306, with default branch `0.100` and collaborator-only pull requests.
-Local `origin` is `https://github.com/dragginzgame/ic-blob-storage.git`.
-No legacy commits/refs were imported, and no tag, registry publication or
-provider effect occurred. This is a GitHub development checkpoint only.
+One unpublished product crate uses Rust 1.100.0 / edition 2024, Toko Tooling
+0.43.0, `sha2` 0.11.1 and `ic-platform-types` 0.20.3 (default features disabled).
+There are no endpoints, durable service, deployment runner or network integration.
+Detailed prior validation, research and the first checkpoint audit are preserved
+in the [pushed handoff](https://github.com/dragginzgame/ic-blob-storage/blob/8cb3c40bdd09e36f4f92c410f8773a361f398706/docs/status/current.md).
 
-The maintainer requested starting the next version: `0.100.1` is prepared in the
-working tree with the local model, verifier, manifest check, offline application
-example, focused test targets, lockfile and documentation. These changes remain
-uncommitted and unpushed on local `0.100`.
-The root workspace owns the version; the product inherits it. Publication remains
-explicitly disabled. The crates.io index checked before the checkpoint listed
-`0.82.1` as the highest published stable version and no `0.100.0`; recheck the
-requested version during an eventual authorized publication.
+## Accepted scope and next work
 
-## Accepted direction and next work
+The [design](../design/ic-blob-storage-design.md) selects Caffeine-first storage,
+one service library, a thin standalone host, direct client SDK transfers and a
+Canic-owned adapter. API and persistence remain unfrozen. The accepted local
+qualification location is `qualification/crates/` in the root workspace, when
+real installed behavior needs it; no placeholder package exists.
 
-The maintainer accepted Caffeine-first scope, one reusable service library,
-standalone hosting, direct SDK transfers and a Canic-owned adapter. The
-[design](../design/ic-blob-storage-design.md) selects the ownership model and
-proposes identity, authority, closure, accounting and lifecycle rules. API and
-persistence remain unfrozen; no legacy contract or storage format is adopted.
+The maintainer approved an experimental local model while provider gate D0 is
+open: no certificates/deployment, declared-byte accounting, no settlement claim.
+`LocalModel` composes grants, provisional root matching, references and accounting.
+Only the application authority authorizes/retains/releases; the bound uploader
+registers. Hosts must supply captured identities. The maintainer selected one
+upload lifetime per admitted root: cancellation/expiry frees unexposed byte
+reservations but permanently retains the root. New IDs/uploaders cannot restart
+it. Open objects still accept additional references. The root points to its original
+upload, which owns declaration/disposition; references store only their root target.
+Application-only inspection projects that target and current status as `ReferenceView`.
+The example resolves catalog assets from their reference IDs without another target map.
+Known-root `ObjectView` inspection adds original-grant history, optional local retention
+and live-use count; it projects the existing owners without another state store.
+Registered roots remain owned after final release, with unresolved usage retained.
+This heap model MUST NOT back real upload authority or provider obligations.
 
-The [crate layout](../design/ic-blob-storage-design.md#selected-crate-layout)
-adds a thin standalone host when endpoints exist. Installed tests will use
-`qualification/crates/` within the root workspace/lockfile. No host exists yet,
-so no placeholder package was created. Native reference tests stay with their
-owner; Canic owns its composition tests and browser tests belong to the client.
+The [Caffeine contract review](../design/caffeine-contract-review.md) records
+adapted first-party legacy integrity code, SDK 1.1.2 vectors, manifest checks and
+provider enforcement gaps. Manifest consistency cannot authenticate declared length.
+Streaming verification needs the original trusted declaration AND successful EOF.
+The [offline walkthrough](../design/ic-blob-storage-design.md#offline-application-walkthrough)
+exercises these boundaries, overlapping uses, publication retries, cancellation,
+catalog collisions and stale removal. Publication means application catalog entry.
 
-The [local verifier/reuse record](../design/caffeine-contract-review.md#implemented-local-read-verification)
-documents adapted first-party legacy streaming/metadata code and frozen SDK vectors.
-It selects only the reviewed 1.1.2 integrity algorithm, not provider identity or
-admission semantics. It checks exact original length, metadata and root using
-fixed retained hash state. The caller still owns successful transport EOF and
-private output until verification passes. npm latest remains 1.1.2; SDK recovery
-and provider-contract gaps remain open. No legacy recovery records were imported.
-
-The [manifest reuse record](../design/caffeine-contract-review.md#implemented-local-manifest-preflight)
-adds bounded consistency checking adapted from the first-party legacy constructor
-and failure cases. It borrows leaves without retaining them and shares tree and
-metadata code with the verifier. A consistent manifest can still lie about byte
-length; the regression explicitly preserves this distinction. No authority,
-provider storage bound, wire decoder or persistent representation is established.
-The local model now calls this preflight on fresh authorization; host/client
-integration remains future work.
-
-The
-[field enforcement matrix](../design/caffeine-contract-review.md#field-enforcement-required-before-registration)
-assigns declaration checks to Blob and the required enforcement to Caffeine.
-The linked qualification sequence separates supported-contract selection (D0),
-installed local behavior (D1) and authorized live observations (D2), including
-malicious size assertions, proof recovery, scope substitution and late uploads.
-Read-only inspection of the pinned legacy October investigations and November 5
-deletion follow-up found no closure proof: the latter still reported DeletionPending
-and no recorded acknowledgment. No old object or provider endpoint was accessed.
-
-The maintainer explicitly approved proceeding with a local model while D0 is open:
-no deployment/certificate issuance, declared-byte accounting, no settlement claim,
-and unfrozen API/persistence. The [implementation and legacy reuse record](../design/ic-blob-storage-design.md#experimental-local-service-model)
-describes the resulting single local owner. It composes the existing reference
-component instead of introducing a parallel reference engine. One immutable
-application authority authorizes/retains/releases; only the bound uploader registers.
-The host must supply actual captured Principals. Root matching is provisional
-within one hypothetical binding, not a qualified deletion identity.
-
-Cancellation/expiry retires IDs and frees unexposed reservations. A fresh grant can
-reuse an unexposed root, but old releases stay bound to the old grant. Registered
-roots remain owned permanently, including after final release. An additional upload
-ID attaches a reference to an Open owner without a second registration. Final release
-frees live declared bytes only; no operation settles unresolved usage. The heap model
-must never back real certificates or obligations. Its callers are the nine composed
-tests and the offline application example; real application/host integration remains
-future work.
-
-The [offline application walkthrough](../design/ic-blob-storage-design.md#offline-application-walkthrough)
-now runs with `make example-local`. Two synthetic uploaders share a 5 MiB + 17 byte
-fixture between two assets. The application owns its catalog and read completion;
-Blob owns grant/reference/accounting state. It demonstrates pre-registration
-cancellation, publication only after verified EOF, corruption refusal, cleanup of
-a fresh reference after a catalog collision, and final release retaining unresolved
-declared usage. Its two private catalog helpers also distinguish exact publication
-replay from a new conflicting draft, recheck liveness after read verification,
-and compare expected references before removal. Delayed removal/republication
-cannot affect an asset-name replacement. It does not implement a browser/SDK
-transfer or remote transaction. Four tests selected by `make test-example-local`
-check read completion, cancellation after verification and nonmutating refusals.
-
-Next, use this concrete journey to select the actual application/host boundary.
-D0 must still close before selecting real provider identity, durable service
-integration or exposing upload authority. The approved local scope remains useful
-for domain work but does not authorize a service deployment.
-The [Caffeine review](../design/caffeine-contract-review.md)
-traces historical standalone uploads, pinned issuer/manifest/client source and
-provider SDK behavior. Issuance is a synchronous host update whose IC-certified
-reply the client uses; no host-to-provider certificate acquisition is implied.
+The new [application boundary](../design/application-boundary.md) selects that asset
+catalog as the reference consumer, distinguishes A's application calls from direct
+uploader calls, and defines remote cancellation/publication/release ordering.
+It adds no installed application. Unknown references cannot finish cleanup while
+authorization is unresolved; delayed Live observations cannot override cancellation.
+Permanent root ownership prevents a later grant from replacing a cancelled one.
+Local registration now takes a decoded root, resolves that original lifetime and
+rechecks its uploader, disposition and deadline in the synchronous transition.
+It replaces upload-ID registration; no eligibility token or alternate path remains.
+Next, qualify the actual provider binding with D0 before a real host: text decoding,
+actual caller capture and usable certificate replies remain unimplemented.
+Close D0 before real provider identity, durable service integration or authority exposure.
 Independent enrollment/support, exclusive deletion scope, byte enforcement,
 recovered-proof acceptance, SDK resume and authority-lifetime closure remain
-unqualified. The maintainer has no separate provider agreement/contact. Final
-release cannot retract a held or independently recovered original certificate.
-
-Select a concrete application asset and the restricted management entrypoint
-before installed lifecycle tests. The proposed policy drains/stops before
-same-schema upgrades and refuses unsafe state replacement through the supported
-management path; it makes no guarantee against an unrestricted controller bypass.
-Do not create speculative provider abstractions or import legacy recovery code.
+unqualified. The maintainer has no separate provider agreement/contact. Historical
+uploads and the November deletion follow-up do not prove closure. A held or recovered
+original certificate cannot be retracted merely by final local release.
+Select the restricted management path before installed lifecycle tests: proposed
+stop/drain upgrades and unsafe-restore refusal do not constrain a controller bypass.
+Future durable integration must replace this owner's backing or retire it, never
+add a parallel policy engine. Do not create speculative provider abstractions.
 
 ## Post-push architecture check
 
-Trigger: the initial push above. Method: Toko Tooling
-[complexity review](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/audits/complexity-and-technical-debt.md),
-with the pushed [AGENTS.md](https://github.com/dragginzgame/ic-blob-storage/blob/ad0b92603fdae0ca5ce268fd9ab912d0b923efdb/AGENTS.md) overlay. Source inspection covered
-all product code at the pushed commit, its tests, Makefile and planned ownership.
-There is no earlier rewrite commit for a comparable growth baseline.
+Trigger: push of `8cb3c40`; comparison: first checkpoint `ad0b926` (0.100.0).
+Method: Toko Tooling [complexity review](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/audits/complexity-and-technical-debt.md)
+at revision `626da7cd9626cc2e152594862a2d82ea82ef51da`, with the
+[pushed overlay](https://github.com/dragginzgame/ic-blob-storage/blob/8cb3c40bdd09e36f4f92c410f8773a361f398706/AGENTS.md).
+Source inspection covered changed product owners, reference composition, tests,
+example callers, dependency/Make wiring and design boundaries. The working tree
+matched the pushed source during inspection. Verdict: **PASS within this local
+structural scope**, with no actionable sediment found; installed behavior is excluded
+because no host/provider integration exists, not because it has been qualified.
 
-No actionable architectural sediment was found in the implemented slice.
-`ObjectReferences` alone owns live/released IDs, the lifetime slot bound and the
-live count; Open/Closing is derived. Retain/release policy has no other semantic
-consumer or duplicate store. At that commit callers are the seven owner-local tests;
-there is no host caller yet. Retained released IDs prevent replay resurrection,
-and the cached live count avoids a history scan on each retention inspection.
-Both are justified state, not obsolete compatibility machinery.
+| State/decision | Canonical owner and consumers |
+| --- | --- |
+| Reserved/Registered/Attached/Cancelled/Expired grants, caller rules, R/L/E limits | `LocalModel`; consumed by tests and the offline example. Only Reserved registers; only unexposed reservations retire |
+| Live/Released references and derived Open/Closing | `ObjectReferences`; composed by the model. The global map holds immutable targets/original grants, not duplicate liveness |
+| Root/metadata consistency and stream integrity | Shared Caffeine tree/metadata helpers; manifest admission and read verifier use the same algorithm |
+| Catalog insertion/replay/removal | Private example helpers; current Blob liveness and expected reference guard publication/removal without a receipt ledger |
 
-Two near-term rehearsals: registration must compose this owner with its first
-reference/accounting, blocked on provider identity/bounds; persistence must place
-this same owner behind admitted storage rather than create a parallel engine.
-Host caller capture and memory/lifecycle composition remain outside the library's
-business rules. No provider mode, generic retry framework or test-only engine
-has accumulated. These rehearsals qualify no unimplemented behavior.
+Retained IDs prevent resurrection and stale cancellation. Three cached byte counters
+avoid scanning history; record counts derive from maps. No settlement mode, generic
+retry framework, SDK copy, legacy recovery engine or second production state engine
+was added. Targeted legacy reuse and its requalification are recorded in the design.
+Two source rehearsals: actual ingress capture belongs in a thin host calling this
+owner; durable storage must retain this owner and its accounting/reference semantics.
+Both depend on the selected provider/lifecycle contract; neither warrants another
+local abstraction now. Catalog policy continues to belong to the application.
 
-`make deps-list` and `toko-cloc` after the push report one crate, 81 product Rust
-lines, 113 test lines, zero consumer Rust tooling and zero unclassified code.
-The initial 65-file commit also includes 49 authenticated shared tooling/policy
-files; that installed payload is not Blob product code. Snapshot admission passes.
-No full-repository audit or code-suite rerun was needed for this source review.
+Fresh `make deps-list`/`toko-cloc` report one crate: **694 product / 1,152 test /
+344 example** Rust lines, zero consumer tooling or unclassified Rust. Baseline was
+81 product / 113 test / zero example. Growth implements bounded integrity, one local
+control owner and failure/replay witnesses; no new package or managed tooling files.
+This is a scoped source review, not a full repository audit or reliability verdict.
 
-## Validation and retained history
+## Validation and custody
 
-For the local model, all nine tests passed using the exact command exposed by
-`make test-local` (Make wiring checked with a dry run). Native Clippy including
-tests, Wasm library Clippy, strict Rustdoc, rustfmt and documentation links pass.
-The twelve streaming/manifest and seven reference tests retain their prior evidence;
-the new tests also exercise their composition. No full CI, fresh SDK execution,
-installed host/provider test, rollback or D0/D1 completion is claimed.
+Unchanged focused evidence was reused: nine model tests, twelve integrity tests,
+seven reference tests, four example tests and the offline walkthrough passed.
+Native/test and Wasm library Clippy, example Clippy, strict Rustdoc, rustfmt and
+local links passed in their affected batches. Delivery newly admitted all 49 tooling
+files and installed tools; staged whitespace and pre-commit formatting passed.
+No full CI, fresh SDK execution, installed-provider test, rollback or D0/D1 completion
+is claimed. No product code changed during delivery.
 
-After the model batch, LOC was 694 product / 998 test Rust lines, versus 336 / 537 before the
-local model and 81 / 113 at the GitHub checkpoint. The addition is one local
-control owner and its failure cases, with no new crate, transfer engine or consumer
-tooling. Record counts derive from the maps; retained byte counters avoid scanning
-history. Reference liveness stays in the existing reference owner, and the global
-reference map adds immutable targets and original-grant bindings. Both are needed
-to prevent cross-object reuse and stale cancellation; no duplicate reference state
-is stored. Root/object entries are bounded by lifetime upload slots.
+Latest local batch: all eleven `make test-local` cases, four `make test-example-local`
+cases and `make example-local` pass. The cases retain root retirement, delayed
+authorization, exact original grant resolution and accounting proofs. Object-view
+assertions now cover reservation, cancellation/expiry, overlapping uses, final release,
+caller refusal, unknown roots and full-capacity inspection. Reference targets remain
+checked through cleanup and rejected rebinding. The example observes Open after scene
+removal, then Closing after final release while Registered history and exposure remain.
+Native library/test/example Clippy and strict Rustdoc pass; formatting, local links
+and whitespace pass. Unchanged integrity/reference tests retain their prior evidence;
+no full CI or new installed proof is claimed.
 
-The application example and its retry extension leave product code unchanged:
-current totals are **694 product / 1,152 test / 344 example**. This continuation
-adds 137 example and 114 test lines over the initial walkthrough. Two conditional
-catalog operations replace unconditional map writes; they add no receipt ledger,
-reference-state copy or generic retry mechanism.
-`make example-local` and all four `make test-example-local` cases passed.
-Example-target Clippy including test compilation, rustfmt, local links and whitespace
-checks pass; the actual Make entrypoints selected the scoped run and tests.
-No product suite, Wasm check or Rustdoc rerun was needed for the unchanged library.
-No dependency, crate, installed qualification package or live-provider effect was
-added. Legacy publication and reference receipt/submission tests were inspected
-read-only; exact-intent/current-liveness lessons were retained without the patched
-SDK, receipt stores or recovery machinery.
+LOC is now **718 product / 1,374 test / 396 example**. Object inspection adds 21
+product lines over the preceding local batch, with no stored state, dependency or
+package. It reuses `RetentionState` and the reference owner's live count. Permanent
+root claims still replace per-reference grant pointers/duplicate byte declarations;
+there is no second registry. Legacy root, certificate, reference and upload-status
+sources/tests were read only; reuse/exclusions are in the design. No stable index,
+text parser, certificate response, assessment, settlement or restore mechanism was
+copied. These changes remain unpushed and outside the post-push audit above.
 
-Platform Types 0.20.3 was verified as the latest stable non-yanked registry release
-on 2026-11-14, then locked/fetched offline. Its identity-only selection introduces
-13 lockfile packages including itself; no IC runtime, Candid or external SDK was
-added. This is a local implementation review, not a new post-push audit. No push
-occurred; the earlier post-push review applies only to its recorded commit.
-
-Legacy custody remains in private `dragginzgame/ic-blob-storage-legacy`, repository
-ID 1387534636. That repository was untouched by delivery. Its expected sibling
-path is absent here; relocation/frozen-journal facts were not reverified. Read its
-`LEGACY.md` before any separately authorized recovery. Never import or resume its
-provider obligations through this rewrite. The initial checkpoint's
-[handoff](https://github.com/dragginzgame/ic-blob-storage/blob/ad0b92603fdae0ca5ce268fd9ab912d0b923efdb/docs/status/current.md)
-preserves the bootstrap/relocation and earlier validation details; local bootstrap
-logs remain in `target/bootstrap-20261114/`. Machine-local credentials are ignored.
+Legacy custody stays in private `dragginzgame/ic-blob-storage-legacy`, ID 1387534636.
+That repository was untouched. The expected sibling path is absent here; relocation
+and frozen journals were not reverified. Read its `LEGACY.md` before any separately
+authorized recovery. Never import/resume legacy provider obligations in this rewrite.
+Bootstrap logs remain under `target/bootstrap-20261114/`; credentials are ignored.

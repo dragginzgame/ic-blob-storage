@@ -1,6 +1,6 @@
 use std::io::{self, Read};
 
-use ic_blob_storage::local::{Error as BlobError, LocalModel, ReferenceStatus};
+use ic_blob_storage::local::{Error as BlobError, LocalModel, ReferenceStatus, ReferenceView};
 use ic_platform_types::Principal;
 
 use super::{Catalog, CatalogError, Publication, commit_verified, fixture, remove, verify_read};
@@ -62,7 +62,7 @@ fn cancellation_after_verification_is_rechecked_at_publication() {
         )
         .unwrap();
         if registered {
-            blob.register(uploader, original.id, 11).unwrap();
+            blob.register(uploader, original.root, 11).unwrap();
         }
         verify_read(body.as_slice(), &original).unwrap();
         // Represents cancellation between a completed read and catalog commit.
@@ -104,7 +104,7 @@ fn catalog_refusals_leave_published_references_and_targets_unchanged() {
         10,
     )
     .unwrap();
-    blob.register(uploader, original.id, 11).unwrap();
+    blob.register(uploader, original.root, 11).unwrap();
     verify_read(fixture::body().as_slice(), &original).unwrap();
     assert_eq!(
         commit_verified(&mut catalog, &blob, application, "scene", &original),
@@ -156,6 +156,9 @@ fn catalog_refusals_leave_published_references_and_targets_unchanged() {
     assert_eq!(blob.usage(application).unwrap(), before);
     assert_eq!(
         blob.inspect_reference(application, original.first_reference),
-        Ok(ReferenceStatus::Live)
+        Ok(ReferenceView {
+            root: original.root,
+            status: ReferenceStatus::Live
+        })
     );
 }

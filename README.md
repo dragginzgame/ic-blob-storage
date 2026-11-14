@@ -12,6 +12,15 @@ It does not authenticate the declared byte length or authorize an upload.
 The [experimental local model](crates/ic-blob-storage/src/local/mod.rs) composes
 these rules with application/uploader permissions, exact grant replay, shared
 root ownership and separate reserved/live/unresolved declared-byte accounting.
+Each admitted root has one upload lifetime. Cancellation or expiry frees its byte
+reservation but permanently prevents restarting that root, even under another
+uploader or upload ID. Open objects still support additional application references.
+Local registration resolves a decoded root to that original grant and checks its
+uploader and deadline; an attached use cannot obtain another registration right.
+Application-only reference inspection returns the bound root and current status,
+including after release, so a catalog can identify assets from its reference IDs.
+Known-root inspection reports the original grant, local retention and live-use
+count, keeping released references distinct from a fully Closing object.
 It emits no certificates and cannot settle provider obligations. Its heap state
 must not back real uploads; API, provider identity and persistence stay unfrozen.
 

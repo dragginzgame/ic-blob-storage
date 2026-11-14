@@ -57,6 +57,14 @@ authorization: the inspected transfer sends the certificate, not a separate
 uploader proof. Treat it as potentially bearer authority until the provider
 contract establishes otherwise.
 
+Eligibility must cover historical ambiguity as well as simultaneous grants: a
+delayed root-only request must not consume a later grant for the same uploader/root.
+The [application boundary](application-boundary.md#provider-facing-identity-gate)
+selects refusal of another upload lifetime for every admitted root, including
+cancelled/expired unexposed grants. The local model retains the original root claim;
+an actual host must preserve that rule when mapping the provider request. This
+local restriction does not qualify provider scope, proof recovery or closure.
+
 The root commits to a chunk tree and metadata, not merely the raw file digest.
 The SDK constructs 1 MiB chunks and includes a content-length metadata header;
 its tree request also carries a separate byte count. These are useful candidate

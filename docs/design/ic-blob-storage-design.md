@@ -158,6 +158,13 @@ An embedded application may compose synchronous reference changes and local
 catalog changes within one IC message where both stores support its rollback
 semantics. Remote catalog calls and provider effects remain separate transactions.
 
+The [application/host boundary](application-boundary.md) makes the public asset
+catalog the first reference consumer. It specifies direct uploader versus
+application calls, cancellation while authorization/publication is unresolved,
+and catalog removal before remote release. It also identifies the root-only
+certificate request's historical grant ambiguity. These are integration rules;
+the offline example does not qualify their remote execution.
+
 | Owner | Owns | Does not own |
 | --- | --- | --- |
 | Application | User identity mapping, permission to create assets, catalog transactions, publication and reference-release coordination | Provider protocol or a second Blob ledger |
@@ -257,6 +264,12 @@ a second upload ID cannot bypass it. Conflicting declarations reject. Before
 first registration, concurrent grants for the same reserved key are refused;
 the client resumes the existing grant instead of creating competing owners.
 Closing or Settled keys cannot be admitted as new objects in the initial release.
+The maintainer selected one upload lifetime per root on 2026-11-14, including
+cancelled/expired grants that never registered. Keep the original root claim for
+the installation lifetime; a new upload ID, uploader or deadline cannot restart
+it. This deliberately prevents retrying cancelled content under the same root.
+Additional references to an existing Open owner remain supported. Do not work
+around retirement by manufacturing different metadata or resetting the ledger.
 If the provider lacks incarnations, do not invent a local generation that its
 callbacks cannot distinguish. Record layout may combine records; ownership may not.
 
@@ -268,6 +281,8 @@ retain, then released (or retired unused on cancellation). They are never recycl
 Releasing a reserved first reference atomically cancels its unconsumed grant and
 frees its byte reservation. If consumption already committed, the same request
 performs the normal live-reference release instead; the two transitions serialize.
+Unexposed retirement preserves the root claim without adding provider exposure;
+it is not a deletion acknowledgment or settlement outcome.
 
 ### Permission table
 
@@ -278,6 +293,7 @@ performs the normal live-reference release instead; the two transitions serializ
 | Inspect upload | Bound uploader or application authority | Read that upload's state/outcome; no credential reissue implicit in inspection |
 | Retain/release reference | Application authority | Manage application-owned uses, not uploader-owned lifetimes |
 | Inspect reference | Application authority | Read exact target, historical result and current liveness |
+| Inspect known object | Application authority | Read original grant, local retention and live-use count; no provider availability or deletion permission |
 | Inspect application-wide usage/obligations | Application authority or explicitly permitted operator | Bounded inspection; no grant or reference mutation |
 | Process provider message | Authenticated actor/proof required by selected protocol | Record its exact meaning for a matched original obligation |
 
@@ -727,12 +743,49 @@ owner/project/bucket and callback mapping remain D0 inputs.
 
 Before registration, releasing the known first reference cancels its grant;
 explicit expiry does the same byte cleanup with a distinct historical state.
-These unexposed roots can be reserved anew with fresh upload/reference IDs. Old
-references retain their original grant binding, so delayed release cannot cancel
-the new reservation. Once registered, final release closes the root permanently
-in this model. Released/retired IDs are never evicted or reused. Exact authorization
+Both permanently retire the root: new authorization/retention refuses with
+`RootRetired` (other validation/capacity errors can precede it). The root record
+keeps its original upload ID; declaration and grant disposition come from that
+upload, while each reference stores only its immutable root target. There is no
+separate retired-root registry, duplicate byte declaration or per-reference grant
+pointer. Once registered, final release closes the root permanently in this model.
+Released/retired IDs are never evicted or reused. Exact authorization
 replay returns the stored request and current disposition, not renewed permission;
 registration replay refuses, and inspection produces no upload proof.
+
+Local `register(caller, root, now)` now follows that permanent root-to-upload link
+and rechecks the original uploader, disposition and deadline within the same
+synchronous transition. It replaces the upload-ID entrypoint; there is no second
+registration path or reusable eligibility token. Callers already supply a decoded
+root. Provider text parsing, endpoint authentication and usable certificates remain
+unimplemented. The [boundary evidence](application-boundary.md#evidence-and-acceptance)
+records the legacy resolver lesson and the multi-root regression.
+
+`inspect_reference` returns a `ReferenceView` with the immutable root and current
+local status. The catalog can resolve its stored reference IDs without copying
+Blob's target mapping. Reserved, live, released and retired uses retain that same
+target; unknown IDs remain errors. Inspection is application-only, nonmutating and
+available at capacity. It grants no later mutation right or provider-availability
+claim. The view is projected from existing records, not persisted separately.
+This retains exact-target/current-liveness lessons from the legacy
+[reference inspection](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/workflow/references/status/mod.rs)
+and [boundary tests](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/tests/reference_status_boundary/mod.rs).
+The rewrite derives the root from its own reference ID instead of accepting a
+caller-supplied copy of the legacy upload binding. No service/tenant namespace,
+wire envelope, restoration flag or legacy inspection implementation is copied.
+
+`inspect_object` projects an `ObjectView` for one known root: its original
+`UploadView`, optional existing `RetentionState` and live-reference count. It is
+application-only and allocates no slots or history scan. `None` retention means
+never registered, including cancelled/expired grants; `Closing` keeps Registered
+history and unresolved declared usage. One released reference can coexist with
+an Open object. The example observes this before final release, then observes
+Closing without inferring settlement. No additional state enum, counter, index,
+deletion permission or provider observation is stored. This retains the legacy
+[upload status conversion](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/status/mod.rs)
+and [status regression](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/tests/upload_status/mod.rs)
+lesson that Registered history is distinct from present liveness; no legacy
+revocation, settlement, wire or restore mechanism is copied.
 
 Admission checks R + L and R + E using **declared** bytes, and reserves lifetime
 record slots. Registration transfers R into L/E; reference attachment does not
@@ -742,6 +795,15 @@ than duplicate counters. These synchronous heap operations return ordinary error
 before changes; they do not establish stable-memory transactions or upgrade safety.
 The eventual durable integration must replace this owner's heap backing or retire
 it, not keep a second independent policy engine.
+
+The root rule retains the invariant in the legacy [root claims](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/model/lifecycle/roots/mod.rs)
+and [claim regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/model/lifecycle/roots/tests.rs):
+never reassign a root, and preserve original lookup/replay at capacity. It is
+implemented in this existing owner, without copying the legacy RootClaims map,
+tenant/namespace/incarnation index, stable codec or restoration machinery. Local
+regressions cover cancellation and expiry, changed uploader/deadline/IDs, delayed
+registration/replay, nonmutating refusal, distinct-content admission and continued
+sharing while Open. No root-only endpoint or callback has been qualified.
 
 Targeted legacy review covered [admission conversion](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/admission/mod.rs),
 [admission regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/tests/admission_boundary/mod.rs),
@@ -766,7 +828,8 @@ contains asset names and their distinct references; the local Blob model remains
 the only grant/reference/accounting owner. No new package, dependency, API or
 provider transfer implementation was added.
 
-The walkthrough cancels an unconsumed draft, publishes two verified references to
+The walkthrough cancels a separate three-byte `abc` draft, proves that root cannot
+restart, and publishes two verified references to
 one object, rejects a corrupt read, compensates a catalog-name collision by
 releasing only the fresh unpublished reference, and replaces an asset while another
 use protects its object. Exact publication replay returns success without releasing

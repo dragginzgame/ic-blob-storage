@@ -1,9 +1,27 @@
 # Changelog
 
-## [0.100.1] - Unreleased
+## [0.100.1] - 2026-11-14
+
+GitHub development checkpoint on branch `0.100`; not published to crates.io.
+
+### ⚠️ Changed
+
+- Give each admitted root one permanent upload lifetime, including cancellation
+  and expiry before registration. New IDs/uploaders cannot restart that root;
+  existing Open objects still accept distinct references. Reserved bytes are
+  released without forgetting the root or claiming provider settlement.
+- Replace local upload-ID registration with root-based registration through the
+  root's original grant. Additional uses cannot replace its uploader or deadline;
+  the local transition still emits no upload authority.
+- Return the immutable root together with current status from reference inspection.
+  Catalogs can resolve asset targets without duplicating Blob's reference mapping;
+  released/retired targets remain inspectable by the application authority.
 
 ### ➕ Added
 
+- Add application-only inspection of a known root's original grant, retention and
+  live-reference count. Distinguish unregistered retirement, overlapping live uses
+  and Closing without claiming provider deletion or settlement.
 - Add bounded streaming verification against the application's original Caffeine
   root, length and metadata. Adapt the legacy implementation into one local
   verifier, without retaining file bytes or introducing transfer/recovery state.
@@ -28,9 +46,20 @@
   enforcement outside these local proofs.
 - Cover manifest count/work limits, reordered/substituted leaves and metadata,
   and consistent manifests with false declared lengths.
-- Add `make test-local` with nine composed lifecycle cases covering cross-user
+- Add `make test-local` with eleven composed lifecycle cases covering cross-user
   refusal, immutable replay, duplicate object use, cancellation/registration order,
   stale releases, expiry and cleanup at byte/record capacity.
+- Add a delayed-authorization regression: an unknown reference is not completed
+  cancellation; resolve the original grant and preserve any registration exposure
+  before cleanup, without resurrection on late retries.
+- Cover permanent root retirement after cancellation/expiry and update the offline
+  walkthrough to cancel a distinct small object before sharing the multi-chunk one.
+- Check root resolution with distinct reserved grants, uploaders, deadlines and
+  first references; wrong-root authority and attached-user registration refuse.
+- Check reference targets across lifecycle transitions, refused rebinding and
+  exhausted capacity, and resolve published example assets through inspection.
+- Check object inspection through reservation, cancellation/expiry, overlapping
+  references and final release, including caller refusal and full-capacity reads.
 - Add four example checks for read completion, cancellation after verification,
   exact request binding, and catalog refusals that preserve existing uses.
   `make test-example-local` selects these checks; CI also runs the walkthrough,
@@ -41,6 +70,9 @@
 - Specify local versus provider enforcement for upload declarations and the
   qualification sequence for size mismatches, lost authority and final release.
   Incorporate the legacy deletion follow-up without treating it as closure proof.
+- Define the standalone application/host call boundary and remote catalog cleanup
+  ordering, including cancellation during unresolved authorization and the
+  provider root-only request's ambiguity across successive grants.
 
 ## [0.100.0] - 2026-11-14
 

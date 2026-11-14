@@ -5,7 +5,7 @@ use std::num::{NonZeroU64, NonZeroU128, NonZeroUsize};
 use ic_platform_types::Principal;
 
 use crate::caffeine::{ManifestLimits, VerificationError};
-use crate::references::{ReferenceError, ReferenceId};
+use crate::references::{ReferenceError, ReferenceId, RetentionState};
 
 /// Application-assigned upload identity with one retained lifetime.
 pub type UploadId = NonZeroU128;
@@ -84,6 +84,29 @@ pub enum ReferenceStatus {
     Retired,
 }
 
+/// One reference's immutable target and current local disposition.
+/// This observation grants no authority and proves no provider availability.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ReferenceView {
+    /// Original root, preserved even when the reference is released or retired.
+    pub root: Root,
+    /// Current local disposition, not a guarantee about a later operation.
+    pub status: ReferenceStatus,
+}
+
+/// Read-only projection of a root's original grant and local retention.
+/// This is not provider presence, deletion permission, settlement or upload authority.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct ObjectView {
+    /// Original upload lifetime; additional uses never replace it.
+    pub original_upload: UploadView,
+    /// None before registration, including cancelled/expired grants. Closing
+    /// means local uses ended, while the original registration remains recorded.
+    pub retention: Option<RetentionState>,
+    /// Currently live references, zero before registration or after final release.
+    pub live_references: usize,
+}
+
 /// Separate declared-byte counters; never add them as total physical storage.
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct Usage {
@@ -109,7 +132,7 @@ pub enum Error {
     InvalidPrincipal,
     /// The upload identity was never admitted.
     UnknownUpload,
-    /// No current reserved or registered object has this root.
+    /// This root has never been admitted.
     UnknownObject,
     /// The reference identity was never admitted.
     UnknownReference,
@@ -117,6 +140,8 @@ pub enum Error {
     Conflict,
     /// Another grant already reserves this root.
     ObjectReserved,
+    /// The root's original grant was cancelled/expired; no new lifetime is allowed.
+    RootRetired,
     /// A reserved/retired name cannot be used as a new retained reference.
     ReferenceUnavailable,
     /// Registration requires an unconsumed grant; replay cannot issue new authority.

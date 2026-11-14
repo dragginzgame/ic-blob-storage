@@ -11,7 +11,10 @@ mod fixture;
 use std::io::{self, Read};
 
 use ic_blob_storage::caffeine::{Limits as ReadLimits, RootVerifier, VerificationError};
-use ic_blob_storage::local::{LocalModel, ReferenceStatus, UploadRequest, UploadState};
+use ic_blob_storage::local::{
+    Error as BlobError, LocalModel, ReferenceStatus, UploadRequest, UploadState,
+};
+use ic_blob_storage::references::RetentionState;
 use ic_platform_types::Principal;
 
 use catalog::{Catalog, Error as CatalogError, Publication, commit_verified, remove};
@@ -26,13 +29,30 @@ fn main() -> io::Result<()> {
     println!("Local example only: no uploads, certificates or persistent state.");
 
     // The app already knows which reference to cancel if the client disappears.
-    let cancelled = fixture::request(1, alice);
-    blob.authorize(application, cancelled, &chunks, &fixture::HEADERS, 10)
+    let cancelled = fixture::cancelled_request(alice);
+    blob.authorize(application, cancelled, &[cancelled.root], &[], 10)
         .expect("reserve cancelled draft");
     blob.release(application, cancelled.first_reference)
         .expect("cancel before registration");
     assert_eq!(blob.usage(application).unwrap().reserved_bytes, 0);
-    println!("Cancelled draft: reservation released, IDs retained.");
+    let retired = blob.inspect_object(application, cancelled.root).unwrap();
+    assert_eq!(retired.original_upload.state, UploadState::Cancelled);
+    assert_eq!(retired.retention, None);
+    assert_eq!(
+        blob.authorize(
+            application,
+            UploadRequest {
+                id: 2.try_into().unwrap(),
+                first_reference: 102.try_into().unwrap(),
+                ..cancelled
+            },
+            &[cancelled.root],
+            &[],
+            11
+        ),
+        Err(BlobError::RootRetired)
+    );
+    println!("Cancelled draft: reservation released; root and IDs permanently retired.");
 
     // This is the complete, immutable synthetic response, not downloaded input
     // used to choose its own expected root. The declaration is fixed independently.
@@ -44,16 +64,12 @@ fn main() -> io::Result<()> {
             .expect("authorize application use");
         if number == 2 {
             assert_eq!(view.state, UploadState::Reserved);
-            blob.register(uploader, request.id, 12)
+            blob.register(uploader, request.root, 12)
                 .expect("local registration");
         } else {
             // A second asset gets a distinct reference, never another upload right.
             assert_eq!(view.state, UploadState::Attached);
         }
-        assert_eq!(
-            blob.inspect_reference(application, request.first_reference),
-            Ok(ReferenceStatus::Live)
-        );
         verify_read(body.as_slice(), &request)?;
         // Publication follows successful EOF AND integrity verification.
         assert_eq!(
@@ -65,6 +81,13 @@ fn main() -> io::Result<()> {
     assert_eq!(catalog.len(), 2);
     assert_eq!(shared.live_bytes, fixture::BYTES as u64);
     assert_eq!(shared.unresolved_bytes, fixture::BYTES as u64);
+    // Catalog entries need only reference IDs; Blob owns their immutable targets.
+    let original_scene = fixture::request(2, alice);
+    for &id in catalog.values() {
+        let reference = blob.inspect_reference(application, id).unwrap();
+        assert_eq!(reference.root, original_scene.root);
+        assert_eq!(reference.status, ReferenceStatus::Live);
+    }
     println!(
         "Published scene and preview: two references, one {0}-byte object.",
         fixture::BYTES
@@ -72,7 +95,6 @@ fn main() -> io::Result<()> {
 
     // Simulate losing the catalog commit's reply. Retry the exact original intent,
     // not registration, and do not treat the existing asset as a cleanup failure.
-    let original_scene = fixture::request(2, alice);
     assert_eq!(
         commit_verified(&mut catalog, &blob, application, "scene", &original_scene),
         Ok(Publication::Replayed)
@@ -99,7 +121,8 @@ fn main() -> io::Result<()> {
     }
     assert!(!catalog.contains_key("damaged"));
     assert_eq!(
-        blob.inspect_reference(application, rejected.first_reference),
+        blob.inspect_reference(application, rejected.first_reference)
+            .map(|view| view.status),
         Ok(ReferenceStatus::Released)
     );
     println!("Rejected corrupt read: no catalog entry; draft reference released.");
@@ -120,11 +143,13 @@ fn main() -> io::Result<()> {
     }
     assert_eq!(catalog["scene"], fixture::request(2, alice).first_reference);
     assert_eq!(
-        blob.inspect_reference(application, collision.first_reference),
+        blob.inspect_reference(application, collision.first_reference)
+            .map(|view| view.status),
         Ok(ReferenceStatus::Released)
     );
     assert_eq!(
-        blob.inspect_reference(application, catalog["scene"]),
+        blob.inspect_reference(application, catalog["scene"])
+            .map(|view| view.status),
         Ok(ReferenceStatus::Live)
     );
     println!("Catalog collision: kept the existing asset and released only the new use.");
@@ -138,8 +163,16 @@ fn main() -> io::Result<()> {
         original_scene.first_reference,
     )
     .expect("release scene");
+    let shared_object = blob
+        .inspect_object(application, original_scene.root)
+        .unwrap();
+    assert_eq!(shared_object.original_upload.request, original_scene);
+    assert_eq!(shared_object.retention, Some(RetentionState::Open));
+    assert_eq!(shared_object.live_references, 1);
+    println!("Scene removed: object remains Open with one live reference.");
     assert_eq!(
-        blob.inspect_reference(application, catalog["preview"]),
+        blob.inspect_reference(application, catalog["preview"])
+            .map(|view| view.status),
         Ok(ReferenceStatus::Live)
     );
     assert_eq!(
@@ -203,6 +236,13 @@ fn main() -> io::Result<()> {
     assert_eq!(final_usage.reserved_bytes, 0);
     assert_eq!(final_usage.live_bytes, 0);
     assert_eq!(final_usage.unresolved_bytes, fixture::BYTES as u64);
+    let closing = blob
+        .inspect_object(application, original_scene.root)
+        .unwrap();
+    assert_eq!(closing.original_upload, shared_object.original_upload);
+    assert_eq!(closing.original_upload.state, UploadState::Registered);
+    assert_eq!(closing.retention, Some(RetentionState::Closing));
+    assert_eq!(closing.live_references, 0);
     println!(
         "Final release: live=0, unresolved={} declared bytes; no settlement claim.",
         final_usage.unresolved_bytes
