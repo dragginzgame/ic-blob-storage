@@ -5,7 +5,7 @@
 The standalone reference application and dependency adoption are pushed to
 `origin/0.100` at [5301b3a](https://github.com/dragginzgame/ic-blob-storage/commit/5301b3a87a04131e21011226b3150525dc2b8d53).
 The maintainer clarified that "push" means a new GitHub version checkpoint;
-**0.100.5** finalizes these changes and the changelog. Delivery-only review commits
+**0.100.5** is pushed at [f51d1b9](https://github.com/dragginzgame/ic-blob-storage/commit/f51d1b98c8badcc8c156319cde651406a52bef4d), finalizing these changes and the changelog. Delivery-only review commits
 share that checkpoint. No tag, registry publication, live deployment or Caffeine
 call occurred. The earlier endpoint migration and
 signed qualification remain at [337cdd6](https://github.com/dragginzgame/ic-blob-storage/commit/337cdd6301068093d8faa9a50b62f203a7d00c35).
@@ -76,6 +76,13 @@ records targeted legacy comparisons; [earlier evidence](https://github.com/dragg
 retains the preceding host/CLI and explicit predecessor-upgrade witnesses.
 
 ## Post-push architecture review
+
+The checkpoint follow-up f51d1b9 versus 2a7ab94 also **passes** the same scoped
+method below, using `f51d1b9:AGENTS.md`. Post-push inspection confirms only version,
+lock and documentation changes: no new runtime state, endpoints, owners or source
+growth. Platform 0.33.5 changes Registry decoders outside this consumer's use;
+fresh application/management checks above cover the retained integration. The
+push convention changes delivery metadata only; no further architecture work arises.
 
 **PASS within the affected structural scope**, after pushing 5301b3a against 337cdd6.
 Method: [complexity review](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/audits/complexity-and-technical-debt.md),
