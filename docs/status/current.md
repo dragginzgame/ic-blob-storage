@@ -2,15 +2,16 @@
 
 ## Delivery and scope
 
-Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.10 is prepared**.
-The four product packages and both locks select 0.100.10; qualification versions
-remain independent. Publication stays disabled. Branch/tag delivery is pending.
+Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.10 is pushed** at
+[`905bed6`](https://github.com/dragginzgame/ic-blob-storage/commit/905bed6c31ccda2767adc17450e0314a1d22e356).
+Remote branch and annotated `v0.100.10` peeled tag were verified. Four product
+packages/locks select 0.100.10; qualification versions stay independent and
+publication stays disabled. The delivery-only handoff belongs to this checkpoint.
 This checkpoint adds browser proof/custody/transport and qualifies Wire 0.24.1.
 
 Rust 1.100.0, Tooling 0.44.4 (49-file snapshot), Platform 0.33.7, Runtime 0.22.5,
 Types 0.20.4, Testkit 0.106.0/PocketIC 16.1.0 remain selected.
-Both workspaces use Wire's root codec API and explicit payload/frame encoding.
-Both graphs select Wire 0.24.1, qualified by the final-version release gates.
+Both graphs use Wire 0.24.1 root codecs and explicit frames; release gates pass.
 The registry review found all selected first-party suppliers current on 2026-11-15.
 `blob 0.100.10` is installed on PATH; `make blob` updates it through Cargo.
 [Storage inspection](../operations/storage-inspection.md) owns CLI usage and limits.
@@ -34,16 +35,12 @@ Read-only recovery preserves original identities and existing output. The capaci
 requirement is filed as [ic-storage-new #1](https://github.com/dragginzgame/ic-storage-new/issues/1).
 Committed Storage 0.1.7 (`066c51f`) has native and installed checkpoint experiments,
 but no importer for this retained image. Its dirty supplier edits were excluded; no sibling edits.
-The maintainer approved replacing the external-SDK-only rule with a minimal owned
-[browser transfer client](../../clients/browser/README.md). It now snapshots bounded
-bytes, prepares the declaration, takes existing proof and sends serial PUTs after
-a durable claim, then verifies reads; no automatic retry or Storage dependency.
-The installed journey authenticates original proof through offline `claim-transfer`,
-sends actual loopback PUTs, verifies a six-chunk read and publishes through the real
-reference app. Corruption, interrupted replies and termination leave unpublished
-drafts; restarts cannot replay uploads. Explicit `readVerified` reconciliation now
-uses one GET and the original declaration before a separate catalog decision;
-cancellation still wins. Chromium checks PUT/read and reload replay refusal after
+The maintainer-approved [browser client](../../clients/browser/README.md) prepares
+immutable bytes, accepts existing proof, claims before serial PUTs and verifies
+reads; no automatic retry or Storage dependency.
+Installed journeys join authenticated `claim-transfer`, real loopback PUT/read
+and the reference catalog. Failures retain unpublished drafts; restarts refuse
+upload replay. Explicit read-only reconciliation cannot override cancellation. Chromium checks PUT/read and reload replay refusal after
 success, a lost reply or cancellation. Optional browser custody now authenticates
 local IC proof and retains 64 permanent root claims under one fixed binding.
 **Next:** qualify application deployment/continuity and the Storage-owned retained
@@ -121,8 +118,7 @@ and esbuild 0.28.2. Earlier Wire 0.22.4 reopening evidence remains in
 `target/01009-wire-installed.log`; it is not arbitrary format compatibility.
 No release gate changes the live probe or qualifies its upgrade.
 No profile rollback, eviction, multi-device or native macOS qualification is claimed.
-No deployed application, provider acceptance or settlement claim is made. The
-[enrollment probe](../design/caffeine-contract-review.md#single-use-enrollment-probe--local-qualification-for-01008)
+No provider acceptance or settlement claim is made. The [enrollment probe](../design/caffeine-contract-review.md#single-use-enrollment-probe--local-qualification-for-01008)
 remains 0.100.8; its live consumed attempt and custody are unchanged.
 Live-probe inputs remain in installation custody's `source-before-release-01008/`.
 
@@ -133,7 +129,22 @@ to Canic. No Canic source changed. Legacy stays read-only at
 `25bed1352f3d2b9659f0d2583f50fa9af859ea84`; reuse lessons for current consumers,
 not its multi-operation journals, refund engine or substitute-service graph.
 
-## Delivery review
+## Post-push architecture review — 0.100.10
 
-The [0.100.9 review](https://github.com/dragginzgame/ic-blob-storage/blob/61d4ce02e7afd421bb48d9b8e5a198333e6055a0/docs/status/current.md#post-push-architecture-review--01009)
-remains historical evidence. Review the exact 0.100.10 pushed commits after delivery.
+Reviewed delivered `c78dbcd..905bed6` and the direct browser caller using the
+[complexity method](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/audits/complexity-and-technical-debt.md)
+and this repository's AGENTS overlay. No actionable sediment found in that scope.
+Platform owns cryptographic verification; certificate.js binds the original reply;
+custody.js owns fresh provisioning and permanent root claims; index.js owns transfer
+and read integrity. The application still owns current permission/publication.
+Native CLI custody stays separate because browsers cannot use its filesystem owner.
+The selected state space is one fixed binding and absent/consumed root claims;
+missing, changed or exhausted custody refuses. No reset, retry or resume mode grew.
+Certificate-profile changes stay in verification; capacity/continuity stays in
+custody. Historical proof and permanent claims remain justified, without legacy
+journal, funding or restoration mechanisms.
+Rust code LOC is unchanged: 4,299 product, 9,091 tests, 396 examples, zero tooling.
+JS product is 380 (+136); JS tests are 908 (+377) versus 0.100.9, measured with the
+same cloc 2.10. The 635-line npm lock is generated dependency data, not product code.
+Linux release checks pass; live Caffeine acceptance, browser profile continuity and
+native macOS remain unqualified. This review does not claim those guarantees.
