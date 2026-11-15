@@ -3,7 +3,7 @@
 ## Delivery and accepted scope
 
 Private repository `dragginzgame/ic-blob-storage`, branch `0.100`, HTTPS origin.
-**0.100.6** is prepared for the authorized GitHub push; checks below passed.
+**0.100.6** is pushed at [decde20](https://github.com/dragginzgame/ic-blob-storage/commit/decde204acb6d7c8362a0003e904beef72ff89b6); the remote branch was verified.
 The preceding checkpoint and review are retained at
 [3c26f6c](https://github.com/dragginzgame/ic-blob-storage/commit/3c26f6c5c9bd0a32e0ad1a4c7d644f056c6c5e46).
 “Push” means the next patch GitHub checkpoint; delivery-only review commits share
@@ -52,7 +52,30 @@ LOC: **3,205 product / 5,119 tests / 396 examples**; versus 0.100.5,
 **+6 product / +558 tests / +0 examples** under the same reporter categories.
 Growth is the expiry fix plus capacity/application qualification. The workspace
 split adds no Rust LOC, runtime owner or product package.
-Post-push architecture review is pending the actual pushed commit.
+
+## Post-push architecture review
+
+Scoped **PASS**, comparing `3c26f6c` to pushed `decde20`, under its `AGENTS.md`
+and the pinned [complexity method](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/audits/complexity-and-technical-debt.md).
+Source inspection covered cancellation/authorization, qualification ownership,
+Make callers and documentation, using the checkpoint evidence above. No new
+actionable sediment was found; this is not a full-system or provider audit.
+
+Application phases, Blob grant states, maintenance attempts and authority roles
+are unchanged. Blob alone determines whether the original ID was admitted; the
+application consumes its typed expiry refusal and retains its existing Cleaned
+transition. Unknown outcomes remain Cancelled; no second ledger or retry route.
+Qualification adds one measured-capacity test and application boundary cases,
+not a new product mode. The old package paths are removed; shared tooling still
+owns formatting, dependency discovery and simulator installation.
+
+Two source rehearsals preserve ownership: Canic composition consumes Service and
+host-granted memory without changing Blob policy; a future provider contract must
+revisit admission/closure at Blob before broadening application cleanup. Neither
+requires speculative code now. Finite history and retained custody are intentional
+constraints pending their existing qualification gates, not unused compatibility
+layers. Canic's implementation, live provider behavior and general snapshot recovery
+remain outside this review. The delivery follow-up changes only this handoff.
 
 ## Current implementation and operating boundaries
 
