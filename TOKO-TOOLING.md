@@ -155,18 +155,6 @@ when changing component boundaries.
 
 ## Complete, reviewable changes
 
-In engineering requests, "nuke this", "nuke and rewrite" or "the nuclear option"
-means whole-subsystem replacement as one coherent deliverable, not deletion alone.
-First establish a coherent responsibility, inputs/outputs and callers; an existing
-directory or collection of tangled concerns is not proof of a subsystem. Separate
-misplaced responsibilities instead of rebuilding the same accidental boundary.
-Define protected behavior and mechanisms to retire, then implement, migrate callers,
-delete superseded paths and verify the result without requiring another prompt
-for every intermediate cleanup. Internal steps may be incremental; preparatory
-refactors are not the deliverable. Observable contracts and recovery guarantees
-remain protected. Resolve scope from context and ask only for material ambiguity;
-frustration alone does not activate this mode or expand delivery authority.
-
 Finish the accepted coherent outcome, including directly required callers,
 fixtures, docs and cleanup. Split independent outcomes, not compiler fallout or
 each proof of the same change. Stop at new independent scope or a release boundary.
@@ -180,6 +168,40 @@ Detailed line metrics and symbol inventories are optional under the
 [reporting rules](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/rules/change-reporting.md), not a routine completion step.
 See [contract-change details](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/rules/engineering-details.md#complete-reviewable-changes)
 when changing interfaces, persistence or installation/recovery behavior.
+
+### Post-push review
+
+After each successful push, review the pushed changes and their directly affected
+callers before starting the next increment. Review the delivered commits, not
+unrelated working-tree edits, to catch architectural drift, accumulated leftovers
+("sediment") and technical debt early. Check for:
+
+- Disagreement between design, implementation, CLI/configuration semantics and
+  documentation.
+- Duplicate policy, competing owners or parallel workflows.
+- Obsolete paths, aliases, compatibility scaffolding, unused dependencies and
+  temporary mechanisms left behind.
+- New abstractions or infrastructure without a demonstrated consumer need.
+- Gaps between claimed behavior and actual qualification evidence.
+
+Prefer deletion, reuse or simplification while preserving safety, persistence
+and recovery guarantees. Respect consumer-specific architecture decisions;
+distinguish deliberate compatibility obligations and documented limitations from
+accidental debt before recommending removal.
+
+Keep the review focused on the pushed scope. It does not automatically trigger
+a full audit, repeated test suites, unrelated refactoring, sibling changes or
+another push. Reuse applicable evidence under the validation policy below;
+repairs and delivery retain their existing authorization boundaries. This review
+does not replace required gates or cancel remaining steps of an authorized
+release, such as registry publication.
+
+Report concrete findings with code locations and the smallest corrective action.
+If nothing actionable is found, state the reviewed scope and that result without
+claiming the entire repository is debt-free. Record deferred actionable findings
+in the existing owning issue or relevant design notes. Use the normal delivery
+response and existing records; do not create a parallel tracker, mandatory report
+file or separate review framework.
 
 ## Validation and evidence
 
@@ -759,7 +781,13 @@ from `ic-platform-types`, IC0/execution from `ic-platform-runtime`, and crypto o
 external IC adapters from `ic-platform`, following the
 [Platform ownership rules](https://github.com/dragginzgame/toko-tooling/blob/d4b09ceb6dd94d825adee2b894fa26dac4618ae0/rules/cargo-dependencies.md#platform-package-owners).
 External IC dependencies remain behind that reviewed boundary; Types alone may
-add `ic_principal` for explicit registry conversions. Self-authentication does
+add `ic_principal` for explicit registry conversions. Platform's unpublished
+`qualification/bls-probe` comparison oracle may use unaliased crates.io
+`ic-verify-bls-signature` at `^0.6.0`, default features disabled and only `alloc`,
+as a nonoptional dev dependency under `cfg(not(target_family = "wasm"))`.
+This exception requires the `bls-wrapper-probe` identity and Platform repository
+metadata; it grants no normal/build, production or Wasm dependency permission.
+Self-authentication does
 not enable those conversions. npm SDK Core uses
 `@tokostudios/ic-platform`. Keep reusable cores independently upgradable;
 adapters own their matching integration stacks and must not impose consumer

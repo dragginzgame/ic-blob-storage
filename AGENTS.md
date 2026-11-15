@@ -49,6 +49,10 @@ Read [the current handoff](docs/status/current.md) first.
   accounting, no unsupported settlement claim and unfrozen API/persistence.
   The earlier instruction against contacting Caffeine concerned external messages;
   no issue comment, email or other outreach is authorized by provider-call approval.
+  The maintainer also authorized the local `canic-mainnet` wallet for needed
+  cycles and directs independent protocol research rather than waiting for
+  provider answers. Select concrete bounded paid calls before spending; do not
+  export keys or reuse legacy accounts/obligations.
 
 ## Checks
 

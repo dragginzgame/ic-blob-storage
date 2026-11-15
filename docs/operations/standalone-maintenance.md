@@ -4,10 +4,10 @@ This runbook covers the experimental Blob host's existing native admin commands:
 inspect, drain, stop, upgrade, start and explicitly activate. They are qualified
 against a local IC gateway. Fresh provisioning, live deployment, schema migration
 and Caffeine effects are not qualified by this procedure. The reference application
-has its own stop/drain/upgrade/start lifecycle; this admin does not manage it.
+has its own stop/drain/upgrade/start lifecycle; this CLI does not manage it.
 
 The [design](../design/ic-blob-storage-design.md#interrupted-management-operations)
-owns the lifecycle contract. The [CLI](../../crates/ic-blob-storage-admin/src/main.rs)
+owns the lifecycle contract. The [CLI](../../crates/ic-blob-storage-cli/src/main.rs)
 owns argument validation. Commands below are an operator sequence, not an automatic
 deployment script: complete and inspect each stage before preparing the next.
 
@@ -26,7 +26,7 @@ Use an existing installation and independently reviewed inputs:
 | State version | Expected durable record format, currently `1`; this is not the crate release version |
 | Request parent | Existing private operator-owned directory for new immutable operation records |
 | Custody root | One durable operator-controlled root shared by every manager of this target |
-| Checkout | Trusted Blob checkout, Makefile and execution environment; its admitted tooling snapshot must match the admin binary |
+| Checkout | Trusted Blob checkout, Makefile and execution environment; its admitted tooling snapshot must match the CLI binary |
 
 Preserve both artifacts, installation inputs, all operation records and the shared
 custody root. The root binds dispatch claims to network, canister, operation and
@@ -34,12 +34,14 @@ attempt. Changing paths or deleting a claim is not recovery. Even a partial or
 empty claim bars redispatch. Native inputs must be bounded regular files; keep
 identity material private. Legacy recovery records never enter this checkout.
 
-Build the admin with `make build-admin` after the normal `make install-tools`
-preparation. Use the artifact reported by Cargo, then set the following Bash
+Build and install the CLI with `make blob` after the normal `make install-tools`
+preparation; `blob` is then available through Cargo's bin directory on PATH.
+For this maintenance procedure, use the checkout artifact reported by Cargo,
+then set the following Bash
 variables to the reviewed paths and target. Placeholder paths are not created here.
 
 ```bash
-blob_admin=$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic-blob-storage-admin" and .executable != null) | .executable] | if length == 1 then .[0] else error("expected one Blob admin artifact") end' target/blob-admin-artifacts.jsonl)
+blob_cli=$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "blob" and .executable != null) | .executable] | if length == 1 then .[0] else error("expected one Blob CLI artifact") end' target/blob-cli-artifacts.jsonl)
 blob_inputs='/absolute/operator-owned/inputs'
 blob_records='/absolute/operator-owned/attempt-records'
 blob_custody='/absolute/operator-owned/shared-custody'
@@ -54,7 +56,7 @@ blob_target=(
   --state-version 1
 )
 blob_dispatch=(--custody "$blob_custody" --checkout "$blob_checkout")
-"$blob_admin" inspect "${blob_target[@]}"
+"$blob_cli" inspect "${blob_target[@]}"
 ```
 
 Inspection authenticates the module hash before and after a replicated management
@@ -79,9 +81,9 @@ and original `--wasm` unchanged throughout the attempt, including after upgrade.
 ### Drain admission
 
 ```bash
-"$blob_admin" prepare-drain "${blob_target[@]}" --attempt "$blob_attempt" --record "$blob_records/drain"
-"$blob_admin" dispatch-drain "${blob_target[@]}" --record "$blob_records/drain" "${blob_dispatch[@]}"
-"$blob_admin" observe-drain "${blob_target[@]}" --record "$blob_records/drain"
+"$blob_cli" prepare-drain "${blob_target[@]}" --attempt "$blob_attempt" --record "$blob_records/drain"
+"$blob_cli" dispatch-drain "${blob_target[@]}" --record "$blob_records/drain" "${blob_dispatch[@]}"
+"$blob_cli" observe-drain "${blob_target[@]}" --record "$blob_records/drain"
 ```
 
 Require the original drain acknowledgment. Historical acknowledgment alone does
@@ -92,9 +94,9 @@ replay remain available. It does not delete objects or settle provider exposure.
 ### Stop runtime execution
 
 ```bash
-"$blob_admin" prepare-stop "${blob_target[@]}" --attempt "$blob_attempt" --record "$blob_records/stop"
-"$blob_admin" dispatch-stop "${blob_target[@]}" --record "$blob_records/stop" "${blob_dispatch[@]}"
-"$blob_admin" observe-stop "${blob_target[@]}" --record "$blob_records/stop"
+"$blob_cli" prepare-stop "${blob_target[@]}" --attempt "$blob_attempt" --record "$blob_records/stop"
+"$blob_cli" dispatch-stop "${blob_target[@]}" --record "$blob_records/stop" "${blob_dispatch[@]}"
+"$blob_cli" observe-stop "${blob_target[@]}" --record "$blob_records/stop"
 ```
 
 Require **both** `original=acknowledged` and `platform=Stopped`. `observe-stop`
@@ -107,9 +109,9 @@ to make a timeout disappear. Ordinary Blob inspection cannot run while stopped.
 
 ```bash
 blob_upgrade=(--stop-record "$blob_records/stop" --next-wasm "$blob_inputs/next.wasm")
-"$blob_admin" prepare-upgrade "${blob_target[@]}" "${blob_upgrade[@]}" --attempt "$blob_attempt" --record "$blob_records/upgrade"
-"$blob_admin" dispatch-upgrade "${blob_target[@]}" "${blob_upgrade[@]}" --record "$blob_records/upgrade" "${blob_dispatch[@]}"
-"$blob_admin" observe-upgrade "${blob_target[@]}" "${blob_upgrade[@]}" --record "$blob_records/upgrade"
+"$blob_cli" prepare-upgrade "${blob_target[@]}" "${blob_upgrade[@]}" --attempt "$blob_attempt" --record "$blob_records/upgrade"
+"$blob_cli" dispatch-upgrade "${blob_target[@]}" "${blob_upgrade[@]}" --record "$blob_records/upgrade" "${blob_dispatch[@]}"
+"$blob_cli" observe-upgrade "${blob_target[@]}" "${blob_upgrade[@]}" --record "$blob_records/upgrade"
 ```
 
 Require the original upgrade acknowledgment and matching replacement artifact on
@@ -122,9 +124,9 @@ snapshot restore or automatic downgrade option.
 
 ```bash
 blob_start=("${blob_upgrade[@]}" --upgrade-record "$blob_records/upgrade")
-"$blob_admin" prepare-start "${blob_target[@]}" "${blob_start[@]}" --attempt "$blob_attempt" --record "$blob_records/start"
-"$blob_admin" dispatch-start "${blob_target[@]}" "${blob_start[@]}" --record "$blob_records/start" "${blob_dispatch[@]}"
-"$blob_admin" observe-start "${blob_target[@]}" "${blob_start[@]}" --record "$blob_records/start"
+"$blob_cli" prepare-start "${blob_target[@]}" "${blob_start[@]}" --attempt "$blob_attempt" --record "$blob_records/start"
+"$blob_cli" dispatch-start "${blob_target[@]}" "${blob_start[@]}" --record "$blob_records/start" "${blob_dispatch[@]}"
+"$blob_cli" observe-start "${blob_target[@]}" "${blob_start[@]}" --record "$blob_records/start"
 ```
 
 Require `Start observed` with the exact attempt and `active=false`. This checks the
@@ -136,9 +138,9 @@ the procedure at this stage; running state alone cannot replace the acknowledgme
 
 ```bash
 blob_activate=("${blob_start[@]}" --start-record "$blob_records/start")
-"$blob_admin" prepare-activate "${blob_target[@]}" "${blob_activate[@]}" --attempt "$blob_attempt" --record "$blob_records/activate"
-"$blob_admin" dispatch-activate "${blob_target[@]}" "${blob_activate[@]}" --record "$blob_records/activate" "${blob_dispatch[@]}"
-"$blob_admin" observe-activate "${blob_target[@]}" "${blob_activate[@]}" --record "$blob_records/activate"
+"$blob_cli" prepare-activate "${blob_target[@]}" "${blob_activate[@]}" --attempt "$blob_attempt" --record "$blob_records/activate"
+"$blob_cli" dispatch-activate "${blob_target[@]}" "${blob_activate[@]}" --record "$blob_records/activate" "${blob_dispatch[@]}"
+"$blob_cli" observe-activate "${blob_target[@]}" "${blob_activate[@]}" --record "$blob_records/activate"
 ```
 
 Require `Activation observed` with the same attempt and `active=true`. Dispatch

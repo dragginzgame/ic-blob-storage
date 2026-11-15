@@ -4,7 +4,8 @@ use ic_platform_types::Principal;
 use serde::{Deserialize, Serialize};
 
 use crate::local::{
-    Limits, ObjectView, ReferenceView, Root, UploadId, UploadRequest, UploadView, Usage,
+    Limits, ObjectView, PrincipalOverview, ReferenceView, Root, UploadId, UploadRequest,
+    UploadView, Usage,
 };
 use crate::references::ReferenceId;
 
@@ -100,6 +101,8 @@ pub enum Inspection {
     Usage,
     /// Configured manager only.
     Maintenance,
+    /// Application authority only; historical objects associated with this uploader.
+    Overview(Principal),
 }
 
 /// Read-only projection of existing state.
@@ -115,4 +118,6 @@ pub enum Observation {
     Usage(Usage),
     /// Current management attempt and admission.
     Maintenance(Maintenance),
+    /// Distinct associated objects, matching grants and application references.
+    Overview(PrincipalOverview),
 }

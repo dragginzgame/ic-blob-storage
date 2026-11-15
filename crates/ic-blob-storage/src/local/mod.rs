@@ -16,8 +16,8 @@
 pub mod persistence;
 mod types;
 pub use types::{
-    Error, Limits, ObjectView, ReferenceStatus, ReferenceView, Root, UploadId, UploadRequest,
-    UploadState, UploadView, Usage,
+    Error, Limits, ObjectView, PrincipalObject, PrincipalOverview, ReferenceStatus, ReferenceView,
+    Root, UploadId, UploadRequest, UploadState, UploadView, Usage,
 };
 
 use std::collections::BTreeMap;
@@ -366,6 +366,65 @@ impl LocalModel {
                 .references
                 .as_ref()
                 .map_or(0, ObjectReferences::live_count),
+        })
+    }
+
+    /// Inspect all historical grants for one uploader and their distinct objects.
+    /// Scans configured finite history without allocating durable slots. The
+    /// standalone service caps that history at 64 uploads and 64 references.
+    /// Shared roots include all application references, even uses by other uploaders.
+    /// # Errors
+    /// Rejects non-application callers and special uploader principals.
+    pub fn overview(
+        &self,
+        caller: Principal,
+        uploader: Principal,
+    ) -> Result<PrincipalOverview, Error> {
+        self.application(caller)?;
+        valid_principal(uploader)?;
+        let mut grouped: BTreeMap<Root, Vec<UploadView>> = BTreeMap::new();
+        for upload in self
+            .uploads
+            .values()
+            .filter(|u| u.view.request.uploader == uploader)
+        {
+            grouped
+                .entry(upload.view.request.root)
+                .or_default()
+                .push(upload.view);
+        }
+        let mut usage = Usage::default();
+        let mut objects = Vec::with_capacity(grouped.len());
+        for (root, uploads) in grouped {
+            let object = self.inspect_object(caller, root)?;
+            let references: Vec<_> = self
+                .references
+                .iter()
+                .filter(|(_, target)| **target == root)
+                .map(|(id, _)| (*id, self.reference_status(*id, root)))
+                .collect();
+            let bytes = object.original_upload.request.bytes;
+            if object.original_upload.state == UploadState::Reserved {
+                usage.reserved_bytes += bytes;
+            }
+            if object.retention == Some(RetentionState::Open) {
+                usage.live_bytes += bytes;
+            }
+            if object.retention.is_some() {
+                usage.unresolved_bytes += bytes;
+            }
+            usage.uploads += uploads.len();
+            usage.references += references.len();
+            objects.push(PrincipalObject {
+                object,
+                uploads,
+                references,
+            });
+        }
+        Ok(PrincipalOverview {
+            uploader,
+            objects,
+            usage,
         })
     }
 

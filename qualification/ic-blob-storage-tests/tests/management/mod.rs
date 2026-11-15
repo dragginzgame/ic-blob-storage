@@ -1,6 +1,7 @@
 //! Exercise the actual native command through signed ingress and a local IC HTTP gateway.
 
 mod lifecycle;
+mod overview;
 
 use ic_blob_storage::{
     caffeine::ManifestLimits,
@@ -57,7 +58,7 @@ fn command(
     operation: &str,
 ) -> tokio::process::Command {
     let mut command = tokio::process::Command::new(
-        std::env::var_os("BLOB_ADMIN").expect("set BLOB_ADMIN to the built native artifact"),
+        std::env::var_os("BLOB_CLI").expect("set BLOB_CLI to the built native artifact"),
     );
     command
         .arg(operation)
@@ -1291,7 +1292,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         String::from_utf8_lossy(&output.stderr)
     );
     for forbidden in ["reinstall", "upgrade", "activate", "start", "snapshot-load"] {
-        let output = tokio::process::Command::new(std::env::var_os("BLOB_ADMIN").unwrap())
+        let output = tokio::process::Command::new(std::env::var_os("BLOB_CLI").unwrap())
             .arg(forbidden)
             .output()
             .await

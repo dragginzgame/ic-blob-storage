@@ -1,5 +1,86 @@
 # Changelog
 
+## [0.100.7] - 2026-11-15
+
+GitHub development checkpoint on branch `0.100`; not published to crates.io.
+The CLI crate is now `ic-blob-storage-cli` and the executable is `blob`.
+Uploader overview appends a Wire inspection variant; older hosts cannot serve it.
+Durable state stays at format 1. Qualification packages remain independently 0.100.5.
+
+### 🔧 Changed
+
+- Rename the existing `ic-blob-storage-admin` crate to `ic-blob-storage-cli`
+  and its executable to `blob`, with `make blob` / `make test-cli` and the
+  `BLOB_CLI` qualification input. Keep one CLI; no compatibility binary is added.
+- Make `make blob` build and install the development executable through Cargo
+  into its normal bin directory on PATH. Re-running it updates the local source
+  installation; `make build-cli` remains build-only for qualification and CI.
+- Extend the existing admin CLI with a principal overview of one Blob installation,
+  read-only Caffeine account storage inspection and an offline enrollment proposal.
+  Shared roots count once; references remain application-owned and Closing history
+  retains unresolved bytes. Add no persistent state, provider effects or CLI crate.
+  Qualify full-history inventory through the installed host and a drained upgrade;
+  distinguish provider authorization failures from empty storage.
+- Establish a published independent Rust enrollment candidate from DFINITY's
+  example and observe Caffeine's current public interface, gateway and prices.
+  Update the design to proceed through independent qualification without provider
+  outreach; owner enrollment, upload and closure remain unqualified.
+- Validate fresh payer funding with a bounded 10.1B-cycle debit and acknowledged
+  9.9B provider credit. Retain exact requests and distinguish payer credit from
+  owner/gateway capacity; zero overdraft and disabled refill were already reported.
+  No funding API, automatic refill or provider upload is added to Blob.
+- Recover Canic legacy's historical Cashier ABI and self-funded Rust account path
+  from pinned inventories and original Toko source. Record the deletion-list ABI
+  difference and unsafe historical policies to exclude; live-provider gates remain open.
+- Record Canic's committed optional Blob adapter and embedded catalog witness;
+  advance D3 to partial using inspected source and retained installed evidence.
+  Keep immutable supplier adoption, fleet lifecycle custody and provider transfer
+  open. No supplier API or product code change is needed for the local composition.
+- Adopt Toko Tooling 0.44.3 in both workspaces through its authenticated snapshot
+  installer. Default `toko-cloc` and `-d 0` show repository totals; `-d 1` expands
+  crates and `-d 2` expands modules. Retain the existing entrypoints and independent
+  qualification; JSON counts are unchanged.
+- Qualify the pending Platform 0.33.7 lock selection in native administration and
+  installed signed-call/maintenance consumers. Runtime 0.22.5 and Types 0.20.4
+  remain unchanged; preserve the existing Wire 0.22.3 selection.
+
+### Validation
+
+`make tools-check ci` passed, including 42 native behavior tests. All eight
+installed cases passed across standalone, capacity, endpoints, signed calls,
+reference application and management/overview targets. `make blob` installed
+`blob 0.100.7` on PATH. Evidence is from Linux with Rust 1.100.0; it does not
+qualify live provider closure or native macOS installation.
+
+### ▶️ Try it
+
+After `make install-tools`, run `toko-cloc` or `toko-cloc -d 0` for repository
+totals, `toko-cloc -d 1` for crates, and `toko-cloc -d 2` for modules.
+
+From the repository root, install with `make blob` (normally `~/.cargo/bin/blob`).
+Cargo's bin directory must be on PATH; repeat the command to update. Inspect available
+inputs without credentials or network access:
+
+```sh
+blob overview --help
+blob provider-inspect --help
+blob prepare-enrollment --help
+```
+
+For a real Blob inventory, set `BLOB_CANISTER`, `UPLOADER` and `APPLICATION_PEM`
+to your installation, selected uploader and its configured application authority's
+Ed25519 PEM, then run:
+
+```sh
+blob overview --url https://icp-api.io \
+  --canister "$BLOB_CANISTER" --principal "$UPLOADER" --identity "$APPLICATION_PEM"
+```
+
+This signed read-only query reports local roots, grants, references and declared
+accounting, not verified provider files. Caffeine inspection requires access to
+the selected account. See [storage inspection](docs/operations/storage-inspection.md)
+for provider commands, trust inputs and offline enrollment; no command above spends cycles.
+
 ## [0.100.6] - 2026-11-15
 
 GitHub development checkpoint on branch `0.100`; not published to crates.io.

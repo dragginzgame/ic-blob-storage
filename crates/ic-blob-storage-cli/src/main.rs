@@ -1,6 +1,8 @@
-//! Native inspection and request custody through maintenance and explicit activation.
+//! Native storage inspection, offline enrollment proposals and maintenance custody.
 
 mod management;
+mod overview;
+mod provider;
 
 use clap::{Args, Parser, Subcommand};
 use ic_blob_storage::{
@@ -21,8 +23,9 @@ use url::Url;
 
 #[derive(Parser)]
 #[command(
+    name = "blob",
     version,
-    about = "Inspect a Blob host and retain original management request identity"
+    about = "Inspect Blob and Caffeine storage, prepare enrollment, and manage guarded maintenance"
 )]
 struct Cli {
     #[command(subcommand)]
@@ -31,6 +34,12 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// List one uploader's local grants, distinct roots and application references.
+    Overview(overview::Input),
+    /// Query Caffeine's reported storage and balance for one exact account principal.
+    ProviderInspect(provider::Inspect),
+    /// Print an offline enrollment proposal; does not sign, submit or spend.
+    PrepareEnrollment(provider::Enrollment),
     /// Authenticate and compare installed configuration and Wasm with admitted inputs.
     Inspect(Target),
     /// Retain a signed drain request in a new private directory, WITHOUT submitting it.
@@ -360,6 +369,9 @@ impl Context {
 
 async fn run(command: Command) -> Result<String, String> {
     match command {
+        Command::Overview(input) => overview::run(input).await,
+        Command::ProviderInspect(input) => provider::inspect(input).await,
+        Command::PrepareEnrollment(input) => provider::prepare(&input),
         Command::Inspect(target) => {
             let view = Context::new(target)?.inspect().await?;
             Ok(format!(
@@ -581,6 +593,10 @@ async fn run(command: Command) -> Result<String, String> {
 #[tokio::main]
 async fn main() -> ExitCode {
     let command = Cli::parse().command;
+    let read_only = matches!(
+        command,
+        Command::Overview(_) | Command::ProviderInspect(_) | Command::PrepareEnrollment(_)
+    );
     match tokio::time::timeout(Duration::from_secs(45), run(command)).await {
         Ok(Ok(message)) => {
             println!("{message}");
@@ -589,10 +605,11 @@ async fn main() -> ExitCode {
         result => {
             let message = match result {
                 Ok(Err(message)) => message,
+                Err(_) if read_only => "inspection timed out; storage is unknown; no mutation was submitted".into(),
                 Err(_) => "management timed out; dispatch may have occurred. Preserve custody and observe the original request; do not resubmit".into(),
                 Ok(Ok(_)) => unreachable!(),
             };
-            eprintln!("Management refused: {message}");
+            eprintln!("Command failed: {message}");
             ExitCode::FAILURE
         }
     }

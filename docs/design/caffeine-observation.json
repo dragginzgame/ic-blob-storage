@@ -1,0 +1,192 @@
+{
+  "observed_date": "2026-11-15",
+  "purpose": "Caffeine interface discovery and bounded fresh payer funding; not owner enrollment or object qualification",
+  "tool": {
+    "name": "icp",
+    "version": "1.6.0",
+    "selection": "Existing operator CLI; not a repository-selected qualification tool"
+  },
+  "network": "https://icp-api.io",
+  "root_key": "mainnet",
+  "identity": "anonymous",
+  "canister": "72ch2-fiaaa-aaaar-qbsvq-cai",
+  "source_example": {
+    "repository": "dfinity/immutable-object-storage-example",
+    "revision": "ef29e8a6e8063c6fe654cac53a3497cab585fefa",
+    "paths": [
+      "README.md",
+      "rust-backend/src/storage.rs",
+      "rust-backend/src/lib.rs",
+      "scripts/setup.sh"
+    ]
+  },
+  "metadata": {
+    "name": "candid:service",
+    "command": "icp canister metadata --identity anonymous --network https://icp-api.io --root-key mainnet --json 72ch2-fiaaa-aaaar-qbsvq-cai candid:service",
+    "value_extraction": "jq -j '.value'; no trailing newline",
+    "sha256": "89e04a26cbdc51a7083e3eb11e20c70a04a3e8c97d796a179ec6b8abf5da0843",
+    "legacy_comparison": "Same text except trailing whitespace as docs/evidence/caffeine-cashier.did at ic-blob-storage-legacy 25bed1352f3d2b9659f0d2583f50fa9af859ea84"
+  },
+  "queries": {
+    "command_pattern": "icp canister call 72ch2-fiaaa-aaaar-qbsvq-cai METHOD '()' --candid /tmp/blob-cashier-20261115.did --query --output candid --identity anonymous --network https://icp-api.io --root-key mainnet",
+    "storage_gateway_principal_list_v1": {
+      "sha256": "50ccf5ff98440892079f485f8c216302049c0c68747e561e2fffa8e4ce2b6fc6",
+      "principals": [
+        "jf2g2-sl4zh-zhvyx-v3zcb-hmumz-2at2q-wuamm-4qiml-43msi-r3man-eqe"
+      ]
+    },
+    "pricelist_v1": {
+      "sha256": "e26629bd9aee2c546958735358dfc5597e33f3e18abef438d1b2d9fe120788ca",
+      "gauges": {
+        "bytes_stored": {
+          "per": "G",
+          "cost": "38461538461"
+        }
+      },
+      "counters": {
+        "read_request_price": {
+          "per": "M",
+          "cost": "307692307692"
+        },
+        "bytes_downloaded_price": {
+          "per": "G",
+          "cost": "76923076923"
+        },
+        "bytes_uploaded_price": {
+          "per": "G",
+          "cost": "115384615383"
+        },
+        "write_request_price": {
+          "per": "M",
+          "cost": "3846153846153"
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Query responses are not consensus-certified contract guarantees.",
+    "Metadata output is not a retained portable certificate proof.",
+    "Price factors and costs are returned values; billing interval, monetary conversion and charge cutoff are not qualified.",
+    "Same public query output hashes as legacy September observation; no legacy account or obligation was resumed.",
+    "The authorized signer completed ICP-to-cycles conversion and one bounded fresh Cashier deposit/notification. No key export, legacy recovery, owner deployment, relationship, object upload or deletion occurred."
+  ],
+  "raw_output": "target/evidence/caffeine/ (local scratch, not retained in Git)",
+  "funding_preflight": {
+    "identity_name": "canic-mainnet",
+    "principal": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+    "read_identity": "anonymous",
+    "cycles_ledger": "um5iw-rqaaa-aaaaq-qaaba-cai",
+    "ledger_interface_sha256": "586516bf45d3d581e5dd0b64fe4081c246531d832f6f2dd40c49351c5777351a",
+    "cycles_balance_before": "415079115186",
+    "cashier_balance_result": "Err(AccountNotFound)",
+    "deposit_subaccount_hex": "1d1837c40b25f7971f603981da2ca474f8264b001cb94eca51a4fc289d020000",
+    "cycles_ledger_fee": "100000000",
+    "decoder": "didc 0.6.2, installed from the admitted Toko Tooling pins",
+    "results": [
+      {
+        "file": "canic-mainnet-cycles-balance.json",
+        "command": "icp cycles balance --of-principal PRINCIPAL --identity anonymous --network https://icp-api.io --root-key mainnet --json",
+        "sha256": "34280eeb333d92d6b40597ea1a7185dd71a42dda30f6a03f80778200b2b5ef44"
+      },
+      {
+        "file": "canic-mainnet-cashier-balance.txt",
+        "command": "account_balance_get_v1(record { account = PRINCIPAL }) query",
+        "sha256": "ac37c2f5094d9f4f0955e9b964ad18bccc5e79e9de89d6dc564e11c3a502ffb8"
+      },
+      {
+        "file": "canic-mainnet-deposit-subaccount.hex",
+        "command": "cycles_ledger_deposit_subaccount_v1(record { sender = PRINCIPAL }) query; hex result decoded against advertised DID",
+        "sha256": "e7c18f8077f3cccb4608be35f261df58378b527b8836af434abce9e87a23e7f4"
+      },
+      {
+        "file": "cycles-ledger-fee.txt",
+        "command": "icrc1_fee() query",
+        "sha256": "f5dd545a53d9cad5afaa7bec00ac22cd565bbf36c2e8328c5d325c5067779488"
+      }
+    ],
+    "outcome": "Ledger route identified; no Caffeine payment or relationship mutation. Recheck before enrollment."
+  },
+  "authorized_cycles_mint": {
+    "status": "completed",
+    "requested_net_cycles": "50000000000000",
+    "credited_net_cycles": "50000000009024",
+    "post_mint_cycles_balance": "50415079124210",
+    "icp_transfer_block": "40446894",
+    "cycles_ledger_block": "17206042",
+    "icp_total_debit_e8s": "3060553552",
+    "custody": ".operations/mint-50t-20261115/ (private, Git-ignored; preserve, do not repeat)",
+    "caffeine_paid_cycles": "0"
+  },
+  "payer_funding": {
+    "date": "2026-11-15",
+    "identity": "canic-mainnet",
+    "payer": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+    "custody": ".operations/caffeine-enrollment-01007/ (private; preserve funded-account custody, do not repeat)",
+    "source_debit_cycles": "10100000000",
+    "deposit_cycles": "10000000000",
+    "ledger_fee_cycles": "100000000",
+    "transfer_block": "17206169",
+    "notification_reported_ledger_block": "17206177",
+    "credited_cycles": "9900000000",
+    "deposit_less_credit_cycles": "100000000",
+    "source_balance_after": "50404979124210",
+    "deposit_address_balance_after": "0",
+    "provider_balance_readback": "9900000000",
+    "provider_debt_target": "Ledger",
+    "reported_overdraft_limit": "0",
+    "reported_target_balance": null,
+    "reported_relationships": [],
+    "setting_mutations": 0,
+    "owner_creations": 0,
+    "certificates": 0,
+    "object_uploads": 0,
+    "queries_are_not_consensus_certified_contracts": true,
+    "results": [
+      {
+        "file": "intent.json",
+        "sha256": "a4761931bdf5113bc22fabdbed26e3b2b2dde268e9efecc9e09e53f87ebee6bf"
+      },
+      {
+        "file": "transfer.candid",
+        "sha256": "6aa505404ab28e26baaf96682f0702a5f05d0199eb739edadd0b2f886dd8e069"
+      },
+      {
+        "file": "transfer.result.txt",
+        "sha256": "18c4be4dddf781b0d5f128b2da6910018587b1775e55748e7789af3e65bddef4"
+      },
+      {
+        "file": "notify.candid",
+        "sha256": "87eecef9a624a794ca8186d162a1232024f734a08edbf6425dd698b1fb9b9974"
+      },
+      {
+        "file": "notify.result.txt",
+        "sha256": "f7a66fbc93dcaeb532eb7158272e4769de42a77d1ba42c0f7b3ab15c34b7e3ce"
+      },
+      {
+        "file": "account-after.txt",
+        "sha256": "575d6a10cd72ce7e9dacc16b83f1433afa66f422ddb846a7cdd0cc8eb1ea57c8"
+      },
+      {
+        "file": "settings-before.txt",
+        "sha256": "449b4d7ec4343adb85d1a519d081fd7c38b5b3bfb1d36ff68ea02e169c181bf4"
+      },
+      {
+        "file": "relationships.txt",
+        "sha256": "b9dde44949da685c7b3da3f7b1bc485bb489320a88bc9ecac8c3e0594729ea91"
+      },
+      {
+        "file": "destination-after.txt",
+        "sha256": "110fd129c764944e9e54bc9cd2e6fc16e5b5f8bf312a27614ee6b2f39425b1c1"
+      },
+      {
+        "file": "source-after.json",
+        "sha256": "3f6844cd655845660b3dd13cb6058665471a482497ee0e26c5276fc7faf0d7b6"
+      },
+      {
+        "file": "outcome.json",
+        "sha256": "44491af6d1fc52233c86deed87bcd2945307aac6104427f9fe380c4fd464c8ac"
+      }
+    ],
+    "disposition": "Acknowledged payer funding only. Preserve credit and exact records; no inferred gateway capacity, refund, closure, or permission to repeat unknown effects."
+  }
+}

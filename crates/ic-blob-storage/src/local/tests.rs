@@ -75,6 +75,68 @@ fn reference(root: Root, status: R) -> ReferenceView {
 }
 
 #[test]
+fn principal_overview_keeps_shared_objects_history_and_authority_distinct() {
+    let mut m = model();
+    assert_eq!(m.overview(actor(2), actor(2)), Err(E::Denied));
+    assert_eq!(
+        m.overview(actor(1), Principal::anonymous()),
+        Err(E::InvalidPrincipal)
+    );
+    assert!(m.overview(actor(1), actor(3)).unwrap().objects.is_empty());
+    admit(&mut m, request(1));
+    let reserved = m.overview(actor(1), actor(2)).unwrap();
+    assert_eq!(reserved.usage.reserved_bytes, 3);
+    assert_eq!(reserved.objects[0].references, [(id(1), R::Reserved)]);
+    m.register(actor(2), abc(), 11).unwrap();
+    admit(&mut m, request(2));
+    admit(
+        &mut m,
+        UploadRequest {
+            uploader: actor(3),
+            ..request(3)
+        },
+    );
+    let view = m.overview(actor(1), actor(2)).unwrap();
+    assert_eq!(view.objects.len(), 1);
+    assert_eq!(view.objects[0].uploads.len(), 2);
+    assert_eq!(view.objects[0].references.len(), 3);
+    assert_eq!(view.usage.live_bytes, 3);
+    assert_eq!(view.usage.unresolved_bytes, 3);
+    assert_eq!(view.usage.reserved_bytes, 0);
+    m.release(actor(1), id(1)).unwrap();
+    m.release(actor(1), id(2)).unwrap();
+    assert_eq!(m.overview(actor(1), actor(2)).unwrap().usage.live_bytes, 3);
+    m.release(actor(1), id(3)).unwrap();
+    let closing = m.overview(actor(1), actor(2)).unwrap();
+    assert_eq!(closing.usage.live_bytes, 0);
+    assert_eq!(closing.usage.unresolved_bytes, 3);
+    assert_eq!(
+        closing.objects[0].object.retention,
+        Some(RetentionState::Closing)
+    );
+    assert!(
+        closing.objects[0]
+            .references
+            .iter()
+            .all(|(_, state)| *state == R::Released)
+    );
+    assert_eq!(admit(&mut m, request(2)), U::Attached);
+    assert_eq!(m.overview(actor(1), actor(2)).unwrap(), closing);
+    admit(
+        &mut m,
+        UploadRequest {
+            root: other(),
+            ..request(4)
+        },
+    );
+    m.release(actor(1), id(4)).unwrap();
+    let retired = m.overview(actor(1), actor(2)).unwrap();
+    assert_eq!(retired.objects.len(), 2);
+    assert_eq!(retired.usage.reserved_bytes, 0);
+    assert_eq!(retired.usage.unresolved_bytes, 3);
+}
+
+#[test]
 fn overlapping_upload_ids_share_one_object_and_never_gain_second_registration() {
     let mut m = model();
     assert_eq!(admit(&mut m, request(1)), U::Reserved);

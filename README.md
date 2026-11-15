@@ -53,28 +53,31 @@ The native maintenance runner below is locally qualified; fresh provisioning and
 live deployment are not. API and persistence are experimental;
 these local tests do not establish D0/D1 completion or provider closure.
 
-The native [admin command](crates/ic-blob-storage-admin/src/main.rs) supports
-authenticated inspection and guarded drain/stop/upgrade/start/activation. The
+The native [CLI](crates/ic-blob-storage-cli/src/main.rs) supports
+[principal storage overviews](docs/operations/storage-inspection.md), Caffeine account
+inspection, offline enrollment proposals and guarded drain/stop/upgrade/start/activation. The
 [standalone maintenance runbook](docs/operations/standalone-maintenance.md) gives
 the exact inputs, command sequence and interruption decisions. It covers the
 locally qualified experimental host; fresh provisioning and live deployment remain
-unqualified. Run `make test-management` for its local gateway witnesses, or view
-command inputs with:
+unqualified. Run `make test-management` for its local gateway witnesses, or install
+the executable into Cargo's bin directory (normally `~/.cargo/bin`, on PATH) and
+view command inputs with:
 
 ```sh
-cargo run --offline --locked -p ic-blob-storage-admin -- inspect --help
+make blob
+blob inspect --help
 ```
 
 The previous implementation, Git history and provider/recovery custody are in
 `../ic-blob-storage-legacy` (see its `LEGACY.md`) and the private
 [legacy GitHub repository](https://github.com/dragginzgame/ic-blob-storage-legacy).
 Existing crates.io releases remain the legacy line. The rewrite's first GitHub
-checkpoint is `0.100.0`; the current checkpoint is `0.100.6`, inherited from the root
+checkpoint is `0.100.0`; the current checkpoint is `0.100.7`, inherited from the root
 workspace version. Publication remains disabled. This is a new breaking release
 line, not a registry version reset or a migration for existing installations.
 
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.43.2. GitHub development uses the `0.100` branch of
+and published Toko Tooling 0.44.3. GitHub development uses the `0.100` branch of
 `dragginzgame/ic-blob-storage`. There is no release/deployment configuration.
 
 The [selected crate layout](docs/design/ic-blob-storage-design.md#selected-crate-layout)

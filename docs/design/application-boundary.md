@@ -44,14 +44,15 @@ budget; the model's slice/work limits do not qualify an RPC decoder.
 
 ## Canic adapter handoff
 
-The next composition witness should embed Blob in one Canic-managed application
-child alongside its small asset catalog. This exercises the local composition
+The composition witness embeds Blob in one application canister alongside its
+small asset catalog. Canic's adapter is implemented; fleet-managed creation and
+maintenance remain open as described below. This exercises the local composition
 boundary; the existing two-canister reference app remains the standalone witness.
 It does not place Blob in Fleet's management engine or make provider support a
 property of Canic. The adapter and installed witness belong in Canic; this repo
 continues to export the same library and standalone host.
 
-The current experimental supplier surface is sufficient to start that local witness:
+The current experimental supplier surface supports that local witness:
 
 | Adapter responsibility | Existing Blob surface | Required composition |
 | --- | --- | --- |
@@ -97,10 +98,51 @@ activation refusal through the actual adapter. Reuse supplier unit evidence for
 unchanged algorithms; qualify composition itself in Canic. The provider journey
 and D3 completion still depend on D0 and an actual integrated transfer/read path.
 
-Read-only consumer inspection on 2026-11-14 found Canic's management endpoint
-adapter described in [Canic #2](https://github.com/dragginzgame/canic/issues/2),
-but no Blob mount. Its working tree has pending changes; none were edited or
-adopted here. That fixed management macro is not a general Blob adapter.
+### Composed witness reviewed — 2026-11-15
+
+Read-only inspection of clean Canic commit
+[`b36f6a3`](https://github.com/dragginzgame/canic/commit/b36f6a39a67f487def523c847423fdfdb8d60c50)
+now finds the optional `blob` feature and
+[`mount_blob_endpoints!`](https://github.com/dragginzgame/canic/blob/b36f6a39a67f487def523c847423fdfdb8d60c50/crates/canic/src/blob/mod.rs).
+The macro supplies three bounded endpoints, capturing the ingress caller and time;
+the application supplies synchronous handlers. It owns no Service instance,
+storage bootstrap, lifecycle hook or activation policy. The embedded
+[`asset-catalog`](https://github.com/dragginzgame/canic/blob/b36f6a39a67f487def523c847423fdfdb8d60c50/qualification/asset-catalog/src/canister/state.rs)
+grants separate catalog and Blob leases from one Storage bootstrap. Its checked
+user path calls Service as the actual installation principal without an await.
+No Blob supplier change is needed for this composition.
+
+Canic owns the [five installed cases and their evidence](https://github.com/dragginzgame/canic/blob/b36f6a39a67f487def523c847423fdfdb8d60c50/docs/demos/blob.md#qualified-inputs-and-evidence--2026-11-15):
+shared-object caller isolation, atomic catalog/reference rollback, malformed
+frames, drain/reopen/exact activation across distinct artifacts, and refusal of
+missing/corrupt/foreign state. This review inspected the test source and retained
+passing log (five tests, 7.27 seconds); it did not rerun Canic's suite here.
+The retained before/after input receipts agree, and both consumer locks and Wasm
+hashes match the recorded evidence. All 21 remaining supplier files in the receipt,
+including the library sources, still match; only the four workspace manifests/locks
+changed during the subsequent Tooling adoption. This is historical composed
+evidence, not fresh qualification of that newer supplier context. The receipt
+identifies Blob HEAD `50fe84b4ed303bda1802fc7a379105edbb95614e`; Canic's prose still
+names an earlier HEAD. The content hashes, not that stale prose label, identify
+the observed input. The path dependency remains development-only.
+
+The remaining integration belongs to Canic's existing fleet approval/effect owners:
+
+| Boundary | Required next behavior |
+| --- | --- |
+| Immutable supplier input | Replace the moving sibling path with an admitted immutable source and requalify the actual composed graph before release |
+| Fresh installation | Bind explicit catalog users, Blob limits and manager in approved arguments; do not invent defaults to accept empty arguments |
+| Managed maintenance | Bind the exact drain attempt, target and candidate; preserve original request outcomes through stop, upgrade, start and state inspection |
+| Reopening admission | Leave both owners intact and Blob drained; only the configured manager's exact activation may reopen it, never a readiness probe |
+
+The current simulator witness uses a trusted controller and an explicit manager.
+It does not demonstrate Root-owned creation or fleet plan/apply custody. Canic's
+current empty lifecycle arguments are deliberately refused by this application.
+Do not add a second management engine or relax Blob admission to bridge that gap.
+D3 is partial: embedded local composition is witnessed, while managed deployment
+and the provider upload/read journey remain unqualified. Standalone use remains
+independent; no Canic dependency or duplicated composition suite is added here.
+
 The [legacy library's host-grant contract](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/lib.rs)
 already separated allocation bootstrap from the complete service owner. Keep that
 ownership rule; use the rewrite's one `Service` record rather than importing legacy

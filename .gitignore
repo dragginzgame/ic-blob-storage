@@ -1,6 +1,7 @@
 /target/
 /qualification/target/
 /.tools/
+/.operations/
 /.toko-tooling-refresh.*/
 /.agents/
 /.aws/

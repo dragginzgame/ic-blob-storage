@@ -123,6 +123,31 @@ pub struct Usage {
     pub references: usize,
 }
 
+/// Application-only inventory of objects associated with a bound uploader.
+/// Shared objects are counted once within this view; views for different uploaders
+/// overlap and must not be added. References belong to the application, not uploader.
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PrincipalOverview {
+    /// Uploader used to select historical grants, not a provider payer or owner.
+    pub uploader: Principal,
+    /// Distinct associated roots, sorted by root, including retired history.
+    pub objects: Vec<PrincipalObject>,
+    /// Declared counters for these roots; uploads counts matching grants and
+    /// references counts all application reference names on the associated roots.
+    pub usage: Usage,
+}
+
+/// One distinct associated object and its application-owned references.
+#[derive(Clone, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct PrincipalObject {
+    /// Current object-wide disposition, including its original upload identity.
+    pub object: ObjectView,
+    /// Historical grants bound to the selected uploader, sorted by upload ID.
+    pub uploads: Vec<UploadView>,
+    /// All references to this root, sorted by ID; not personal ownership claims.
+    pub references: Vec<(ReferenceId, ReferenceStatus)>,
+}
+
 /// A refused local operation. Ordinary errors leave all state unchanged.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum Error {

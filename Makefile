@@ -8,7 +8,7 @@ FORMAT_RUST_ARGS := --extra-workspace qualification
 include vendor/toko-tooling/make/consumer.mk
 include vendor/toko-tooling/make/cargo-dependencies.mk
 
-.PHONY: help deps update clippy clippy-qualification test-references test-caffeine test-local example-local test-example-local docs-check docs-qualification-check documentation-links-check ci qualification-tooling-check install-test-server test-server-check clippy-host build-host test-standalone test-capacity build-admin test-management build-reply-probe test-endpoints test-signed build-reference-app test-application
+.PHONY: help deps update clippy clippy-qualification test-references test-caffeine test-local test-cli example-local test-example-local docs-check docs-qualification-check documentation-links-check ci qualification-tooling-check install-test-server test-server-check clippy-host build-host test-standalone test-capacity blob build-cli test-management build-reply-probe test-endpoints test-signed build-reference-app test-application
 
 help:
 	@printf '%s\n' \
@@ -19,6 +19,8 @@ help:
 	  'make test-references             Bounded object-reference behavior tests' \
 	  'make test-caffeine               Caffeine stream and manifest integrity tests' \
 	  'make test-local                  Local grant, reference and accounting tests' \
+	  'make test-cli                    Provider reply and offline enrollment checks' \
+	  'make blob                        Build and install blob into Cargo bin (PATH)' \
 	  'make install-test-server         Explicit authenticated local simulator setup' \
 	  'make test-standalone              Build and test the installed host locally' \
 	  'make test-capacity                Measure full-history host resources and cleanup' \
@@ -66,6 +68,9 @@ test-references:
 test-caffeine:
 	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --lib caffeine::tests
 
+test-cli:
+	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage-cli --bin blob
+
 test-local:
 	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --lib local::
 
@@ -110,10 +115,13 @@ test-application: build-host build-reference-app qualification-tooling-check
 	  app="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_reference_app") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one application Wasm artifact") end' target/blob-reference-app-artifacts.jsonl)" && \
 	  BLOB_WASM="$$wasm" BLOB_REFERENCE_APP="$$app" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test application
 
-build-admin: toko-tooling-check
-	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-admin --bin ic-blob-storage-admin -- -D warnings
+blob: build-cli
+	CARGO_BUILD_WARNINGS=deny cargo install --offline --locked --debug --path crates/ic-blob-storage-cli --bin blob
+
+build-cli: toko-tooling-check
+	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-cli --bin blob -- -D warnings
 	@mkdir -p target
-	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked -p ic-blob-storage-admin --bin ic-blob-storage-admin --message-format=json > target/blob-admin-artifacts.jsonl
+	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked -p ic-blob-storage-cli --bin blob --message-format=json > target/blob-cli-artifacts.jsonl
 
 build-reply-probe: qualification-tooling-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-reply-probe --target wasm32-unknown-unknown --release -- -D warnings
@@ -126,11 +134,11 @@ test-endpoints: build-host build-reply-probe
 	  probe="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_reply_probe") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one reply probe artifact") end' target/blob-reply-probe-artifacts.jsonl)" && \
 	  BLOB_WASM="$$wasm" BLOB_REPLY_PROBE="$$probe" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test endpoints
 
-test-management: build-host build-admin qualification-tooling-check
+test-management: build-host build-cli qualification-tooling-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test management -- -D warnings
 	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
-	  admin="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic-blob-storage-admin" and .executable != null) | .executable] | if length == 1 then .[0] else error("expected one Blob admin artifact") end' target/blob-admin-artifacts.jsonl)" && \
-	  BLOB_WASM="$$wasm" BLOB_ADMIN="$$admin" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test management
+	  cli="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "blob" and .executable != null) | .executable] | if length == 1 then .[0] else error("expected one Blob CLI artifact") end' target/blob-cli-artifacts.jsonl)" && \
+	  BLOB_WASM="$$wasm" BLOB_CLI="$$cli" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test management
 
 example-local:
 	CARGO_BUILD_WARNINGS=deny cargo run --offline --locked -p ic-blob-storage --example local_asset
@@ -141,4 +149,4 @@ test-example-local:
 documentation-links-check:
 	@find docs -type f -name '*.md' -print0 | xargs -0 perl vendor/toko-tooling/scripts/ci/check-documentation-links.pl --root . *.md
 
-ci: toko-tooling-check fmt-check clippy clippy-qualification test-references test-caffeine test-local example-local test-example-local docs-check docs-qualification-check documentation-links-check
+ci: toko-tooling-check fmt-check clippy clippy-qualification test-references test-caffeine test-local test-cli example-local test-example-local docs-check docs-qualification-check documentation-links-check

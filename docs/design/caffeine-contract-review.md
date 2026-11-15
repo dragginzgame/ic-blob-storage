@@ -1,15 +1,18 @@
 # Caffeine integration contract review
 
-Read-only review, 2026-11-14. This is the provider evidence companion to the
+Source review, mainnet reads and bounded payer funding, updated 2026-11-15.
+This is the provider evidence companion to the
 [rewrite design](ic-blob-storage-design.md#d0-first-gate-supported-independent-caffeine-access),
-not a selected production protocol or a qualification result for this checkout.
+not a selected production protocol or a complete provider qualification.
 
-**Finding:** the legacy project demonstrated independently installed Rust-host
-uploads. The reviewed public SDK explains how that worked; an independent public
-Motoko consumer now supplies a concrete self-funded account integration to compare.
-Supported Rust enrollment, provider enforcement, safe recovery and final closure remain unestablished.
-Proceed with this concrete candidate; do not freeze its identities or persistence
-or describe the service as resumable yet.
+**Finding:** DFINITY publishes an independent Rust integration and account-linking
+recipe. Anonymous mainnet reads now confirm the advertised Cashier ABI, gateway
+principal and price list. This supersedes the earlier search's lack of a public
+Rust enrollment recipe. A fresh payer deposit/credit now succeeds with retained
+request custody. Fresh owner enrollment, provider enforcement, safe recovery and
+final closure remain unqualified. Proceed through independent qualification;
+provider correspondence is not a prerequisite. Keep API/persistence experimental
+and do not describe the service as resumable or settled yet.
 
 ## Evidence and its limits
 
@@ -21,6 +24,8 @@ a source selection for review, not a registry-freshness claim or dependency adop
 
 | Evidence | What it establishes | Limit |
 | --- | --- | --- |
+| [DFINITY Rust example][dfinity-example] and [implementation][dfinity-storage] | Published independent deployment, account funding/linking and exact Rust callback shapes | Example source, not fresh enrollment or proof of gateway enforcement; unsafe sample policies are excluded below |
+| [November 15 mainnet observation](caffeine-observation.json) | Advertised interface, public queries and acknowledged fresh payer funding with balance/settings readback | Payer credit is not gateway capacity, independent Rust-host enrollment or proof of charge cutoff; query observations are not consensus-certified contracts |
 | [Legacy standalone trial summary][trial] | Reports two distinct authenticated uploaders, one original certificate call and two gateway PUTs each, and independently root/byte-verified 1 KiB downloads | Historical 0.73.0 behavior; private journals/artifacts were not revalidated; no representative multi-chunk or application-catalog acceptance |
 | [Legacy provider setup summary][funding] | Reports a separate payer, deposit/sweep, payer-to-owner relationship, owner allocation and spendable gateway credit | No general enrollment guarantee, namespace exclusivity, itemized price or charge cutoff |
 | [Legacy deletion follow-up][gc-readback] | November 5 summary reports the released object still DeletionPending, zero recorded acknowledgment attempts and an HTTP HEAD 200 | Historical observation only; telemetry is incomplete, HTTP may be cached, and neither origin deletion nor billing cessation was established |
@@ -29,64 +34,242 @@ a source selection for review, not a registry-freshness claim or dependency adop
 | [Caffeine #16 — Clarify object-storage GC callback contract for non-Motoko consumers][gc-issue] | Existing question covers key mapping, callback failure, deletion, replay and billing | Still open with zero comments when checked; no provider answer to adopt |
 | [Rabbithole storage description][rabbit-storage] and [account integration][rabbit-account] | Independent consumer describes Caffeine-backed personal canisters; its public source funds the canister's own Cashier account | Motoko consumer implementation, not a Caffeine support commitment, server contract or live observation by this review |
 
-Only source, public guidance and retained legacy summaries were read. No
-provider data URL, account, old journal, signing key or deployment was accessed.
-The legacy trial's live references and unresolved charges stay with its owner.
+Source, public guidance, retained legacy summaries and public Cashier reads were
+used. The legacy trial's live references and unresolved charges stay with its owner.
+The funding continuation below read the authorized `canic-mainnet` balances and
+used its configured signer to convert ICP to cycles and fund the fresh payer.
+No key was exported, legacy journal resumed, object uploaded or canister deployed.
+
+### Independent qualification — 2026-11-15
+
+The maintainer directs independent research without Caffeine outreach and permits
+the local `canic-mainnet` wallet to pay cycles when needed. The immediate route is
+public protocol evidence, then bounded fresh-account qualification, rather than
+waiting for an answer to issue #16. Preserve possible effects before paid calls;
+neither permission to fund nor a finite deposit establishes finite liability.
+
+DFINITY's example is pinned to `ef29e8a6e8063c6fe654cac53a3497cab585fefa`.
+Its integration checklist deploys a Rust backend, funds a payment account, obtains
+gateway principals and links the backend with a daily spending limit. This is a
+concrete **separate payer/owner bootstrap candidate**. The legacy self-funded
+canister path remains a comparison, not a second implementation mode. The README's
+10T top-up and 5T daily limit are examples, not this project's selected budget.
+Its download of a moving `icfs/latest` executable was not followed or adopted.
+
+The actual Rust source confirms:
+
+- The host returns `{ method = "upload"; blob_hash }` from a root-only update.
+  Usable authority comes from the IC-certified reply, not this plain record.
+- Liveness accepts `vec blob` and returns `vec bool`; the deletion list returns
+  **`vec text`**; confirmation accepts `vec blob`. This strengthens the text-list
+  candidate found in Toko, but does not prove which profile the live scrubber uses.
+- Gateway refresh calls `storage_gateway_principal_list_v1` with bounded wait.
+  A client query declaration does not prevent an inter-canister update invocation.
+- Certificate creation has no caller authorization and clears pending deletion;
+  confirmation removes stored rows even if not pending. Liveness returns false
+  for missing roots and is unauthenticated, despite the README's broader claim
+  that lifecycle methods check the gateway. None of these policies is adopted.
+  The sample also does not demonstrate preservation of its heap-only Cashier
+  configuration across upgrade. Retain Blob's existing ownership/lifecycle rules.
+
+Mainnet reads used `icp 1.6.0`, anonymous identity, `https://icp-api.io` and the
+built-in mainnet root, targeting `72ch2-fiaaa-aaaar-qbsvq-cai`. The receipt records
+exact methods, hashes and results. The extracted `candid:service` matches the
+[legacy deployed interface][legacy-did] except trailing whitespace. Balance and
+both gateway-list methods are advertised as queries; top-up takes an optional
+record and returns a typed result. Both public query outputs match the hashes in
+the [September observation][legacy-observation]. This is a new observation of
+unchanged results, not a new qualification of that historical run.
+
+The DID also exposes `storage_canister_api_version_get_v1` and a setter. Their
+existence does not tell us which version maps to text/binary deletion lists;
+resolve this during fresh-account callback qualification, not with fallback codecs.
+The price response alone supplies neither the storage billing interval nor a
+charge cutoff. DFINITY's README claims 30-day prepaid storage and eventual deletion
+after zero balance; the consumer billing guide describes different behavior.
+Record these as account-specific claims to investigate, not interchangeable terms
+or a proven spending cap. No prices are compiled into Blob.
+
+**Next operation:** the ledger funding route is now identified below. Select the
+fresh owner, retain exact account/link calls and qualify enrollment with no
+certificate issuance or object upload. The first object probe follows only after
+the host enforces grant ownership, irreversible Closing and retained exposure.
+Missing lifetime/closure evidence keeps exposure unresolved; observed deletion
+must never unlock Settled. General guarantees cannot be inferred from one probe.
+
+### Funding preflight and authorized mint — 2026-11-15
+
+The authorized local identity is `canic-mainnet`, principal
+`o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe`.
+Its default Cycles Ledger account is a concrete funding source; no wallet canister
+is needed for this route. Anonymous Cashier balance lookup returned
+`Err(AccountNotFound)`. Its deposit-subaccount query returned
+`1d1837c40b25f7971f603981da2ca474f8264b001cb94eca51a4fc289d020000`.
+Those were preflight observations, not certified proof of fresh state. They were
+rechecked before the bounded funding run below; this account is now funded and
+must not be treated as a new or absent account on a later attempt.
+
+The live Cycles Ledger `um5iw-rqaaa-aaaaq-qaaba-cai` advertises `icrc1_transfer`
+and `create_canister`; its queried fee is **100,000,000 cycles**. DFINITY's
+[creation-cost table][cycle-costs] lists **500,000,000,000 cycles** on a 13-node
+subnet, before operating funds. The initial 415,079,115,186-cycle balance was
+insufficient. The maintainer then explicitly requested conversion of at least 50T
+from newly supplied ICP. That conversion completed: **50,000,000,009,024 net cycles**
+credited, giving **50,415,079,124,210 cycles** at the post-operation read.
+That conversion funded the user's ledger account; it paid no cycles to Caffeine.
+The subsequent, separately retained deposit is described below.
+
+The conversion cost 30.60543552 ICP plus a 0.0001 ICP ledger fee. Original ICP
+transfer block **40446894** and Cycles Ledger mint block **17206042** are retained
+with exact signed transfer/notification requests, arguments, quote and outcomes
+under private Git-ignored `.operations/mint-50t-20261115/`. This is completed
+financial custody, not disposable `target/` evidence or a product subsystem.
+Do not repeat the mint. Both balance reads reconcile with the acknowledged results.
+
+The [CLI 1.6.0 mint implementation][cli-mint] performs a transfer with no explicit
+creation timestamp and hides the transfer block until the subsequent notification
+completes. We used its existing `canister call --sign-only` / `message send`
+commands for the same protocol instead, retaining a timestamped transfer and then
+notifying only its acknowledged block. No new signing, payment or recovery engine
+was added. The configured signer was used without exporting its key.
+
+The **enrollment budget** is 1T for one owner
+creation (including the subnet creation fee), 10B for one Cashier deposit, and
+100M for each ledger create/transfer fee: **1.0102T maximum source debit** under
+the observed fee. Any Cashier sweep fee must come from the 10B deposit; credit is
+measured, not assumed. Refresh fees before dispatch; changed fees require updating
+this plan. Remaining owner cycles cover installation/execution, with no automatic
+top-up. This allocation is not a bound on later provider storage liability.
+The payer-only step has now spent 10.1B; owner creation remains unspent. Funding
+was performed first to isolate that useful witness from unresolved link semantics.
+
+| Step | Exact operation | Required result / refusal |
+| --- | --- | --- |
+| 1 | Ledger `create_canister`, amount 1T, explicit controller and selected 13-node application subnet, fixed `created_at_time`, default source subaccount | Verify subnet/cost before dispatch; retain block and actual owner principal. No replacement creation on a lost reply; inspect the original request |
+| 2 — complete | Ledger `icrc1_transfer`, 10B, explicit 100M fee, returned payer subaccount, fixed memo/time | Acknowledged block 17206169; never repeat this deposit or use Cashier's default ledger account/canister top-up |
+| 3 — complete | Payer-signed `cycles_ledger_deposit_notify_v1(record { account = opt payer })` | Acknowledged 9.9B credit, reported ledger block 17206177. This is a mutation, not a status lookup; missing later observations do not authorize repeating it |
+| 4 — already satisfied | Inspect zero overdraft and disabled target refill | Both were already reported; no settings mutation needed. A setting is not a proved global charge cap |
+| 5 | `payment_account_canister_add_v1` with actual owner, explicit payer, bounded positive daily limit and absolute expiry | First establish timestamp units and limit behavior; retain the actual relationship. No guessed expiry, fallback ABI or upload |
+
+The exact relationship and owner arguments remain unprepared until a real owner
+exists and expiry semantics are sourced. Reviewed legacy [funding evidence][funding-review]
+supports this deposit/notify distinction but supplies no retry permission. The
+DFINITY [setup script][dfinity-setup] calls `add_gateway_principal`, absent from
+its Rust backend, and guesses a principal with text matching. Use the backend's
+actual refresh method and typed replies; do not execute that script wholesale.
+
+### Fresh payer funding witness — 2026-11-15
+
+One ledger transfer and one Cashier notification completed under the 10.1B source
+debit cap. The selected payer had no reported Cashier account, its deposit address
+held zero, and the refreshed interface/destination/fee matched the preflight.
+Afterward, an independent balance query named the expected payer and reported
+**9,900,000,000 cycles**, entirely in `cycles_ledger`, with debt target `Ledger`.
+The deposit address read zero. Source balance fell by exactly 10.1B to
+**50,404,979,124,210 cycles**: 100M transfer fee plus the 10B deposit. The deposit
+less credited amount was another 100M; this is an observed difference, not a
+general fee schedule or itemized bill.
+
+Payer-authenticated queries reported `overdraft_limit = 0`, `target_balance = null`
+and an empty relationship list with no continuation token. No settings update,
+owner creation, relationship, certificate or upload was performed. Exact signed
+requests, preflight, acknowledged results and readback are retained privately in
+`.operations/caffeine-enrollment-01007/`, outside disposable build output. Preserve
+the funded account and its custody; neither a refund nor closure is inferred.
+The observed happy path supplies no permission to retry an uncertain notification.
+
+The [legacy short-expiry trial][legacy-expiry] was inconclusive: it read zero gateway
+credit both before and after the candidate expiry. Returned nanosecond-shaped
+timestamps alone do not qualify units or enforcement. The [later legacy setup][funding]
+separately reported owner allocation and usable gateway credit. These distinguish
+**payer credit, payment relationship, owner allocation and gateway admission**.
+Next select a fresh owner and qualify its binding/credit path using that evidence;
+do not require another deposit simply because gateway credit is zero. Any expiry
+experiment must be labelled as such and bounded independently of assumed expiry.
 
 ### Independent-access follow-up for 0.100.2
 
-The November 14 follow-up checked Caffeine's public repository inventory, storage
-package guidance and exact protocol names, then followed the independent
-Rabbithole consumer. The Caffeine skills head still matched the pinned revision;
-issue #16 remained open with zero comments. The [export guide][hosting], updated
-November 13, still says independently deployed exports need replacement storage.
-Its scope does not establish the terms of a lower-level account integration.
+Historical search result, superseded for the public Rust enrollment recipe by
+[the November 15 independent qualification review](#independent-qualification--2026-11-15).
 
-Rabbithole source is pinned to `baa4d86314822711735cc9860220c109210b1ce9`:
+The November 14/15 search found unchanged Caffeine skills at the revision above,
+package 1.1.2, issue #16 open with zero comments, and an export guide that requires
+replacement of managed storage for independently deployed exports. That guide's
+scope does not establish the terms of lower-level Cashier integration. No account
+or provider calls were made in that earlier search.
 
-- [CashierAccount.mo][rabbit-account] looks up the configured Cashier, reads the
-  canister's own account balance and attaches cycles to `account_top_up_v1` for
-  that same principal. It also manages account delegates and automatic funding.
-- [EncryptedStorageCanister.mo][rabbit-canister] includes the Caffeine storage
-  mixin and exposes an authorized setup path that ensures its bootstrap balance.
-- [Cashier.mo][rabbit-cashier] declares balance, pricing, overdraft and payment
-  relationship interfaces. Those types describe a consumer's expected API; they
-  do not specify enforcement, enrollment eligibility or the end of charge exposure.
+Rabbithole source at `baa4d86314822711735cc9860220c109210b1ce9` supplies an
+independent Motoko self-funded account candidate: [CashierAccount.mo][rabbit-account]
+attaches cycles for its own canister principal, [the storage canister][rabbit-canister]
+uses Caffeine's mixin, and [Cashier.mo][rabbit-cashier] declares consumer-side balance,
+pricing and relationship types. Its automatic funding/delegation machinery was
+not adopted. Source alone establishes neither enforcement nor charge closure.
 
-This is concrete independent-consumer evidence for a **self-funded canister
-account candidate**, alongside the legacy trial's separate payer/owner candidate.
-Neither account arrangement is selected for this rewrite. Do not infer supported
-Rust enrollment from Motoko source, or exclusive retention scope from an account
-principal. The inspected consumer uses the Motoko mixin; it supplies no independent
-specification of the non-Motoko deletion callbacks. No third-party implementation,
-automatic funding, delegation machinery or consumer deployment was adopted.
+The provider's [managed storage setup guidance][storage-guide] and Rabbithole
+declare different top-up argument/result shapes. The later recovered historical
+Rust ABI and mainnet metadata now give a concrete comparison; do not select types
+by copying a convenient snippet or treating dropped response fields as evidence
+of success. The earlier conclusion that no independent Rust recipe had been found
+was a search limit, not evidence of impossibility or a continuing outreach gate.
 
-The provider's [storage setup guidance][storage-guide] describes missing-account
-errors and redeployment within its managed setup. That is not an independently
-usable enrollment procedure. Its package helper and Rabbithole also declare
-different top-up argument/result shapes. Do not choose a binding by copying either
-snippet: the selected provider revision and supported ABI need explicit evidence.
+### Canic legacy protocol evidence — 2026-11-15
 
-The next access question is now specific: **does Caffeine support a fresh,
-independently deployed Rust canister using its certified method/root reply and
-explicitly provisioned Cashier account, without Motoko weak-reference tracking
-or automatic-refill integration?** An affirmative answer must identify account
-provisioning, supported ABI/revision, payer and immutable project/bucket binding.
-Then the contract table below still needs enforced object bounds, original-proof
-recovery/lifetime and retention/charge closure. A self-funded account does not
-answer those questions or establish a finite liability cap.
+This source-only investigation preceded the public Cashier reads above; its
+no-call statements describe that investigation, not the entire current review.
+The maintainer requested this read-only investigation. Canic legacy HEAD
+`377fbceb3994c9d1f3033979ef4e4ce9e6b85801` retains the adapter, qualification and
+demo acceptance notes, but its old protocol inventories were removed. Path history
+locates their last pre-removal parent at
+`d9d70322ade2ba6fbd17520acf93acad66dcf4aa`. The [Cashier inventory][canic-cashier]
+and [gateway inventory][canic-gateway] cite Toko
+`9ca150b396a2bde42f2b8977a04a7ca2c6172b56`; the original
+[Rust storage implementation][toko-storage] and [account caller][toko-account]
+were inspected directly, not inferred from the inventory's `Complete` label.
+That label meant accepted consumer-side evidence for Canic 0.69/0.70, not a
+provider implementation audit or qualification of this rewrite.
 
-**Disposition:** no D0 requirement is newly qualified by this source review.
-It narrows the access candidate and avoids treating independent access as proven
-impossible. No additional provider-backed enrollment or server-semantics contract
-was found in the inspected sources; this is a search limit, not a claim that none
-exists. Further progress on these guarantees needs new provider evidence, not
-another broad search of these unchanged sources or an invented local mechanism.
-No question was posted and no provider/account call was made.
+| Recovered fact | Consequence for this rewrite | Evidence limit |
+| --- | --- | --- |
+| Historical Cashier principal is `72ch2-fiaaa-aaaar-qbsvq-cai` | Concrete service candidate for later identity/ABI verification; do not install it as an implicit default | No call was made to verify its current code, controller or interface |
+| Project canister funds its own principal's account | A separate payer relationship is not intrinsic to the historical self-funded path | The source comment says self-relationships are forbidden; this is a consumer assertion, not fresh provider enforcement evidence |
+| `account_top_up_v1` takes **`opt record { target_balance : opt nat; account : opt principal }`**, with attached cycles | Preserve the outer option; the Rust caller sends `Some({ None, Some(self) })` | An exact historical ABI candidate, not proof that another provider revision accepts it |
+| `account_balance_get_v1` takes `record { account : principal }`; balances contain signed Candid integers | Preserve typed errors and signed values at the external boundary; apply local range checks explicitly | A returned balance is not uniquely attributable payment evidence or a spending cap |
+| `storage_gateway_principal_list_v1 : () -> (vec principal)` is called as an update | Gateway membership can be obtained from a configured service rather than guessed from client identities | Membership does not establish object deletion scope or what a confirmation proves |
+| Certificate result is `{ method = "upload"; blob_hash }` after local registration | Confirms the Rust certified-reply path already identified in the SDK/Blob legacy review | No expiry, length enforcement or charge-closure rule is established |
 
-A targeted continuation check on November 14 reconfirmed the same skills head
-and issue #16 still open with zero comments. There is no new provider contract to
-adopt; the unchanged sources were not subjected to another broad search.
+There is an important historical ABI difference: the old Toko/Canic inventory's
+`_immutableObjectStorageBlobsToDelete` returns **`vec text`**, while Canic legacy's
+later [installed GC test][canic-gc-tests] decodes **`vec blob`** and exercises the
+newer shared Blob profile. Both liveness and confirmation use binary roots in the
+old inventory, but that alone does not make the list responses interchangeable.
+Select and qualify one provider revision; do not introduce a fallback decoder or
+copy the older `.did` wholesale. The later test's controlled gateway identity is
+not evidence of a production callback principal.
+
+Retain the later test's useful invariants: unknown roots remain protected,
+confirmation of a live/nonpending root refuses, malformed mixed batches preserve
+the whole pending set, and duplicate acknowledgment never removes outstanding
+byte/liability accounting. The original Toko implementation instead allowed a
+gateway confirmation to remove a stored live row and returned false for unknown
+roots. Its hub status path could also trigger funding. Those policies conflict
+with this rewrite and must not be copied. No funding timer, account ledger,
+database layout, recovery record or deployment machinery is imported.
+
+The [later funding case][canic-funding-tests] explicitly installs a Testkit reply
+canister with bounded cycle acceptance. It proves wrapper/accounting behavior
+under controlled replies, not live Cashier enrollment. Canic's
+[demo acceptance record][canic-acceptance] still requires selected provider,
+payer and gateway inputs and real upload/download/deletion/billing evidence.
+[Legacy issue #494][canic-funding-issue] also distinguishes acknowledged payments
+from independent credit; its later `not_planned` closure is not qualification.
+
+**Disposition:** the historical Rust self-funded call path and ABI are now sourced;
+we should not keep describing those as undiscovered or require a new receipt API
+before ordinary acknowledged funding can work. The narrower next check is fresh
+compatibility/enrollment for that explicit account model and selected service,
+followed by the existing object-scope, proof-lifetime and closure gates. A service
+principal is not a fresh customer account or an authorized spend limit. This
+review selects no live target, performs no provider call and closes no D0 guarantee.
 
 ### Prepared provider clarification — not sent
 
@@ -167,7 +350,7 @@ checks, not evidence that malicious traffic cannot store more than admitted.
 
 | Contract | Available evidence | Required answer before selecting the profile |
 | --- | --- | --- |
-| Independent enrollment and account | Historical Rust payer/owner setup and transfers; independent Motoko consumer self-funded account source | Is the Rust-host arrangement supported without Motoko tracking/automatic refill? How does a fresh installation obtain its account, supported ABI and permitted project/bucket binding? Which account incurs each charge? |
+| Independent enrollment and account | Published Rust recipe, current ABI and this checkout's acknowledged fresh payer funding | Qualify one fresh owner binding, callback profile, owner/gateway credit and actual charge attribution; payer funding alone is not Rust-host enrollment |
 | One provider-object owner | SDK uses owner/project/root plus bucket on writes; callbacks provide binary keys | What exact tuple identifies deletion scope? Are keys tree roots, chunks or both? Can another installation affect retention? Require exclusive scope or an independent retention handle; a local namespace number is not proof |
 | Exact bounded effect | Metadata/tree commitments and client byte count | Does the gateway reject inconsistent length/header/tree/chunk sizes and extra or substituted chunks? Which limits also bound partial/duplicate uploads? Until qualified, counters are declared usage, not a proven physical bound |
 | Authority recovery | Original request identity can be retained and its IC result queried | Will the gateway accept the recovered proof, within what window, and can the SDK resume with it without another certificate call or unsafe PUT replay? Absence of a result is not proof of no effect |
@@ -209,30 +392,32 @@ provider bound is established, any byte accounting remains **declared usage**.
 
 ### Qualification sequence and stopping points
 
-D0 selects a supported contract from provider-backed evidence; D1 implements it
-and checks the installed host with labelled substitutes; D2 exercises the same
-contract against a fresh, explicitly selected provider installation. The maintainer
-has authorized Caffeine calls when ready and local installed-host testing before
-D0 closes, with provider effects disabled during that experiment. D0 does
-not require a live test of a host that has not been implemented. Conversely, a
+D0 selects evidence-backed rules and explicit limitations; D1 implements them
+and checks the installed host with labelled substitutes. Bounded D2 experiments
+against a fresh installation may refine those rules without closing unknown
+guarantees. The maintainer has authorized Caffeine calls when ready and local
+installed-host testing before D0 closes. The current local host keeps provider
+effects disabled. D0 does not require a live test of an unimplemented host. A
 successful D2 sample cannot supply missing general guarantees about old proofs,
 namespace isolation or future charges. A protocol change found during D2 returns
 to design review before the affected API/persistence model is accepted.
 
-The next useful evidence is supported independent enrollment and a specification
-covering the matrix above. The October [legacy discovery][gc-discovery] and
+The next useful evidence is fresh enrollment under the published Rust recipe and
+independent qualification of the matrix above. No provider response is required
+to conduct that work. The October [legacy discovery][gc-discovery] and
 [contract follow-up][gc-contract-followup] already looked for gateway semantics;
 they found helper/runtime behavior, not a server contract. The November deletion
 follow-up still did not establish closure. These are reasons to keep D0 open,
-not evidence that no such arrangement can exist. Do not repeat the old live
-queries or resume those objects through the rewrite.
+not evidence that no such arrangement can exist. Fresh public interface queries
+are permitted; never resume legacy objects through the rewrite.
 
 The public [troubleshooting guide][troubleshooting], read on 2026-11-14, describes
 background removal after references disappear and client chunk retries. It does
 not specify the Rust callback key mapping, certificate cutoff or in-progress
 upload closure. Its suggested wait is not a protocol expiry or settlement rule.
 
-Once D0 has answers, use the following cases to prepare D1/D2 qualification.
+Use the following cases to prepare D1/D2 qualification and refine D0's supported
+limits. An unknown guarantee remains unknown; it must not become a local promise.
 These are planned witnesses, not runnable tests or passing results. Start with
 the existing deterministic 5 MiB + 17 byte fixture and a small file; those are
 test inputs, not selected production size limits.
@@ -425,6 +610,15 @@ is known. No live trial or provider message is initiated by this review.
 [gc-readback]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/docs/evidence/caffeine-probes/deployed/2026-11-05-trial-v069-gc-readback-01/summary.json
 [gc-discovery]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/docs/evidence/caffeine-probes/local/2026-10-22-gc-contract-discovery-01/summary.md
 [gc-contract-followup]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/docs/evidence/caffeine-probes/local/2026-10-22-gc-credit-contract-02/summary.md
+[dfinity-example]: https://github.com/dfinity/immutable-object-storage-example/blob/ef29e8a6e8063c6fe654cac53a3497cab585fefa/README.md
+[dfinity-setup]: https://github.com/dfinity/immutable-object-storage-example/blob/ef29e8a6e8063c6fe654cac53a3497cab585fefa/scripts/setup.sh
+[cycle-costs]: https://docs.internetcomputer.org/references/cycle-costs/
+[cli-mint]: https://github.com/dfinity/icp-cli/blob/v1.6.0/crates/icp-app/src/operations/token/mint.rs
+[funding-review]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/docs/evidence/caffeine-funding-review.json
+[legacy-expiry]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/docs/evidence/caffeine-probes/deployed/2026-10-02-trial-link-02/summary.json
+[dfinity-storage]: https://github.com/dfinity/immutable-object-storage-example/blob/ef29e8a6e8063c6fe654cac53a3497cab585fefa/rust-backend/src/storage.rs
+[legacy-did]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/docs/evidence/caffeine-cashier.did
+[legacy-observation]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/docs/evidence/caffeine-deployment-observation.json
 [sdk]: https://github.com/caffeinelabs/skills/blob/59b9b29a4fad3828677c8b80ead0e06fdb40987e/packages/object-storage/frontend/src/StorageClient.ts
 [sdk-api]: https://github.com/caffeinelabs/skills/blob/59b9b29a4fad3828677c8b80ead0e06fdb40987e/packages/object-storage/frontend/dist/StorageClient.d.ts
 [mixin]: https://github.com/caffeinelabs/skills/blob/59b9b29a4fad3828677c8b80ead0e06fdb40987e/packages/object-storage/backend/src/Mixin.mo
@@ -449,3 +643,11 @@ is known. No live trial or provider message is initiated by this review.
 [legacy-metadata]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-contracts/src/identity/caffeine/metadata/mod.rs
 [legacy-verifier]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-contracts/src/identity/caffeine/verification/mod.rs
 [legacy-vectors]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-contracts/tests/fixtures/caffeine-hashing/vectors.json
+[canic-cashier]: https://github.com/dragginzgame/canic-legacy/blob/d9d70322ade2ba6fbd17520acf93acad66dcf4aa/docs/contracts/BLOB_STORAGE_CASHIER_INVENTORY.md
+[canic-gateway]: https://github.com/dragginzgame/canic-legacy/blob/d9d70322ade2ba6fbd17520acf93acad66dcf4aa/docs/contracts/BLOB_STORAGE_INVENTORY.md
+[toko-storage]: https://github.com/dragginzgame/toko/blob/9ca150b396a2bde42f2b8977a04a7ca2c6172b56/fleets/toko/project/instance/src/ops/immutable_storage.rs
+[toko-account]: https://github.com/dragginzgame/toko/blob/9ca150b396a2bde42f2b8977a04a7ca2c6172b56/fleets/toko/project/hub/src/ops/blob_storage.rs
+[canic-gc-tests]: https://github.com/dragginzgame/canic-legacy/blob/377fbceb3994c9d1f3033979ef4e4ce9e6b85801/qualification/canic-tests/src/pic/blob_service/operator/provider/gc/mod.rs
+[canic-funding-tests]: https://github.com/dragginzgame/canic-legacy/blob/377fbceb3994c9d1f3033979ef4e4ce9e6b85801/qualification/canic-tests/src/pic/blob_service/operator/funding/paid/mod.rs
+[canic-acceptance]: https://github.com/dragginzgame/canic-legacy/blob/377fbceb3994c9d1f3033979ef4e4ce9e6b85801/docs/audits/working/blob-0411-adoption.md#current-acceptance--2026-11-11
+[canic-funding-issue]: https://github.com/dragginzgame/canic-legacy/issues/494

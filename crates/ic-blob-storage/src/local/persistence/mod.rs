@@ -189,6 +189,10 @@ impl<M: Memory> Service<M> {
                 .inspect_object(caller, root)
                 .map(Observation::Object),
             Inspection::Usage => self.model.usage(caller).map(Observation::Usage),
+            Inspection::Overview(uploader) => self
+                .model
+                .overview(caller, uploader)
+                .map(Observation::Overview),
             Inspection::Maintenance => {
                 self.manager(caller)?;
                 Ok(Observation::Maintenance(self.maintenance()))

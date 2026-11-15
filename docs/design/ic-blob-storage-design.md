@@ -67,28 +67,28 @@ provider review.
 ### D0 first gate: supported independent Caffeine access
 
 The selected candidate is an independently installed Rust host using Caffeine
-storage. **That arrangement is not yet qualified or established as supported.**
-Caffeine's [GitHub integration guide](https://help.caffeine.ai/hc/en-us/articles/46899843980692-GitHub-Integration-Overview)
-says managed storage is unavailable to independently deployed exported apps.
-This does not disprove a separately supported lower-level arrangement. The legacy
-Blob trials are historical feasibility evidence, not a substitute for its current
-contract. The [provider contract review](caffeine-contract-review.md) traces two
-reported standalone uploads, the actual SDK/certificate path, relevant legacy
-regressions and the precise remaining provider questions. It establishes no new
-live qualification or supported enrollment arrangement.
+storage. DFINITY now supplies a reviewed public Rust deployment, funding and
+account-linking recipe; anonymous mainnet reads confirm the advertised Cashier
+interface and successful gateway/price queries. See the
+[independent qualification review](caffeine-contract-review.md#independent-qualification--2026-11-15)
+for pinned source, observations and limits. This supersedes the earlier absence
+of an enrollment recipe. The separate payer/owner path is the next bootstrap
+candidate; no automatic funding subsystem is added to Blob.
 
-The [0.100.2 access follow-up](caffeine-contract-review.md#independent-access-follow-up-for-01002)
-adds an independent Motoko consumer's self-funded Cashier integration as a concrete
-candidate. It does not select that account arrangement or qualify Rust support,
-namespace isolation or closure. No funding subsystem is added to Blob.
-
-Complete this table with provider-backed answers and an identified protocol/SDK
-revision before freezing identities, APIs or persistence. No generic provider
-abstraction or speculative certificate format is a substitute.
+The [fresh payer funding witness](caffeine-contract-review.md#fresh-payer-funding-witness--2026-11-15)
+now establishes one acknowledged deposit/credit path. **Fresh owner enrollment
+and the full provider contract remain unqualified.** The
+maintainer directs independent research and experiments without Caffeine outreach;
+provider correspondence is not a prerequisite. Complete this table with sourced
+contract evidence, bounded observations and explicit remaining limitations before
+freezing identities, APIs or persistence. A passing sample cannot establish a
+universal guarantee; unknown enforcement stays declared-only accounting and
+unknown closure stays unresolved exposure. No generic provider abstraction or
+speculative certificate format is a substitute.
 
 | Contract question | Required answer/evidence | Current disposition |
 | --- | --- | --- |
-| Independent access | Supported enrollment/authorization for this Rust host, not merely a Caffeine-generated app | Historical Rust transfers and independent Motoko account integration are evidence of feasibility; current Rust support/enrollment remains unestablished |
+| Independent access | Published independent Rust integration and qualified fresh enrollment | Published recipe and acknowledged fresh payer funding; owner binding, allocation and gateway admission still to qualify |
 | Account and namespace | Actual payer, namespace binding and exclusive retention/deletion scope | Require one immutable binding and exclusive scope; provider support unqualified |
 | Upload authority | Exact enforced fields, caller/bearer semantics, validity and in-progress transfer rules | Reviewed path uses an IC-certified method/root reply; provider enforcement remains unqualified |
 | Lost authority reply | Recovery of the original usable proof, or explicit blocked outcome | Legacy retains original IC request identity; recovered-proof acceptance and SDK resume remain unqualified; no second issuance fallback |
@@ -100,14 +100,16 @@ abstraction or speculative certificate format is a substitute.
 The feasibility witness must join independent host enrollment, account/namespace
 binding, usable upload authority, direct SDK transfer and the retention protocol.
 Read-only contract/source review comes first. The maintainer has authorized
-Caffeine calls when the implementation is ready; carry that authorization forward.
+Caffeine calls when the implementation is ready and use of the local
+`canic-mainnet` wallet for needed cycles; carry that authorization forward.
 A live witness still needs an identified fresh installation/account, explicit
 resource bounds and durable custody of all possible effects. If independent access is unsupported,
 stop this delivery path and return the product choice to the maintainer.
 
-D0 requires provider-backed contract answers, not a live test of an unimplemented
-host. D1 qualifies the resulting installed local rules with labelled substitutes;
-D2 supplies fresh live observations under that contract. The
+D0 selects evidence-backed rules and their limits, without requiring a live test
+of an unimplemented host. D1 qualifies installed local rules with labelled
+substitutes; bounded D2 experiments can refine the selected contract, while
+missing guarantees remain open. The
 [field enforcement matrix and qualification sequence](caffeine-contract-review.md#field-enforcement-required-before-registration)
 specify the next witnesses and stopping points. The legacy November deletion
 follow-up still did not establish closure. The maintainer initially approved
@@ -200,7 +202,7 @@ The separate qualification workspace was accepted on 2026-11-15.
 crates/
   ic-blob-storage/           # Reusable service library; exists today
   ic-blob-storage-canister/  # Experimental standalone Wire host
-  ic-blob-storage-admin/     # Native maintenance custody and post-start verification
+  ic-blob-storage-cli/       # Native storage inspection, enrollment proposals and maintenance
   ic-blob-storage-reference-app/ # Standalone durable application catalog
 clients/
   browser/                  # Client/example using the selected external SDK
@@ -219,8 +221,10 @@ Canic owns its adapter in the Canic repository and depends on this same library;
 it does not depend on the standalone executable.
 The [Canic adapter handoff](application-boundary.md#canic-adapter-handoff) maps the
 current Service API to a first embedded catalog witness, including trusted local
-authority, one Storage bootstrap and atomic catalog/reference failures. It is an
-implementation input for Canic, not evidence that composition is already qualified.
+authority, one Storage bootstrap and atomic catalog/reference failures. Its
+[composed witness review](application-boundary.md#composed-witness-reviewed--2026-11-15)
+records Canic's implemented adapter and installed local evidence, separately from
+the still-open fleet management and provider journey.
 
 The [reference application](reference-application.md) owns its bounded drafts,
 publication decisions and cleanup intent in a separate canister. It calls the
@@ -249,10 +253,14 @@ Both workspaces select the same tooling payload and inherit the common lint poli
 There is no empty package or generic harness.
 
 Extract a runtime-free contracts package only when the remote client needs shared
-types without service storage dependencies. The native admin binary now has an
-actual operator need: authenticate the existing management inspection before
-building a state-changing runner. It consumes the same protocol types and the
-Platform Agent; the service library does not depend on it. Do not pre-create the predecessor's five-package
+types without service storage dependencies. The native admin binary serves
+guarded maintenance and [storage inspection](../operations/storage-inspection.md):
+one application's uploader inventory, a separate provider-reported account view,
+and an offline enrollment proposal. The library derives uploader inventory from
+existing grants and references; application authority remains required and shared
+roots count once per view. This adds no persistent index or provider effect.
+The CLI consumes the same protocol types and Platform Agent; the service library
+does not depend on it. Do not pre-create the predecessor's five-package
 layout or its independent release groups.
 
 Canic stays out of the library's dependencies, ordinary tests and standalone
@@ -612,7 +620,7 @@ recovery state was imported. D0/D1 and live provider guarantees remain open.
 
 ### Selected initial policy: trusted management path, no rollback
 
-The native path starts with `ic-blob-storage-admin inspect`.
+The native path starts with `blob inspect` (build with `make blob`).
 The operator supplies a target/API URL, Ed25519 manager PEM, independently trusted
 network root DER, exact expected Wire `blob_init` payload, reviewed uncompressed
 Wasm and expected record format. Platform Agent authenticates module-hash reads
@@ -637,7 +645,8 @@ suppliers; native crypto/HTTP dependencies do not enter the standalone Wasm grap
 The selected policy is a restricted controller-management path. Supported controllers
 are trusted to use it and install only reviewed state-preserving code. The standalone
 native maintenance entrypoint is implemented and locally qualified below; fresh
-provisioning and the D3 Canic counterpart remain unimplemented. Management stays
+provisioning and the Canic fleet-managed lifecycle remain unimplemented. Canic's
+embedded lifecycle has a separate simulator witness, not a fleet custody claim. Management stays
 outside the reusable Blob engine, with no Blob-owned continuity/recovery framework.
 
 Any future provisioning path must allow fresh installation only into a proven empty
@@ -952,10 +961,10 @@ Current progress is by accepted capability, not a percentage of code written:
 
 | Gate | Current disposition | Next evidence needed |
 | --- | --- | --- |
-| D0 | Open; protocol candidate reviewed, no supported independent Rust contract selected | Provider-backed enrollment/ABI, object scope, enforced bounds, authority recovery/lifetime and charge closure |
+| D0 | Open; published Rust recipe, current ABI and fresh payer funding witnessed | Fresh owner binding/credit, callback profile, object scope, enforced bounds, authority recovery/lifetime and charge closure |
 | D1 | Local policy, durable host/application, cross-canister publication/cleanup, signed calls, integrity example and native maintenance qualified separately | Selected D0 contract and integrated SDK upload/read through the application |
-| D2 | Not started; no fresh account/target or bounded live run selected | D0 contract and an identified authorized installation with durable obligation custody |
-| D3 | Ownership selected; standalone independence preserved | Canic-owned adapter and actual composed application qualification |
+| D2 | Payer funding slice passed: 10.1B debit, 9.9B credit; exact custody retained; no owner/object run | Fresh owner, payment binding and gateway credit; qualified host before upload |
+| D3 | Partial: Canic-owned adapter and embedded catalog have installed local composition evidence; standalone independence preserved | Immutable supplier adoption, fleet-managed lifecycle custody and integrated provider journey |
 | D4 | Not claimed; finite history and small-store limits remain explicit | Representative workload measurements and a qualified retention/compaction and operating policy |
 
 The [standalone capacity measurements](standalone-capacity.md) qualify the existing
@@ -1188,8 +1197,9 @@ opened or reverified. Read its LEGACY.md before separately authorized recovery.
 | `make test-application` | Durable application catalog, actual inter-canister identity, cancellation during replicated inspection, interrupted cleanup, bounded history and same-format application upgrade | Provider transfer, certificate recovery, arbitrary migration or snapshot continuity |
 | `make test-management` | Actual native custody, original-request observation, stop/upgrade/start/activation and populated state across a different artifact hash | Mainnet, macOS execution, fresh provisioning, arbitrary replacement compatibility or controller bypass |
 
-Canic's [integration ownership](https://github.com/dragginzgame/canic/blob/abca3139783db93cd6f124749e4c08d30a042f94/docs/design/canic-system-design.md#11-authentication-and-service-composition)
-remains design alignment: Canic owns mounting/memory/lifecycle/funding bindings;
-Blob owns service semantics. No rewrite adapter is qualified here. Public provider
+Canic's [composed witness review](application-boundary.md#composed-witness-reviewed--2026-11-15)
+records its adapter, embedded catalog and retained installed evidence. Canic owns
+that qualification; this repository does not duplicate its suite or claim fleet
+management is complete. Blob owns service semantics. Public provider
 and IC references establish only the specifically cited constraints. D0 remains
 open; local passing checks cannot turn historical traffic into a supported contract.
