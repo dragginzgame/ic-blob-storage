@@ -2,17 +2,17 @@
 
 ## Delivery and scope
 
-Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.9 is prepared for push**.
-It joins callbacks, CLI custody and transfer/read to the real catalog. All four
-product packages and both locks select 0.100.9; independent qualification versions
-remain unchanged. Previous delivery is tag `v0.100.8`; publication stays disabled.
+Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.9 is pushed** at
+[`c78dbcd`](https://github.com/dragginzgame/ic-blob-storage/commit/c78dbcd3e6d3f20de51e0e4167a270d2e54b47fa).
+Remote branch and annotated `v0.100.9` peeled tag were verified. Four product
+packages and both locks select 0.100.9; qualification versions remain independent.
+Publication stays disabled. The delivery-only review belongs to this checkpoint.
 
 Rust 1.100.0, Tooling 0.44.4 (49-file snapshot), Platform 0.33.7, Runtime 0.22.5,
 Types 0.20.4, Wire 0.24.0, Testkit 0.106.0/PocketIC 16.1.0 are selected.
 Both workspaces use Wire's root codec API and explicit payload/frame encoding.
-Release freshness review found Wire 0.24.1's tooling/qualification cleanup; defer
-that optional refresh to the next dependency-maintenance pass. Other direct first-party
-supplier selections match Cargo's latest releases (`target/01009-release-suppliers.log`).
+Defer Wire 0.24.1's tooling-only refresh to next dependency maintenance; other direct
+first-party releases match Cargo's latest (`target/01009-release-suppliers.log`).
 `blob 0.100.9` is installed on PATH; `make blob` updates it through Cargo.
 [Storage inspection](../operations/storage-inspection.md) owns CLI usage and limits.
 Product Service still owns one 64 KiB store and 64 historical uploads/references;
@@ -113,21 +113,16 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Qualification and integration
 
-Tooling was installed through its pinned installer; all eight Cargo package paths
-match their names. Both locked graphs have one Wire 0.24.0 identity. Final-version
-`make ci` and all eight installed suites pass (`target/01009-release-{ci,installed}.log`).
-Earlier all 17 selected installed tests passed (`target/01009-wire-installed.log`). Retained
-Wire 0.22.4 host/app Wasm and CLI prove reopening their exercised stable records and
-reading their prepared custody with the new code. This is narrow record coverage,
-not arbitrary cross-version compatibility or qualification of a live probe upgrade.
-Ten catalog scenarios still cover lost replies, fresh read-only reconciliation,
-corruption and cancellation. All 22 browser tests also pass in the current CI run.
-Node 24+ is required by `make test-browser` and `make test-callbacks`; no npm install.
+Tooling was installed through its pinned installer; package paths match their names.
+Both graphs have one Wire 0.24.0 identity. Final-version `make ci` and all eight
+installed suites pass (`target/01009-release-{ci,installed}.log`), including 22 browser
+tests and ten catalog scenarios. Earlier retained Wire 0.22.4 host/app/CLI checks
+prove exercised record/custody reopening (`target/01009-wire-installed.log`), not
+arbitrary compatibility or a live probe upgrade. Node 24+ is required; no npm install.
 No deployed browser, provider acceptance or settlement claim is made. The
 [enrollment probe](../design/caffeine-contract-review.md#single-use-enrollment-probe--local-qualification-for-01008)
 remains 0.100.8; its live consumed attempt and custody are unchanged.
-The exact pre-release installed-probe inputs remain under private installation
-custody's `source-before-release-01008/`, verified against the original intent.
+Exact live-probe inputs remain in installation custody's `source-before-release-01008/`.
 
 Canic adapter/catalog at `b36f6a39a67f487def523c847423fdfdb8d60c50` has five installed
 witnesses naming Blob `50fe84b`; do not relabel them for newer suppliers. D3 remains
@@ -136,15 +131,20 @@ to Canic. No Canic source changed. Legacy stays read-only at
 `25bed1352f3d2b9659f0d2583f50fa9af859ea84`; reuse lessons for current consumers,
 not its multi-operation journals, refund engine or substitute-service graph.
 
-## Architecture review
+## Post-push architecture review — 0.100.9
 
-The [0.100.8 post-push review](https://github.com/dragginzgame/ic-blob-storage/blob/86fc663d14b5fde78db1267157ce9b1b9dbe2888/docs/status/current.md#post-push-architecture-review--01008)
-retains delivered findings and release validation. This local 0.100.9 review
-covers callback ownership, CLI custody/recovery, their qualification callers and
-the retained-image refusal. No second reference/accounting owner or generic
-workflow engine was added; transfer custody extends the existing root directory.
-Corrected stale checkpoint/endpoint/preparation descriptions and documented Agent
-transport retries. Product Rust is 4,299 LOC; client JavaScript is 244 code lines,
-counted separately from Cargo's Rust-only report. The GET helper shares validation and verification.
-Shared fixtures/private test pipes coordinate real application calls, not a second catalog.
-Wire adds explicit encoding, no second codec. No further sediment found; review again on delivery.
+Reviewed `86fc663..c78dbcd` after push using the installed baseline's pinned
+complexity method and this release's AGENTS overlay: callbacks, CLI custody,
+client/catalog callers, Wire adoption and qualification. No actionable sediment
+found in that scope. Service owns Open/Closing references and exposure; callbacks
+only retain gateway acknowledgments. CLI root/dispatch/transfer claims refuse
+partial or repeated work. Client attempt/read outcomes never decide publication.
+Protocol changes belong to client/issuer boundaries; retention changes belong to
+Service. Reusing the live probe still needs Storage's retained-image transition.
+Permanent claims and authenticated recovery remain necessary; no generic journal,
+second catalog or codec compatibility layer was added. Legacy lessons cited in
+the contract review are requalified locally; no legacy custody was imported.
+Current Rust: 4,299 product, 9,091 tests, 396 examples, zero tooling; JS client: 244.
+Physical-line growth versus 0.100.8: crates +1,166 (with tests), qualification +2,525,
+clients +1,039 (with docs/tests). These are not code-LOC deltas. Growth covers real
+interruption/replay boundaries. Live provider/browser qualification remains open.
