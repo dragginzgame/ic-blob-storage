@@ -129,7 +129,7 @@ outreach, or importing the predecessor's accounts and outstanding obligations.
 | Upload authorization and bounded admission | Essential Blob behavior |
 | Durable upload identity, registration and references | Essential Blob behavior |
 | Caffeine upload authority and required callbacks | One concrete integration, qualified against the selected provider contract |
-| Direct upload and verified read | One client path using the provider SDK; application owns publication |
+| Direct upload and verified read | One owned minimal transfer client; application owns publication after verified read |
 | Logical usage and outstanding provider exposure | Essential, with explicitly different meanings |
 | Inspection, lost replies and ordinary upgrades | Part of the useful journey, not a later reliability rewrite |
 | Canic hosting | Thin consumer-owned composition over the same library |
@@ -185,7 +185,7 @@ the offline example does not qualify their remote execution.
 | Standalone host | Actual caller capture, endpoint mounting, transport bounds, initialization and lifecycle composition | Alternate service rules |
 | Canic adapter, in Canic | The same host duties within its runtime, memory grants and deployment/funding bindings | A copied Blob engine or implicit user authority |
 | Caffeine boundary | Translation of the selected provider contract and authenticated result/callback handling | Invented provider guarantees |
-| Client | Local file preparation, SDK transfer, retained request identity and read verification | Authority to declare provider settlement or mutate the application's catalog |
+| Client | Local file preparation, serial provider transfer, retained request identity and read verification | Authority to declare provider settlement or mutate the application's catalog |
 
 Use IC Storage checked allocations through one host-owned runtime. Blob declares
 its needs and accepts admitted grants; it neither assigns raw memory IDs nor
@@ -195,7 +195,8 @@ needs them; Blob owns the durable work being resumed.
 ### Selected crate layout
 
 The maintainer accepted this layout on 2026-11-14. The library, experimental host
-and installed test package now exist; the browser client remains future work.
+and installed test package now exist. The maintainer approved the minimal owned
+browser transfer client on 2026-11-15; its first local implementation exists.
 The separate qualification workspace was accepted on 2026-11-15.
 
 ```text
@@ -205,7 +206,7 @@ crates/
   ic-blob-storage-cli/       # Native storage inspection, enrollment proposals and maintenance
   ic-blob-storage-reference-app/ # Standalone durable application catalog
 clients/
-  browser/                  # Client/example using the selected external SDK
+  browser/                  # Minimal owned client; no automatic transfer replay
 qualification/
   Cargo.toml                # Independent unpublished qualification workspace
   Cargo.lock                # Qualification dependency graph
@@ -417,6 +418,9 @@ issuance have two possible orders:
 No later grant can replace that root's original lifetime. A grant cannot cancel
 or expire away an Open/Closing object's exposure. Refusing another issuance call
 does not stop delivery or independent recovery of an already committed IC result.
+The original ingress expiry also does not expire that historical result's derived
+authority: a later IC read-state certificate can attest the same reply after that
+deadline. Keep [grant, ingress, certificate and provider lifetimes distinct](caffeine-contract-review.md#authority-lifetime-separate-clocks--development-01009).
 
 Closing retains every issued, possibly issued or unresolved upload authority.
 Before settlement, prove that authority cannot recreate bytes or charges: for
@@ -581,12 +585,15 @@ controller. Direct host tests cover replacement-argument refusal and pre-upgrade
 rollback; native CLI tests cover original-request custody and interrupted dispatch.
 The supported command set has no destructive replacement path. This does not
 establish snapshot freshness, live deployment or compatibility with arbitrary code.
-No external awaits, timers, provider callbacks or certificates are implemented;
-the full trusted-management policy below still gates effect-capable deployment.
+The product standalone host implements no external awaits, timers, provider
+callbacks or certificates; the later qualification host exercises candidate
+callbacks and certificate replies locally.
+The full trusted-management policy below still gates effect-capable deployment.
 
-Runtime 0.22.4 supplies caller/time and generic entrypoint/lifecycle hooks, Wire
-0.22.1 owns bounded RPC codecs, and Storage 0.74.1 owns allocation/Cell mechanics. Testkit
-0.105.0 owns explicit authenticated PocketIC 16.1.0 setup and server custody.
+The current selection uses Runtime 0.22.5 for caller/time and generic
+entrypoint/lifecycle hooks, Wire 0.24.0 for bounded RPC codecs, Storage 0.74.1 for
+allocation/Cell mechanics, and Testkit 0.106.0 for authenticated PocketIC 16.1.0
+setup and server custody. Earlier witnesses retain their recorded supplier identities.
 All were selected from stable non-yanked registry releases; no sibling source or
 retired Memory runtime is used. Ordinary RPC admission precedes ingress copying;
 Runtime lifecycle hooks copy the IC-bounded ingress before explicit Wire decoding.
@@ -949,21 +956,23 @@ and effects. No legacy bytes or obligations are reinterpreted or cleared.
 These are acceptance gates, not authorization for deployment or paid effects.
 Local models and substitutes prove local behavior; they cannot close provider
 guarantees. A successful provider sample does not establish future retention.
-The 0.100.4 local evidence covers installed caller rules, bounded domain state,
-maintenance custody and reopening; streaming integrity and catalog publication
-have separate local witnesses. **D1 is not declared complete:** there is no
-provider-facing certificate endpoint or integrated provider upload/read journey.
-The populated lifecycle witness narrows the management gap; it cannot select the
-missing D0 contract or qualify certificate recovery, retention or charge closure.
+Local evidence covers installed caller rules, bounded domain state, maintenance
+custody and reopening. The 0.100.9 qualification issuer now joins original proof
+recovery, durable transfer claims, six-chunk upload/read and the real application's
+catalog, including corruption and cancellation. The HTTP peer is an owned fixture;
+the standalone product still exports no provider issuer. **D1 is not declared
+complete:** the selected D0 contract and a qualified production arrangement remain
+open. Local recovery and lifecycle evidence cannot establish provider proof
+acceptance, retention or charge closure.
 Do not add speculative management machinery to stand in for that provider evidence.
 
 Current progress is by accepted capability, not a percentage of code written:
 
 | Gate | Current disposition | Next evidence needed |
 | --- | --- | --- |
-| D0 | Open; published Rust recipe, current ABI and fresh payer funding witnessed | Fresh owner binding/credit, callback profile, object scope, enforced bounds, authority recovery/lifetime and charge closure |
-| D1 | Local policy, durable host/application, cross-canister publication/cleanup, signed calls, integrity example and native maintenance qualified separately | Selected D0 contract and integrated SDK upload/read through the application |
-| D2 | Payer funding slice passed: 10.1B debit, 9.9B credit; exact custody retained; no owner/object run | Fresh owner, payment binding and gateway credit; qualified host before upload |
+| D0 | Open; published Rust recipe/current ABI, funded payer and owner-origin refusal witnessed | Supported account arrangement, callback/object scope, enforced bounds, authority recovery/lifetime and charge closure |
+| D1 | Local policy, durable host/application, maintenance and owned-client upload/read/catalog composition witnessed | Selected D0 contract and qualified production host/client arrangement; local peers do not establish provider semantics |
+| D2 | Payer/owner funding and probe installation retained; one owner call refused, relationship removed, missing-tree GET observed; no positive upload | Storage-owned retained-image transition and qualified host/account admission before any live upload |
 | D3 | Partial: Canic-owned adapter and embedded catalog have installed local composition evidence; standalone independence preserved | Immutable supplier adoption, fleet-managed lifecycle custody and integrated provider journey |
 | D4 | Not claimed; finite history and small-store limits remain explicit | Representative workload measurements and a qualified retention/compaction and operating policy |
 
@@ -1116,7 +1125,9 @@ a registered object makes it Closing. No identity eviction or settlement exists.
 disposition and deadline in one synchronous transition. Exact authorization replay
 returns the original request and current disposition; registration replay refuses.
 Inspection never returns a usable provider proof. The Wire host exposes this local
-transition; provider certificate encoding, text parsing and callbacks remain absent.
+transition. The separate qualification host now mounts the experimental root-only
+issuer and callback profile, with CLI request custody/recovery; the production
+standalone host still exposes neither provider endpoint.
 The [application boundary](application-boundary.md) specifies root ambiguity and
 remote publication/cleanup rules.
 

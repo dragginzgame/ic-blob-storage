@@ -1246,7 +1246,7 @@ dependencies = [
  "p256",
  "pem",
  "pkcs8",
- "rand 0.10.3",
+ "rand 0.10.4",
  "rangemap",
  "reqwest",
  "sec1",
@@ -1265,13 +1265,27 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage"
-version = "0.100.8"
+version = "0.100.9"
 dependencies = [
  "ic-platform-types",
  "ic-storage",
  "ic-wire",
  "serde",
  "sha2 0.11.1",
+]
+
+[[package]]
+name = "ic-blob-storage-callback-probe"
+version = "0.100.9"
+dependencies = [
+ "ic-blob-storage",
+ "ic-platform",
+ "ic-platform-runtime",
+ "ic-platform-types",
+ "ic-storage",
+ "ic-wire",
+ "serde",
+ "toko-tooling",
 ]
 
 [[package]]
@@ -1291,7 +1305,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-reference-app"
-version = "0.100.8"
+version = "0.100.9"
 dependencies = [
  "ic-blob-storage",
  "ic-platform-runtime",
@@ -1321,6 +1335,7 @@ dependencies = [
  "ic-host-fs",
  "ic-platform",
  "ic-platform-types",
+ "ic-storage",
  "ic-testkit",
  "ic-wire",
  "serde",
@@ -1409,14 +1424,17 @@ version = "0.33.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3e07e0565c70df9222016e93d6f488312176ef5e7036ded60db8b4bc3f61c05f"
 dependencies = [
+ "digest 0.10.7",
  "ic-agent",
  "ic-certification",
  "ic-platform-types",
  "ic-transport-types",
+ "ic_bls12_381",
  "num-bigint 0.5.1",
  "serde",
  "serde_bytes",
  "serde_cbor",
+ "sha2 0.11.1",
  "thiserror 2.0.18",
 ]
 
@@ -1530,9 +1548,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire"
-version = "0.22.3"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bfd971bb89caee5097fdd0d0e4b3a784be465b3654bb93113e546504145f20fa"
+checksum = "9d8240a8ddc2ffb139f0327f9acf6c85cb38026f526e8a856cbcc86843358980"
 dependencies = [
  "bytemuck",
  "postcard",
@@ -2248,7 +2266,7 @@ dependencies = [
  "bytes",
  "getrandom 0.4.3",
  "lru-slab",
- "rand 0.10.3",
+ "rand 0.10.4",
  "rand_pcg",
  "ring",
  "rustc-hash",
@@ -2303,9 +2321,9 @@ dependencies = [
 
 [[package]]
 name = "rand"
-version = "0.10.3"
+version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65c9fb96cbc91e3478eaae79a69fcd3f1ae4ad052e471fe6732fff548984b4af"
+checksum = "8f6fa277c67e6ea590466f04c3fe82cb509f0864fe470643e5570de9514a9b11"
 dependencies = [
  "chacha20",
  "getrandom 0.4.3",
@@ -3160,9 +3178,9 @@ dependencies = [
 
 [[package]]
 name = "toko-tooling"
-version = "0.44.3"
+version = "0.44.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a9bc7b6827044baac8134cada7ee6bc31f86c70beec9608d1d39d911eba15e1"
+checksum = "b52bb793b386309b8c4a9e88f32711bb5d1fd11a47bf337c11c63ca2aa22fc97"
 
 [[package]]
 name = "tower"

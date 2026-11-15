@@ -45,10 +45,26 @@ fn input() -> Installation {
     }
 }
 fn encode<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    ic_wire::native::encode_request(ic_wire::native::method_id(method), value, RPC_LIMITS).unwrap()
+    ic_wire::encode(
+        value,
+        ic_wire::Encoding::Frame {
+            method: ic_wire::method_id(method),
+            direction: ic_wire::Direction::Request,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 fn decode<T: DeserializeOwned>(method: &str, bytes: &[u8]) -> T {
-    ic_wire::native::decode_response(ic_wire::native::method_id(method), bytes, RPC_LIMITS).unwrap()
+    ic_wire::decode(
+        bytes,
+        ic_wire::Encoding::Frame {
+            method: ic_wire::method_id(method),
+            direction: ic_wire::Direction::Response,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 async fn update(
     pic: &PocketIc,

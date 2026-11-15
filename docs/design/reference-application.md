@@ -12,7 +12,11 @@ Run `make install-tools`, then `make test-application` from the repository root.
 The latter builds both Wasm artifacts and installs fresh canisters on separate
 local PocketIC subnets. `make build-reference-app` builds only the application;
 Cargo artifact paths are recorded in `target/blob-reference-app-artifacts.jsonl`.
-There is no public deployment command, browser UI or provider upload in this slice.
+Set `BLOB_PREVIOUS_REFERENCE_APP` to a retained predecessor Wasm to install that
+artifact first and exercise catalog reopening with the current build during upgrade.
+There is no public deployment command, browser UI or live provider upload in this slice.
+`make test-callbacks` additionally needs Node 24+ and connects this application's
+actual Wasm to the local issuer, transfer client and owned loopback HTTP peer.
 
 Create both canister IDs before installing. Blob's immutable application authority
 must be the reference application's canister ID. Install the application with
@@ -128,3 +132,58 @@ arbitrary migration, an adversarial controller or provider availability/recovery
 
 Legacy comparison and the broader acceptance boundaries remain in
 [application-boundary.md](application-boundary.md#evidence-and-acceptance).
+
+### Transfer and verified-read composition — development 0.100.9
+
+The [installed composition](../../qualification/ic-blob-storage-tests/tests/callbacks/issuance/publication.rs)
+now joins this unchanged application to the candidate issuer, original CLI proof
+recovery, permanent `claim-transfer` custody and the actual client. Each scenario
+uses a fresh installation with one 5 MiB + 17 byte, six-chunk declaration. The
+application authorizes it under the captured user's identity; bytes never pass
+through either canister. Rust and JS independently prepare the retained root vector.
+
+The client waits for `verifyRead` to return the exact immutable bytes before asking
+the user-authenticated `app_publish` to publish the original draft ID. Tests show:
+
+- HTTP upload acknowledgments alone leave the catalog empty.
+- A verified complete read precedes successful catalog publication.
+- Corruption in the second chunk prevents the publication call.
+- Cancellation while the tree response is pending cleans the draft; aborting the
+  local client prevents any chunk PUT. Even a stale publish command refuses.
+- Cancellation while a read remainder is pending cleans the draft. A deliberately
+  delivered valid remainder still verifies, but its late publication request refuses.
+- Losing the final chunk's HTTP response after every byte arrived leaves the
+  draft unpublished; the client records uncertainty rather than reporting success.
+- A connection cut during readback returns no verified file or publication request.
+- Killing the client process while its first chunk reply is pending preserves the
+  original draft and transfer claim. A fresh process after this or either network
+  interruption refuses before another PUT; original intent/proof bytes stay unchanged.
+- After a lost final upload reply, an explicit read-only reconciliation inspects
+  the original draft and starts a fresh reader without signer, proof or custody
+  inputs. It GETs the already-received bytes and verifies the saved declaration.
+  Success permits the owner's separate publication call; corrupt content or
+  cancellation during that read leaves the catalog empty. No certificate reissue
+  or PUT follows; the original upload remains permanently claimed.
+- Final cleanup leaves the full declared provider exposure unresolved in every case.
+
+Rust owns IC signing and Wire encoding; the Node driver coordinates barriers over
+its private child-process pipes. These are test controls, not application endpoints
+or a second catalog. The local HTTP peer only stores fixture bytes. This qualifies
+client ordering and real application decisions, not provider acceptance, a deployed
+browser, or server-side read attestation. An authorized user can still explicitly
+publish under the existing application policy without presenting verification proof.
+The ten scenarios run on independent local installations; restart cases reopen
+their original custody and use a fresh prepared handle and loopback gateway.
+They demonstrate process termination and connection loss, not power-loss durability,
+provider retention or automatic recovery of an uncertain transfer. The explicit
+reconciliation reuses the original HTTP peer's received chunks; it does not seed a
+new peer from source bytes. Provider reads and catalog publication leave Blob's
+stable state unchanged; application cancellation separately releases the reference.
+
+Applications should commit cancellation at the catalog and abort their local
+transfer/read. A lost or late abort cannot revoke issued authority, retract a PUT,
+or reopen a cancelled draft. Keep original transfer custody after either outcome.
+The pinned [legacy publication helper](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/clients/browser/publication.js)
+also separated immutable preparation and transfer from publication. Its SDK patch,
+browser journal and worker framework are not needed for this consumer; no legacy
+code or recovery records are imported.

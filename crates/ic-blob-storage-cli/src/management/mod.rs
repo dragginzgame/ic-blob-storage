@@ -222,9 +222,12 @@ struct Intent {
 }
 
 fn argument(command: &Command) -> Result<Vec<u8>, String> {
-    ic_wire::native::encode_request(
-        ic_wire::native::method_id("blob_update"),
+    ic_wire::encode(
         command,
+        ic_wire::Encoding::Frame {
+            method: ic_wire::method_id("blob_update"),
+            direction: ic_wire::Direction::Request,
+        },
         RPC_LIMITS,
     )
     .map_err(|_| "cannot encode admission command".into())
@@ -270,8 +273,8 @@ pub(super) async fn prepare(
         attempt,
         packet_hash: Sha256::digest(&signed.signed_update).into(),
     };
-    let bytes =
-        ic_wire::native::encode(&intent, LIMITS).map_err(|_| "cannot encode management intent")?;
+    let bytes = ic_wire::encode(&intent, ic_wire::Encoding::Payload, LIMITS)
+        .map_err(|_| "cannot encode management intent")?;
     if signed.signed_update.len() > operation.packet_limit() {
         return Err("signed management request exceeds record limit".into());
     }
@@ -318,9 +321,12 @@ struct Original {
 }
 
 fn load(context: &Context, directory: &Path, operation: Operation<'_>) -> Result<Original, String> {
-    let intent: Intent =
-        ic_wire::native::decode(&read(&directory.join("intent.wire"), LIMITS.bytes)?, LIMITS)
-            .map_err(|_| "invalid management intent")?;
+    let intent: Intent = ic_wire::decode(
+        &read(&directory.join("intent.wire"), LIMITS.bytes)?,
+        ic_wire::Encoding::Payload,
+        LIMITS,
+    )
+    .map_err(|_| "invalid management intent")?;
     let packet = read(&directory.join("request.cbor"), operation.packet_limit())?;
     let hash: [u8; 32] = Sha256::digest(&packet).into();
     if intent.version != 1
@@ -431,9 +437,12 @@ async fn request_status(
 
 fn acknowledge(id: &RequestId, attempt: u64, bytes: &[u8], active: bool) -> Result<String, String> {
     let operation = if active { "activation" } else { "drain" };
-    let result: Result<Outcome, Error> = ic_wire::native::decode_response(
-        ic_wire::native::method_id("blob_update"),
+    let result: Result<Outcome, Error> = ic_wire::decode(
         bytes,
+        ic_wire::Encoding::Frame {
+            method: ic_wire::method_id("blob_update"),
+            direction: ic_wire::Direction::Response,
+        },
         RPC_LIMITS,
     )
     .map_err(|_| format!("invalid original {operation} reply"))?;

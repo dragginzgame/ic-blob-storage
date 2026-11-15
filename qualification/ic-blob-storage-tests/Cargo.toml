@@ -17,14 +17,19 @@ ic-blob-storage.workspace = true
 ic-blob-storage-enrollment-probe.workspace = true
 ic-blob-storage-reference-app.workspace = true
 ic-host-fs.workspace = true
-ic-platform = { workspace = true, features = ["agent", "ic-protocol"] }
+ic-platform = { workspace = true, features = ["agent", "certification-cbor", "certification-verify", "ic-protocol"] }
 ic-platform-types.workspace = true
+ic-storage.workspace = true
 ic-testkit = { workspace = true, features = ["held-reply-fixtures"] }
 ic-wire.workspace = true
 serde.workspace = true
 sha2.workspace = true
 tokio.workspace = true
 toko-tooling.workspace = true
+
+[[test]]
+name = "callbacks"
+path = "tests/callbacks/mod.rs"
 
 [[test]]
 name = "management"

@@ -17,7 +17,7 @@ use ic_testkit::{
         CanisterId, PocketIcBuilder, common::rest::RawEffectivePrincipal, nonblocking::PocketIc,
     },
 };
-use ic_wire::native;
+use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
 use std::{num::NonZeroU128, path::Path, time::Duration};
 
@@ -40,11 +40,27 @@ fn id(n: u128) -> NonZeroU128 {
 }
 
 fn encode<T: Serialize>(method: &str, request: &T) -> Vec<u8> {
-    native::encode_request(native::method_id(method), request, RPC_LIMITS).unwrap()
+    wire::encode(
+        request,
+        wire::Encoding::Frame {
+            method: wire::method_id(method),
+            direction: wire::Direction::Request,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 
 fn decode<T: DeserializeOwned>(method: &str, bytes: &[u8]) -> T {
-    native::decode_response(native::method_id(method), bytes, RPC_LIMITS).unwrap()
+    wire::decode(
+        bytes,
+        wire::Encoding::Frame {
+            method: wire::method_id(method),
+            direction: wire::Direction::Response,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 
 struct Resources {

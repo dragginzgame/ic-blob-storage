@@ -1,5 +1,6 @@
 //! Native storage inspection, offline enrollment proposals and maintenance custody.
 
+mod certificate;
 mod management;
 mod overview;
 mod provider;
@@ -40,6 +41,14 @@ enum Command {
     ProviderInspect(provider::Inspect),
     /// Print an offline enrollment proposal; does not sign, submit or spend.
     PrepareEnrollment(provider::Enrollment),
+    /// Recover a retained request's certified upload reply; never issue or resend.
+    RecoverCertificate(certificate::Input),
+    /// Retain an original signed certificate request offline; never replace a claim.
+    PrepareCertificate(certificate::custody::Input),
+    /// Dispatch the retained certificate request once; recover its original status.
+    DispatchCertificate(certificate::custody::Dispatch),
+    /// Authenticate saved proof and durably claim one transfer; no network call.
+    ClaimTransfer(certificate::transfer::Input),
     /// Authenticate and compare installed configuration and Wasm with admitted inputs.
     Inspect(Target),
     /// Retain a signed drain request in a new private directory, WITHOUT submitting it.
@@ -275,9 +284,12 @@ impl Context {
         if canister == Principal::anonymous() || canister == Principal::management_canister() {
             return Err("expected an installed Blob canister".into());
         }
-        let configuration: Installation = ic_wire::native::decode_request(
-            ic_wire::native::method_id("blob_init"),
+        let configuration: Installation = ic_wire::decode(
             &read(&installation, RPC_LIMITS.bytes)?,
+            ic_wire::Encoding::Frame {
+                method: ic_wire::method_id("blob_init"),
+                direction: ic_wire::Direction::Request,
+            },
             RPC_LIMITS,
         )
         .map_err(|_| "invalid expected installation frame")?;
@@ -320,9 +332,12 @@ impl Context {
             .as_slice()
             .try_into()
             .map_err(|_| "invalid target")?;
-        let request = ic_wire::native::encode_request(
-            ic_wire::native::method_id("blob_management"),
+        let request = ic_wire::encode(
             &(),
+            ic_wire::Encoding::Frame {
+                method: ic_wire::method_id("blob_management"),
+                direction: ic_wire::Direction::Request,
+            },
             RPC_LIMITS,
         )
         .map_err(|_| "cannot encode inspection")?;
@@ -341,9 +356,12 @@ impl Context {
             .call_and_wait()
             .await
             .map_err(|_| "management inspection failed; no state-changing retry was attempted")?;
-        let result: Result<ManagementView, Error> = ic_wire::native::decode_response(
-            ic_wire::native::method_id("blob_management"),
+        let result: Result<ManagementView, Error> = ic_wire::decode(
             &bytes,
+            ic_wire::Encoding::Frame {
+                method: ic_wire::method_id("blob_management"),
+                direction: ic_wire::Direction::Response,
+            },
             RPC_LIMITS,
         )
         .map_err(|_| "invalid management reply")?;
@@ -372,6 +390,10 @@ async fn run(command: Command) -> Result<String, String> {
         Command::Overview(input) => overview::run(input).await,
         Command::ProviderInspect(input) => provider::inspect(input).await,
         Command::PrepareEnrollment(input) => provider::prepare(&input),
+        Command::RecoverCertificate(input) => certificate::run(input).await,
+        Command::PrepareCertificate(input) => certificate::custody::prepare(&input),
+        Command::DispatchCertificate(input) => certificate::custody::dispatch(input).await,
+        Command::ClaimTransfer(input) => certificate::transfer::claim(&input),
         Command::Inspect(target) => {
             let view = Context::new(target)?.inspect().await?;
             Ok(format!(
@@ -595,7 +617,12 @@ async fn main() -> ExitCode {
     let command = Cli::parse().command;
     let read_only = matches!(
         command,
-        Command::Overview(_) | Command::ProviderInspect(_) | Command::PrepareEnrollment(_)
+        Command::Overview(_)
+            | Command::ProviderInspect(_)
+            | Command::PrepareEnrollment(_)
+            | Command::RecoverCertificate(_)
+            | Command::PrepareCertificate(_)
+            | Command::ClaimTransfer(_)
     );
     match tokio::time::timeout(Duration::from_secs(45), run(command)).await {
         Ok(Ok(message)) => {
@@ -606,7 +633,7 @@ async fn main() -> ExitCode {
             let message = match result {
                 Ok(Err(message)) => message,
                 Err(_) if read_only => "inspection timed out; storage is unknown; no mutation was submitted".into(),
-                Err(_) => "management timed out; dispatch may have occurred. Preserve custody and observe the original request; do not resubmit".into(),
+                Err(_) => "operation timed out; dispatch may have occurred. Preserve custody and observe the original request; do not resubmit".into(),
                 Ok(Ok(_)) => unreachable!(),
             };
             eprintln!("Command failed: {message}");

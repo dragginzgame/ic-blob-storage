@@ -30,6 +30,11 @@ Read [the current handoff](docs/status/current.md) first.
 - Production crates belong under `crates/`. Add qualification packages only for
   real installed behavior; do not create tooling-holder packages or placeholder
   tests. Use Rust 1.100.0 and edition 2024 with the inherited common lint policy.
+- The maintainer approved a minimal owned browser transfer client in `clients/browser/`.
+  Keep immutable preparation, existing-proof input, a caller-owned durable claim,
+  serial PUTs and no automatic retries. Node 24+ runs `make test-browser`; there
+  are no npm runtime dependencies. It must stay independent of the Storage rewrite;
+  work around that dependency through this client boundary, not live-state reset.
 - The accepted [crate layout](docs/design/ic-blob-storage-design.md#selected-crate-layout)
   uses a thin standalone host and a Canic-owned adapter. The maintainer-approved
   qualification location is a separate `qualification/` Cargo workspace and
@@ -74,7 +79,18 @@ on the production host and encoding-failure rollback in a qualification-only pro
 These checks do not qualify Caffeine or a production management runner.
 `make test-enrollment` checks the private single-use owner enrollment probe's
 native capacity bound and installed authorization, reply custody and upgrades
-against synthetic Cashier peers. It does not deploy or contact Caffeine.
+against synthetic Cashier peers. It also checks incompatible upgrade refusal using
+the actual standalone Wasm and preservation of the consumed receipt. It does not
+deploy or contact Caffeine.
+`make test-callbacks` checks the local candidate `vec blob` profile over the actual
+Service, including gateway authorization, bounded decoding, acknowledgment custody
+and installed upgrades. It also qualifies local certificate-reply ordering and
+authenticated recovery of the original ingress request, including fresh CLI
+processes reading durable request custody and preserving existing output. Node 24+
+is required for the proof/CLI-claim/loopback-transfer/readback composition,
+fresh-process replay refusal and the real reference-app catalog/cancellation cases.
+Its separate probe is not
+a supported live Caffeine host or a production resumable-upload client.
 `make test-signed` checks signed application/uploader calls and authenticated replies
 through the local gateway, including inspection after deliberately discarding a reply.
 `make test-application` exercises the product reference application and Blob host:

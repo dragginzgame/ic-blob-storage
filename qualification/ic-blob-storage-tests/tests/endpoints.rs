@@ -13,16 +13,32 @@ use ic_testkit::{
     pic::PocketIcStartupConfig,
     pocket_ic::{CanisterId, PocketIcBuilder, RejectCode, RejectResponse, nonblocking::PocketIc},
 };
-use ic_wire::native;
+use ic_wire as wire;
 use serde::Serialize;
 use std::{path::Path, time::Duration};
 
 fn request<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    native::encode_request(native::method_id(method), value, RPC_LIMITS).unwrap()
+    wire::encode(
+        value,
+        wire::Encoding::Frame {
+            method: wire::method_id(method),
+            direction: wire::Direction::Request,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 
 fn response<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    native::encode_response(native::method_id(method), value, RPC_LIMITS).unwrap()
+    wire::encode(
+        value,
+        wire::Encoding::Frame {
+            method: wire::method_id(method),
+            direction: wire::Direction::Response,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 
 async fn call(
@@ -58,14 +74,29 @@ fn sized_request(bytes: usize) -> Vec<u8> {
         bytes: RPC_LIMITS.bytes * 2,
         ..RPC_LIMITS
     };
-    let size = native::encode_request(native::method_id("blob_update"), &command, limits)
-        .unwrap()
-        .len();
+    let size = wire::encode(
+        &command,
+        wire::Encoding::Frame {
+            method: wire::method_id("blob_update"),
+            direction: wire::Direction::Request,
+        },
+        limits,
+    )
+    .unwrap()
+    .len();
     let Command::Authorize { headers, .. } = &mut command else {
         unreachable!()
     };
     headers[0].1.truncate(bytes - (size - bytes));
-    let frame = native::encode_request(native::method_id("blob_update"), &command, limits).unwrap();
+    let frame = wire::encode(
+        &command,
+        wire::Encoding::Frame {
+            method: wire::method_id("blob_update"),
+            direction: wire::Direction::Request,
+        },
+        limits,
+    )
+    .unwrap();
     assert_eq!(frame.len(), bytes);
     frame
 }
@@ -162,7 +193,7 @@ async fn installed_frames_and_reply_failure_preserve_the_contract() {
         trailing.push(0);
         for malformed in [
             vec![],
-            valid[..native::REQUEST_HEADER_BYTES - 1].to_vec(),
+            valid[..10].to_vec(),
             valid[..valid.len() - 1].to_vec(),
             trailing,
             request("foreign_method", &()),

@@ -21,12 +21,27 @@ fn maximum_reply_fits_persistence_and_inspection_budgets() {
             )),
         },
     };
-    let bytes = native::encode(&record, LIMITS).unwrap();
-    let decoded: Record = native::decode(&bytes, LIMITS).unwrap();
+    let bytes = wire::encode(&record, wire::Encoding::Payload, LIMITS).unwrap();
+    let decoded: Record = wire::decode(&bytes, wire::Encoding::Payload, LIMITS).unwrap();
     assert_eq!(decoded.view, record.view);
     let reply = Ok::<_, crate::protocol::Error>(record.view);
-    let bytes = native::encode_response(crate::INSPECT, &reply, LIMITS).unwrap();
-    let decoded: Result<View, crate::protocol::Error> =
-        native::decode_response(crate::INSPECT, &bytes, LIMITS).unwrap();
+    let bytes = wire::encode(
+        &reply,
+        wire::Encoding::Frame {
+            method: crate::INSPECT,
+            direction: wire::Direction::Response,
+        },
+        LIMITS,
+    )
+    .unwrap();
+    let decoded: Result<View, crate::protocol::Error> = wire::decode(
+        &bytes,
+        wire::Encoding::Frame {
+            method: crate::INSPECT,
+            direction: wire::Direction::Response,
+        },
+        LIMITS,
+    )
+    .unwrap();
     assert_eq!(decoded, reply);
 }

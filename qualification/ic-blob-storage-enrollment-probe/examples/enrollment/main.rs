@@ -3,7 +3,7 @@
 use clap::{Parser, ValueEnum};
 use ic_blob_storage_enrollment_probe::protocol::{Error, Installation, LIMITS, View};
 use ic_platform_types::Principal;
-use ic_wire::native;
+use ic_wire as wire;
 use serde::Serialize;
 use serde_json::{Value, json};
 
@@ -84,18 +84,31 @@ fn run(command: Command) -> Result<Value, String> {
             }))
         }
         Command::Decode { method, reply_hex } => {
-            let result: Result<View, Error> =
-                native::decode_response(native::method_id(method.name()), &reply_hex.0, LIMITS)
-                    .map_err(|error| error.to_string())?;
+            let result: Result<View, Error> = wire::decode(
+                &reply_hex.0,
+                wire::Encoding::Frame {
+                    method: wire::method_id(method.name()),
+                    direction: wire::Direction::Response,
+                },
+                LIMITS,
+            )
+            .map_err(|error| error.to_string())?;
             serde_json::to_value(result).map_err(|error| error.to_string())
         }
     }
 }
 
 fn frame<T: Serialize>(method: &str, value: &T) -> Result<String, String> {
-    native::encode_request(native::method_id(method), value, LIMITS)
-        .map(|bytes| bytes.iter().map(|byte| format!("{byte:02x}")).collect())
-        .map_err(|error| error.to_string())
+    wire::encode(
+        value,
+        wire::Encoding::Frame {
+            method: wire::method_id(method),
+            direction: wire::Direction::Request,
+        },
+        LIMITS,
+    )
+    .map(|bytes| bytes.iter().map(|byte| format!("{byte:02x}")).collect())
+    .map_err(|error| error.to_string())
 }
 
 fn principal(value: &str) -> Result<Principal, String> {

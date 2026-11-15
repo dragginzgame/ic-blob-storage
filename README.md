@@ -9,6 +9,15 @@ without retaining the file. It uses the reviewed SDK 1.1.2 tree profile and `sha
 chunk counts, metadata and tree consistency without retaining the chunk list.
 It does not authenticate the declared byte length or authorize an upload.
 
+The experimental [browser transfer client](clients/browser/README.md) prepares an
+immutable file before authorization and accepts an existing authenticated proof.
+It sends serial PUTs after a caller-owned durable claim, with no automatic retries.
+It verifies complete reads against the original declaration before returning an
+immutable Blob; `readVerified` can reconcile an uncertain upload using only a GET,
+followed by the owner's separate catalog decision. It needs neither Canic nor
+Storage. Its local checks use Node 24+
+(`make test-browser`); browser deployment and live Caffeine acceptance remain unqualified.
+
 The [experimental local model](crates/ic-blob-storage/src/local/mod.rs) composes
 these rules with application/uploader permissions, exact grant replay, shared
 root ownership and separate reserved/live/unresolved declared-byte accounting.
@@ -72,12 +81,13 @@ The previous implementation, Git history and provider/recovery custody are in
 `../ic-blob-storage-legacy` (see its `LEGACY.md`) and the private
 [legacy GitHub repository](https://github.com/dragginzgame/ic-blob-storage-legacy).
 Existing crates.io releases remain the legacy line. The rewrite's first GitHub
-checkpoint is `0.100.0`; the current checkpoint is `0.100.7`, inherited from the root
+checkpoint is `0.100.0`; the delivered checkpoint is `0.100.8`, inherited from the root
 workspace version. Publication remains disabled. This is a new breaking release
 line, not a registry version reset or a migration for existing installations.
 
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.44.3. GitHub development uses the `0.100` branch of
+and published Toko Tooling 0.44.4. Both workspaces select IC Wire 0.24.0's root-level
+`Encoding` API; no old `native` API adapter is retained. GitHub development uses the `0.100` branch of
 `dragginzgame/ic-blob-storage`. There is no release/deployment configuration.
 
 The [selected crate layout](docs/design/ic-blob-storage-design.md#selected-crate-layout)
@@ -102,6 +112,7 @@ make test-endpoints
 make test-signed
 make test-application
 make test-enrollment
+make test-callbacks
 make deps-list
 toko-cloc
 ```
@@ -131,8 +142,28 @@ inspection, cancellation during publication, interrupted cleanup, shared objects
 capacity exhaustion and application upgrades. It performs no provider transfer.
 `make test-enrollment` checks the [single-use enrollment probe](docs/design/caffeine-contract-review.md#single-use-enrollment-probe--local-qualification-for-01008)
 against synthetic Cashier peers, including concurrent replay, revoked authority,
-bounded raw replies and durable reopening. It neither installs on mainnet nor
+bounded raw replies, durable reopening and refusal of an incompatible upgrade to
+the actual Blob host without losing the receipt. It neither installs on mainnet nor
 qualifies Caffeine's payment, upload or charge-closure contract.
+
+`make test-callbacks` checks the [local callback candidate](docs/design/caffeine-contract-review.md#local-callback-candidate--development-01009)
+over the same durable Service. It selects `vec blob`, protects unknown roots,
+restricts deletion listing/acknowledgment to one configured gateway, and retains
+acknowledgments across upgrades without reducing exposure. The standalone product
+host exports no provider callbacks. The qualification probe also exercises the
+root-only certificate-reply endpoint and authenticated original-request recovery
+against the local replica, including fresh `blob recover-certificate` processes
+using retained request files. CLI preparation and guarded dispatch now supply that
+custody, including concurrent-dispatch refusal. With Node 24+, the installed check
+also connects recovered proof to offline CLI transfer custody, actual loopback
+PUTs and verified readback; a fresh process cannot repeat that transfer. See
+[certificate commands](docs/operations/storage-inspection.md#prepare-and-dispatch-an-original-certificate-request).
+The [reference application journey](docs/design/reference-application.md#transfer-and-verified-read-composition--development-01009)
+uses a six-chunk file and checks catalog publication, corrupt-read refusal and
+cancellation while transfer/read responses are pending. Its existing API and
+persistence format remain unchanged.
+It does not establish live gateway membership, provider
+acceptance of recovered proof, deletion or billing closure.
 
 `make deps-list` lists workspace package versions and release groups. `make update`
 delegates to Toko Tooling's `make deps-update` (`cargo update -v`), updating locks

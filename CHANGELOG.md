@@ -1,12 +1,146 @@
 # Changelog
 
-## [0.100.9] - Unreleased
+## [0.100.9] - 2026-11-15
 
-Development opened after the 0.100.8 GitHub checkpoint. Product manifests and
-locks remain at the delivered version until the next requested push.
-The next slice is local provider callback and lifecycle qualification around the
-existing Service, preserving the consumed enrollment receipt. No new behavior
-or live provider effect is claimed by opening this version.
+GitHub development checkpoint on branch `0.100`; not published to crates.io.
+Adds local callback ownership, certificate custody and a minimal transfer/read
+client joined to the application catalog. Live Caffeine admission remains unqualified.
+
+### ▶️ Try it
+
+With Node 24+ on PATH, run `make test-browser` from the repository root for the
+minimal browser-client checks, including owned loopback HTTP. No npm installation,
+credentials or live provider calls are needed. Expect immutable preparation,
+serial transfers, original-root read verification and failure/refusal checks to pass.
+
+From the repository root, one-time setup is `make install-tools`; build/install
+the current CLI with `make blob`. For the local qualification issuer, retain an
+original signed request offline with the uploader PEM:
+
+```sh
+blob prepare-certificate --url "$IC_API" --canister "$ORIGINAL_ISSUER" \
+  --uploader "$UPLOADER" --identity "$UPLOADER_PEM" --root "$ORIGINAL_SHA256_ROOT" \
+  --custody "$CERTIFICATE_CUSTODY" --root-key "$TRUSTED_ROOT_DER"
+```
+
+Expect a private permanent root claim and a printed request path; no request is
+submitted. `blob dispatch-certificate --help` describes the separate mutating
+step, which requires the same custody and an admitted checkout. After dispatch,
+use that printed path as `original-request.cbor` below:
+
+```sh
+blob recover-certificate --url "$IC_API" --canister "$ORIGINAL_ISSUER" \
+  --uploader "$UPLOADER" --identity "$UPLOADER_PEM" --root "$ORIGINAL_SHA256_ROOT" \
+  --request original-request.cbor --output recovered-certificate.cbor
+```
+
+Expect a new private certificate file only for an authenticated matching historical
+reply. This makes a read-state network call and writes the local output, but submits
+no upload/update or paid provider request. Loopback requires `--root-key` from the
+owned simulator. The root-only issuer profile is locally qualified; the product
+standalone host does not export it and live provider acceptance remains open.
+
+`blob claim-transfer --help` describes the new offline bridge from that retained
+proof to one permanent transfer claim. See the
+[full command](docs/operations/storage-inspection.md#claim-one-transfer-offline).
+With Node 24+ and the local simulator installed, `make test-callbacks` exercises
+the real CLI/client composition without a live provider.
+
+### ✨ Added
+
+- Add the minimal owned browser transfer client, independent of Storage and Canic.
+  Prepare immutable bounded files before authorization, accept existing proof and
+  require a caller-owned durable claim before serial PUTs. No automatic retries;
+  HTTP acknowledgment remains distinct from verified availability and settlement.
+- Add `verifyRead` against the original declaration, with exact length/EOF and root
+  checks before returning immutable file bytes. Bound memory and read duration;
+  downloaded headers cannot change expected metadata.
+- Add `readVerified` for one explicit GET under a shared fetch/verification deadline.
+  Snapshot the original declaration before network waits, refuse redirects and
+  omit credentials. Read existing objects without issuing authority, replaying
+  uploads, changing custody or automatically publishing a catalog entry.
+- Add offline `blob claim-transfer`: authenticate the saved original proof, bind
+  its digest and provider selectors, then publish a permanent Host FS claim before
+  PUTs. A partial claim, new process or different gateway cannot restart the root.
+- Add read-only `blob recover-certificate` for retained original ingress. Bind
+  uploader, issuer, method and root before authenticating the original result;
+  bound external decoding and publish proof through Host FS without overwriting
+  evidence. Reuse Platform/Host FS instead of a generic recovery journal.
+- Add offline `prepare-certificate` and guarded `dispatch-certificate`. Preserve
+  one root-bound intent/packet and permanently claim dispatch before network I/O;
+  refuse replacement, concurrent dispatch and partial custody. Agent HTTP 429/503
+  retries reuse the same packet; this is not an exactly-one-HTTP-attempt guarantee.
+
+### 🔧 Changed
+
+- Adopt Toko Tooling 0.44.4 through the authenticated 49-file snapshot in both
+  workspaces. Package directory names already match their Cargo identities; no
+  layout changes are needed.
+- Adopt IC Wire 0.24.0 in both independent locks. Migrate product and qualification
+  callers to root-level `encode`/`decode` with explicit `Encoding::Payload` or
+  method/direction frames; retain existing byte/work limits and endpoint identities.
+  Remove the old `native` API use without a compatibility shim. Downstream Rust
+  callers using that API must migrate too; this repository has no generated Wire
+  TypeScript client to replace.
+
+### 🧪 Testing
+
+- Exercise a retained Wire 0.22.4 host and reference application before upgrading
+  to the new artifacts, and original custody prepared by the retained CLI before
+  current dispatch/recovery. These qualify Blob's exercised records and endpoints,
+  not arbitrary Wire schema migrations or the live enrollment probe's upgrade.
+- Reconcile a lost final upload response through a fresh reader process, original
+  draft inspection and separate authenticated catalog publication. Use only the
+  original peer's received bytes; qualify corrupt content and concurrent cancellation.
+  No new issuance/PUT or Blob state change occurs during successful read/publication.
+- Extend the catalog journey with a lost final upload response, interrupted
+  readback and client-process termination during a chunk. Restart against the
+  original claim refuses before any PUT, preserves proof/intent bytes and leaves
+  the draft unpublished. Explicit cleanup still retains provider exposure.
+- Join the real reference application to original proof recovery, durable transfer
+  custody, six-chunk upload/read and catalog publication. A corrupt read never
+  requests publication; cancellation during tree transfer or readback survives
+  late results. Reuse the application API and state unchanged. `make test-callbacks`
+  now builds its actual Wasm and runs this Node-assisted local composition.
+- Connect the installed local issuer, recovered proof, actual native transfer
+  claim, Node Fetch PUTs and verified readback. Corrupted proof sends no PUT;
+  a fresh process refuses replay and final release retains unresolved exposure.
+  Cover multi-chunk read corruption/truncation against a retained protocol vector.
+- Qualify refusal of an incompatible enrollment-probe → Blob-host upgrade using
+  both actual Wasm artifacts. Preserve module, controller, stable bytes and the
+  consumed refusal receipt; replay remains blocked after a supported reopen.
+  A copied installed image also refuses a second allocation under larger runtime
+  limits. `make test-enrollment` now supplies both artifacts. This establishes a
+  local lifecycle boundary, not a migration or live provider admission.
+- Correct that upgrade regression's method-bound argument from `blob_upgrade` to
+  `blob_post_upgrade`, so the refusal reaches storage admission instead of stopping
+  at Wire decoding. The corrected installed check passes.
+- Add a local `vec blob` callback candidate and `make test-callbacks`. Reuse Service
+  for retention/accounting and a second bounded library-owned record for the
+  immutable gateway binding and exact acknowledgments. Qualify unknown-root
+  protection, overlapping references, full-history cleanup, malformed/unauthorized
+  batches, retained exposure and upgrade replay. Product standalone exports and
+  Service format stay unchanged; live provider compatibility remains unqualified.
+- Mount the root-only certificate-reply candidate in the local qualification host.
+  Check caller/root admission and synchronous commit-before-reply through Service,
+  final release before client retrieval, and refusal of fresh issuance after upgrade.
+  Recover the original certified request through Platform's Agent after release
+  and acknowledgment; reject incorrect trust roots, altered proofs and mismatched
+  reply/request bindings. No production issuer or provider PUT is added.
+- Extend that witness with CLI preparation, competing dispatch processes and
+  independent CLI processes after final release. Check unavailable status, wrong
+  bindings/trust, partial output and repeat publication; reverify the saved proof.
+- Qualify cancellation after signing but before dispatch, plus a real local
+  gateway outage. Rejected and unknown outcomes publish no certificate, preserve
+  original request custody and refuse resubmission after connectivity returns.
+- Extend recovery past the original ingress expiry and authenticate a later
+  certificate for the same reply with unchanged outstanding exposure. Distinguish
+  grant, ingress, certificate and provider lifetimes in the design. This is local
+  evidence, not Caffeine proof acceptance or a provider cutoff.
+- Exercise the actual three-key enrollment/Service/callback composition against
+  the installed probe image. Refusal preserves the original allocation identity,
+  generation and readable receipt. Specify the missing Storage-owned capacity
+  expansion separately; no raw-memory workaround or live upgrade is introduced.
 
 ## [0.100.8] - 2026-11-15
 

@@ -45,16 +45,19 @@ impl State {
             config,
             drafts: vec![],
         };
-        let cell =
-            StableCell::create(memory, ic_wire::native::encode(&record, LIMITS).unwrap()).unwrap();
+        let cell = StableCell::create(
+            memory,
+            ic_wire::encode(&record, ic_wire::Encoding::Payload, LIMITS).unwrap(),
+        )
+        .unwrap();
         Self { record, cell }
     }
 
     pub fn open(memory: RuntimeMemory<DefaultMemoryImpl>, installation: Principal) -> Self {
         let cell = StableCell::<Vec<u8>, _>::load(memory, LIMITS.bytes)
             .expect("existing application record");
-        let record: Record =
-            ic_wire::native::decode(cell.get(), LIMITS).expect("bounded application record");
+        let record: Record = ic_wire::decode(cell.get(), ic_wire::Encoding::Payload, LIMITS)
+            .expect("bounded application record");
         assert_eq!(record.version, 1, "application format");
         assert_eq!(record.installation, installation, "application identity");
         validate_config(&record.config);
@@ -198,7 +201,8 @@ impl State {
     fn persist(&mut self) {
         // A failure traps this message; never turn it into an ordinary error after mutation.
         self.cell.set(
-            ic_wire::native::encode(&self.record, LIMITS).expect("bounded application persistence"),
+            ic_wire::encode(&self.record, ic_wire::Encoding::Payload, LIMITS)
+                .expect("bounded application persistence"),
         );
     }
 }
@@ -242,7 +246,7 @@ fn validate_input(input: &DraftInput) -> Result<(), Error> {
         || input.chunks.is_empty()
         || input.chunks.len() > 8
         || input.headers.len() > 8
-        || ic_wire::native::encode(input, INPUT_LIMITS).is_err()
+        || ic_wire::encode(input, ic_wire::Encoding::Payload, INPUT_LIMITS).is_err()
     {
         return Err(Error::Invalid);
     }

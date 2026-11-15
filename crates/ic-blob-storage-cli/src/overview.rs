@@ -71,9 +71,12 @@ pub(crate) struct Input {
 }
 
 pub(crate) async fn run(input: Input) -> Result<String, String> {
-    let request = ic_wire::native::encode_request(
-        ic_wire::native::method_id("blob_query"),
+    let request = ic_wire::encode(
         &Inspection::Overview(input.principal),
+        ic_wire::Encoding::Frame {
+            method: ic_wire::method_id("blob_query"),
+            direction: ic_wire::Direction::Request,
+        },
         RPC_LIMITS,
     )
     .map_err(|_| "cannot encode overview")?;
@@ -94,9 +97,12 @@ pub(crate) async fn run(input: Input) -> Result<String, String> {
     .await
     .map_err(|_| "Blob query timed out; storage is unknown")?
     .map_err(|error| format!("Blob query failed: {:?}", error.to_string()))?;
-    let result: Result<Observation, Error> = ic_wire::native::decode_response(
-        ic_wire::native::method_id("blob_query"),
+    let result: Result<Observation, Error> = ic_wire::decode(
         &reply,
+        ic_wire::Encoding::Frame {
+            method: ic_wire::method_id("blob_query"),
+            direction: ic_wire::Direction::Response,
+        },
         RPC_LIMITS,
     )
     .map_err(|_| "invalid Blob overview reply (host may not support this command)")?;

@@ -22,7 +22,7 @@ path = "src/main.rs"
 clap.workspace = true
 ic-blob-storage.workspace = true
 ic-host-fs.workspace = true
-ic-platform = { workspace = true, features = ["agent", "candid-codec", "ic-protocol", "management-canister-types"] }
+ic-platform = { workspace = true, features = ["agent", "candid-codec", "certification-cbor", "ic-protocol", "management-canister-types"] }
 ic-wire.workspace = true
 serde.workspace = true
 sha2.workspace = true

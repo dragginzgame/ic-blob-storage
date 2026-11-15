@@ -17,9 +17,12 @@ use std::{
 };
 
 async fn mutate(pic: &PocketIc, canister: CanisterId, caller: CanisterId, input: Command) {
-    let bytes = ic_wire::native::encode_request(
-        ic_wire::native::method_id("blob_update"),
+    let bytes = ic_wire::encode(
         &input,
+        ic_wire::Encoding::Frame {
+            method: ic_wire::method_id("blob_update"),
+            direction: ic_wire::Direction::Request,
+        },
         RPC_LIMITS,
     )
     .unwrap();
@@ -27,9 +30,12 @@ async fn mutate(pic: &PocketIc, canister: CanisterId, caller: CanisterId, input:
         .update_call(canister, caller, "blob_update", bytes)
         .await
         .unwrap();
-    let result: Result<Outcome, Error> = ic_wire::native::decode_response(
-        ic_wire::native::method_id("blob_update"),
+    let result: Result<Outcome, Error> = ic_wire::decode(
         &reply,
+        ic_wire::Encoding::Frame {
+            method: ic_wire::method_id("blob_update"),
+            direction: ic_wire::Direction::Response,
+        },
         RPC_LIMITS,
     )
     .unwrap();
@@ -209,9 +215,12 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
         .stop_canister(canister, None)
         .await
         .unwrap();
-    let args = ic_wire::native::encode_request(
-        ic_wire::native::method_id("blob_post_upgrade"),
+    let args = ic_wire::encode(
         &(),
+        ic_wire::Encoding::Frame {
+            method: ic_wire::method_id("blob_post_upgrade"),
+            direction: ic_wire::Direction::Request,
+        },
         RPC_LIMITS,
     )
     .unwrap();

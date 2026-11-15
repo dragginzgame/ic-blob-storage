@@ -40,17 +40,33 @@ async fn update(
     caller: Principal,
     command: Command,
 ) -> Result<Outcome, Error> {
-    let method = ic_wire::native::method_id("blob_update");
+    let method = ic_wire::method_id("blob_update");
     let bytes = pic
         .update_call(
             canister,
             CanisterId::from_slice(caller.as_slice()),
             "blob_update",
-            ic_wire::native::encode_request(method, &command, RPC_LIMITS).unwrap(),
+            ic_wire::encode(
+                &command,
+                ic_wire::Encoding::Frame {
+                    method,
+                    direction: ic_wire::Direction::Request,
+                },
+                RPC_LIMITS,
+            )
+            .unwrap(),
         )
         .await
         .unwrap();
-    ic_wire::native::decode_response(method, &bytes, RPC_LIMITS).unwrap()
+    ic_wire::decode(
+        &bytes,
+        ic_wire::Encoding::Frame {
+            method,
+            direction: ic_wire::Direction::Response,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 
 async fn query(
@@ -59,17 +75,33 @@ async fn query(
     caller: Principal,
     request: Inspection,
 ) -> Result<Observation, Error> {
-    let method = ic_wire::native::method_id("blob_query");
+    let method = ic_wire::method_id("blob_query");
     let bytes = pic
         .query_call(
             canister,
             CanisterId::from_slice(caller.as_slice()),
             "blob_query",
-            ic_wire::native::encode_request(method, &request, RPC_LIMITS).unwrap(),
+            ic_wire::encode(
+                &request,
+                ic_wire::Encoding::Frame {
+                    method,
+                    direction: ic_wire::Direction::Request,
+                },
+                RPC_LIMITS,
+            )
+            .unwrap(),
         )
         .await
         .unwrap();
-    ic_wire::native::decode_response(method, &bytes, RPC_LIMITS).unwrap()
+    ic_wire::decode(
+        &bytes,
+        ic_wire::Encoding::Frame {
+            method,
+            direction: ic_wire::Direction::Response,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 
 async fn observations(

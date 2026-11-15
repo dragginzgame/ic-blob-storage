@@ -14,9 +14,12 @@ pub(super) fn argument(context: &Context, wasm: &[u8]) -> Result<Vec<u8>, String
     if wasm.len() > 1024 * 1024 || !wasm.starts_with(b"\0asm\x01\0\0\0") {
         return Err("upgrade requires an uncompressed Wasm module of at most 1 MiB".into());
     }
-    let arg = ic_wire::native::encode_request(
-        ic_wire::native::method_id("blob_post_upgrade"),
+    let arg = ic_wire::encode(
         &(),
+        ic_wire::Encoding::Frame {
+            method: ic_wire::method_id("blob_post_upgrade"),
+            direction: ic_wire::Direction::Request,
+        },
         RPC_LIMITS,
     )
     .map_err(|_| "cannot encode fixed upgrade arguments")?;

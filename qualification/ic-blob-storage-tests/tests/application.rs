@@ -14,16 +14,32 @@ use ic_testkit::{
         nonblocking::PocketIc,
     },
 };
-use ic_wire::native;
+use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
 use std::{path::Path, time::Duration};
 
 fn encode<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    native::encode_request(native::method_id(method), value, RPC_LIMITS).unwrap()
+    wire::encode(
+        value,
+        wire::Encoding::Frame {
+            method: wire::method_id(method),
+            direction: wire::Direction::Request,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 
 fn decode<R: DeserializeOwned>(method: &str, bytes: &[u8]) -> R {
-    native::decode_response(native::method_id(method), bytes, RPC_LIMITS).unwrap()
+    wire::decode(
+        bytes,
+        wire::Encoding::Frame {
+            method: wire::method_id(method),
+            direction: wire::Direction::Response,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 
 async fn call<T: Serialize, R: DeserializeOwned>(
@@ -119,9 +135,13 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     )
     .await;
     let wasm = std::fs::read(std::env::var_os("BLOB_REFERENCE_APP").unwrap()).unwrap();
+    // Optional retained predecessor exercises stored catalog reopening across a codec update.
+    let installed_app = std::env::var_os("BLOB_PREVIOUS_REFERENCE_APP")
+        .map(|path| std::fs::read(path).unwrap())
+        .unwrap_or_else(|| wasm.clone());
     pic.install_canister(
         app,
-        wasm.clone(),
+        installed_app,
         encode(
             "app_init",
             &Installation {

@@ -27,8 +27,15 @@ use std::{
 const TEST_PEM: &str = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIAcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcH\n-----END PRIVATE KEY-----\n";
 
 fn encode(input: &Installation) -> Vec<u8> {
-    ic_wire::native::encode_request(ic_wire::native::method_id("blob_init"), input, RPC_LIMITS)
-        .unwrap()
+    ic_wire::encode(
+        input,
+        ic_wire::Encoding::Frame {
+            method: ic_wire::method_id("blob_init"),
+            direction: ic_wire::Direction::Request,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 
 fn installation(manager: Principal) -> Installation {
@@ -418,9 +425,12 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     assert!(String::from_utf8_lossy(&output.stdout).contains("Original drain acknowledged"));
     assert_eq!(std::fs::read(claim.join("request.cbor")).unwrap(), packet);
     assert_eq!(std::fs::read(claim.join("intent.wire")).unwrap(), intent);
-    let drain = ic_wire::native::encode_request(
-        ic_wire::native::method_id("blob_update"),
+    let drain = ic_wire::encode(
         &Command::Drain(1),
+        ic_wire::Encoding::Frame {
+            method: ic_wire::method_id("blob_update"),
+            direction: ic_wire::Direction::Request,
+        },
         RPC_LIMITS,
     )
     .unwrap();
@@ -504,9 +514,12 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     );
     assert_eq!(owned.instance().get_stable_memory(stranded).await, before);
     for transition in [Command::Activate(1), Command::Drain(2)] {
-        let bytes = ic_wire::native::encode_request(
-            ic_wire::native::method_id("blob_update"),
+        let bytes = ic_wire::encode(
             &transition,
+            ic_wire::Encoding::Frame {
+                method: ic_wire::method_id("blob_update"),
+                direction: ic_wire::Direction::Request,
+            },
             RPC_LIMITS,
         )
         .unwrap();
@@ -593,9 +606,12 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
                 canister,
                 controller,
                 "blob_update",
-                ic_wire::native::encode_request(
-                    ic_wire::native::method_id("blob_update"),
+                ic_wire::encode(
                     &transition,
+                    ic_wire::Encoding::Frame {
+                        method: ic_wire::method_id("blob_update"),
+                        direction: ic_wire::Direction::Request,
+                    },
                     RPC_LIMITS,
                 )
                 .unwrap(),
@@ -1141,9 +1157,12 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
                 canister,
                 controller,
                 "blob_update",
-                ic_wire::native::encode_request(
-                    ic_wire::native::method_id("blob_update"),
+                ic_wire::encode(
                     &transition,
+                    ic_wire::Encoding::Frame {
+                        method: ic_wire::method_id("blob_update"),
+                        direction: ic_wire::Direction::Request,
+                    },
                     RPC_LIMITS,
                 )
                 .unwrap(),
@@ -1151,9 +1170,12 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .await
             .unwrap();
         let outcome: Result<ic_blob_storage::protocol::Outcome, ic_blob_storage::local::Error> =
-            ic_wire::native::decode_response(
-                ic_wire::native::method_id("blob_update"),
+            ic_wire::decode(
                 &bytes,
+                ic_wire::Encoding::Frame {
+                    method: ic_wire::method_id("blob_update"),
+                    direction: ic_wire::Direction::Response,
+                },
                 RPC_LIMITS,
             )
             .unwrap();

@@ -8,6 +8,10 @@ use ic_platform::candid_codec::{
     decoder::{Arity, Limits, decode_args},
 };
 use ic_platform_types::Principal;
+use ic_storage::{
+    AllocationGrants, DirectoryError, GenericAllocationPolicy, MemoryAuthority, MemoryRequest,
+    MemoryRuntime, RuntimeBootstrapError, SealedDeclarationSnapshot, StorageConfig,
+};
 use ic_testkit::{
     pic::{
         PocketIcStartupConfig,
@@ -16,12 +20,13 @@ use ic_testkit::{
         },
     },
     pocket_ic::{
-        CanisterId, PocketIcBuilder, common::rest::BlobCompression, nonblocking::PocketIc,
+        CanisterId, PocketIcBuilder, RejectCode, common::rest::BlobCompression,
+        nonblocking::PocketIc,
     },
 };
-use ic_wire::native;
+use ic_wire as wire;
 use serde::Serialize;
-use std::{path::Path, time::Duration};
+use std::{cell::RefCell, path::Path, rc::Rc, time::Duration};
 
 const OPERATOR: &[u8] = &[1, 1];
 
@@ -30,11 +35,27 @@ fn actor() -> CanisterId {
 }
 
 fn request<T: Serialize>(method: &str, input: &T) -> Vec<u8> {
-    native::encode_request(native::method_id(method), input, LIMITS).unwrap()
+    wire::encode(
+        input,
+        wire::Encoding::Frame {
+            method: wire::method_id(method),
+            direction: wire::Direction::Request,
+        },
+        LIMITS,
+    )
+    .unwrap()
 }
 
 fn response(method: &str, bytes: &[u8]) -> Result<View, Error> {
-    native::decode_response(native::method_id(method), bytes, LIMITS).unwrap()
+    wire::decode(
+        bytes,
+        wire::Encoding::Frame {
+            method: wire::method_id(method),
+            direction: wire::Direction::Response,
+        },
+        LIMITS,
+    )
+    .unwrap()
 }
 
 fn wasm() -> Vec<u8> {
@@ -357,4 +378,163 @@ async fn unavailable_cashier_and_foreign_state_never_reopen_admission() {
         .await
         .is_err()
     );
+}
+
+// Inspect an isolated copy of the actual installed image, never live backing.
+// A larger runtime budget is not a migration of the persisted directory tables.
+// Preserve the enrollment owner and both actual Blob keys, not a dummy second key.
+fn refuses_service_composition(image: &[u8]) {
+    let backing = Rc::new(RefCell::new(image.to_vec()));
+    let mut runtime = MemoryRuntime::new_with_config(
+        backing.clone(),
+        StorageConfig {
+            allocations: 3,
+            extents: 3,
+            pages: 32,
+        },
+    )
+    .unwrap();
+    let before = runtime.diagnostics().unwrap();
+    assert_eq!(before.allocations, 1);
+    assert_eq!(before.extents, 1);
+    assert_eq!(before.metadata_pages, 1);
+    assert_eq!(before.physical_pages, 10);
+    assert_eq!(before.live_leases, 0);
+    let allocations = runtime.memory_allocations().unwrap();
+    assert_eq!(allocations.len(), 1);
+    assert_eq!(allocations[0].stable_key.as_str(), "enrollment.control.v1");
+    let error = runtime
+        .bootstrap(
+            &SealedDeclarationSnapshot::new(vec![
+                MemoryRequest::new("enrollment", "enrollment.control.v1").unwrap(),
+                MemoryRequest::new(
+                    ic_blob_storage::local::persistence::STORAGE_AUTHORITY,
+                    ic_blob_storage::local::persistence::STORAGE_KEY,
+                )
+                .unwrap(),
+                MemoryRequest::new(
+                    ic_blob_storage::local::persistence::STORAGE_AUTHORITY,
+                    ic_blob_storage::local::persistence::callbacks::STORAGE_KEY,
+                )
+                .unwrap(),
+            ])
+            .unwrap(),
+            &AllocationGrants::new(vec![
+                MemoryAuthority::new("enrollment", "enrollment.").unwrap(),
+                MemoryAuthority::new("blob", "blob.").unwrap(),
+            ])
+            .unwrap(),
+            &GenericAllocationPolicy,
+        )
+        .unwrap_err();
+    assert!(matches!(
+        error,
+        RuntimeBootstrapError::Directory(DirectoryError::Budget)
+    ));
+    drop(runtime);
+    assert_eq!(backing.borrow().as_slice(), image);
+    // Refused composition must leave the original owner readable through the
+    // existing public APIs, with its allocation identity and lease intact.
+    let mut reopened = MemoryRuntime::new_with_config(
+        backing.clone(),
+        StorageConfig {
+            allocations: 1,
+            extents: 1,
+            pages: 16,
+        },
+    )
+    .unwrap();
+    reopened
+        .bootstrap(
+            &SealedDeclarationSnapshot::new(vec![
+                MemoryRequest::new("enrollment", "enrollment.control.v1").unwrap(),
+            ])
+            .unwrap(),
+            &AllocationGrants::new(vec![
+                MemoryAuthority::new("enrollment", "enrollment.").unwrap(),
+            ])
+            .unwrap(),
+            &GenericAllocationPolicy,
+        )
+        .unwrap();
+    let after = reopened.memory_allocations().unwrap();
+    assert_eq!(after.len(), 1);
+    assert_eq!(after[0].id, allocations[0].id);
+    assert_eq!(after[0].pages, allocations[0].pages);
+    assert_eq!(
+        reopened.diagnostics().unwrap().generation,
+        before.generation
+    );
+    let receipt = reopened.open_memory(&allocations[0].stable_key).unwrap();
+    let _receipt =
+        ic_storage::adapter::StableCell::<Vec<u8>, _>::load(receipt, LIMITS.bytes).unwrap();
+    assert_eq!(backing.borrow().as_slice(), image);
+}
+
+#[tokio::test]
+async fn incompatible_service_upgrade_preserves_consumed_probe() {
+    let owned = server()
+        .build_instance(PocketIcBuilder::new().with_application_subnet())
+        .await
+        .unwrap();
+    let pic = owned.instance();
+    let cashier = pic.create_canister().await;
+    pic.add_cycles(cashier, 10_000_000_000_000).await;
+    let hex = include_str!(
+        "../../ic-blob-storage-enrollment-probe/examples/enrollment/fixtures/top-up-without-cycles.hex"
+    )
+    .trim();
+    let refusal: Vec<_> = (0..hex.len())
+        .step_by(2)
+        .map(|offset| u8::from_str_radix(&hex[offset..offset + 2], 16).unwrap())
+        .collect();
+    let peer = raw_reply_canister(
+        &[RawReplyMethod {
+            name: "account_top_up_v1",
+            mode: ReplyMode::Update,
+            reply: &refusal,
+        }],
+        RawReplyLimits {
+            methods: 1,
+            reply_bytes: REPLY_BYTES,
+            method_name_bytes: 20,
+        },
+    )
+    .unwrap();
+    pic.install_canister(cashier, peer, vec![], None).await;
+    let owner = install(pic, cashier).await;
+    let retained = attempt(pic, owner).await;
+    assert!(retained.attempted_at.is_some());
+    assert_eq!(
+        retained.outcome,
+        Some(Outcome::Reply(ic_wire::Bytes::new(refusal).unwrap()))
+    );
+    // A stopped peer makes accidental resubmission observable as a changed result.
+    pic.stop_canister(cashier, None).await.unwrap();
+    let image = pic.get_stable_memory(owner).await;
+    refuses_service_composition(&image);
+    let status = pic.canister_status(owner, Some(actor())).await.unwrap();
+    pic.stop_canister(owner, Some(actor())).await.unwrap();
+    let host = std::fs::read(std::env::var_os("BLOB_WASM").expect("set BLOB_WASM")).unwrap();
+    let error = pic
+        .upgrade_canister(
+            owner,
+            host,
+            request("blob_post_upgrade", &()),
+            Some(actor()),
+        )
+        .await
+        .unwrap_err();
+    assert_eq!(error.reject_code, RejectCode::CanisterError);
+    let after = pic.canister_status(owner, Some(actor())).await.unwrap();
+    assert_eq!(after.module_hash, status.module_hash);
+    assert_eq!(after.settings.controllers, status.settings.controllers);
+    assert_eq!(pic.get_stable_memory(owner).await, image);
+    pic.start_canister(owner, Some(actor())).await.unwrap();
+    assert_eq!(inspect(pic, owner).await, retained);
+    assert_eq!(attempt(pic, owner).await, retained);
+    upgrade(pic, owner).await;
+    assert_eq!(inspect(pic, owner).await, retained);
+    assert_eq!(attempt(pic, owner).await, retained);
+    assert_eq!(pic.get_stable_memory(owner).await, image);
 }

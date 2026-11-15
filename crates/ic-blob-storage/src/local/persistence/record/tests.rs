@@ -73,15 +73,26 @@ fn corrupted_domain_records_never_publish_authority() {
 #[test]
 fn codec_rejects_truncation_trailing_and_oversized_input() {
     let bytes = record().encode().unwrap();
-    assert!(ic_wire::native::decode::<Record>(&bytes[..bytes.len() - 1], STATE_LIMITS).is_err());
+    assert!(
+        ic_wire::decode::<Record>(
+            &bytes[..bytes.len() - 1],
+            ic_wire::Encoding::Payload,
+            STATE_LIMITS
+        )
+        .is_err()
+    );
     let mut trailing = bytes;
     trailing.push(0);
     assert!(matches!(
-        ic_wire::native::decode::<Record>(&trailing, STATE_LIMITS),
+        ic_wire::decode::<Record>(&trailing, ic_wire::Encoding::Payload, STATE_LIMITS),
         Err(ic_wire::Error::Trailing)
     ));
     assert!(matches!(
-        ic_wire::native::decode::<Record>(&vec![0; STATE_LIMITS.bytes + 1], STATE_LIMITS),
+        ic_wire::decode::<Record>(
+            &vec![0; STATE_LIMITS.bytes + 1],
+            ic_wire::Encoding::Payload,
+            STATE_LIMITS
+        ),
         Err(ic_wire::Error::Limit)
     ));
 }

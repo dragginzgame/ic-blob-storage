@@ -81,6 +81,131 @@ that key, obtained from your owned simulator; neither command fetches a new trus
 root from its endpoint. Queries have a 30-second deadline. They are observations,
 not consensus-certified state receipts or permission for a subsequent mutation.
 
+## Prepare and dispatch an original certificate request
+
+These experimental commands target the root-only issuer profile in the local
+qualification host. The product standalone host does not export it. Authorize the
+exact root through the application first; preparation itself makes no network call
+and establishes no grant, enrollment or provider acceptance.
+
+```sh
+blob prepare-certificate --url "$IC_API" --canister "$ORIGINAL_ISSUER" \
+  --uploader "$UPLOADER" --identity "$UPLOADER_PEM" --root "$ORIGINAL_SHA256_ROOT" \
+  --custody "$CERTIFICATE_CUSTODY"
+
+blob dispatch-certificate --url "$IC_API" --canister "$ORIGINAL_ISSUER" \
+  --uploader "$UPLOADER" --identity "$UPLOADER_PEM" --root "$ORIGINAL_SHA256_ROOT" \
+  --custody "$CERTIFICATE_CUSTODY" --checkout "$BLOB_CHECKOUT"
+```
+
+Supply `--root-key trusted-root.der` to both commands for the owned local simulator.
+All operators/uploaders must use one trusted custody root. Below it, the trusted
+network-key hash, issuer and canonical content root select one permanent claim;
+changing uploader, URL or request filename does not create another lifetime.
+Use a physical custody path without `..` or symlink components; Host FS rejects
+those paths before parent creation. Existing parent permissions remain operator-owned.
+Preparation signs a 120-second ingress and durably retains a bounded Wire intent
+and exact CBOR packet before dispatch is possible. It prints the request path for
+recovery. Any existing claim, including partial preparation, refuses replacement.
+There is no reset, expiry renewal or automatic cleanup. Preserve stranded custody.
+
+Dispatch admits the checkout's tooling, original bindings/packet and remaining
+ingress lifetime, then durably creates a private `dispatch.claim` before invoking
+the Agent. Any existing marker, even empty, bars another invocation across CLI
+processes. A timeout, rejection or lost reply does not release it. Use original
+request recovery regardless of the dispatch exit status; success alone does not
+establish a successful issuer reply.
+
+**One dispatch invocation is not one HTTP attempt.** The selected Agent 0.49.3
+disables TCP retries here but internally retries HTTP 429/503 up to six times,
+using the same signed packet/request ID. No application retry or fresh signature
+is issued. This IC ingress behavior must not be transferred to provider tree/chunk
+PUTs, whose replay contract remains unqualified. Custody assumes trusted, preserved
+filesystem state: changing custody roots, deleting claims or restoring old copies
+can defeat local arbitration and is unsupported. A retained signature is private
+authority, not something this command can revoke.
+
+## Recover an original upload certificate
+
+```sh
+blob recover-certificate \
+  --url "$IC_API" --canister "$ORIGINAL_ISSUER" --uploader "$UPLOADER" \
+  --identity "$UPLOADER_PEM" --root "$ORIGINAL_SHA256_ROOT" \
+  --request original-request.cbor --output recovered-certificate.cbor
+```
+
+This experimental command requires an already retained signed ingress envelope
+and independently trusted original issuer, uploader and canonical root. It accepts
+the root-only `_immutableObjectStorageCreateCertificate` profile qualified locally;
+the product standalone host does not yet export that endpoint. The caller supplying
+the packet remains responsible for retaining it **before** any original submission.
+Recovery never dispatches that packet; the separate commands above own preparation
+and guarded dispatch. Existing externally retained original packets remain usable.
+
+The Ed25519 identity must match the original uploader. Only a signed IC read-state
+request is sent. The CLI derives the original request ID, verifies the current
+IC certificate (including delegation and freshness), and requires its reply to
+name `upload` and the expected root. Expired ingress is still inspectable while
+the network retains its outcome. Pending, rejected, unknown or pruned outcomes
+refuse without creating a certificate; none authorizes a fresh request.
+
+Mainnet uses Platform's built-in root key. For a local simulator, supply an
+independently obtained `--root-key trusted-root.der`; loopback HTTP requires it.
+The command never fetches trust from the endpoint. Input is limited to 8 KiB,
+decoded replies to 1 KiB and encoded certificates to 128 KiB, within the existing
+2 MiB HTTP response budget and 45-second command deadline.
+
+The certificate is Platform-encoded CBOR preserving the authenticated tree and
+signature, not necessarily byte-identical network CBOR. Host FS publishes it
+durably with create-new semantics and mode `0600` under trusted parent custody;
+Host FS may create missing parent directories.
+Existing files, including partial evidence, are never overwritten. On any output
+failure preserve both the original request and any output; a failure after file
+publication does not prove the file is absent. No client journal or recovery schema
+is needed for recovery. Keep potentially usable authority private even after local final release.
+
+Success authenticates a **historical reply**, not current retention or permission
+to upload now. Caffeine acceptance of this recovered proof and the lifetime of its
+authority remain unqualified. Local final release does not revoke an old certificate.
+Neither does the original ingress deadline: a later certificate may authenticate
+the same earlier reply. Certificate time is observation time, not an upload-expiry
+promise; see the [lifetime witness](../design/caffeine-contract-review.md#authority-lifetime-separate-clocks--development-01009).
+
+## Claim one transfer offline
+
+After the original CLI preparation, dispatch and proof recovery:
+
+```sh
+blob claim-transfer --url "$IC_API" --canister "$ORIGINAL_ISSUER" \
+  --uploader "$UPLOADER" --identity "$UPLOADER_PEM" --root "$ORIGINAL_SHA256_ROOT" \
+  --custody "$CERTIFICATE_CUSTODY" --certificate recovered-certificate.cbor \
+  --certificate-sha256 "$FROZEN_PLAN_CERTIFICATE_SHA256" \
+  --gateway "$SELECTED_GATEWAY_ORIGIN" --project "$SELECTED_PROJECT" --bucket "$SELECTED_BUCKET"
+```
+
+For loopback, also pass `--root-key "$TRUSTED_ROOT_DER"`. The certificate digest is
+the `sha256:...` value from the [client's frozen plan](../../clients/browser/README.md#application-boundary),
+not an independently reselected proof. This command makes **no network call**.
+It checks original intent/packet/dispatch identity, authenticates the certificate
+with Platform's Agent (including delegation and its freshness policy), and requires
+the original request's certified `upload` reply to name the selected root.
+The application must separately admit the current permission and provider binding.
+
+The existing network/issuer/root custody directory exclusively owns a `transfer/`
+child. Host FS creates it once, then durably publishes bounded `intent.wire` and
+the exact private `certificate.cbor` before success. The intent binds the original
+request, gateway, project, bucket and proof digest; root/uploader/trust are retained
+by the parent intent. Partial publication leaves the claim consumed. Preserve it
+after any failure or cancellation; another gateway, proof or process cannot acquire
+a second attempt through this custody. All consumers must use the same trusted
+custody root. Deleting, replacing or rolling it back is outside this guarantee.
+
+A native client's `claim(plan, signal)` callback returns true only after command
+success. That admits one client attempt; it does not prove that a PUT occurred,
+authenticate a gateway response, grant current application permission or establish
+provider acceptance. This adds no transfer retry, reset, progress journal or
+automatic certificate issuance. Browser-only callers need their own durable store.
+
 ## Offline enrollment proposal
 
 ```sh
@@ -109,7 +234,7 @@ the deposit bound. Generic wallet funding remains with the platform's operator t
 
 ## Qualification and legacy carryover
 
-`make test-cli` checks independently encoded Cashier replies (including required
+`make test-cli` checks retained certificate-request/reply bindings and independently encoded Cashier replies (including required
 fields, wrong account, denied/missing account, malformed/oversized input), exact
 integer preservation and offline debit bounds. `make test-local` checks uploader
 filtering, application-only access, shared roots and historical release replay.
@@ -117,6 +242,18 @@ filtering, application-only access, shared roots and historical release replay.
 and reference names, 63 distinct roots, denied/empty views, untrusted-root refusal, no query writes and
 closing history preserved through a drained upgrade. These are local witnesses;
 they do not qualify Caffeine's accounting semantics or a live successful account read.
+`make test-callbacks` also runs fresh CLI processes against the local issuer after
+final release: recover from durable original-request bytes, refuse unavailable or
+mismatched outcomes and an untrusted key, preserve partial/existing output, and
+independently authenticate the saved certificate. With Node 24+, it also connects
+the recovered proof to the actual `claim-transfer` command and owned loopback PUTs:
+corrupted proofs refuse, a complete read verifies against the original declaration,
+and a fresh process cannot replay the transfer. Final release retains exposure.
+This does not simulate power loss, browser deployment or provider acceptance.
+`BLOB_PREVIOUS_CLI` can select a retained predecessor only for certificate
+preparation in that fixture; dispatch, recovery and transfer claims still use
+`BLOB_CLI`. The Wire 0.24 adoption uses this to check existing 0.22 custody without
+adding a runtime fallback reader or changing live custody.
 
 Targeted legacy review at
 [`25bed135`](https://github.com/dragginzgame/ic-blob-storage-legacy/tree/25bed1352f3d2b9659f0d2583f50fa9af859ea84)

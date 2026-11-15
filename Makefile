@@ -9,6 +9,7 @@ include vendor/toko-tooling/make/consumer.mk
 include vendor/toko-tooling/make/cargo-dependencies.mk
 
 .PHONY: help deps update clippy clippy-qualification test-references test-caffeine test-local test-cli example-local test-example-local docs-check docs-qualification-check documentation-links-check ci qualification-tooling-check install-test-server test-server-check clippy-host build-host test-standalone test-capacity blob build-cli test-management build-reply-probe test-endpoints test-signed build-reference-app test-application build-enrollment-probe test-enrollment
+.PHONY: build-callback-probe test-callbacks test-browser
 
 help:
 	@printf '%s\n' \
@@ -18,6 +19,7 @@ help:
 	  'make clippy / clippy-qualification  Strict product / qualification lint checks' \
 	  'make test-references             Bounded object-reference behavior tests' \
 	  'make test-caffeine               Caffeine stream and manifest integrity tests' \
+	  'make test-browser               Minimal transfer client (Node 24+, local HTTP only)' \
 	  'make test-local                  Local grant, reference and accounting tests' \
 	  'make test-cli                    Provider reply and offline enrollment checks' \
 	  'make blob                        Build and install blob into Cargo bin (PATH)' \
@@ -28,6 +30,7 @@ help:
 	  'make test-signed                  Test signed application and uploader calls locally' \
 	  'make test-application             Test durable catalog and cleanup between canisters' \
 	  'make test-enrollment              Test the single-use owner enrollment probe locally' \
+	  'make test-callbacks               Test the installed candidate callback profile locally' \
 	  'make test-management              Test native inspection and maintenance locally' \
 	  'make example-local               Run the offline application walkthrough' \
 	  'make test-example-local          Check catalog and read-completion boundaries' \
@@ -71,6 +74,9 @@ test-caffeine:
 
 test-cli:
 	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage-cli --bin blob
+
+test-browser:
+	node --test --test-timeout=10000 clients/browser/tests/*.test.js
 
 test-local:
 	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --lib local::
@@ -129,17 +135,32 @@ build-reply-probe: qualification-tooling-check
 	@mkdir -p target
 	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-reply-probe --target wasm32-unknown-unknown --release --message-format=json > target/blob-reply-probe-artifacts.jsonl
 
+build-callback-probe: qualification-tooling-check
+	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-callback-probe --target wasm32-unknown-unknown --release -- -D warnings
+	@mkdir -p target
+	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-callback-probe --target wasm32-unknown-unknown --release --message-format=json > target/blob-callback-probe-artifacts.jsonl
+
+test-callbacks: build-callback-probe build-cli build-reference-app
+	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage --lib --tests -- -D warnings
+	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --lib local::persistence::callbacks
+	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test callbacks -- -D warnings
+	@probe="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_callback_probe") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one callback probe artifact") end' target/blob-callback-probe-artifacts.jsonl)" && \
+	  cli="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "blob" and .executable != null) | .executable] | if length == 1 then .[0] else error("expected one Blob CLI artifact") end' target/blob-cli-artifacts.jsonl)" && \
+	  app="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_reference_app") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one application Wasm artifact") end' target/blob-reference-app-artifacts.jsonl)" && \
+	  BLOB_CALLBACK_PROBE="$$probe" BLOB_CLI="$$cli" BLOB_REFERENCE_APP="$$app" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test callbacks
+
 build-enrollment-probe: qualification-tooling-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-enrollment-probe --target wasm32-unknown-unknown --release -- -D warnings
 	@mkdir -p target
 	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-enrollment-probe --target wasm32-unknown-unknown --release --message-format=json > target/blob-enrollment-probe-artifacts.jsonl
 
-test-enrollment: build-enrollment-probe
+test-enrollment: build-enrollment-probe build-host
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-enrollment-probe --lib --tests --examples -- -D warnings
 	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-enrollment-probe --lib --example enrollment
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test enrollment -- -D warnings
 	@probe="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_enrollment_probe") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one enrollment probe artifact") end' target/blob-enrollment-probe-artifacts.jsonl)" && \
-	  BLOB_ENROLLMENT_PROBE="$$probe" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test enrollment
+	  wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
+	  BLOB_ENROLLMENT_PROBE="$$probe" BLOB_WASM="$$wasm" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test enrollment
 
 test-endpoints: build-host build-reply-probe
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test endpoints -- -D warnings
@@ -160,6 +181,6 @@ test-example-local:
 	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --example local_asset
 
 documentation-links-check:
-	@find docs -type f -name '*.md' -print0 | xargs -0 perl vendor/toko-tooling/scripts/ci/check-documentation-links.pl --root . *.md
+	@find docs clients -type f -name '*.md' -print0 | xargs -0 perl vendor/toko-tooling/scripts/ci/check-documentation-links.pl --root . *.md
 
-ci: toko-tooling-check fmt-check clippy clippy-qualification test-references test-caffeine test-local test-cli example-local test-example-local docs-check docs-qualification-check documentation-links-check
+ci: toko-tooling-check fmt-check clippy clippy-qualification test-references test-caffeine test-local test-cli test-browser example-local test-example-local docs-check docs-qualification-check documentation-links-check

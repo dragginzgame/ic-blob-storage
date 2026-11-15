@@ -21,7 +21,7 @@ use ic_storage::{
     MemoryRequest, MemoryRuntime, RuntimeMemory, SealedDeclarationSnapshot, StableKey,
     StorageConfig,
 };
-use ic_wire::native;
+use ic_wire as wire;
 use protocol::{DraftInput, DraftView, Error, Installation, Phase};
 use serde::{Serialize, de::DeserializeOwned};
 use state::State;
@@ -31,13 +31,13 @@ use std::{
     num::NonZeroU128,
 };
 
-const INIT: u64 = native::method_id("app_init");
-const UPGRADE: u64 = native::method_id("app_post_upgrade");
-const CREATE: u64 = native::method_id("app_create");
-const PUBLISH: u64 = native::method_id("app_publish");
-const CANCEL: u64 = native::method_id("app_cancel");
-const DRAFT: u64 = native::method_id("app_draft");
-const CATALOG: u64 = native::method_id("app_catalog");
+const INIT: u64 = wire::method_id("app_init");
+const UPGRADE: u64 = wire::method_id("app_post_upgrade");
+const CREATE: u64 = wire::method_id("app_create");
+const PUBLISH: u64 = wire::method_id("app_publish");
+const CANCEL: u64 = wire::method_id("app_cancel");
+const DRAFT: u64 = wire::method_id("app_draft");
+const CATALOG: u64 = wire::method_id("app_catalog");
 
 thread_local! {
     static STATE: RefCell<Option<State>> = const { RefCell::new(None) };
@@ -185,8 +185,15 @@ async fn authorize(draft: &DraftView) -> Result<(), Error> {
 
 async fn call<T: Serialize, R: DeserializeOwned>(method: &str, request: &T) -> Result<R, Error> {
     let blob = STATE.with_borrow(|state| state.as_ref().unwrap().blob());
-    let bytes = native::encode_request(native::method_id(method), request, RPC_LIMITS)
-        .map_err(|_| Error::Invalid)?;
+    let bytes = wire::encode(
+        request,
+        wire::Encoding::Frame {
+            method: wire::method_id(method),
+            direction: wire::Direction::Request,
+        },
+        RPC_LIMITS,
+    )
+    .map_err(|_| Error::Invalid)?;
     IN_FLIGHT.set(
         IN_FLIGHT
             .get()
@@ -204,8 +211,15 @@ async fn call<T: Serialize, R: DeserializeOwned>(method: &str, request: &T) -> R
         .take_raw_args(bytes)
         .await
         .map_err(|_| Error::Uncertain)?;
-    native::decode_response(native::method_id(method), &reply, RPC_LIMITS)
-        .map_err(|_| Error::Uncertain)
+    wire::decode(
+        &reply,
+        wire::Encoding::Frame {
+            method: wire::method_id(method),
+            direction: wire::Direction::Response,
+        },
+        RPC_LIMITS,
+    )
+    .map_err(|_| Error::Uncertain)
 }
 
 #[expect(
@@ -224,11 +238,27 @@ fn admit() -> Result<(), String> {
     reason = "Runtime codec hook owns ingress"
 )]
 fn decode<T: DeserializeOwned, const ID: u64>(bytes: Vec<u8>) -> T {
-    native::decode_request(ID, &bytes, RPC_LIMITS).unwrap()
+    wire::decode(
+        &bytes,
+        wire::Encoding::Frame {
+            method: ID,
+            direction: wire::Direction::Request,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 
 fn encode<T: Serialize, const ID: u64>(value: T) -> Vec<u8> {
-    native::encode_response(ID, &value, RPC_LIMITS).unwrap()
+    wire::encode(
+        &value,
+        wire::Encoding::Frame {
+            method: ID,
+            direction: wire::Direction::Response,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 
 fn memory(fresh: bool) -> RuntimeMemory<DefaultMemoryImpl> {

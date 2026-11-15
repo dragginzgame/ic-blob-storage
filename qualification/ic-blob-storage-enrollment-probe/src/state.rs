@@ -8,7 +8,7 @@ use ic_storage::{
     MemoryRequest, MemoryRuntime, RuntimeMemory, SealedDeclarationSnapshot, StableKey,
     StorageConfig, adapter::StableCell,
 };
-use ic_wire::native;
+use ic_wire as wire;
 use serde::{Deserialize, Serialize};
 
 ic_platform::candid_record! {
@@ -39,15 +39,19 @@ impl State {
                 outcome: None,
             },
         };
-        let cell =
-            StableCell::create(memory(true), native::encode(&record, LIMITS).unwrap()).unwrap();
+        let cell = StableCell::create(
+            memory(true),
+            wire::encode(&record, wire::Encoding::Payload, LIMITS).unwrap(),
+        )
+        .unwrap();
         Self { record, cell }
     }
 
     pub fn open(owner: Principal) -> Self {
         let cell = StableCell::<Vec<u8>, _>::load(memory(false), LIMITS.bytes)
             .expect("existing bounded enrollment record");
-        let record: Record = native::decode(cell.get(), LIMITS).expect("enrollment record format");
+        let record: Record = wire::decode(cell.get(), wire::Encoding::Payload, LIMITS)
+            .expect("enrollment record format");
         assert_eq!(record.version, 1);
         let view = &record.view;
         assert_eq!(view.owner, owner, "foreign owner state");
@@ -78,7 +82,8 @@ impl State {
 
     fn persist(&mut self) {
         // Encoding/storage failure traps this message; never return after partial mutation.
-        self.cell.set(native::encode(&self.record, LIMITS).unwrap());
+        self.cell
+            .set(wire::encode(&self.record, wire::Encoding::Payload, LIMITS).unwrap());
     }
 }
 

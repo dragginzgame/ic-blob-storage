@@ -62,7 +62,7 @@ impl Record {
     }
 
     pub fn encode(&self) -> Result<Vec<u8>, OpenError> {
-        ic_wire::native::encode(self, STATE_LIMITS).map_err(OpenError::Codec)
+        ic_wire::encode(self, ic_wire::Encoding::Payload, STATE_LIMITS).map_err(OpenError::Codec)
     }
 
     pub fn restore(self, installation: Principal) -> Result<LocalModel, OpenError> {

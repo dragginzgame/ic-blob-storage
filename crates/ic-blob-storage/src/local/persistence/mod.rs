@@ -6,6 +6,7 @@
 //! be caught and converted into an ordinary reply after a mutation. Native callers
 //! must discard this owner after a panic. No provider authority is implemented.
 
+pub mod callbacks;
 mod record;
 
 use ic_platform_types::Principal;
@@ -83,8 +84,8 @@ impl<M: Memory> Service<M> {
     pub fn open(memory: RuntimeMemory<M>, installation: Principal) -> Result<Self, OpenError> {
         let cell = StableCell::<Vec<u8>, M>::load(memory, STATE_LIMITS.bytes)
             .map_err(OpenError::Storage)?;
-        let record: Record =
-            ic_wire::native::decode(cell.get(), STATE_LIMITS).map_err(OpenError::Codec)?;
+        let record: Record = ic_wire::decode(cell.get(), ic_wire::Encoding::Payload, STATE_LIMITS)
+            .map_err(OpenError::Codec)?;
         let manager = record.input.manager;
         let attempt = record.maintenance.attempt;
         let model = record.restore(installation)?;

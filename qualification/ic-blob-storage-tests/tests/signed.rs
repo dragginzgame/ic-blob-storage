@@ -11,7 +11,7 @@ use ic_platform::{
     agent::{Agent, AgentError, BasicIdentity, Identity},
 };
 use ic_testkit::{pic::PocketIcStartupConfig, pocket_ic::PocketIcBuilder};
-use ic_wire::native;
+use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
 use std::{path::Path, time::Duration};
 
@@ -36,11 +36,27 @@ fn agent(url: &str, root: &[u8], seed: u8) -> Agent {
 }
 
 fn encode<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    native::encode_request(native::method_id(method), value, RPC_LIMITS).unwrap()
+    wire::encode(
+        value,
+        wire::Encoding::Frame {
+            method: wire::method_id(method),
+            direction: wire::Direction::Request,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 
 fn decode<T: DeserializeOwned>(method: &str, bytes: &[u8]) -> T {
-    native::decode_response(native::method_id(method), bytes, RPC_LIMITS).unwrap()
+    wire::decode(
+        bytes,
+        wire::Encoding::Frame {
+            method: wire::method_id(method),
+            direction: wire::Direction::Response,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
 }
 
 async fn update(agent: &Agent, target: Principal, command: &Command) -> Result<Outcome, Error> {

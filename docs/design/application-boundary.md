@@ -3,7 +3,9 @@
 Design continuation, 2026-11-14. This specifies the integration boundaries of the
 [offline asset catalog](../../crates/ic-blob-storage/examples/local_asset/main.rs),
 and the [installed reference application](reference-application.md), with local
-catalog qualification distinguished from the unimplemented provider journey. The first reference
+catalog qualification distinguished from live provider acceptance. The local
+[transfer/read/catalog composition](reference-application.md#transfer-and-verified-read-composition--development-01009)
+now joins those boundaries with the real application and an owned HTTP peer. The first reference
 consumer is a public asset catalog with two uploaders and distinct references for
 `scene` and `preview`. It is a reference application, not a selected production
 Dragginz asset pipeline. The [main design](ic-blob-storage-design.md) owns scope,
@@ -29,7 +31,7 @@ state at execution, not a lock across A's later callback or catalog mutation.
 | Browser asks A to create/cancel/publish an asset | U at A | A checks its user/asset policy and immutable draft identity |
 | A authorizes, inspects objects/references, retains or releases at B | A at B | Blob checks its configured application authority |
 | Browser obtains upload authority or inspects its upload at B | U at B | Blob checks the uploader bound to the grant; no reference-management rights |
-| Browser transfers/reads file bytes | Selected provider protocol | SDK owns transfer; original declaration anchors read verification |
+| Browser transfers/reads file bytes | Selected provider protocol | Minimal owned client handles transfer; original declaration anchors read verification |
 
 Do not proxy certificate acquisition through A and insert U into a caller field.
 Neither a DTO, controller status nor Canic membership supplies an application role.

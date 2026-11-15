@@ -11,7 +11,7 @@ use ic_platform_runtime::{
     },
     ic0,
 };
-use ic_wire::native;
+use ic_wire as wire;
 use protocol::{Error, Installation, LIMITS, Outcome, REPLY_BYTES, View};
 use serde::{Serialize, de::DeserializeOwned};
 use state::State;
@@ -20,10 +20,10 @@ use std::{
     mem::DropGuard,
 };
 
-const INIT: u64 = native::method_id("enrollment_init");
-const UPGRADE: u64 = native::method_id("enrollment_upgrade");
-const ATTEMPT: u64 = native::method_id("enrollment_attempt");
-const INSPECT: u64 = native::method_id("enrollment_inspect");
+const INIT: u64 = wire::method_id("enrollment_init");
+const UPGRADE: u64 = wire::method_id("enrollment_upgrade");
+const ATTEMPT: u64 = wire::method_id("enrollment_attempt");
+const INSPECT: u64 = wire::method_id("enrollment_inspect");
 
 thread_local! {
     static STATE: RefCell<Option<State>> = const { RefCell::new(None) };
@@ -115,9 +115,25 @@ fn decode<T: DeserializeOwned, const ID: u64>(bytes: Vec<u8>) -> T {
         ic0::msg_arg_data_size() <= LIMITS.bytes,
         "enrollment input limit"
     );
-    native::decode_request(ID, &bytes, LIMITS).unwrap()
+    wire::decode(
+        &bytes,
+        wire::Encoding::Frame {
+            method: ID,
+            direction: wire::Direction::Request,
+        },
+        LIMITS,
+    )
+    .unwrap()
 }
 
 fn encode<T: Serialize, const ID: u64>(value: T) -> Vec<u8> {
-    native::encode_response(ID, &value, LIMITS).unwrap()
+    wire::encode(
+        &value,
+        wire::Encoding::Frame {
+            method: ID,
+            direction: wire::Direction::Response,
+        },
+        LIMITS,
+    )
+    .unwrap()
 }

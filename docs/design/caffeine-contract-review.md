@@ -395,6 +395,218 @@ Blob's reference/accounting model inside the probe to evade that constraint.
 No new canister, migration, callback or certificate-producing deployment occurred
 in this preflight.
 
+#### Local lifecycle refusal witness — development 0.100.9
+
+`make test-enrollment` now passes both actual Wasm artifacts to the installed
+driver. A synthetic Cashier returns the retained 105-byte `TopUpWithoutCycles`
+fixture. After consuming the probe, the test stops the peer and drains the owner,
+then attempts the standalone host's real `blob_post_upgrade` Wire entrypoint. The upgrade
+refuses; module hash, controller set and stable bytes remain unchanged. Inspection
+and replay recover the same immutable intent/result, including after a subsequent
+supported probe upgrade. No new provider operation is dispatched. This is local
+execution evidence, not another mainnet attempt or a snapshot-continuity claim.
+The initial test used `blob_upgrade`, which could refuse at Wire decoding before
+storage admission; that result did not prove this boundary. The corrected rerun
+passed and is retained in `target/01009-enrollment-corrected.log`.
+
+A separate check copies that actual installed image into isolated native backing
+and attempts the real three-key composition: `enrollment.control.v1`,
+`blob.control.v1` and `blob.callbacks.v1`, under runtime ceilings of three
+allocations, three extents and 32 pages. Storage returns its typed directory-budget
+refusal without changing the image. Reopening under the original limits preserves
+the allocation ID, page count, generation and readable receipt cell. Storage
+0.74.1's `StorageConfig` contract fixes directory table
+capacities at creation; its current runtime exposes no capacity migration. The
+rewrite must not repurpose the receipt allocation or create a parallel backing
+manager to bypass that ownership boundary.
+
+**Selected disposition:** preserve the existing mainnet probe unchanged. A direct
+upgrade to the current standalone host is unsupported. Callback qualification can
+continue on local fresh compositions with their required allocation capacity
+declared at creation. Reuse of this funded owner for a service requires a distinct
+Storage-owned capacity migration and Blob lifecycle witness; neither exists here.
+This does not authorize a replacement mainnet canister, reinstall or extra funding.
+
+The targeted legacy comparison re-read the [funding probe's restore hook][legacy-receiver]
+and [receiver recovery regressions][legacy-receiver-tests] at `25bed1352f3d2b9659f0d2583f50fa9af859ea84`.
+They preserve receipts across failed restoration and refuse missing-state reset.
+This batch retains that invariant, independently testing the real incompatible
+target instead of introducing a deliberate-trap mode or importing legacy funding,
+refund or journal machinery. Its broader recovery workflows remain with legacy.
+
+#### Existing-owner capacity expansion — proposed owner change
+
+**Maintainer direction:** Storage is being rewritten. Do not implement this proposal
+in the existing `ic-storage` repository. The authorized consumer requirement is now
+filed as [ic-storage-new #1](https://github.com/dragginzgame/ic-storage-new/issues/1).
+The new repository describes an orthogonal-persistence experiment, so the issue
+does not require the old allocation API or assume old-image compatibility.
+
+Read-only review of Storage 0.74.1 and the sibling's
+[`98eb931`](https://github.com/dragginzgame/ic-storage/tree/98eb9313b7b241607a5dd81a7a4e34aa6c04f755)
+confirms that reopening deliberately intersects runtime ceilings with saved
+capacities. No public expansion operation is available in either inspected source;
+ordinary `bootstrap` refusal is correct. The existing local regression is the
+consumer reproduction, not a reason to edit raw stable memory in Blob.
+
+The narrow candidate is **Storage-owned capacity expansion without moving payload
+buckets**, before bootstrap or opening any lease. It must remain an explicit
+operation, not automatic behavior of reopen. Exact public API shape and internal
+publication mechanics belong to Storage.
+
+| Input or invariant | Required disposition |
+| --- | --- |
+| Existing owner image | Keep its original `enrollment.control.v1` name, opaque allocation ID, logical size, payload bytes and consumed intent/result |
+| Current capacity → proposed capacity | `(allocations: 1, extents: 1, pages: 16)` → `(3, 3, 32)`; these are backing ceilings, not provider storage quotas |
+| New names | Bootstrap the two Blob keys only after successful expansion; retain the enrollment key and its authority |
+| Changed payload start or unsupported image | Refuse before writes; no payload relocation, format fallback, reset or arbitrary migration framework |
+| Active leases or already admitted runtime | Refuse before writes; expansion must not invalidate an open collection or its cached mapping |
+| Failure or interruption | Preserve pre-write refusal; use Storage's native interrupted-publication/poisoning policy and IC atomic rollback for writes; never expose authority before commit |
+| Successful reopen | Preserve identities and payload; reject stale/smaller host limits when they cannot admit the expanded composition |
+
+The [current format geometry](https://github.com/dragginzgame/ic-storage/blob/98eb9313b7b241607a5dd81a7a4e34aa6c04f755/crates/ic-storage/src/runtime/directory_model/persistence/framing.rs)
+reserves a root page plus rounded metadata pages before eight-page payload buckets.
+Both proposed table capacities fit the existing one metadata page: name rows plus
+extent rows grow from 192 to 576 bytes. The extent-row offset changes, so merely
+changing the root capacities would corrupt interpretation. Storage must relocate
+its own active control rows and publish the matching root; payload buckets need
+not move for this case. Three first buckets would occupy 26 physical pages,
+within the proposed 32-page ceiling. These are source-derived layout facts, not
+consumer constants or a license to patch the image.
+
+Owner acceptance must cover unchanged payload/IDs and physical page count, corrupt
+or unsupported image refusal, no-op/repeat policy, live-lease/admission refusal, native
+interruption and installed IC rollback. Blob then needs a positive stopped upgrade
+witness retaining the exact consumed enrollment result while creating/opening
+Service and callbacks, with no enrollment redispatch or automatic provider call.
+No production deployment follows from a passing owner test alone.
+
+No Storage source was changed, dependency fork added or live owner modified during
+this review. The geometry proposal above applies to the existing
+format only; it does not prescribe the rewrite's layout or require importing that
+format. Publication/adoption and live execution remain separate.
+
+#### Local callback candidate — development 0.100.9
+
+`make test-callbacks` qualifies a fresh **local** composition of the existing
+Service and the library's [Callbacks owner](../../crates/ic-blob-storage/src/local/persistence/callbacks/mod.rs).
+One Storage bootstrap grants `blob.control.v1` and `blob.callbacks.v1`; the second
+record contains only its installation/gateway binding and sorted, bounded pairs
+of acknowledged root/original-upload identity. It contains no reference counts,
+grant state, object declarations or usage counters. Service's format and ordinary
+authorization remain unchanged. Missing, foreign or inconsistent receipts refuse
+reopening without repair. No migration from the installed enrollment probe exists.
+
+The [qualification host](../../qualification/ic-blob-storage-callback-probe/src/lib.rs)
+alone mounts this explicitly selected candidate, based on the pinned Motoko mixin
+and legacy callback profile:
+
+| Method | Selected Candid ABI | Local rule |
+| --- | --- | --- |
+| `_immutableObjectStorageBlobsAreLive` | `(vec blob) -> (vec bool) query` | Public, positional, duplicate-preserving; only known Closing roots return false |
+| `_immutableObjectStorageBlobsToDelete` | `() -> (vec blob) query` | Exact configured gateway only; sorted unacknowledged Closing roots |
+| `_immutableObjectStorageConfirmBlobDeletion` | `(vec blob) -> () update` | Exact gateway, entire batch validated before receipt writes; duplicates replay without settlement |
+
+The profile admits at most 64 roots of exactly 32 bytes, with 4 KiB total Candid
+input/reply limits and separate bounded type/header/work/allocation budgets.
+The host checks ingress bytes before copying; Platform decodes exact argument
+arity. Nonempty deletion replies are decoded as `vec blob` and shown to reject
+`vec text` decoding. There is no fallback, advertised callback-version marker,
+timer, Cashier registry refresh or provider network call. The immutable
+test gateway principal is **not** evidence of live provider membership or scope.
+The same local host now mounts the certificate-reply candidate described below.
+
+Native cases cover all 64 historical objects, cleanup at full capacity, unchanged
+unresolved usage, duplicate replay and malformed durable receipts. Installed cases
+cover shared-root references, unknown/reserved/retired roots, operator/controller
+impersonation, mixed-invalid batches, malformed Candid/keys, excess roots/bytes,
+the nonempty list shape, final-release refusal of new registration, and stop/drain/
+upgrade with retained acknowledgments and closed admission. Both native and
+installed cases confirm that acknowledgment never reduces outstanding exposure.
+These are local protocol witnesses; the provider identity/lifetime/closure gates
+remain open, and public liveness must not be mounted on the funded owner yet.
+
+Targeted review of the [legacy callback implementation][legacy-callback-code] and
+[durable gateway regression][legacy-callback-tests] retained full-batch validation,
+unknown-root protection, original-lifetime acknowledgment and unchanged exposure.
+This is an independent implementation over this rewrite's existing Service, not
+copied stores or endpoint macros. Two deliberate differences: retired unregistered
+roots remain protected here (legacy returned false), and maintenance permits
+observation/acknowledgment while keeping fresh admission closed (legacy restore
+fences refused callbacks). These conservative local choices still need provider
+qualification. Gateway registry refresh and namespace semantics remain unselected.
+
+#### Local certificate reply and recovery — development 0.100.9
+
+The qualification host mounts `_immutableObjectStorageCreateCertificate` as an
+update taking exactly one Candid `text` and returning the plain Candid record
+`{ method = "upload"; blob_hash }`. The candidate accepts only canonical lowercase
+`sha256:` plus 64 hex digits. Decoding/byte bounds precede state mutation; malformed
+text, wrong arity, non-uploaders, unknown roots, cancelled/expired grants and
+consumed lifetimes refuse. There is no `Result` envelope on success.
+
+The handler calls the existing synchronous `Service::execute(Register(root))`
+with the captured caller/time. Service resolves the original grant, creates its
+known first reference and commits registration/exposure before the external reply
+encoder runs. It performs no await or host-to-provider certificate acquisition.
+The replica's certified ingress result supplies the proof; the record alone is
+not a certificate. This adds no product API, persistence change or standalone export.
+
+`make test-callbacks` includes two native and five installed cases. The added
+ordering test submits once, observes the committed registration/reference/usage,
+releases the final reference, and only then retrieves the original response.
+Closing and outstanding exposure survive that late retrieval, acknowledgment and
+a drained upgrade/reactivation; a new grant ID or new issuance cannot reopen it.
+This delays client retrieval, not execution of an inter-canister callback.
+
+The signed test uses Platform's Agent through an owned local HTTP gateway and an
+independently supplied simulator trust root. CLI preparation retains the original
+signed packet before guarded dispatch, discards the completion data,
+and releases and acknowledges the object. Fresh `blob recover-certificate` processes
+read the original packet using an independently supplied uploader/root/issuer and
+trust key. They derive its request ID, authenticate the historical reply, match
+the exact root and publish bounded certificate CBOR through Host FS create-new
+publication. The test independently decodes and authenticates that saved proof.
+Unavailable outcomes, mismatched bindings, an untrusted key and both partial and
+complete preexisting output refuse; original bytes remain unchanged. A fresh
+Agent separately checks the authenticated tree. Wrong
+root keys, modified certificate signatures, a different request-status path and
+changed request arguments are refused. A newly signed request ID cannot bypass
+the consumed grant. These assertions use Platform's certificate/Agent APIs; no
+consumer CBOR or cryptographic implementation is introduced.
+
+The original certified result remains recoverable **after** local release and
+acknowledgment. This reinforces the unresolved provider lifetime boundary; local
+Closing is not revocation of already issued proof. The test does not establish
+Caffeine's acceptance of a read-state certificate, its upload/charge effect, or
+retention after IC ingress-history pruning. It models discarded results and
+recovery across process boundaries, not a network outage, power loss or a complete
+crash-safe upload client. The separate CLI preparation/dispatch commands are now
+qualified in the [custody witness](#original-request-custody--development-01009).
+No certificate was issued on mainnet, provider request sent, or live enrollment
+probe changed. Current evidence is `target/01009-certificate-custody-installed.log`;
+usage and exact budgets are in
+[storage inspection](../operations/storage-inspection.md#recover-an-original-upload-certificate).
+
+The [legacy issuer][issuer], [issuer regressions][issuer-tests] and
+[browser recovery client][certificate-client] were re-read at `25bed1352f3d2b9659f0d2583f50fa9af859ea84`.
+Retained lessons are original-root/uploader resolution, commit-before-reply,
+nonreissuance after uncertain delivery and authenticated original-request recovery.
+The rewrite already owns the domain transitions in Service. The external issuer
+remains qualification-only; the CLI reuses Platform verification and Host FS rather
+than generalizing manager-only maintenance custody. The legacy
+[browser failure fixtures](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/tests/browser/client.js)
+also informed wrong-request, trust and retained-binding checks. No legacy source
+code, assessment endpoints, client journal or SDK wrapper was imported. Local
+prepare-before-dispatch custody is qualified; provider acceptance, live lifecycle
+admission and the transfer SDK contract remain requirements before a live trial.
+
+[legacy-callback-code]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/workflow/gateways/callbacks/mod.rs
+[legacy-callback-tests]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/stores/tests/gateway/mod.rs
+
+[legacy-receiver]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/blob-funding-probe/src/lib.rs
+[legacy-receiver-tests]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/storage_funding/transport/receiver/mod.rs
+
 [legacy-transport]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/docs/evidence/caffeine-probes/deployed/2026-10-02-gateway-stream-01/summary.json
 
 ### Link, allocation and owner-call witness — 2026-11-15
@@ -694,6 +906,13 @@ effects, not to introduce a parallel object ledger or a general funding framewor
 
 ## Recovery and SDK disposition
 
+Rechecked the [npm latest metadata](https://registry.npmjs.org/@caffeineai%2fobject-storage/latest)
+on 2026-11-15: the published package remains **1.1.2**. Its
+[registry archive](https://registry.npmjs.org/@caffeineai/object-storage/-/object-storage-1.1.2.tgz)
+matched the registry's SHA-512 integrity before inspection; no package scripts
+were installed or executed. The published declarations and `StorageClient.js`
+confirm the capability limits below, independently of the legacy patch.
+
 The reviewed [public declarations][sdk-api] expose `putFile` and `getDirectURL`.
 They do not expose prepare-before-admission, existing-certificate resume, or
 per-client transport/retry controls. The source automatically retries tree and
@@ -706,10 +925,78 @@ The [legacy patch description][patch] documents preparation of a retained file
 handle and per-client transport, retry and concurrency controls. Those supplied
 real missing capabilities, not incidental convenience. Its one-use prepared
 handle is ephemeral and is not, by itself, a resumable-upload solution. Do not
-import this patch or duplicate the SDK's transfer implementation. Select a
-supported external package path supplying the required capabilities, or obtain
-documented idempotency and adapt the client requirements explicitly. A new SDK
-selection requires current registry and compatibility review.
+import this patch or copy the SDK's implementation. The maintainer has now
+authorized an independently owned minimal client instead of waiting for an
+external package to expose these controls.
+
+**Selected disposition:** do not adopt 1.1.2's `putFile` as the rewrite's transfer
+path yet. It cannot accept the CLI's recovered certificate through its public API,
+and a new `putFile` call acquires new authority before repeating transfer. Its
+three automatic PUT retries and ten workers cannot be disabled per client through
+that API. DFINITY's pinned example uses the same pattern and supplies no supported
+alternative. On 2026-11-15 the maintainer replaced the external-SDK-only constraint
+with a minimal Blob-owned transfer client: immutable preparation, existing proof,
+serial PUTs and no automatic retries. This supersedes the earlier prohibition on
+an owned transfer implementation, not the exclusion of legacy patches, private
+method overrides or global fetch interception. SDK capability is no longer the
+implementation dependency; live provider qualification remains open.
+
+The first [browser client](../../clients/browser/README.md) now prepares bounded
+immutable files and the candidate tree, then sends one tree PUT and serial chunks.
+It has no IC/Storage/npm runtime dependency. Its required caller-owned durable
+claim precedes all PUTs; one-use handles alone are not cross-restart replay
+protection. Certificate authentication stays with the caller's existing IC client,
+and HTTP acknowledgments are not availability or settlement. No general resume
+engine, browser database, transfer scheduler or replacement service ledger is added.
+
+Twenty-two Node Web API tests cover original Rust/SDK root vectors, input/proof
+mutation, bounded admission/replies, durable-claim ordering, concurrent-use refusal,
+serial chunks, cancellation/deadline and no retry after errors. Two tests use real
+Fetch against owned loopback HTTP, including redirect refusal; the others control the transport boundary.
+`verifyRead` requires HTTP 200, original metadata, exact length/EOF and the original
+root before returning immutable bytes. Tests include multi-chunk corruption,
+truncation, arbitrary stream boundaries and interrupted reads.
+`readVerified` adds a single explicit GET, original-declaration snapshot and one
+fetch/verification deadline, without credentials, redirect or automatic retry.
+`target/01009-reconciliation-browser.log` records the local pass. This is not a deployed
+browser or Caffeine acceptance witness. The user's instruction to work around the
+Storage rewrite is met by this storage-independent client work; existing funded
+probe state is preserved, with no raw-memory or combined-record workaround.
+
+The installed local composition now joins the real issuer and original proof
+recovery to `blob claim-transfer`, Node Fetch and an owned loopback HTTP peer.
+The CLI re-authenticates the exact proof digest and original certified request
+before publishing a permanent transfer claim within existing root custody.
+An altered signature causes no PUT. A new process with a new prepared handle and
+gateway cannot replay the claimed root. The successful read matches its original
+declaration, and final release still leaves three declared bytes unresolved.
+`target/01009-transfer-installed-recheck.log` records that witness. This peer only
+acknowledges and serves fixture bytes; it is not a Caffeine implementation or proof
+of Caffeine acceptance. Application permission remains separate from proof validity.
+
+The [reference-app composition](reference-application.md#transfer-and-verified-read-composition--development-01009)
+extends this to a six-chunk file and the real catalog. HTTP acknowledgment and a
+corrupt read do not trigger publication; cancellation during transfer or readback
+survives late completion. No application endpoint or state format changes.
+The composition also cuts the final upload response after all chunks arrive,
+interrupts readback and kills the client during a pending chunk reply. Fresh
+processes refuse replay without modifying original proof/intent bytes; drafts stay
+unpublished and explicit cleanup retains full exposure. Three further scenarios
+inspect the original draft and reconcile through a fresh read-only process: verify
+the already-received bytes and request publication, reject corrupt content, or
+refuse late publication after cancellation. They send no new PUT or issuance and
+retain the original claim; publication itself remains an application mutation.
+The ten scenarios use independent installations. Both affected installed cases
+pass in `target/01009-reconciliation-installed.log`; other issuer checks remain in
+`target/01009-publication-installed.log`. These are owned HTTP peers, not a provider
+retention, power-loss or automatic recovery witness.
+
+The pinned legacy [certificate client][certificate-client] and browser README
+retain the same original-proof, no-reset and verify-before-use lessons. Its browser
+database, worker bridge, per-request journal and patched SDK are not required for
+this single-attempt native custody consumer. We reuse the existing Host FS owner
+and shared hash routine instead; no legacy implementation or recovery record is
+imported. A real browser still needs qualified application custody and transport.
 
 The [legacy certificate client][certificate-client] retains the signed ingress
 envelope/request ID before dispatch and can query the original IC request status.
@@ -719,11 +1006,107 @@ It does not prove that a later certificate is accepted by Caffeine or that a
 transfer may be restarted. Fresh issuance is a distinct authority exposure.
 Registration inspection alone never recovers usable proof.
 
+### Original request custody — development 0.100.9
+
+`blob prepare-certificate` now signs offline and retains the exact original packet
+with a bounded Wire intent. One permanent claim is keyed by trusted network-key
+hash, issuer and root under a shared trusted custody directory; uploader and URL
+are immutable bindings. Partial claims refuse replacement. `dispatch-certificate`
+checks those bindings, packet digest, ingress expiry and tooling before publishing
+a create-new dispatch marker. Marker publication precedes the Agent call and bars
+subsequent/concurrent invocations regardless of outcome. Recovery continues to
+inspect the original ID and cannot reopen the local object.
+
+This is one application dispatch, not exactly one HTTP attempt: selected Platform's
+Agent 0.49.3 may retry HTTP 429/503 six times with identical signed bytes despite
+TCP retries being disabled. No fresh ingress signature is generated during
+dispatch or recovery. IC duplicate-request identity is not evidence for provider
+PUT idempotency. Copying/restoring custody or selecting another root directory
+is unsupported; this is a trusted operator procedure, not rollback protection.
+See the [command contract](../operations/storage-inspection.md#prepare-and-dispatch-an-original-certificate-request).
+
+The local installed witness now prepares with the actual CLI, retains its packet,
+refuses tampering and a partial dispatch marker, then races two CLI processes:
+one claims dispatch and one refuses. It recovers the same result after final
+release, acknowledgment and ingress expiry. Native coverage also checks that
+incomplete preparation cannot be replaced. The intent traversal budget was
+corrected after qualification exposed an undersized Wire node allowance; fixture
+custody paths now use admitted physical directories. No live request was made.
+
+A second installed case prepares a real signed request, then cancels its grant
+before dispatch. The original IC result is an authenticated rejection; stable
+state stays unchanged and recovery publishes no proof. It separately stops the
+owned PocketIC HTTP gateway after preparation, observes CLI dispatch failure,
+restores that gateway and authenticates an unknown original result. Both cases
+retain the exact packet and permanent dispatch marker; neither another dispatch
+nor preparation can bypass them. Unused reservations remain releasable by the
+application. This tests a gateway outage before execution, not loss of a reply
+after acceptance. The existing successful-recovery case covers discarded completed
+results. Both affected cases pass in `target/01009-certificate-refusal-installed.log`;
+no product behavior, dependency or live-provider state changed.
+
 Closing/revocation can stop the cooperating client from requesting or forwarding
 new authority. They cannot retract a certificate already held by that client,
 nor prevent it from recovering an available original IC result. Provider lifetime
 semantics must carry that part of the guarantee. Recording a delayed authentic
 result preserves exposure without reopening the object.
+
+### Authority lifetime: separate clocks — development 0.100.9
+
+A focused re-read of the pinned [Caffeine SDK][sdk] and
+[DFINITY client](https://github.com/dfinity/immutable-object-storage-example/blob/ef29e8a6e8063c6fe654cac53a3497cab585fefa/frontend/src/storage-client.ts)
+found no explicit authority-expiry field in their tree authorization. The tree PUT
+carries certificate bytes; chunk PUTs carry selectors and data without that proof.
+Neither client source establishes the gateway's verifier policy or the lifetime
+of an admitted unfinished tree. Static inspection of the already retained provider
+CLI yielded no attributable server-side cutoff rule; TLS certificate error strings
+are not evidence about upload authority. The artifact was not executed.
+
+The [IC HTTPS specification](https://docs.internetcomputer.org/references/ic-interface-spec/https-interface/#request-read-state)
+defines read-state expiry independently of the original call and includes certified
+state time in its response. Its call-history rules permit response data to disappear;
+they do not provide this application with guaranteed indefinite recovery. These are
+IC transport rules, not Caffeine upload limits.
+
+| Boundary | What it controls | What it does not establish |
+| --- | --- | --- |
+| Blob grant deadline | Whether local registration may first occur | Revocation of a previously committed reply |
+| Original call `ingress_expiry` | Admission/processing of that IC request | Expiry of provider authority derived from its successful reply |
+| Read-state expiry and certificate time | Admission of the new read and authentication of the observed IC state | A new issuance, an original issuance timestamp, or a provider upload cutoff |
+| IC response-history retention | Whether the original reply remains recoverable | Invalidation of certificate bytes already held elsewhere |
+| Provider authority/unfinished-tree lifetime | Must bound tree acceptance, delayed chunks and possible recreation | Still unqualified by the reviewed client sources and local tests |
+
+The installed regression now signs its original request with a 120-second ingress
+window, completes it once, releases the final reference and records acknowledgment.
+It preserves an authenticated pre-expiry certificate, advances the simulator past
+the original expiry, executes certification rounds and runs a fresh recovery CLI.
+Platform's bounded historical verifier authenticates a **later certificate time
+strictly after the original ingress expiry**, with the same request ID and exact
+reply. Original packet bytes and Blob accounting remain unchanged: zero live bytes,
+one unresolved declared byte. No new certificate-issuance request is submitted in
+this recovery step. The first clock-only fixture failed the time-window assertion;
+explicit rounds were required before asserting a newly certified state.
+
+The earlier 60-second witness passed in `target/01009-certificate-lifetime.log`;
+the current custody witness uses the CLI's 120-second ingress. Platform's historical
+verifier remains qualification-only. Neither interval is a provider TTL or mainnet
+retention promise.
+
+**Selected rule:** never settle exposure because a grant/ingress deadline passed,
+a certificate looks recent/old, or original history became unavailable. A fresh
+certificate can authenticate an old reply. If a gateway relies only on certificate
+age, recovering the old reply could refresh that age while history is retained;
+this is an inference to test, not a finding about Caffeine's deployed verifier.
+Closure still requires a provider-enforced cutoff covering accepted trees and chunks.
+
+For a future bounded live trial, distinguish the first tree PUT using the original
+call proof from the first tree PUT using a recovered proof, on separately retained
+test roots under the same selected owner/configuration. A valid original-proof
+control is needed before attributing a recovered-proof refusal to proof format or
+age. Do not retry a possibly accepted PUT to obtain this comparison. Final-release
+and delayed-chunk cases remain separate exposure-bearing experiments. The existing
+live owner's lifecycle/Storage boundary and request custody must be qualified first;
+no upload, migration, account change or new funding was performed for this review.
 
 ## Retention callbacks and selective legacy reuse
 

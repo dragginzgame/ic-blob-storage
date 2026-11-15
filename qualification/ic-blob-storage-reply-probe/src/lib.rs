@@ -2,11 +2,11 @@
 //! Owns one raw stable page solely to observe IC rollback; never deployed as Blob.
 
 use ic_platform_runtime::{cdk, cdk::api, ic0};
-use ic_wire::native;
+use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
 
-const WRITE: u64 = native::method_id("probe_write");
-const READ: u64 = native::method_id("probe_read");
+const WRITE: u64 = wire::method_id("probe_write");
+const READ: u64 = wire::method_id("probe_read");
 const LIMITS: ic_wire::Limits = ic_wire::Limits {
     bytes: 32,
     allocation: 1024,
@@ -42,9 +42,25 @@ fn probe_read() -> u8 {
     reason = "Runtime codec hook owns ingress"
 )]
 fn decode<T: DeserializeOwned, const ID: u64>(bytes: Vec<u8>) -> T {
-    native::decode_request(ID, &bytes, LIMITS).unwrap_or_else(|error| api::trap(error.to_string()))
+    wire::decode(
+        &bytes,
+        wire::Encoding::Frame {
+            method: ID,
+            direction: wire::Direction::Request,
+        },
+        LIMITS,
+    )
+    .unwrap_or_else(|error| api::trap(error.to_string()))
 }
 
 fn encode<T: Serialize, const ID: u64>(value: T) -> Vec<u8> {
-    native::encode_response(ID, &value, LIMITS).unwrap_or_else(|error| api::trap(error.to_string()))
+    wire::encode(
+        &value,
+        wire::Encoding::Frame {
+            method: ID,
+            direction: wire::Direction::Response,
+        },
+        LIMITS,
+    )
+    .unwrap_or_else(|error| api::trap(error.to_string()))
 }

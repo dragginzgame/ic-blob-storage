@@ -14,8 +14,15 @@ fn offline_frames_match_host_types_and_refuse_wrong_direction() {
     })
     .unwrap();
     let init = unhex(prepared["init_hex"].as_str().unwrap()).unwrap();
-    let decoded: Installation =
-        native::decode_request(native::method_id("enrollment_init"), &init, LIMITS).unwrap();
+    let decoded: Installation = wire::decode(
+        &init,
+        wire::Encoding::Frame {
+            method: wire::method_id("enrollment_init"),
+            direction: wire::Direction::Request,
+        },
+        LIMITS,
+    )
+    .unwrap();
     assert_eq!(decoded, config);
     let request = unhex(prepared["inspect_hex"].as_str().unwrap()).unwrap();
     assert!(
@@ -26,8 +33,15 @@ fn offline_frames_match_host_types_and_refuse_wrong_direction() {
         .is_err()
     );
     let denied = Err::<View, _>(Error::Denied);
-    let bytes =
-        native::encode_response(native::method_id("enrollment_inspect"), &denied, LIMITS).unwrap();
+    let bytes = wire::encode(
+        &denied,
+        wire::Encoding::Frame {
+            method: wire::method_id("enrollment_inspect"),
+            direction: wire::Direction::Response,
+        },
+        LIMITS,
+    )
+    .unwrap();
     assert_eq!(
         run(Command::Decode {
             method: Method::Inspect,
