@@ -101,7 +101,7 @@ async fn observations(
 #[tokio::test]
 async fn changed_artifact_preserves_obligations_through_native_lifecycle() {
     let checkout = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../..")
+        .join("../..")
         .canonicalize()
         .unwrap();
     let directory = checkout

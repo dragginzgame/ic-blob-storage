@@ -1,4 +1,5 @@
 /target/
+/qualification/target/
 /.tools/
 /.toko-tooling-refresh.*/
 /.agents/

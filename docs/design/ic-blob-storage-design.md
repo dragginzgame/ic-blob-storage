@@ -194,6 +194,7 @@ needs them; Blob owns the durable work being resumed.
 
 The maintainer accepted this layout on 2026-11-14. The library, experimental host
 and installed test package now exist; the browser client remains future work.
+The separate qualification workspace was accepted on 2026-11-15.
 
 ```text
 crates/
@@ -204,9 +205,10 @@ crates/
 clients/
   browser/                  # Client/example using the selected external SDK
 qualification/
-  crates/
-    ic-blob-storage-tests/  # Real host Wasm exercised in PocketIC
-    ic-blob-storage-reply-probe/ # Installed codec-failure rollback fixture
+  Cargo.toml                # Independent unpublished qualification workspace
+  Cargo.lock                # Qualification dependency graph
+  ic-blob-storage-tests/     # Real host Wasm exercised in PocketIC
+  ic-blob-storage-reply-probe/ # Installed codec-failure rollback fixture
 ```
 
 The four production crates share the root Cargo workspace and lockfile. The
@@ -215,6 +217,10 @@ supplies memory grants and composes lifecycle hooks. It owns no alternate ledger
 or business rules. The library exports no canister endpoints merely by linking it.
 Canic owns its adapter in the Canic repository and depends on this same library;
 it does not depend on the standalone executable.
+The [Canic adapter handoff](application-boundary.md#canic-adapter-handoff) maps the
+current Service API to a first embedded catalog witness, including trusted local
+authority, one Storage bootstrap and atomic catalog/reference failures. It is an
+implementation input for Canic, not evidence that composition is already qualified.
 
 The [reference application](reference-application.md) owns its bounded drafts,
 publication decisions and cleanup intent in a separate canister. It calls the
@@ -227,7 +233,7 @@ or crate per noun. Directory modules keep their tests beside `mod.rs`; the curre
 reference owner and its tests remain one module with the same public Rust path.
 
 `qualification/` is for installed-service tests, not ordinary domain tests. Its
-first package is an unpublished test-role member of the root workspace, using
+packages are unpublished test-role members of their own workspace, using
 the real standalone Wasm artifact and PocketIC. It exercises captured IC callers,
 endpoints and upgrades. PocketIC supplies caller identities; this is not a live
 signed-ingress or provider-certificate witness.
@@ -236,10 +242,11 @@ the production host. Local substitutes cannot establish Caffeine guarantees.
 
 Keep native domain tests with their library owner. Canic composition tests stay
 in Canic; browser transfer tests stay with the client. `make test-standalone` owns
-the focused installed check. There is no empty package, second lockfile or generic
-harness. A separate resolving
-workspace requires an actual integration dependency constraint and its recorded
-disposition; directory placement alone does not justify one.
+the focused installed check. The qualification manifest and lockfile isolate its
+simulator dependencies from the product workspace, following the installed Toko
+layout. Packages retain explicit private versions independently of product releases.
+Both workspaces select the same tooling payload and inherit the common lint policy.
+There is no empty package or generic harness.
 
 Extract a runtime-free contracts package only when the remote client needs shared
 types without service storage dependencies. The native admin binary now has an
@@ -586,7 +593,7 @@ trap. Application authorization remains in Service and returns typed `Error::Den
 `blob_management` remains a replicated update. Method names/IDs, `RPC_LIMITS`,
 caller capture, storage and lifecycle semantics are unchanged; Canic is optional.
 
-The [installed frame test](../../qualification/crates/ic-blob-storage-tests/tests/endpoints.rs)
+The [installed frame test](../../qualification/ic-blob-storage-tests/tests/endpoints.rs)
 checks exact response frames, malformed/wrong-method/wrong-direction requests,
 exact/excess byte limits and denied callers. It passed against both the saved
 pre-migration host and its replacement. A separate installed reply probe forces
@@ -713,6 +720,10 @@ installation binding and successful reopen checks. This is protection within the
 trusted path, not a proof against controller bypass or snapshot restoration.
 
 ### Interrupted management operations
+
+The [standalone maintenance runbook](../operations/standalone-maintenance.md)
+maps this contract to the current CLI inputs, command sequence and operator
+interruption decisions. It does not qualify live deployment or schema migration.
 
 Drain custody uses `prepare-drain`, `dispatch-drain` and `observe-drain`. Preparation
 authenticates the existing installation, requires active admission and the explicitly
@@ -853,7 +864,7 @@ replacement requests, historical observation after a newer drain and a delayed
 activation reaching the host. No domain state or format is added. Do not generalize
 these management claims into a provider-obligation ledger or snapshot freshness proof.
 
-The [populated native lifecycle qualification](../../qualification/crates/ic-blob-storage-tests/tests/management/lifecycle.rs)
+The [populated native lifecycle qualification](../../qualification/ic-blob-storage-tests/tests/management/lifecycle.rs)
 retains four upload identities across drain, stop, upgrade, start and explicit
 activation. Its objects include a reserved grant, an Open object shared by two
 uploaders with one released reference, and a Closing object with unresolved
@@ -947,13 +958,19 @@ Current progress is by accepted capability, not a percentage of code written:
 | D3 | Ownership selected; standalone independence preserved | Canic-owned adapter and actual composed application qualification |
 | D4 | Not claimed; finite history and small-store limits remain explicit | Representative workload measurements and a qualified retention/compaction and operating policy |
 
+The [standalone capacity measurements](standalone-capacity.md) qualify the existing
+64-slot history profile for distinct objects, shared uses and reservations, including
+cleanup and ordinary upgrade. They record platform execution-cycle charges and
+allocated memory, not raw instruction counts or a sustained-use/D4 claim.
+
 The next provider-facing implementation requires the new D0 evidence above.
 Further local scaffolding or repeated searches of unchanged sources cannot supply
 it. Provider-call authorization remains in force, while outreach remains declined;
 neither changes the missing-contract boundary. Latest delivery and focused results
 are recorded in the [handoff](../status/current.md).
 The maintainer selected the `0.100` rewrite line, starting with the `0.100.0`
-GitHub checkpoint. Development versions inherit from the root workspace.
+GitHub checkpoint. Product versions inherit from the root workspace; qualification
+package versions remain independent, with both lockfiles updated for product changes.
 Publication remains separate and disabled until an authorized release; this
 selection supplies no migration for legacy installations.
 

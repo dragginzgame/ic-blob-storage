@@ -99,7 +99,7 @@ fn refused(output: &Output, reason: &str) {
 #[tokio::test]
 async fn signed_management_preserves_target_custody_and_closed_admission() {
     let directory = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../../target/management-test")
+        .join("../../target/management-test")
         .join(std::process::id().to_string());
     std::fs::create_dir_all(&directory).unwrap();
     let directory = directory.canonicalize().unwrap();
@@ -279,7 +279,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     std::fs::write(claim.join("request.cbor"), &packet).unwrap();
     assert_eq!(owned.instance().get_stable_memory(canister).await, before);
     let checkout = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../..")
+        .join("../..")
         .canonicalize()
         .unwrap();
     let custody = directory.join("custody");

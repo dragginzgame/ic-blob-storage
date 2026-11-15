@@ -1,6 +1,49 @@
 # Changelog
 
-## Unreleased
+## [0.100.6] - 2026-11-15
+
+GitHub development checkpoint on branch `0.100`; not published to crates.io.
+Product API and durable formats are unchanged. Qualification packages retain
+their independent private versions at 0.100.5.
+
+### Added
+
+- Qualify reference-app upgrade refusal for empty, invalid and foreign stable
+  memory, preserving rejected bytes and the original application's catalog and
+  Blob state. Extend the installed journey without new runtime code or restore APIs.
+- Add a standalone maintenance runbook with the existing admin command sequence,
+  original-artifact custody and interruption decisions; replace the long README
+  command reference with a link. No runtime or recovery behavior changes.
+- Add `make test-capacity` for the actual standalone Wasm at 64 distinct objects,
+  64 shared uses and 64 reservations. Record execution-cycle charges and allocated
+  memory, and qualify inspection, cleanup and drained upgrade at full history.
+  Preserve the lifetime limits and unresolved exposure; no product code is added.
+- Qualify reference-app upgrade refusal during a real pending Blob call, preserved
+  callback completion and stable state, and rejection of replacement installation
+  arguments. Extend the existing installed journey without new product code.
+- Qualify all five reference-app endpoints rejecting wrong-method, trailing-byte
+  and oversized frames without changing application or Blob state. Invalid draft
+  bounds also preserve the ID for a subsequent valid request.
+- Specify the Canic adapter handoff against the existing Service API: one granted
+  store, distinct uploader/application authority, atomic local catalog changes and
+  composed lifecycle qualification. No adapter or Canic dependency is added here.
+
+### Changed
+
+- Move installed qualification into its own Cargo workspace and lockfile, with
+  packages directly under `qualification/` and independent private versions.
+  Update build, simulator setup, formatting and CI commands for both workspaces;
+  preserve supplier selections through the split and keep private versions
+  independent of the product checkpoint.
+- Include the pending Platform 0.33.6 and Wire 0.22.2 patches, plus thiserror
+  2.0.21 in the product lock (qualification retains 2.0.18). No broad dependency
+  refresh accompanies this checkpoint.
+
+### Fixed
+
+- Finish reference-app cancellation when the exact Blob authorization conclusively
+  expired without admission. Previously these drafts stayed pending forever.
+  Admitted grants still require release after expiry; uncertain outcomes stay pending.
 
 ## [0.100.5] - 2026-11-14
 

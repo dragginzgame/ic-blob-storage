@@ -17,13 +17,14 @@ Read [the current handoff](docs/status/current.md) first.
   legacy repository. Never resume or import them through this fresh checkout.
 - There is an experimental local standalone host, but no frozen API, migration
   or production deployment runner yet.
-  The rewrite uses the `0.100` release line, inherited from the root workspace;
+  Product crates use the `0.100` release line, inherited from the root workspace;
   `0.100.0` is its first GitHub checkpoint. Keep publication disabled until a
   separately authorized release.
   Existing crates.io versions are not reset by this rewrite.
 - In this repository, a maintainer request to "push" means a new GitHub version
   checkpoint: increment the current patch version unless an exact version is
-  specified, finalize its changelog and push the coordinated workspace/lock update.
+  specified, finalize its changelog and push the coordinated product version and
+  both lockfile updates. Preserve independent qualification package versions.
   Delivery-only handoff/review commits belong to that same checkpoint and do not
   trigger another version increment. Registry publication remains separately gated.
 - Production crates belong under `crates/`. Add qualification packages only for
@@ -31,8 +32,10 @@ Read [the current handoff](docs/status/current.md) first.
   tests. Use Rust 1.100.0 and edition 2024 with the inherited common lint policy.
 - The accepted [crate layout](docs/design/ic-blob-storage-design.md#selected-crate-layout)
   uses a thin standalone host and a Canic-owned adapter. The maintainer-approved
-  qualification location is `qualification/crates/`, with packages belonging to
-  the root workspace and lockfile; it does not establish a separate workspace.
+  qualification location is a separate `qualification/` Cargo workspace and
+  lockfile, accepted on 2026-11-15. Its unpublished packages have independent
+  explicit versions and sit directly under that directory. Both workspaces select
+  the same installed Toko Tooling payload; only product crates inherit release versions.
 - No initial commit, remote creation, push, publication or live-provider effect
   is implied by the local scaffold. Custom future deployment entrypoints must
   admit the tooling snapshot before effects.
@@ -59,7 +62,10 @@ and read-completion boundaries. `make install-test-server` explicitly prepares t
 local simulator (also included in `make install-tools`); `make test-standalone` tests
 the actual production Wasm's callers and upgrades, independently of the native
 aggregate. Set `BLOB_PREVIOUS_WASM` to install an explicitly selected predecessor
-before upgrading to the current artifact. `make test-endpoints` checks raw frames
+before upgrading to the current artifact. `make test-capacity` separately measures
+the real host at full history, checking cleanup/reopen with platform execution-cycle
+charges and allocated memory; these are not raw instruction counts or provider costs.
+`make test-endpoints` checks raw frames
 on the production host and encoding-failure rollback in a qualification-only probe.
 These checks do not qualify Caffeine or a production management runner.
 `make test-signed` checks signed application/uploader calls and authenticated replies
@@ -75,7 +81,7 @@ admission, not the live IC or provider effects.
 Package inventory is `make deps-list`;
 `make update` delegates to the shared `deps-update` target for Cargo lock updates.
 LOC is `toko-cloc`. An exact tooling-pin change still requires the authenticated
-`make toko-tooling-update` installation after updating Cargo.lock.
+`make toko-tooling-update` installation after updating both workspace pins and lockfiles.
 
 ## Learn from the predecessor before subsystem work
 

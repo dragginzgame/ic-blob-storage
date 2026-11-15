@@ -1,6 +1,6 @@
 [package]
 name = "ic-blob-storage-reply-probe"
-version.workspace = true
+version = "0.100.5"
 edition.workspace = true
 rust-version.workspace = true
 license-file.workspace = true

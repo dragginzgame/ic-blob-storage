@@ -79,6 +79,9 @@ impl LocalModel {
     /// the supplied manifest: its original declaration was already admitted.
     /// New declarations must pass manifest preflight before any mutation.
     /// Cancelled/expired roots cannot start another lifetime, even for a new uploader.
+    /// Retained upload IDs are resolved before expiry checks: `Expired` from this
+    /// operation means the ID was never admitted and its requested deadline has passed.
+    /// Preventing later admission of that exact request requires monotonic `now`.
     /// # Errors
     /// Rejects wrong authority, conflicting identities, expired/invalid grants,
     /// invalid manifests, competing reservations, retired roots, Closing objects or capacity.

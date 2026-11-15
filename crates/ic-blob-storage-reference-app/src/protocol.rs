@@ -41,7 +41,7 @@ pub enum Phase {
     Published,
     /// Permanently unpublished; remote cleanup remains unresolved.
     Cancelled,
-    /// Exact authorization resolved and first reference released or retired.
+    /// First reference released/retired, or exact authorization conclusively expired unadmitted.
     Cleaned,
 }
 

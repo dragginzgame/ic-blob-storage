@@ -128,10 +128,18 @@ async fn app_cancel(id: NonZeroU128) -> Result<DraftView, Error> {
     }
     // Resolve even an authorization whose reply was lost, using the exact saved declaration.
     // UnknownReference alone would not prevent a delayed authorization creating the use.
-    authorize(&draft).await?;
-    let released: Result<Outcome, BlobError> = call("blob_update", &Command::Release(id)).await?;
-    if released.map_err(Error::Blob)? != Outcome::Done {
-        return Err(Error::Uncertain);
+    match authorize(&draft).await {
+        Ok(()) => {
+            let released: Result<Outcome, BlobError> =
+                call("blob_update", &Command::Release(id)).await?;
+            if released.map_err(Error::Blob)? != Outcome::Done {
+                return Err(Error::Uncertain);
+            }
+        }
+        // Authorize resolves retained IDs before checking expiry. This refusal means
+        // never admitted; Blob's monotonic time prevents the immutable request admitting later.
+        Err(Error::Blob(BlobError::Expired)) => {}
+        Err(error) => return Err(error),
     }
     STATE.with_borrow_mut(|state| state.as_mut().unwrap().cleaned(caller, id))
 }

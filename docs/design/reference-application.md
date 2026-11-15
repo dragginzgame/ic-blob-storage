@@ -57,7 +57,8 @@ restriction or a promise of continuing availability.
 `Draft → Published → Cancelled → Cleaned` is the usual path. An unpublished Draft
 can also be cancelled. Cancellation is permanent and removes catalog membership
 before any remote cleanup. Delayed create/publication callbacks cannot revive it.
-`Cleaned` means local Blob reference cleanup, never provider deletion or settlement.
+`Cleaned` means the first reference was released/retired, or its exact authorization
+expired without ever being admitted. It never means provider deletion or settlement.
 
 On a missing reply or `Uncertain`, query the same draft and retry the same input or
 cancel ID. There is no automatic timer/retry, replacement ID or receipt eviction.
@@ -66,11 +67,17 @@ authorization, then releases that reference. This can create and immediately ret
 an otherwise absent reservation. While Blob is drained, new admission must wait;
 already admitted authorization replay and reference cleanup still work.
 
-Rejected or expired authorizations retain their draft slot. If the original grant
-cannot be resolved, cancellation remains pending rather than claiming closure.
-The reference app deliberately has no administrative override to forget it. A new
-request ID is not a recovery mechanism and cannot bypass Blob's permanent root
-lifetime rule.
+Only a typed `Expired` reply to that exact `Authorize` can finish cancellation
+without a release. Blob resolves retained upload IDs before checking expiry, so
+this reply establishes nonadmission and a passed deadline at Blob. With immutable
+input and Blob's monotonic IC time, delayed calls cannot admit it later. An admitted
+grant still resolves to its historical outcome and must be released after expiry.
+The app never infers this from its own clock, an unknown reference or a transport
+failure. See the [boundary contract](application-boundary.md#application-decisions-across-delayed-replies).
+
+All attempts retain their lifetime draft slot, including this resolved case. Other
+unresolved refusals remain cancelled with cleanup pending; there is no administrative
+override to forget them. A new ID cannot bypass Blob's permanent root lifetime rule.
 
 ## Bounds and lifecycle
 
@@ -97,12 +104,25 @@ supported procedure. No app-owned recovery framework is introduced.
 
 ## Evidence
 
-The [installed test](../../qualification/crates/ic-blob-storage-tests/tests/application.rs)
+The [installed test](../../qualification/ic-blob-storage-tests/tests/application.rs)
 uses both real Wasm modules, with no forwarding/fault-mode application substitute.
-It covers caller separation, exact retries, name collisions, shared-object uses,
+It checks wrong-method/trailing/oversized frames at all five application endpoints,
+and invalid draft bounds without consuming an ID or changing either canister's state.
+It also covers caller separation, exact retries, name collisions, shared-object uses,
 actual pending cross-subnet publication and authorization races, discarded cleanup
-reply, stopped-host failures, durable cleanup after upgrade, full lifetime capacity
-and cleanup while Blob is drained. Publication leaves Blob stable bytes unchanged.
+reply, stopped-host failures, never-admitted expiry cleanup without Blob mutation,
+refusal to renew that draft, admitted-grant release after expiry, durable cleanup
+after upgrade, full lifetime capacity
+and cleanup while Blob is drained. It also attempts upgrade while a real Blob call
+is pending: the app's own guard refuses, the original callback completes and stable
+bytes remain unchanged. Replacement installation arguments are rejected after
+draining; the original user's draft remains accessible. Publication leaves Blob stable bytes unchanged.
+Disposable recipients also exercise reopening with empty stable memory, a zeroed
+storage page and the original populated application's bytes under another canister
+identity. Each upgrade must trap without rewriting the supplied bytes or changing
+the original application/Blob state; the original catalog and cleaned draft remain
+readable. Direct simulator injection is a negative fixture, not a supported restore
+procedure or a proof that an older same-canister snapshot can be detected.
 Upgrade evidence is same-format and after drained runtime calls; it does not prove
 arbitrary migration, an adversarial controller or provider availability/recovery.
 

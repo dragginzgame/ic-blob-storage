@@ -84,6 +84,10 @@ exists. Further progress on these guarantees needs new provider evidence, not
 another broad search of these unchanged sources or an invented local mechanism.
 No question was posted and no provider/account call was made.
 
+A targeted continuation check on November 14 reconfirmed the same skills head
+and issue #16 still open with zero comments. There is no new provider contract to
+adopt; the unchanged sources were not subjected to another broad search.
+
 ### Prepared provider clarification — not sent
 
 Local clarification draft referencing [Caffeine issue #16][gc-issue]. The maintainer
@@ -247,7 +251,7 @@ Each eventual live plan must name its fresh account/scopes, exact objects and
 request limits, funding/charge terms, permitted replay, observation deadline and
 custodian for unresolved obligations. A deadline stops observation; it does not
 settle an object. There is no live runner or selected live installation here.
-Add `qualification/crates/` when the real standalone host exists; continue to
+The separate `qualification/` workspace now exercises the real standalone host;
 keep pure checks beside their library owner. No new framework, retained probe
 ledger or placeholder package is needed for this plan.
 

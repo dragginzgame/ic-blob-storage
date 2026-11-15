@@ -1,133 +1,102 @@
-# Current status — 2026-11-14
+# Current status — 2026-11-15
 
 ## Delivery and accepted scope
 
-The standalone reference application and dependency adoption are pushed to
-`origin/0.100` at [5301b3a](https://github.com/dragginzgame/ic-blob-storage/commit/5301b3a87a04131e21011226b3150525dc2b8d53).
-The maintainer clarified that "push" means a new GitHub version checkpoint;
-**0.100.5** is pushed at [f51d1b9](https://github.com/dragginzgame/ic-blob-storage/commit/f51d1b98c8badcc8c156319cde651406a52bef4d), finalizing these changes and the changelog. Delivery-only review commits
-share that checkpoint. No tag, registry publication, live deployment or Caffeine
-call occurred. The earlier endpoint migration and
-signed qualification remain at [337cdd6](https://github.com/dragginzgame/ic-blob-storage/commit/337cdd6301068093d8faa9a50b62f203a7d00c35).
 Private repository `dragginzgame/ic-blob-storage`, branch `0.100`, HTTPS origin.
-Four product crates and `qualification/crates/` share the approved root workspace
-and lockfile. Standalone development remains independent of Canic.
+**0.100.6** is prepared for the authorized GitHub push; checks below passed.
+The preceding checkpoint and review are retained at
+[3c26f6c](https://github.com/dragginzgame/ic-blob-storage/commit/3c26f6c5c9bd0a32e0ad1a4c7d644f056c6c5e46).
+“Push” means the next patch GitHub checkpoint; delivery-only review commits share
+that checkpoint. No tag, registry publication, deployment or Caffeine call is part
+of this delivery. Publication remains disabled; API and persistence are experimental.
+Four product crates inherit 0.100.6. The separate qualification workspace retains
+its two private package versions at 0.100.5 and consumes the current local products.
+Both workspaces own their lockfiles and admit the same installed tooling payload.
 
-Rust 1.100.0 / edition 2024; Toko Tooling 0.43.2, Host FS/Artifacts/Process 0.79.0,
-Testkit 0.106.0, Platform 0.33.5, Runtime/macros/guard 0.22.5, Types 0.20.4,
-Wire 0.22.1, Storage 0.74.1 and PocketIC 16.1.0. Delivery qualified the newer
-Platform patches present in the final lock, superseding the earlier adoption-only
-checks. Snapshot installation authenticated all 49 unchanged payload files and
-rebuilt/admitted the selected Testkit CLI. API and persistence remain experimental.
+Rust 1.100.0 / edition 2024; Toko Tooling 0.43.2; Host FS/Artifacts/Process 0.79.0;
+Testkit 0.106.0, PocketIC 16.1.0, Platform 0.33.6, Runtime 0.22.5, Types 0.20.4,
+Storage 0.74.1, Wire 0.22.2. Product thiserror is 2.0.21; qualification retains 2.0.18.
+Existing supplier selections were preserved; release preparation changed only
+owned package versions in both locks. Managed tooling bytes are unchanged.
+
+## Checkpoint contents and evidence
+
+The [changelog](../../CHANGELOG.md#01006---2026-11-15) owns the complete release notes.
+The application cancellation fix accepts an exact never-admitted authorization's
+expiry refusal as conclusive cleanup; admitted grants still require release.
+[The boundary contract](../design/application-boundary.md#application-decisions-across-delayed-replies)
+records the retained-ID lookup and monotonic-time assumptions. Installed cases
+cover pending callbacks/upgrades, malformed endpoints, immutable arguments,
+expired drafts and missing/invalid/foreign state on disposable recipients.
+The [maintenance runbook](../operations/standalone-maintenance.md) replaces the
+long README command reference with explicit inputs, sequence and interruption rules.
+
+Final 0.100.6 Linux qualification used the actual product Wasm/admin binaries:
+
+- `make tools-check ci`: tooling admission, formatting, strict native Clippy for
+  both workspaces, 35 library tests, four example tests, walkthrough and Rustdoc pass.
+- `make test-standalone test-capacity test-endpoints test-signed test-application test-management`:
+  all seven installed tests pass, with strict Wasm/native Clippy. Suite wall times
+  were 7.03 / 10.47 / 6.46 / 9.88 / 7.73 / 60.20 seconds respectively.
+- Dependency inventory distinguishes four product and two qualification packages;
+  admin reports 0.100.6. Formatting, local documentation links and diff checks pass.
+
+[Capacity results and raw samples](../design/standalone-capacity.md) retain their
+November 14 source/artifact identities, not relabelled as release measurements.
+The checkpoint also reran full-history inspection, cleanup and same-artifact
+upgrade. Both kinds of evidence concern finite history, not sustained-use/D4,
+raw instruction counts, mainnet prices or provider charges. Cleanup retains slots.
+Linux evidence does not qualify macOS, arbitrary migrations or snapshot continuity.
+
+LOC: **3,205 product / 5,119 tests / 396 examples**; versus 0.100.5,
+**+6 product / +558 tests / +0 examples** under the same reporter categories.
+Growth is the expiry fix plus capacity/application qualification. The workspace
+split adds no Rust LOC, runtime owner or product package.
+Post-push architecture review is pending the actual pushed commit.
 
 ## Current implementation and operating boundaries
 
-Blob's [installed profile](../design/ic-blob-storage-design.md#experimental-installed-profile-in-01002)
-uses one Service around the policy model and a host-granted Storage lease. One
-versioned 64 KiB record admits 64 historical uploads and references. Reopen validates
-identity/records and derives indexes, reference counts and declared R/L/E; missing
-or foreign state never becomes genesis. Mutations persist before reply; encoding/IO
-failure traps for IC rollback. Native callers discard the owner after panic.
-Permanent root lifetimes and released references survive upgrade. Final release
-retains unresolved declared exposure; counters do not bound physical bytes or cost.
+Blob owns one Service and a host-granted, versioned 64 KiB Storage record with
+64 historical uploads/references. Reopen validates records and rebuilds indexes
+and declared reserved/live/unresolved accounting; missing/foreign state never
+becomes genesis. Encoding/IO failure traps for IC rollback; native callers discard
+the owner after panic. Final release retains unresolved exposure, not a cost bound.
 
-The thin host mounts Platform guard/codec hooks with bounded Wire frames; no Wire
-Endpoint package, alternate executor or Canic dependency remains. Canic owns its
-future adapter. Library, host and admin source are unchanged by this delivery.
+The thin host uses Platform guard/codec hooks and Wire, independently of Canic.
+The reference application owns immutable users/Blob target and sixteen lifetime
+drafts; Published drafts derive its per-user catalog. Cancellation precedes remote
+cleanup and cannot be undone by delayed replies. Publication is a catalog decision,
+not independent read verification. There is no provider authority or settlement API.
 
-The [reference application](../design/reference-application.md) owns one governed
-record with immutable users/Blob target and sixteen lifetime drafts. Original input
-and reference identity precede calls. Published drafts derive the per-user catalog;
-cancellation persists before exact authorization reconciliation and release.
-Delayed replies cannot undo cancellation. Unresolved cleanup survives ordinary
-upgrade; rejected attempts retain their slots. There is no command passthrough,
-automatic retry, second Blob ledger, provider effect or global Verified flag.
-Publication accepts the owning user's decision, not independently verified reads.
-App maintenance uses trusted stop/drain/upgrade/start; Blob's admin does not manage it.
-
-Blob admission closes on drain while cleanup, inspection and historical replay stay
-available; reopen remains drained. The native admin retains immutable original
-requests/packets and observes their original IDs without renewal. Unknown status
-never proves nonexecution. Every supported manager preserves one shared custody
-root. [Management rules](../design/ic-blob-storage-design.md#interrupted-management-operations)
-bind explicit target, manager/root/configuration, artifact/format/attempt, predecessor
-claims and original stop/upgrade/start acknowledgments before activation. Host FS
-owns durability/locking; Platform owns transport/status. Candidate compatibility
-needs operator review. Alternate custody roots, arbitrary Makefiles and unrestricted
-controllers bypass the supported arrangement. No automatic compensation,
-reinstall/rollback fallback or snapshot freshness proof exists.
-
-## Qualification evidence
-
-For 0.100.5, `make test-application` passes (7.38 s), `make test-management`
-passes both custody/lifecycle tests (69.72 s), and the built admin reports 0.100.5.
-The unchanged endpoint/rollback witness passed at 5301b3a (6.74 s).
-The app witness installs both real Wasm modules on separate PocketIC subnets: owner
-checks, exact retries, shared references, name replacement, cancellation during
-publication, pending authorization, discarded cleanup reply, stopped-host failures,
-cleanup after upgrade and full-history cleanup while Blob is drained. Publication
-leaves Blob stable bytes unchanged. Historical replies are not current draft state.
-Strict workspace/all-target and selected Wasm Clippy, Rustdoc, formatting, full
-locked metadata, documentation links and diff checks pass. Unchanged domain suites
-were not repeated. Linux/local simulator evidence does not qualify mainnet, macOS,
-provider recovery, arbitrary migration, snapshot continuity or pending-call upgrade
-refusal. The [application boundary](../design/application-boundary.md#evidence-and-acceptance)
-records targeted legacy comparisons; [earlier evidence](https://github.com/dragginzgame/ic-blob-storage/blob/337cdd6301068093d8faa9a50b62f203a7d00c35/docs/status/current.md#endpoint-migration-evidence)
-retains the preceding host/CLI and explicit predecessor-upgrade witnesses.
-
-## Post-push architecture review
-
-The checkpoint follow-up f51d1b9 versus 2a7ab94 also **passes** the same scoped
-method below, using `f51d1b9:AGENTS.md`. Post-push inspection confirms only version,
-lock and documentation changes: no new runtime state, endpoints, owners or source
-growth. Platform 0.33.5 changes Registry decoders outside this consumer's use;
-fresh application/management checks above cover the retained integration. The
-push convention changes delivery metadata only; no further architecture work arises.
-
-**PASS within the affected structural scope**, after pushing 5301b3a against 337cdd6.
-Method: [complexity review](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/audits/complexity-and-technical-debt.md),
-common contract, simplicity guidance and IC addendum at that same pinned revision;
-overlay: `5301b3a:AGENTS.md`. Inspected committed app protocol/state/entrypoints,
-actual installed test, Make wiring, dependency graph and design; reused the exact
-focused results above. This is not a full-system, provider or Wasm-capacity audit.
-
-| State/decision | Owner and boundary |
-| --- | --- |
-| Draft, Published, Cancelled, Cleaned | App State owns durable transitions; cancel never reopens, Published names are unique per owner |
-| Immutable user, target, declaration and ID | App protocol carries them; State enforces ownership/replay; endpoints capture ingress caller |
-| Authorization, registration, references and R/L/E | Existing Blob Service remains sole authority; app observes through existing endpoints |
-| Runtime calls versus durable intent | App endpoints own bounded awaits/counter; State owns saved intent; no timer or recovery engine |
-| Fresh versus reopen | Separate lifecycle paths and Storage grants; corruption never creates fresh state |
-
-No actionable duplicated-flow, state-space or ownership debt found. Independent
-codec/memory setup is retained because these are separate canister trust/storage
-boundaries. The catalog is derived, not a second index. Five Wire endpoints and
-init/pre/post-upgrade hooks have concrete callers; no forwarding fixture remains.
-Rehearsals by inspection: changing catalog-name policy touches app State/protocol
-and its test; raising draft capacity touches that owner's encoding/reopen bounds;
-provider integration belongs to Blob/client and remains blocked by D0, not another
-application mode. No new abstraction or speculative refactor is justified.
-
-`toko-cloc` reports **3,199 product / 4,561 tests / 396 examples**, versus
-**2,702 / 4,248 / 396** at 337cdd6: **+497 / +313 / +0**. The same categorizer payload
-is used. Growth is the runnable app and one installed consumer journey, not changed
-Blob policy or dependency adapters. These counts are not Wasm size or performance.
-Known lifecycle/provider proof gaps above remain explicit; no broader reliability
-or settlement guarantee follows from this structural result.
+App maintenance uses trusted stop/drain/upgrade/start; Blob's admin does not manage
+it. Blob drain preserves inspection, cleanup and historical replay. Reopen remains
+drained until activation of the exact attempt. The native admin retains original
+signed requests and observes without renewal; unknown status cannot prove
+nonexecution. All supported managers preserve one custody root and predecessor
+claims. Host FS owns durability/locking; Platform owns transport/status. Operator
+review establishes candidate compatibility. Alternate custody, arbitrary checkout
+code and unrestricted controllers bypass the supported arrangement; no automatic
+compensation, reinstall/rollback fallback or snapshot-freshness proof exists.
 
 ## Provider gate and next work
 
+The user has started Canic integration in its own session. The
+[adapter handoff](../design/application-boundary.md#canic-adapter-handoff) maps the
+existing Service API to an embedded catalog witness. No Canic source is changed
+by this checkpoint; implementation and qualification belong with that owner.
+Standalone use remains independent. Do not add another adapter or ledger here.
+
 Caffeine calls are authorized **when ready**; do not ask again. No contact/agreement
 exists: use available evidence. The refusal to post the [prepared clarification](../design/caffeine-contract-review.md#prepared-provider-clarification--not-sent)
-still applies; provider-call permission does not authorize outreach. [D0](../design/caffeine-contract-review.md)
-remains open for independent Rust enrollment, deletion scope, byte bounds, proof
-recovery/SDK resume and authority-lifetime/charge closure. A live witness needs an
-identified fresh target/account, bounded scope and durable obligation custody.
-The local app supplies the selected consumer; next integration needs the supported
-contract and actual transfer/read journey. More local scaffolding cannot close D0.
-D1 remains partial. Push only when requested; review affected owners after each push.
+still applies; provider-call permission does not authorize outreach. D0 remains
+open for independent Rust enrollment, deletion scope, byte bounds, proof recovery,
+SDK resume and authority-lifetime/charge closure. A fresh live run needs an identified
+account/target, bounded scope and durable obligation custody. D1 remains partial;
+more local scaffolding cannot supply the missing provider contract. No new provider
+research or calls were made during release preparation.
 
 Legacy is read-only at `25bed1352f3d2b9659f0d2583f50fa9af859ea84` in private
-`dragginzgame/ic-blob-storage-legacy`. The sibling is absent; custody was not
-reverified. No legacy code, credentials or recovery state was imported. Never resume
-legacy obligations here; read its LEGACY.md before separately authorized recovery.
+`dragginzgame/ic-blob-storage-legacy`; the sibling is absent. Targeted source reviews
+are cited in the design/capacity evidence. No credentials, recovery records or
+provider obligations were imported. Never resume legacy obligations here; read its
+LEGACY.md before separately authorized recovery. Legacy custody was not reverified.

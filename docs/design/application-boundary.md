@@ -42,6 +42,70 @@ arguments must never become client-selected fields in exported endpoints. Blob's
 own transport needs bounded decoding before allocation and a deliberate reply
 budget; the model's slice/work limits do not qualify an RPC decoder.
 
+## Canic adapter handoff
+
+The next composition witness should embed Blob in one Canic-managed application
+child alongside its small asset catalog. This exercises the local composition
+boundary; the existing two-canister reference app remains the standalone witness.
+It does not place Blob in Fleet's management engine or make provider support a
+property of Canic. The adapter and installed witness belong in Canic; this repo
+continues to export the same library and standalone host.
+
+The current experimental supplier surface is sufficient to start that local witness:
+
+| Adapter responsibility | Existing Blob surface | Required composition |
+| --- | --- | --- |
+| Allocate durable control state | `local::persistence::{STORAGE_AUTHORITY, STORAGE_KEY}` | Include `blob.control.v1` under `blob` in the child's one Storage bootstrap, alongside its catalog allocation; pass the granted `RuntimeMemory<M>` lease |
+| Fresh installation | `Service::create(lease, installation, Installation)` | Bind the actual child principal; use that principal as application authority for checked local catalog operations, with an explicitly configured manager |
+| Reopen | `Service::open(lease, installation)` | Load the original record under the same child identity; trap on failure, never fall back to `create` or replace configuration |
+| Domain mutation | `Service::execute(caller, Command, now)` | Capture IC time and uploader identity; use the internal application-authority path only after the application's own policy check |
+| Read domain state | `Service::inspect(caller, Inspection)` | Preserve upload/reference inspection permissions; a public query never receives application authority merely because it runs inside the child |
+| Maintenance | `Service::inspect_management(caller)` and `Service::is_drained()` | Preserve Blob's exact drain/activation attempt and configured manager; combine its readiness with the catalog and actual runtime-call draining |
+
+Use the supplier's `protocol::{Command, Inspection, Installation, Outcome,
+Observation, RPC_LIMITS}` at the selected boundary. Do not copy DTOs, add a Blob
+adapter crate here, or depend on the standalone canister executable. Align shared
+Storage/Platform type identities in the actual Canic build; a matching type name
+or this table is not compilation evidence. The current record remains bounded to
+64 historical uploads/references, with declared-byte accounting and no settlement.
+
+For an embedded catalog, distinguish two paths explicitly. A public uploader
+operation passes the captured ingress principal to Blob unchanged. An application
+operation first checks the real user's catalog permission, then calls Blob locally
+as the configured application authority. Never rewrite every ingress caller to
+the child principal or accept an authority principal from request data. Controller
+or Canic membership alone grants neither role. Do not make a self-canister call
+to reach `Service`; it would add an await and lose local transaction composition.
+
+Validate catalog conflicts and capacity before mutating Blob. A synchronous catalog
+and reference update can commit in one IC message, provided subsequent persistence
+or reply-encoding failures trap so both stores roll back. An ordinary Rust error
+after the first mutation does not roll it back. Keep provider awaits outside this
+local transaction and preserve their separate durable obligations when implemented.
+
+Mount only exports with real callers through Canic's Platform/Wire composition.
+Endpoint generation must not bootstrap storage, install timers, select a manager
+or activate Blob. The child owns one init/pre/post-upgrade sequence. Ordinary
+upgrade reopens both owners and leaves Blob drained until the current attempt is
+explicitly activated; Canic readiness cannot substitute for that service decision.
+
+The first installed Canic witness must demonstrate two users sharing an object,
+refusal of cross-user and forged application authority, atomic catalog/reference
+failure, release without harming the other reference, and stop/drain/upgrade/reopen
+with both owners preserved. Include malformed endpoint admission and stale
+activation refusal through the actual adapter. Reuse supplier unit evidence for
+unchanged algorithms; qualify composition itself in Canic. The provider journey
+and D3 completion still depend on D0 and an actual integrated transfer/read path.
+
+Read-only consumer inspection on 2026-11-14 found Canic's management endpoint
+adapter described in [Canic #2](https://github.com/dragginzgame/canic/issues/2),
+but no Blob mount. Its working tree has pending changes; none were edited or
+adopted here. That fixed management macro is not a general Blob adapter.
+The [legacy library's host-grant contract](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/lib.rs)
+already separated allocation bootstrap from the complete service owner. Keep that
+ownership rule; use the rewrite's one `Service` record rather than importing legacy
+component factories, funding journals or lifecycle orchestration.
+
 ## Application decisions across delayed replies
 
 A owns one bounded draft record per attempted asset use: the original authorization,
@@ -63,12 +127,22 @@ rule permits compaction; no TTL-only eviction or generic receipt framework.
    before dispatching a remote release. A late liveness response cannot undo this.
    Keep the reference retained while published; a diagnostic observation alone
    does not lock it against concurrent release.
-4. Finish cleanup only after the exact known reference is released/retired and no
-   unresolved authorization can create it later. `UnknownReference` alone is not
+4. Finish cleanup only after the exact known reference is released/retired, or its
+   authorization is conclusively expired without admission; neither case may leave
+   unresolved authorization that can create it later. `UnknownReference` alone is not
    completion. Resolve/replay the original authorization, then release that same
    first reference; replay may create an otherwise absent reservation solely to
    retire it. Never request upload authority during this recovery. If authorization
    remains uncertain, keep the draft unpublished with cleanup pending.
+
+The experimental host's exact `Authorize` returns retained IDs before checking
+expiry. Its typed `Expired` refusal therefore means the ID was never admitted and
+the deadline has passed at Blob. That one result permits completion without a
+release. Immutable saved input and [monotonic canister time](https://docs.internetcomputer.org/references/ic-interface-spec/canister-interface/#system-time)
+prevent later admission of the same request. An admitted grant must still be
+released, even after its deadline. Neither the app's clock nor an expiry error from
+another operation supplies this proof. This depends on the supported state-preserving
+lifecycle; reinstall/restore and incompatible replacement code are outside it.
 
 During the service's [upgrade drain](ic-blob-storage-design.md#admission-while-draining-and-reopening),
 existing-reference cleanup and historical replay remain permitted when state is
@@ -151,7 +225,7 @@ example tests cover local publication/refusal. The installed application now
 qualifies its durable decisions and actual callbacks separately from the D0 gate;
 an integrated provider transfer/read journey still requires that contract.
 
-The [signed standalone witness](../../qualification/crates/ic-blob-storage-tests/tests/signed.rs)
+The [signed standalone witness](../../qualification/ic-blob-storage-tests/tests/signed.rs)
 now exercises the existing production host through an owned PocketIC HTTP gateway.
 Distinct deterministic signing identities represent application, manager and two
 uploaders. Wrong callers cannot authorize/register; uploaders cannot release or
@@ -183,6 +257,10 @@ The targeted legacy review rechecked its host caller capture and
 [reference-status regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/tests/reference_status_boundary/mod.rs).
 Retain exact caller/target checks and inspection after release or suspension; use
 the existing rewrite projection instead of legacy tenant/binding DTOs and fences.
+Its invalid/changed-input refusals also motivate the app's installed boundary checks:
+invalid drafts preserve their IDs, while wrong-method, trailing-byte and oversized
+frames at each of its five hooks preserve both app and Blob stable state. These
+qualify this host's wiring, not Wire's full codec matrix or legacy DTO compatibility.
 The [legacy browser publication flow](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/clients/browser/publication.js)
 and its [regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/tests/browser/publication.mjs)
 reinforce original-input binding and cancellation rechecks after awaits. The
@@ -192,3 +270,25 @@ invariants here through one immutable draft and final local checks; omit the
 legacy catalog framework, recovery fences and platform-history machinery.
 No legacy code was copied. These witnesses qualify the local reference application,
 not a live provider, arbitrary state replacement or production asset pipeline.
+
+The [legacy installed lifecycle regression](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/standalone_lifecycle/mod.rs)
+also checks that rejected replacement settings preserve the prior installation and
+obligations. The reference-app journey retains that regression through its existing
+unit upgrade argument contract, without legacy owner fences or recovery orchestration.
+It additionally proves that the app's pending-call guard traps an actual upgrade
+while a cross-subnet Blob call is outstanding, then allows that original call to
+finish with stable state unchanged. No fixture host or production fault mode is used.
+The same rejection-preserves-state principle now covers three disposable reference
+applications: empty memory, invalid storage and a populated record copied from a
+different installation. These are new cases for this app's reopening boundary,
+not copied legacy recovery logic. The simulator injects bytes only into disposable
+recipients; the original catalog, cleaned history and Blob ledger remain intact.
+This does not qualify recovery from an older snapshot of the same installation.
+
+The [legacy admission path](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/admission/mod.rs)
+binds exact permission recovery to its original uploader/deadline. Retain that
+no-renewal invariant, without copying its permission/fence machinery. The narrow
+nonadmission meaning of `Authorize::Expired` is established by this rewrite's own
+lookup order, not inferred from legacy errors. The installed journey reproduces
+the previously stuck cancellation and proves cleanup without Blob mutation,
+renewal refusal and explicit release of a grant admitted before its deadline.
