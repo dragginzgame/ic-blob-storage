@@ -1,15 +1,15 @@
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 .SHELLFLAGS := -o pipefail -c
-LOCAL_TOOL_INSTALL_TARGETS += install-test-server
-LOCAL_TOOL_CHECK_TARGETS += test-server-check
+LOCAL_TOOL_INSTALL_TARGETS += install-test-server install-browser-tools
+LOCAL_TOOL_CHECK_TARGETS += test-server-check browser-tools-check
 FORMAT_RUST_ARGS := --extra-workspace qualification
 
 include vendor/toko-tooling/make/consumer.mk
 include vendor/toko-tooling/make/cargo-dependencies.mk
 
 .PHONY: help deps update clippy clippy-qualification test-references test-caffeine test-local test-cli example-local test-example-local docs-check docs-qualification-check documentation-links-check ci qualification-tooling-check install-test-server test-server-check clippy-host build-host test-standalone test-capacity blob build-cli test-management build-reply-probe test-endpoints test-signed build-reference-app test-application build-enrollment-probe test-enrollment
-.PHONY: build-callback-probe test-callbacks test-browser
+.PHONY: build-callback-probe test-callbacks test-browser test-browser-runtime install-browser-tools browser-tools-check
 
 help:
 	@printf '%s\n' \
@@ -20,6 +20,8 @@ help:
 	  'make test-references             Bounded object-reference behavior tests' \
 	  'make test-caffeine               Caffeine stream and manifest integrity tests' \
 	  'make test-browser               Minimal transfer client (Node 24+, local HTTP only)' \
+	  'make test-browser-runtime       Chromium transport (BROWSER=/absolute/path)' \
+	  'make install-browser-tools      Install locked npm dependencies without scripts' \
 	  'make test-local                  Local grant, reference and accounting tests' \
 	  'make test-cli                    Provider reply and offline enrollment checks' \
 	  'make blob                        Build and install blob into Cargo bin (PATH)' \
@@ -77,6 +79,15 @@ test-cli:
 
 test-browser:
 	node --test --test-timeout=10000 clients/browser/tests/*.test.js
+
+install-browser-tools: toko-tooling-check
+	npm ci --ignore-scripts --prefix clients/browser
+
+browser-tools-check:
+	npm ls --prefix clients/browser --all
+
+test-browser-runtime: toko-tooling-check
+	BROWSER="$(BROWSER)" node clients/browser/tests/runtime.js
 
 test-local:
 	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --lib local::
@@ -181,6 +192,6 @@ test-example-local:
 	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --example local_asset
 
 documentation-links-check:
-	@find docs clients -type f -name '*.md' -print0 | xargs -0 perl vendor/toko-tooling/scripts/ci/check-documentation-links.pl --root . *.md
+	@find docs clients -name node_modules -prune -o -type f -name '*.md' -print0 | xargs -0 perl vendor/toko-tooling/scripts/ci/check-documentation-links.pl --root . *.md
 
 ci: toko-tooling-check fmt-check clippy clippy-qualification test-references test-caffeine test-local test-cli test-browser example-local test-example-local docs-check docs-qualification-check documentation-links-check

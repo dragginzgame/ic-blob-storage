@@ -591,5 +591,42 @@
         "sha256": "db515314ed8f76325aae3b83e08efaedbcd300e102e7ea25971dda03ebf63065"
       }
     ]
+  },
+  "browser_preflight": {
+    "observed_date": "2026-11-15",
+    "method": "OPTIONS",
+    "origin": "http://127.0.0.1:49152",
+    "requested_method": "PUT",
+    "requested_headers": [
+      "content-type",
+      "x-caffeine-project-id"
+    ],
+    "requests": [
+      {
+        "url": "https://blob.caffeine.ai/v1/blob-tree/",
+        "status": 200,
+        "allow_origin": "*",
+        "allow_methods": "GET, PUT, HEAD, OPTIONS",
+        "allow_headers": "Content-Type, X-Caffeine-Project-ID, X-Dry-Run",
+        "sha256": {
+          "headers": "e55ee482b1f0a2d2b974fdd8a7307282c0d54c038a42dfadc5a97cd81d3b974e",
+          "body": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "status": "c11e3f4837efde2441e23a7b9da02131f53bf59fddeb7147c4ab81afe400460f"
+        }
+      },
+      {
+        "url": "https://blob.caffeine.ai/v1/chunk/",
+        "status": 200,
+        "allow_origin": "*",
+        "allow_methods": "GET, PUT, HEAD, OPTIONS",
+        "allow_headers": "Content-Type, X-Caffeine-Project-ID, X-Dry-Run",
+        "sha256": {
+          "headers": "60a8cf443fae3ea3b0aa6988c7c2f4bc1bee4288456a577c908c5009e3134c8a",
+          "body": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "status": "c11e3f4837efde2441e23a7b9da02131f53bf59fddeb7147c4ab81afe400460f"
+        }
+      }
+    ],
+    "limits": "Two bodyless preflights only: no proof, object, cookies reused, redirect or retry. Advertised CORS is not gateway admission, account support, authority lifetime or closure. X-Dry-Run remains unused and unqualified."
   }
 }

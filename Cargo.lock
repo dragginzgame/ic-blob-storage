@@ -1179,7 +1179,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage"
-version = "0.100.9"
+version = "0.100.10"
 dependencies = [
  "ic-platform-types",
  "ic-storage",
@@ -1191,7 +1191,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-canister"
-version = "0.100.9"
+version = "0.100.10"
 dependencies = [
  "ic-blob-storage",
  "ic-platform-runtime",
@@ -1203,7 +1203,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-cli"
-version = "0.100.9"
+version = "0.100.10"
 dependencies = [
  "clap",
  "ic-blob-storage",
@@ -1219,7 +1219,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-reference-app"
-version = "0.100.9"
+version = "0.100.10"
 dependencies = [
  "ic-blob-storage",
  "ic-platform-runtime",
@@ -1387,9 +1387,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire"
-version = "0.24.0"
+version = "0.24.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d8240a8ddc2ffb139f0327f9acf6c85cb38026f526e8a856cbcc86843358980"
+checksum = "6811e5270a9c430cf0b1cf86ba4c8f6a3c15b597cd8f2f99fa2af7a4f82e1297"
 dependencies = [
  "bytemuck",
  "postcard",

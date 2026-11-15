@@ -2,7 +2,13 @@
   "name": "@dragginzgame/ic-blob-storage-browser",
   "private": true,
   "type": "module",
-  "exports": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./certificate": "./src/certificate.js",
+    "./custody": "./src/custody.js"
+  },
   "engines": { "node": ">=24" },
-  "scripts": { "test": "node --test --test-timeout=10000 tests/*.test.js" }
+  "scripts": { "test": "node --test --test-timeout=10000 tests/*.test.js" },
+  "dependencies": { "@tokostudios/ic-platform": "0.2.0" },
+  "devDependencies": { "esbuild": "0.28.2" }
 }

@@ -33,7 +33,9 @@ Read [the current handoff](docs/status/current.md) first.
 - The maintainer approved a minimal owned browser transfer client in `clients/browser/`.
   Keep immutable preparation, existing-proof input, a caller-owned durable claim,
   serial PUTs and no automatic retries. Node 24+ runs `make test-browser`; there
-  are no npm runtime dependencies. It must stay independent of the Storage rewrite;
+  are no runtime dependencies in the byte-transfer entry point. Optional proof/custody
+  uses published npm Platform and IndexedDB; prepare it with `make install-browser-tools`.
+  It must stay independent of the Storage rewrite;
   work around that dependency through this client boundary, not live-state reset.
 - The accepted [crate layout](docs/design/ic-blob-storage-design.md#selected-crate-layout)
   uses a thin standalone host and a Canic-owned adapter. The maintainer-approved
@@ -101,6 +103,12 @@ is implemented; publication means the owning user's catalog decision.
 activation through signed requests and certificate verification against an owned
 local HTTP gateway/root. It covers custody, interruption boundaries and reopened
 admission, not the live IC or provider effects.
+`make test-browser-runtime BROWSER=/absolute/path/to/chrome` qualifies the ES module
+in isolated Chromium: authenticate retained local IC proof, exercise the bounded
+browser custody adapter and local cross-origin reads/PUTs. Reload refuses replay
+after success, a lost reply or in-flight cancellation. This does not qualify
+provider acceptance, profile rollback or multi-device custody.
+It installs no browser and stays separate from Node CI and provider qualification.
 Package inventory is `make deps-list`;
 `make update` delegates to the shared `deps-update` target for Cargo lock updates.
 LOC is `toko-cloc`. An exact tooling-pin change still requires the authenticated

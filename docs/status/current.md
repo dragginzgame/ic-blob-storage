@@ -2,21 +2,19 @@
 
 ## Delivery and scope
 
-Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.9 is pushed** at
-[`c78dbcd`](https://github.com/dragginzgame/ic-blob-storage/commit/c78dbcd3e6d3f20de51e0e4167a270d2e54b47fa).
-Remote branch and annotated `v0.100.9` peeled tag were verified. Four product
-packages and both locks select 0.100.9; qualification versions remain independent.
-Publication stays disabled. The delivery-only review belongs to this checkpoint.
+Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.10 is prepared**.
+The four product packages and both locks select 0.100.10; qualification versions
+remain independent. Publication stays disabled. Branch/tag delivery is pending.
+This checkpoint adds browser proof/custody/transport and qualifies Wire 0.24.1.
 
 Rust 1.100.0, Tooling 0.44.4 (49-file snapshot), Platform 0.33.7, Runtime 0.22.5,
-Types 0.20.4, Wire 0.24.0, Testkit 0.106.0/PocketIC 16.1.0 are selected.
+Types 0.20.4, Testkit 0.106.0/PocketIC 16.1.0 remain selected.
 Both workspaces use Wire's root codec API and explicit payload/frame encoding.
-Defer Wire 0.24.1's tooling-only refresh to next dependency maintenance; other direct
-first-party releases match Cargo's latest (`target/01009-release-suppliers.log`).
-`blob 0.100.9` is installed on PATH; `make blob` updates it through Cargo.
+Both graphs select Wire 0.24.1, qualified by the final-version release gates.
+The registry review found all selected first-party suppliers current on 2026-11-15.
+`blob 0.100.10` is installed on PATH; `make blob` updates it through Cargo.
 [Storage inspection](../operations/storage-inspection.md) owns CLI usage and limits.
-Product Service still owns one 64 KiB store and 64 historical uploads/references;
-final release retains exposure. Supported [maintenance](../operations/standalone-maintenance.md)
+Service owns one 64 KiB store and 64 historical uploads/references; release retains exposure. Supported [maintenance](../operations/standalone-maintenance.md)
 drains calls and retains original identities; unknown execution is not safe retry.
 No unrestricted-controller rollback/snapshot continuity guarantee exists.
 
@@ -29,27 +27,27 @@ never export the wallet key, import legacy custody or resume legacy obligations.
 
 The [local callback/issuer candidate](../design/caffeine-contract-review.md#local-callback-candidate--development-01009)
 uses Service and bounded receipts, retaining exposure after acknowledgment.
-Original certified results remain recoverable after release; this neither revokes
-authority nor qualifies provider acceptance. CLI retains one root-bound request before
+Original certified results remain recoverable after release, without revocation or provider acceptance. CLI retains one root-bound request before
 one guarded Agent invocation; concurrent or partial claims refuse replacement.
 Agent HTTP 429/503 retries retain the same packet; no exactly-one-HTTP-attempt claim.
 Read-only recovery preserves original identities and existing output. The capacity
 requirement is filed as [ic-storage-new #1](https://github.com/dragginzgame/ic-storage-new/issues/1).
-The maintainer says Storage will be replaced; work around it for now. Its
-`d409068` scaffold supplies no retained-image transition. No sibling edits.
+Committed Storage 0.1.7 (`066c51f`) has native and installed checkpoint experiments,
+but no importer for this retained image. Its dirty supplier edits were excluded; no sibling edits.
 The maintainer approved replacing the external-SDK-only rule with a minimal owned
 [browser transfer client](../../clients/browser/README.md). It now snapshots bounded
 bytes, prepares the declaration, takes existing proof and sends serial PUTs after
 a durable claim, then verifies reads; no automatic retry or Storage dependency.
-No legacy patch, SDK fork, private-method override or global fetch hook is adopted.
 The installed journey authenticates original proof through offline `claim-transfer`,
 sends actual loopback PUTs, verifies a six-chunk read and publishes through the real
 reference app. Corruption, interrupted replies and termination leave unpublished
 drafts; restarts cannot replay uploads. Explicit `readVerified` reconciliation now
 uses one GET and the original declaration before a separate catalog decision;
-cancellation still wins. **Next:** review the current Storage replacement for the
-retained-image transition and select a supported host/client deployment before
-live upload. Browser and provider qualification remain separate.
+cancellation still wins. Chromium checks PUT/read and reload replay refusal after
+success, a lost reply or cancellation. Optional browser custody now authenticates
+local IC proof and retains 64 permanent root claims under one fixed binding.
+**Next:** qualify application deployment/continuity and the Storage-owned retained
+image transition before live-owner reuse; public CORS alone does not admit uploads.
 Keep the live probe unchanged: its one-slot directory cannot host this composition;
 reuse needs a Storage-owned migration and positive lifecycle witness. No retry,
 reset, funding or new link follows from the local callback implementation.
@@ -60,8 +58,7 @@ D0 stays open for enrollment, callback identity/object scope, enforced bounds,
 original-proof recovery/lifetime and charge closure. D1 is partial. D2 now has
 funding, installation, allocation, owner-origin refusal and a missing-tree HTTP
 404 witness, **no positive gateway-admission or upload witness**. Keep declared bytes, unresolved exposure,
-and unfrozen API/persistence. The callback owner adds library behavior;
-standalone exports and Service format remain unchanged.
+and unfrozen API/persistence. Standalone exports and Service format remain unchanged.
 
 ## Live custody — preserve, never repeat funding or creation
 
@@ -106,23 +103,28 @@ standalone exports and Service format remain unchanged.
   query returned null. No certificate, write or retry. This does not qualify
   upload admission or project scope; `X-Dry-Run` remains unqualified and unused.
 
-All six custody directories are private/Git-ignored, not disposable build output.
-The installed-probe bullet above describes its initial state; it is now consumed.
+Two bodyless public PUT preflights returned HTTP 200 with the required CORS headers;
+`.operations/caffeine-preflight-010010/` retains raw replies/hashes, no objects or proof.
+All seven custody directories are private/Git-ignored, not disposable build output.
+The probe is now consumed; its installation bullet describes the initial state.
 A requested target balance is not an enforced liability cap. Mainnet/root-key
 selection is explicit; the existing named signer was used without exporting keys.
 
 ## Qualification and integration
 
-Tooling was installed through its pinned installer; package paths match their names.
-Both graphs have one Wire 0.24.0 identity. Final-version `make ci` and all eight
-installed suites pass (`target/01009-release-{ci,installed}.log`), including 22 browser
-tests and ten catalog scenarios. Earlier retained Wire 0.22.4 host/app/CLI checks
-prove exercised record/custody reopening (`target/01009-wire-installed.log`), not
-arbitrary compatibility or a live probe upgrade. Node 24+ is required; no npm install.
-No deployed browser, provider acceptance or settlement claim is made. The
+Final-version `make ci` and all eight installed suites pass on Linux, with Wire
+0.24.1 (`target/010010-release-{ci,installed}.log`). They include the ten catalog
+scenarios, 24 Node tests and three Chromium 156.0.8078.4 scenarios. Browser proof,
+strict IndexedDB claims, interruption, cancellation and replay refusal are exercised.
+Node 24+ and explicit `make install-browser-tools` select npm Platform 0.2.0
+and esbuild 0.28.2. Earlier Wire 0.22.4 reopening evidence remains in
+`target/01009-wire-installed.log`; it is not arbitrary format compatibility.
+No release gate changes the live probe or qualifies its upgrade.
+No profile rollback, eviction, multi-device or native macOS qualification is claimed.
+No deployed application, provider acceptance or settlement claim is made. The
 [enrollment probe](../design/caffeine-contract-review.md#single-use-enrollment-probe--local-qualification-for-01008)
 remains 0.100.8; its live consumed attempt and custody are unchanged.
-Exact live-probe inputs remain in installation custody's `source-before-release-01008/`.
+Live-probe inputs remain in installation custody's `source-before-release-01008/`.
 
 Canic adapter/catalog at `b36f6a39a67f487def523c847423fdfdb8d60c50` has five installed
 witnesses naming Blob `50fe84b`; do not relabel them for newer suppliers. D3 remains
@@ -131,20 +133,7 @@ to Canic. No Canic source changed. Legacy stays read-only at
 `25bed1352f3d2b9659f0d2583f50fa9af859ea84`; reuse lessons for current consumers,
 not its multi-operation journals, refund engine or substitute-service graph.
 
-## Post-push architecture review — 0.100.9
+## Delivery review
 
-Reviewed `86fc663..c78dbcd` after push using the installed baseline's pinned
-complexity method and this release's AGENTS overlay: callbacks, CLI custody,
-client/catalog callers, Wire adoption and qualification. No actionable sediment
-found in that scope. Service owns Open/Closing references and exposure; callbacks
-only retain gateway acknowledgments. CLI root/dispatch/transfer claims refuse
-partial or repeated work. Client attempt/read outcomes never decide publication.
-Protocol changes belong to client/issuer boundaries; retention changes belong to
-Service. Reusing the live probe still needs Storage's retained-image transition.
-Permanent claims and authenticated recovery remain necessary; no generic journal,
-second catalog or codec compatibility layer was added. Legacy lessons cited in
-the contract review are requalified locally; no legacy custody was imported.
-Current Rust: 4,299 product, 9,091 tests, 396 examples, zero tooling; JS client: 244.
-Physical-line growth versus 0.100.8: crates +1,166 (with tests), qualification +2,525,
-clients +1,039 (with docs/tests). These are not code-LOC deltas. Growth covers real
-interruption/replay boundaries. Live provider/browser qualification remains open.
+The [0.100.9 review](https://github.com/dragginzgame/ic-blob-storage/blob/61d4ce02e7afd421bb48d9b8e5a198333e6055a0/docs/status/current.md#post-push-architecture-review--01009)
+remains historical evidence. Review the exact 0.100.10 pushed commits after delivery.

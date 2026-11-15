@@ -486,6 +486,68 @@ this review. The geometry proposal above applies to the existing
 format only; it does not prescribe the rewrite's layout or require importing that
 format. Publication/adoption and live execution remain separate.
 
+#### Storage successor review — development 0.100.10
+
+Read-only review of committed `ic-storage-new`
+[`0.1.7 / 066c51f`](https://github.com/dragginzgame/ic-storage-new/tree/066c51f20b07fd170a02c5ef5d5b9cf51971641f)
+finds real M0 byte-image admission and graph mutation, plus native scalar/vector
+and installed checkpoint experiments. Its selected native collection/conversion architecture
+is still research; neither the product API nor these experiments import Storage
+0.74.1's directory and enrollment receipt. The successor explicitly requires an
+importer through the old format's owner, not reinterpretation of its bytes. This
+advances the earlier scaffold assessment without closing the existing-owner gate.
+The sibling's dirty ongoing implementation was excluded; only committed evidence
+was read, without changing or executing that checkout.
+
+Keep the selected live probe and Storage dependency unchanged. Revisit
+[ic-storage-new #1](https://github.com/dragginzgame/ic-storage-new/issues/1) when its
+owner supplies the retained-image path; then qualify the exact consumed image and
+stopped upgrade before proposing a live effect. No parallel memory owner or new
+canister is needed for independent client work.
+
+That independent work now includes [actual Chromium transport qualification](../../clients/browser/README.md):
+immutable preparation against the retained Rust/SDK six-chunk vector, cross-origin
+HTTP reads and browser refusal/cancellation behavior. The existing legacy browser
+[patch contract][patch] supplies the snapshot-before-await and no-implicit-retry
+lessons; no patch, gateway journal or legacy implementation was imported. The
+peer accepts actual tree/chunk PUTs with an authenticated retained local PocketIC
+certificate, checks serial dispatch and exact bytes, and serves verified readback.
+Published npm Platform 0.2.0 owns certificate/delegation verification, request
+inspection and Candid decoding. The byte-transfer entry point remains dependency
+free; optional proof/custody entry points use Platform and native IndexedDB.
+One fixed trusted origin/profile holds 64 permanent root claims, bound to issuer,
+trust root and provider selectors. Explicit fresh provisioning never substitutes
+for recovery. A strict transaction commits before any PUT; missing/changed custody,
+proof corruption, concurrent duplicate claims and replacement provisioning refuse.
+The first two isolated runs cover successful acknowledgment and a truncated final reply
+after all bytes arrive. The latter reports possible exposure and six prior HTTP
+acknowledgments, without marking the final PUT acknowledged. After page reload,
+`add` refuses the existing key and no second PUT occurs; an explicit GET verifies
+the peer's received bytes against the original declaration in both complete cases.
+The third run cancels only after the peer receives the first chunk, while its reply
+is held. The request closes, only tree plus first chunk arrive, reload cannot send
+another PUT, and explicit readback refuses the incomplete body. Cancellation does
+not retract received bytes or erase the claim. This
+retains the legacy [transaction-completion invariant](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/clients/browser/intents.js),
+without importing its journal or making browser storage the application authority.
+Passing this one-profile test does not establish provider acceptance or custody
+continuity under eviction, stale restore or multiple devices. Historical certificate
+time checking is intentionally disabled; authentication proves the original reply,
+not current application permission or provider authority lifetime. All 24 Node
+tests and three Chromium scenarios pass in `target/010010-browser-auth.log`.
+The browser adapter is experimental; deployment continuity remains unqualified.
+Native CLI proof/custody remains independently qualified by installed tests.
+
+Two separate bounded OPTIONS requests to Caffeine's `/v1/blob-tree/` and
+`/v1/chunk/` returned HTTP 200 with wildcard origin, PUT support and the requested
+Content-Type/X-Caffeine-Project-ID headers. The [compact observation](caffeine-observation.json)
+retains sanitized headers and response hashes; private raw custody is in
+`.operations/caffeine-preflight-010010/`. These bodyless calls issued no certificate,
+object, payment or retry. They establish advertised public CORS policy only, not
+a working account-bound upload. `X-Dry-Run` was advertised but remains unused
+and unqualified. Positive admission, authority lifetime, deletion and charge
+closure still require the retained-image transition and a bounded live trial.
+
 #### Local callback candidate — development 0.100.9
 
 `make test-callbacks` qualifies a fresh **local** composition of the existing
@@ -943,11 +1005,12 @@ implementation dependency; live provider qualification remains open.
 
 The first [browser client](../../clients/browser/README.md) now prepares bounded
 immutable files and the candidate tree, then sends one tree PUT and serial chunks.
-It has no IC/Storage/npm runtime dependency. Its required caller-owned durable
-claim precedes all PUTs; one-use handles alone are not cross-restart replay
-protection. Certificate authentication stays with the caller's existing IC client,
-and HTTP acknowledgments are not availability or settlement. No general resume
-engine, browser database, transfer scheduler or replacement service ledger is added.
+Its byte-transfer entry point has no IC/Storage/npm runtime dependency. Its required
+caller-owned durable claim precedes all PUTs; one-use handles alone are not cross-restart replay
+protection. Certificate authentication can use the optional Platform-backed
+browser adapter above or the caller's existing IC client. HTTP acknowledgments
+are not availability or settlement. The optional bounded claim database introduces
+no general resume engine, transfer scheduler or replacement service ledger.
 
 Twenty-two Node Web API tests cover original Rust/SDK root vectors, input/proof
 mutation, bounded admission/replies, durable-claim ordering, concurrent-use refusal,
@@ -996,7 +1059,8 @@ retain the same original-proof, no-reset and verify-before-use lessons. Its brow
 database, worker bridge, per-request journal and patched SDK are not required for
 this single-attempt native custody consumer. We reuse the existing Host FS owner
 and shared hash routine instead; no legacy implementation or recovery record is
-imported. A real browser still needs qualified application custody and transport.
+imported. The browser adapter above now qualifies local proof/custody/transport;
+a deployed application still needs its continuity and permission arrangement.
 
 The [legacy certificate client][certificate-client] retains the signed ingress
 envelope/request ID before dispatch and can query the original IC request status.

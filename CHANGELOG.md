@@ -1,5 +1,55 @@
 # Changelog
 
+## [0.100.10] - 2026-11-15
+
+GitHub development checkpoint on branch `0.100`; registry publication stays disabled.
+Adds browser verification of original IC proof and a bounded permanent upload-claim
+store, with real Chromium transfer and replay qualification.
+
+### ▶️ Try it
+
+With Node 24+ and an installed Chromium executable, run from the repository root:
+
+```sh
+make install-browser-tools
+make test-browser-runtime BROWSER=/absolute/path/to/chrome
+```
+
+Expect real-browser multi-chunk transfer/read verification and refusal checks against two
+owned loopback origins. It uses a disposable browser profile; no wallet or provider
+access is needed; explicit setup installs locked npm dependencies without scripts.
+
+### 🧪 Testing
+
+- Qualify immutable preparation and read verification in actual Chromium using
+  Web Crypto, cross-origin Fetch and Streams. Check corruption, short/excess bodies,
+  partial status, redirect/CORS refusal, stream deadlines and pre-cancellation;
+  the peer verifies one GET per attempted read. Keep this opt-in browser check
+  separate from Node CI and from live-provider qualification.
+- Exercise actual cross-origin PUT preflight, serial tree/chunk transfer and
+  received-byte readback. The experimental strict IndexedDB claim commits before transfer
+  and refuses replay after page reload, including when the final HTTP reply breaks
+  after all bytes arrive. Explicit read-only reconciliation verifies those bytes
+  without another PUT. Authenticate retained local IC proof through published
+  Platform 0.2.0, then retain the original request/proof in a fixed 64-claim store.
+  Refuse missing/replaced custody, changed bindings, altered proof and competing
+  claims. No current authority, profile rollback or multi-device guarantee.
+- Cancel after the first chunk reaches the real browser peer while its reply is
+  pending. Check that no later chunk arrives, reload cannot restart the transfer,
+  and read-only reconciliation rejects the incomplete bytes.
+
+### 🔬 Provider and dependency evidence
+
+- Both Caffeine upload routes return HTTP 200 to bounded public PUT preflights;
+  advertised CORS is not positive upload admission. No object, proof or payment
+  was issued. Keep the live owner unchanged pending a Storage-owned transition.
+- Review committed Storage 0.1.7: native/checkpoint progress does not yet import
+  the retained 0.74.1 image. The dirty supplier checkout remains untouched.
+- Lock npm Platform 0.2.0 and qualification bundler esbuild 0.28.2, both current
+  stable at selection. Both Cargo graphs select Wire 0.24.1; final-version CI and
+  all eight installed suites pass. The first-party registry review found no newer
+  stable suppliers than the selected versions. Native macOS remains unqualified.
+
 ## [0.100.9] - 2026-11-15
 
 GitHub development checkpoint on branch `0.100`; not published to crates.io.

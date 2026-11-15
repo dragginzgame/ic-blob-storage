@@ -2,16 +2,22 @@
 
 Experimental, unpublished ES module. It runs independently of Canic and IC
 Storage. It prepares one immutable file and sends the observed Caffeine tree/chunk
-protocol with an existing certificate. No dependency on the provider SDK, patched
-package, global fetch interception, wallet, IC endpoint or persistence engine.
+protocol with an existing certificate. The byte-transfer entry point uses only
+Web APIs. Optional proof/custody modules
+use published Platform verification and IndexedDB; no provider SDK patch, wallet,
+signing, IC call or automatic certificate acquisition is introduced.
 
 From the repository root, with Node 24+ on PATH:
 
 ```sh
+make install-browser-tools
 make test-browser
 ```
 
-No npm install is needed: the module uses standard Web Crypto, Fetch and Streams.
+Setup runs locked `npm ci --ignore-scripts`: Platform 0.2.0 supplies IC verification;
+esbuild 0.28.2 bundles the browser qualification entry point. Both were the latest
+published stable versions at selection. Normal tests never install dependencies.
+The byte-transfer entry point itself uses standard Web Crypto, Fetch and Streams.
 The tests use Node's Web APIs, retained first-party protocol vectors and an owned
 loopback HTTP server. They do not qualify a deployed browser or Caffeine gateway.
 `make test-callbacks` adds the real installed reference application: the same
@@ -19,6 +25,43 @@ six-chunk declaration goes through authorization, proof recovery, transfer,
 verified read and catalog publication. Actual connection cuts and client-process
 termination retain unpublished drafts; restarting cannot replay the transfer. See the
 [composition evidence](../../docs/design/reference-application.md#transfer-and-verified-read-composition--development-01009).
+
+For actual Chromium transport qualification, supply an installed executable explicitly:
+
+```sh
+make test-browser-runtime BROWSER=/absolute/path/to/chrome
+```
+
+This launches a separate disposable profile, serves the real ES module and reads
+from a second loopback origin with CORS. It checks the original six-chunk vector,
+input mutation, read corruption/truncation/excess, partial HTTP status, refused
+redirects, missing CORS permission, a stream deadline and pre-cancellation. The peer
+counts requests to detect retries or redirect following. Diagnostics stay under
+`target/browser-runtime-*/`; profiles are removed after the run, including failures.
+It also authenticates a retained local PocketIC certificate against its original
+request, uploader, issuer and root, then sends one tree and six chunks. The shipped
+experimental custody module commits an IndexedDB claim with strict durability
+before returning permission to send. Missing custody, changed provider binding,
+corrupt or altered proof, replacement provisioning and concurrent claims refuse.
+The peer checks CORS preflight, serial PUTs (including a held
+chunk reply), exact received bytes and readback. Three isolated runs cover successful
+acknowledgments, a broken final HTTP reply after all bytes arrive, and caller cancellation
+while the first chunk reply is held. Failures report possible exposure, the interrupted
+chunk index and only prior acknowledgments. The cancellation barrier waits for actual
+peer receipt; abort must close that request and no later chunk may arrive.
+A full page reload recreates the client; the retained claim refuses a second
+transfer before any PUT. A separate explicit GET then verifies received bytes,
+including after the uncertain final reply; incomplete cancelled bytes must refuse.
+No automatic upload retry or publication follows. Each run tests one origin/profile,
+not eviction, stale-profile restore, power loss or multi-device coordination.
+The retained public proof and local trust root cannot authorize mainnet. This
+optional target requires Node 24+ and the explicit npm setup above; it installs no
+browser. Native macOS execution remains unqualified.
+Chromium 156.0.8078.4 passed locally for development 0.100.10. This is browser
+execution against a controlled HTTP peer, not a deployed application or evidence
+of Caffeine upload admission or serving behavior. Separate bodyless OPTIONS calls
+to its two public upload routes returned HTTP 200 and advertised PUT, wildcard
+origin and the required headers; see the [provider observation](../../docs/design/caffeine-observation.json).
 
 ## Application boundary
 
@@ -40,10 +83,11 @@ const result = await prepared.upload({
 // result.outcome === "http-acknowledged"; not availability or publication approval.
 ```
 
-This is integration pseudocode: application authorization, certificate
-authentication and `persistOriginalTransferClaim` are required caller capabilities,
-not supplied stand-ins. The native `blob` commands retain and authenticate original
-IC request results; this module does not parse or authenticate certificates. A
+This is integration pseudocode: application authorization and
+`persistOriginalTransferClaim` must be real capabilities. The byte-transfer module
+does not parse certificates. The opt-in browser adapter below supplies historical
+proof authentication and a bounded claim store; native `blob` commands separately
+retain and authenticate original IC request results. A
 matching `certificate.root` is an input binding, not cryptographic proof. The
 caller must independently bind the actual proof to its issuer, root, uploader and
 original request before passing it here. Keep the proof private and retained.
@@ -65,14 +109,63 @@ original issuer/uploader/root/trust inputs. Return true only after process succe
 It re-authenticates the saved proof before permanently claiming the root's transfer;
 even a partial claim prevents another process or gateway selection from replaying.
 The installed fixture exercises this real adapter, including a fresh-process refusal.
-Browser applications still supply their own durable claim implementation; they
-cannot run the native CLI. Application permission and cancellation remain caller
-responsibilities: an authentic historical proof does not grant current permission.
+Browser applications can select the experimental adapter below; they cannot run
+the native CLI. Application permission and cancellation remain caller responsibilities: an authentic historical proof does not grant current permission.
 
 This explicit callback works around the current Storage rewrite by keeping
 transfer preparation independent of canister persistence. It is not a new storage
 adapter or an alternate ledger. The existing live enrollment probe remains
 unchanged; this client does not provide its upgrade/migration path.
+
+## Experimental browser proof and custody
+
+Select one trusted HTTPS application origin/profile and a fixed issuer, trust root,
+gateway, project and bucket. Bundle the npm entry points with the application.
+Provision only a deliberately fresh installation, never in response to a failed
+upload or missing browser data:
+
+```js
+import { initializeCustody, createTransferClaim } from "./clients/browser/src/custody.js";
+
+// One explicit provisioning action, outside upload/recovery flows:
+await initializeCustody({ issuer, rootKey, gateway, project, bucket });
+
+// Later, after current application permission is checked:
+const custody = await createTransferClaim({
+  issuer, uploader, root: prepared.declaration.root, rootKey,
+  request: originalSignedRequestBytes, certificate: originalCertificateBytes,
+  gateway, project, bucket,
+});
+const result = await prepared.upload({ gateway, owner: issuer, project, bucket,
+  ...custody, signal: cancellation.signal });
+```
+
+Platform authenticates the certified reply and delegation against caller-selected
+trust bytes. The request content identifies the certified request ID; this is not
+separate verification of the ingress envelope's outer signature. The method,
+argument root, uploader and issuer must match, and the certified reply must say
+`upload` for that root. Certificate time checking is deliberately disabled for
+historical recovery. This proves an original reply, never current application
+permission, provider acceptance or certificate lifetime. No IC network call occurs.
+Input bounds are 8 KiB request, 128 KiB certificate and 1 KiB trust root, copied
+before awaits. These are byte limits, not a general decoder allocation guarantee.
+
+The fixed IndexedDB database retains at most **64 permanent root claims**, each
+with original request/proof and its authenticated identities. One read/write
+transaction checks the installation binding and capacity before inserting the
+claim; only its strict-durability completion permits transfer. Each root gets one
+attempt across upload IDs and uploaders. There is no eviction, release, retry,
+compaction or reset API. Exhaustion refuses new transfers; existing claims remain.
+Changing configuration cannot create a second namespace in the same database.
+Cancellation after commit consumes the claim even if no PUT follows.
+
+Missing, blocked, incompatible or changed storage refuses. Browser eviction,
+manual clearing, rollback and a second profile/device cannot be detected or
+coordinated by this local store: preserve the installation and stop if continuity
+is unknown; never initialize a replacement as recovery. Application login,
+current reference permission and catalog decisions remain outside this adapter.
+API and persistence are experimental and unfrozen. A deployed application's
+custody/continuity arrangement still needs qualification.
 
 ## Exact limits and outcomes
 
@@ -172,3 +265,7 @@ The author inspected published SDK 1.1.2 interfaces/source; this is not a clean-
 claim. No SDK implementation, legacy patch or third-party test was copied.
 Root expectations are the existing first-party frozen observations also used by
 the [Rust verifier tests](../../crates/ic-blob-storage/src/caffeine/tests.rs).
+The runtime fixture's commit-before-dispatch rule follows the inspected legacy
+[IndexedDB owner](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/clients/browser/intents.js):
+transaction completion admits effects; request success alone does not. Only this
+invariant is retained, independently exercised here without its journal architecture.

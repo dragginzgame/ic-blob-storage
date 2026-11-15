@@ -15,8 +15,10 @@ It sends serial PUTs after a caller-owned durable claim, with no automatic retri
 It verifies complete reads against the original declaration before returning an
 immutable Blob; `readVerified` can reconcile an uncertain upload using only a GET,
 followed by the owner's separate catalog decision. It needs neither Canic nor
-Storage. Its local checks use Node 24+
-(`make test-browser`); browser deployment and live Caffeine acceptance remain unqualified.
+Storage. Optional Platform-backed proof authentication and a bounded IndexedDB
+claim store support one trusted browser installation. Prepare with
+`make install-browser-tools`, then run `make test-browser` (Node 24+). Browser
+deployment and live Caffeine acceptance remain unqualified.
 
 The [experimental local model](crates/ic-blob-storage/src/local/mod.rs) composes
 these rules with application/uploader permissions, exact grant replay, shared
@@ -118,7 +120,8 @@ toko-cloc
 ```
 
 Run these from the repository root. `make install-tools` explicitly downloads and
-authenticates the selected tools and local PocketIC server; `make install-test-server`
+authenticates the selected tools and local PocketIC server, and installs locked
+browser npm dependencies without install scripts; `make install-test-server`
 can prepare that server alone. `make test-standalone` lints/builds the production
 Wasm and exercises callers, cleanup and repeated upgrades in a fresh local instance.
 It requires `wasm32-unknown-unknown` and makes no Caffeine calls. `make ci` is the

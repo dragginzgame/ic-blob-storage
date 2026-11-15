@@ -1,5 +1,6 @@
 /target/
 /qualification/target/
+**/node_modules/
 /.tools/
 /.operations/
 /.toko-tooling-refresh.*/
