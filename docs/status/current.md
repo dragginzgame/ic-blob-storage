@@ -2,19 +2,22 @@
 
 ## Delivery and scope
 
-Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.8** is prepared
-for the requested GitHub checkpoint. Product crates and both locks are coordinated;
-publication stays disabled. “Push” means a new GitHub patch checkpoint.
+Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.8 is pushed** at
+[1f64dcf](https://github.com/dragginzgame/ic-blob-storage/commit/1f64dcf8c2f84da2e2524baae1615bc92e334670),
+with annotated tag `v0.100.8`; remote branch and peeled tag were verified.
+**0.100.9 is open for development**, with no implementation change yet. Product
+manifests/locks remain at delivered 0.100.8 until the next requested push;
+publication stays disabled. Delivery-only review commits belong to this checkpoint.
 
 Release validation passed: 46 native tests, 11 installed cases, strict Clippy,
 Rustdoc, formatting and links; logs are `target/release-01008-{ci,installed}.log`.
 Product LOC remains 3,617; tests 6,392 (+886), examples 396, unclassified Rust 0.
-Post-push review remains due after the delivery; these checks do not qualify
-live-provider closure or upload admission.
+The scoped post-push review below covers this delivery; these checks do not
+qualify live-provider closure or upload admission.
 
 Rust 1.100.0, Tooling 0.44.3 (49-file snapshot), Platform 0.33.7, Runtime 0.22.5,
 Types 0.20.4, Wire 0.22.3, Testkit 0.106.0/PocketIC 16.1.0 are selected.
-`make blob` installs the current development executable on PATH through Cargo.
+`blob 0.100.8` is installed on PATH; `make blob` updates it through Cargo.
 [Storage inspection](../operations/storage-inspection.md) owns CLI usage and limits.
 Product Service still owns one 64 KiB store and 64 historical uploads/references;
 final release retains exposure. Supported [maintenance](../operations/standalone-maintenance.md)
@@ -118,3 +121,26 @@ partial: immutable adoption, explicit lifecycle inputs and fleet maintenance bel
 to Canic. No Canic source changed. Legacy stays read-only at
 `25bed1352f3d2b9659f0d2583f50fa9af859ea84`; reuse lessons for current consumers,
 not its multi-operation journals, refund engine or substitute-service graph.
+
+## Post-push architecture review — 0.100.8
+
+Reviewed `1688ff1..1f64dcf` after the successful push: enrollment probe, installed
+driver, offline decoder, Make/manifest/lock changes and provider evidence.
+No actionable sediment found in this scope. One immutable attempt/result remains
+the probe's only state owner; Runtime captures callers and dispatches, Storage/Wire
+persist it, Platform decodes Candid, and Testkit owns synthetic peers. The offline
+helper only prepares/reads frames. It is not a second Blob service or funding CLI.
+The added 886 Rust lines are 549 probe/helper/tests and 337 installed driver;
+the deployed probe still carries real maintenance/custody obligations despite its
+qualification classification. Product code, examples and Rust tooling did not grow.
+Legacy carryovers are bounded intent, reply preservation and no uncertain retry,
+requalified here; no legacy journals or recovery paths were imported.
+
+Change rehearsal: a reply-shape change belongs in the offline classifier and
+fixtures, not a second persistent outcome model. Adding the provider-facing
+Service must first solve explicit storage composition/lifecycle preservation;
+the one-slot directory cannot grow merely by raising runtime limits. That bounded
+probe is retained for its actual single-use experiment, not extended into a
+general host. The next local gate above owns this work. The following delivery
+commit only opens 0.100.9 and records this review; its pushed scope must be checked
+for documentation consistency without repeating code suites.

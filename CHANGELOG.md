@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.100.9] - Unreleased
+
+Development opened after the 0.100.8 GitHub checkpoint. Product manifests and
+locks remain at the delivered version until the next requested push.
+The next slice is local provider callback and lifecycle qualification around the
+existing Service, preserving the consumed enrollment receipt. No new behavior
+or live provider effect is claimed by opening this version.
+
 ## [0.100.8] - 2026-11-15
 
 GitHub development checkpoint on branch `0.100`; not published to crates.io.
