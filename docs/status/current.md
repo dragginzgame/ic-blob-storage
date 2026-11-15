@@ -1,122 +1,120 @@
 # Current status — 2026-11-15
 
-## Delivery and next batch
+## Delivery and scope
 
-Private repository `dragginzgame/ic-blob-storage`, branch `0.100`.
-**0.100.7** is pushed at [29a4920](https://github.com/dragginzgame/ic-blob-storage/commit/29a4920458049572f213a391174250022e66aa2e).
-The four product crates and both locks select 0.100.7; the two private qualification
-packages remain independently 0.100.5. Publication stays disabled. “Push” means a
-new GitHub patch checkpoint, not crates.io publication. No live deployment was
-part of this delivery. [0.100.8 is open](../../CHANGELOG.md#01008---unreleased) for
-next work; product versions remain at the delivered checkpoint until its next push.
+Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.8** is prepared
+for the requested GitHub checkpoint. Product crates and both locks are coordinated;
+publication stays disabled. “Push” means a new GitHub patch checkpoint.
 
-`make tools-check ci` passed with **42 native tests**, strict workspace Clippy,
-Rustdoc, formatting and documentation links. All **eight installed cases** passed
-across standalone, capacity, endpoints, signed calls, reference application and
-management/overview targets. Logs are local under `target/release-01007-*.log`.
-Rust 1.100.0, Tooling 0.44.3, Platform 0.33.7, Runtime 0.22.5, Types 0.20.4,
-Wire 0.22.3 and Testkit 0.106.0/PocketIC 16.1.0 identify this Linux qualification.
-No live-provider closure or native macOS installation claim follows from these tests.
+Release validation passed: 46 native tests, 11 installed cases, strict Clippy,
+Rustdoc, formatting and links; logs are `target/release-01008-{ci,installed}.log`.
+Product LOC remains 3,617; tests 6,392 (+886), examples 396, unclassified Rust 0.
+Post-push review remains due after the delivery; these checks do not qualify
+live-provider closure or upload admission.
 
-The crate is `ic-blob-storage-cli`, the executable is `blob`. `make blob` builds and
-installs through Cargo into its normal bin directory on PATH; repeat it to update.
-`make build-cli` remains build-only; `make test-cli` checks CLI behavior.
-`blob 0.100.7` is installed at `/home/adam/.cargo/bin/blob` and works outside this
-checkout. Cargo owns installation/replacement without forced foreign-binary overwrite.
-The snapshot still owns the same 49 files; no moving sibling tooling is executed.
+Rust 1.100.0, Tooling 0.44.3 (49-file snapshot), Platform 0.33.7, Runtime 0.22.5,
+Types 0.20.4, Wire 0.22.3, Testkit 0.106.0/PocketIC 16.1.0 are selected.
+`make blob` installs the current development executable on PATH through Cargo.
+[Storage inspection](../operations/storage-inspection.md) owns CLI usage and limits.
+Product Service still owns one 64 KiB store and 64 historical uploads/references;
+final release retains exposure. Supported [maintenance](../operations/standalone-maintenance.md)
+drains calls and retains original identities; unknown execution is not safe retry.
+No unrestricted-controller rollback/snapshot continuity guarantee exists.
 
-## Current CLI and service boundaries
+## Current provider work and next action
 
-[Storage inspection](../operations/storage-inspection.md) documents `overview`,
-`provider-inspect` and `prepare-enrollment`. Application-only overview groups roots
-once across matching uploader grants and includes all application reference states.
-It derives counters from existing state; there is no new ledger or persistent
-index. Its appended Wire variant needs an updated host; durable format stays 1.
-A canister application authority needs its own authorized forwarding path: the
-native CLI cannot impersonate it. No reference-app or Canic forwarding API was added.
+The maintainer permits Caffeine calls and the existing `canic-mainnet` identity
+when exact operations and durable effect custody are ready. Do not ask again
+merely to cross that boundary. No provider issue/email outreach is authorized;
+never export the wallet key, import legacy custody or resume legacy obligations.
 
-Provider inspection reports one account's gauges and balance, not individual files
-or an aggregate of payer-funded owners. The anonymous live payer query was denied;
-no storage totals were obtained. Use a provider-authorized existing PEM signer;
-no named-wallet adapter or key export was added. Enrollment preparation only prints
-an offline proposal with explicit account/address/fee/budget inputs. It cannot pay,
-create an owner, sign authority or settle charges. Provider effects remain gated below.
-
-Blob still owns one Service, a host-granted 64 KiB store and 64 historical
-uploads/references. Reopen validates records and rebuilds accounting; missing or
-foreign state never becomes genesis. Encoding/IO failure traps for IC rollback;
-native callers discard the owner after panic. Final release retains unresolved
-exposure. The reference app owns users, target and sixteen lifetime drafts;
-cancellation precedes remote cleanup, and publication means its catalog decision.
-Supported maintenance retains original signed requests and one custody root,
-drains calls, upgrades and explicitly activates the same attempt. Unknown status
-is not proof of nonexecution. Unrestricted controllers/alternate custody can bypass
-this arrangement; no reinstall fallback or snapshot-continuity proof exists.
-See [maintenance](../operations/standalone-maintenance.md) and [application ownership](../design/application-boundary.md).
-
-## Provider continuation for 0.100.8
-
-Next: select a fresh owner/controller/subnet and qualify payment binding, owner
-allocation and gateway credit using the already-funded payer. The maintainer
-permits Caffeine calls and the local `canic-mainnet` wallet when concrete bounded
-operations and durable effect custody are ready; do not ask again merely to cross
-that boundary. No Caffeine issue/email outreach is authorized. Never resume legacy
-objects, accounts or obligations, and never export the wallet key for convenience.
-
+**Next:** qualify the [local provider-host slice](../design/caffeine-contract-review.md#gateway-preflight-and-next-local-host-gate--2026-11-15)
+around the existing durable Service and one explicit callback profile. The probe's
+persisted Storage directory has one occupied allocation slot; select and test a
+lifecycle path preserving its receipt before any service deployment. Raising
+runtime limits cannot expand that persisted capacity. The probe is consumed after a retained provider
+refusal; no retry, reset, positive-cycle fallback or new link follows from that.
 [The contract review](../design/caffeine-contract-review.md#independent-qualification--2026-11-15)
-pins DFINITY's independent Rust example at `ef29e8a6e8063c6fe654cac53a3497cab585fefa`.
-Its separate payer/owner path is the bootstrap candidate, excluding its unguarded
-issuance, reopening and live-row deletion. The [compact observation](../design/caffeine-observation.json)
-retains source identities, public-interface reads and acknowledged funding results.
-D0 stays open for enrollment, callback profile, object scope, enforced bounds,
-original-proof recovery/lifetime and charge closure. D1 remains partial; D2 has
-only the payer-funding witness. Keep declared bytes and unresolved exposure.
+and [compact observation](../design/caffeine-observation.json) own detailed evidence.
+DFINITY's example is pinned at `ef29e8a6e8063c6fe654cac53a3497cab585fefa`; its
+no-expiry example did not establish expiry/limit behavior. Static inspection of
+the published CLI recovered intended nanosecond expiry and midnight reset rules;
+the binary was never executed/adopted. Live expiry/limit enforcement is still open.
 
-Completed mint: **50,000,000,009,024 cycles** for **30.60553552 ICP** including fee;
-ICP transfer **40446894**, mint block **17206042**. Post-mint balances were
-50.415079124210T cycles and 294.03351572 ICP. Original requests/results remain in
-private Git-ignored `.operations/mint-50t-20261115/`. **Do not repeat.**
-Completed payer funding: **10.1B debit**, **9.9B Cashier credit**; ledger transfer
-**17206169**, notification block **17206177**, source balance afterward
-**50.404979124210T**. Preserve `.operations/caffeine-enrollment-01007/`; do not
-repeat either payment. Deposit address is empty; zero overdraft/disabled refill
-and no relationships were reported without a setter. Of the approved **1.0102T**
-budget, **1.0001T remains unspent** for owner creation/ledger fee. No owner,
-relationship, certificate or object exists from this rewrite yet. Payer credit
-is not owner/gateway capacity. Both custody directories remain excluded from Git.
+D0 stays open for enrollment, callback identity/object scope, enforced bounds,
+original-proof recovery/lifetime and charge closure. D1 is partial. D2 now has
+funding, installation, allocation, owner-origin refusal and a missing-tree HTTP
+404 witness, **no positive gateway-admission or upload witness**. Keep declared bytes, unresolved exposure,
+and unfrozen API/persistence. Product Rust source is unchanged in this checkpoint;
+product version metadata advances to 0.100.8 without changing supplier selections.
 
-Canic's optional adapter/catalog at `b36f6a39a67f487def523c847423fdfdb8d60c50` has
-five retained installed witnesses naming Blob HEAD `50fe84b`; newer supplier
-inputs are not relabelled as that run. D3 remains partial: immutable supplier
-adoption, explicit installation inputs and fleet maintenance belong to Canic;
-empty lifecycle arguments remain incompatible. No Canic source changed here.
-Legacy remains read-only at `25bed1352f3d2b9659f0d2583f50fa9af859ea84`; relevant
-account/history source and regressions informed this CLI slice, without importing
-source, credentials or recovery custody. No historical paid obligation was resumed.
+## Live custody — preserve, never repeat funding or creation
 
-## Post-push architecture review
+- Mint completed: **50,000,000,009,024 cycles**, **30.60553552 ICP** including fee;
+  ICP block **40446894**, mint block **17206042**. Original requests/results:
+  `.operations/mint-50t-20261115/`. Do not repeat.
+- Payer funding completed: **10.1B debit**, **9.9B Cashier credit**; transfer
+  **17206169**, notification **17206177**. `.operations/caffeine-enrollment-01007/`
+  owns custody. Zero overdraft, null target and no relationships were reported;
+  **correction:** null uses the default target; it does not disable refill.
+  deposit address was emptied. Payer credit is not gateway/owner capacity.
+- Existing owner: **`mjjg7-wqaaa-aaaai-ayghq-cai`**, creation block **17206696**;
+  sole controller `canic-mainnet`, principal
+  `o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe`.
+  Acknowledged create request selected 13-node application subnet beginning `brlsh`.
+  Debit **1.0001T**, source balance afterward **49,404,879,124,210 cycles**; the
+  original **1.0102T source budget is fully consumed**. Creation custody:
+  `.operations/caffeine-owner-01008/`. Reuse this owner; never recreate or top up
+  merely because provider admission remains unresolved.
+- Probe installation completed: one `install`, module SHA-256
+  `4fc165878bd4d4ab6334d93ec56114df64309ca79cb9088e2c44a7bafee4e0fe`, 329,459 bytes.
+  Status reported **498,369,997,713 cycles**, unchanged sole controller. Existing
+  owner funds paid execution; no additional source debit. Replicated inspection
+  confirmed expected owner/operator, Cashier `72ch2-fiaaa-aaaar-qbsvq-cai`, target
+  **1B**, **no attempt and no outcome**. `.operations/caffeine-install-01008/`
+  retains exact module/source hashes, original/routed signed install, read request,
+  dispatch claims and results. Routing metadata was corrected before submission
+  per icp 1.6.0's format; signed content stayed unchanged. No reinstall fallback.
 
-Scoped **PASS**, `50fe84b` to pushed `29a4920`, using the committed AGENTS.md overlay
-and pinned [complexity method](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/audits/complexity-and-technical-debt.md)
-(source inspection plus the release evidence above). Reviewed owners are the local
-model/Wire projection, CLI inspection/proposal/installation, native maintenance
-callers and adopted tooling. This is not a full provider or Canic audit.
+- Temporary relationship experiment completed in `.operations/caffeine-link-01008/`:
+  one 1B daily-allowance link allocated **1B immediately**, before the probe call;
+  payer audit **1416836** identifies `RelationshipAdd`. The single zero-attachment
+  owner call returned **`Err(TopUpWithoutCycles)`**, retained across a separate
+  replicated inspection. One explicit removal returned `Ok`; relationship absence
+  was read back. **8.9B payer / 1B owner** remain, plus Cashier-reported gateway
+  budget **166,666,666** with zero usage. Removal did not refund or close credit.
+  Preserve all 59 retained files/hashes, including the static artifact and exact
+  signed requests. No additional funding, certificate or object was introduced.
 
-Added axes are uploader-filtered inventory, one Cashier-account query and offline
-enrollment inputs. Application permission and deduplication stay in LocalModel;
-Service/Wire/host carry its result and the CLI renders it. Provider identity/shape
-checks stay in the private adapter, transport in Platform, installation in Cargo.
-Invalid authority, returned account, reply shape or deposit bound refuses. No
-new durable phase, policy owner, fallback, funding engine or duplicate CLI remains.
-Existing maintenance custody was mechanically moved and retains its own authority.
+- Negative gateway read: `.operations/caffeine-gateway-01008/` retains one bounded
+  GET for a never-issued root, **404 / 92 bytes**, no redirect; callback-version
+  query returned null. No certificate, write or retry. This does not qualify
+  upload admission or project scope; `X-Dry-Run` remains unqualified and unused.
 
-Two rehearsals by source inspection: an inventory-field addition touches its
-owner/DTO and CLI display; a Cashier gauge change touches the provider adapter and
-fixtures. Neither needs host policy or a new store. Keeping those separate adapters
-is justified by their different authorities/protocols; no actionable sediment was found.
-Product LOC **3,617** (+412), tests **5,506** (+387), examples **396** (unchanged),
-against the retained 0.100.6 baseline. Rust tooling LOC remains zero; the same
-49-file snapshot updates two managed LOC-reporting scripts. Growth serves the
-requested inventory and its rejection/full-history/upgrade evidence, not a new
-framework. This delivery-only handoff and next-version header add no runtime modes;
-review their actual pushed diff separately before finishing delivery.
+All six custody directories are private/Git-ignored, not disposable build output.
+The installed-probe bullet above describes its initial state; it is now consumed.
+A requested target balance is not an enforced liability cap. Mainnet/root-key
+selection is explicit; the existing named signer was used without exporting keys.
+
+## Qualification and integration
+
+The independent unpublished enrollment probe is version 0.100.8. It retains one
+immutable zero-attachment Cashier intent/result, records before await, refuses
+repeat dispatch, and preserves results through revocation and supported upgrades.
+[Probe contract, legacy comparison and live installation](../design/caffeine-contract-review.md#single-use-enrollment-probe--local-qualification-for-01008)
+distinguish synthetic provider tests from actual observations.
+
+The release reran `make test-enrollment`, including maximum record size, pending
+state reopening, three installed cases and three offline example tests.
+`decode-top-up` classifies Candid separately from Wire; it never signs/sends or
+infers credit from an Ok tag. Test-only lock additions support held replies and
+the offline Clap example; no supplier refreshed. Before the release version bump,
+the exact installed-probe inputs were retained under its private installation
+custody's `source-before-release-01008/`, verified against the original intent.
+
+Canic adapter/catalog at `b36f6a39a67f487def523c847423fdfdb8d60c50` has five installed
+witnesses naming Blob `50fe84b`; do not relabel them for newer suppliers. D3 remains
+partial: immutable adoption, explicit lifecycle inputs and fleet maintenance belong
+to Canic. No Canic source changed. Legacy stays read-only at
+`25bed1352f3d2b9659f0d2583f50fa9af859ea84`; reuse lessons for current consumers,
+not its multi-operation journals, refund engine or substitute-service graph.

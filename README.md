@@ -101,6 +101,7 @@ make test-capacity
 make test-endpoints
 make test-signed
 make test-application
+make test-enrollment
 make deps-list
 toko-cloc
 ```
@@ -128,6 +129,10 @@ and the real Blob host. The application owns bounded durable drafts and a per-us
 catalog; Blob remains the reference/accounting owner. The test exercises replicated
 inspection, cancellation during publication, interrupted cleanup, shared objects,
 capacity exhaustion and application upgrades. It performs no provider transfer.
+`make test-enrollment` checks the [single-use enrollment probe](docs/design/caffeine-contract-review.md#single-use-enrollment-probe--local-qualification-for-01008)
+against synthetic Cashier peers, including concurrent replay, revoked authority,
+bounded raw replies and durable reopening. It neither installs on mainnet nor
+qualifies Caffeine's payment, upload or charge-closure contract.
 
 `make deps-list` lists workspace package versions and release groups. `make update`
 delegates to Toko Tooling's `make deps-update` (`cargo update -v`), updating locks

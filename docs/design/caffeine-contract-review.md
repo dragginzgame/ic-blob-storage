@@ -1,6 +1,7 @@
 # Caffeine integration contract review
 
-Source review, mainnet reads and bounded payer funding, updated 2026-11-15.
+Source review, mainnet reads, bounded funding/linking and a single-use Rust probe,
+updated 2026-11-15.
 This is the provider evidence companion to the
 [rewrite design](ic-blob-storage-design.md#d0-first-gate-supported-independent-caffeine-access),
 not a selected production protocol or a complete provider qualification.
@@ -9,7 +10,9 @@ not a selected production protocol or a complete provider qualification.
 recipe. Anonymous mainnet reads now confirm the advertised Cashier ABI, gateway
 principal and price list. This supersedes the earlier search's lack of a public
 Rust enrollment recipe. A fresh payer deposit/credit now succeeds with retained
-request custody. Fresh owner enrollment, provider enforcement, safe recovery and
+request custody. The installed Rust probe now has a retained owner-origin refusal;
+a temporary payer link allocated 1B and was removed. An absent-object HTTP read
+returned 404. Positive upload admission, provider enforcement, safe recovery and
 final closure remain unqualified. Proceed through independent qualification;
 provider correspondence is not a prerequisite. Keep API/persistence experimental
 and do not describe the service as resumable or settled yet.
@@ -25,7 +28,7 @@ a source selection for review, not a registry-freshness claim or dependency adop
 | Evidence | What it establishes | Limit |
 | --- | --- | --- |
 | [DFINITY Rust example][dfinity-example] and [implementation][dfinity-storage] | Published independent deployment, account funding/linking and exact Rust callback shapes | Example source, not fresh enrollment or proof of gateway enforcement; unsafe sample policies are excluded below |
-| [November 15 mainnet observation](caffeine-observation.json) | Advertised interface, public queries and acknowledged fresh payer funding with balance/settings readback | Payer credit is not gateway capacity, independent Rust-host enrollment or proof of charge cutoff; query observations are not consensus-certified contracts |
+| [November 15 mainnet observation](caffeine-observation.json) | Funding, installation, temporary link/allocation/removal, retained owner-call refusal, reported gateway budget and one missing-tree HTTP response | Neither reported budget nor a negative read proves upload admission, callback compatibility or charge cutoff; query observations are not consensus-certified contracts |
 | [Legacy standalone trial summary][trial] | Reports two distinct authenticated uploaders, one original certificate call and two gateway PUTs each, and independently root/byte-verified 1 KiB downloads | Historical 0.73.0 behavior; private journals/artifacts were not revalidated; no representative multi-chunk or application-catalog acceptance |
 | [Legacy provider setup summary][funding] | Reports a separate payer, deposit/sweep, payer-to-owner relationship, owner allocation and spendable gateway credit | No general enrollment guarantee, namespace exclusivity, itemized price or charge cutoff |
 | [Legacy deletion follow-up][gc-readback] | November 5 summary reports the released object still DeletionPending, zero recorded acknowledgment attempts and an HTTP HEAD 200 | Historical observation only; telemetry is incomplete, HTTP may be cached, and neither origin deletion nor billing cessation was established |
@@ -37,8 +40,9 @@ a source selection for review, not a registry-freshness claim or dependency adop
 Source, public guidance, retained legacy summaries and public Cashier reads were
 used. The legacy trial's live references and unresolved charges stay with its owner.
 The funding continuation below read the authorized `canic-mainnet` balances and
-used its configured signer to convert ICP to cycles and fund the fresh payer.
-No key was exported, legacy journal resumed, object uploaded or canister deployed.
+used its configured signer to convert ICP to cycles, fund the fresh payer and
+create and install one owner probe, then qualify a temporary payer link. No key
+was exported, legacy journal resumed, certificate issued or object uploaded.
 
 ### Independent qualification — 2026-11-15
 
@@ -90,9 +94,10 @@ after zero balance; the consumer billing guide describes different behavior.
 Record these as account-specific claims to investigate, not interchangeable terms
 or a proven spending cap. No prices are compiled into Blob.
 
-**Next operation:** the ledger funding route is now identified below. Select the
-fresh owner, retain exact account/link calls and qualify enrollment with no
-certificate issuance or object upload. The first object probe follows only after
+**Next operation:** preserve the completed probe and existing owner credit recorded
+below. Investigate actual gateway admission and the callback/authority contract;
+do not repeat the refused zero-attachment top-up or add another payer link. The
+next implementation gate is the local provider-host slice below. The first object probe follows only after
 the host enforces grant ownership, irreversible Closing and retained exposure.
 Missing lifetime/closure evidence keeps exposure unresolved; observed deletion
 must never unlock Settled. General guarantees cannot be inferred from one probe.
@@ -140,19 +145,20 @@ the observed fee. Any Cashier sweep fee must come from the 10B deposit; credit i
 measured, not assumed. Refresh fees before dispatch; changed fees require updating
 this plan. Remaining owner cycles cover installation/execution, with no automatic
 top-up. This allocation is not a bound on later provider storage liability.
-The payer-only step has now spent 10.1B; owner creation remains unspent. Funding
-was performed first to isolate that useful witness from unresolved link semantics.
+The payer-only step spent 10.1B; the later empty-owner creation spent the remaining
+1.0001T. The original source-debit budget is fully consumed. Funding was performed
+first to isolate that useful witness from unresolved link semantics.
 
 | Step | Exact operation | Required result / refusal |
 | --- | --- | --- |
-| 1 | Ledger `create_canister`, amount 1T, explicit controller and selected 13-node application subnet, fixed `created_at_time`, default source subaccount | Verify subnet/cost before dispatch; retain block and actual owner principal. No replacement creation on a lost reply; inspect the original request |
+| 1 — complete | Ledger `create_canister`, amount 1T, explicit sole controller and selected 13-node application subnet, fixed `created_at_time`, default source subaccount | Acknowledged block 17206696, owner `mjjg7-wqaaa-aaaai-ayghq-cai`; reuse this owner and preserve its request custody |
 | 2 — complete | Ledger `icrc1_transfer`, 10B, explicit 100M fee, returned payer subaccount, fixed memo/time | Acknowledged block 17206169; never repeat this deposit or use Cashier's default ledger account/canister top-up |
 | 3 — complete | Payer-signed `cycles_ledger_deposit_notify_v1(record { account = opt payer })` | Acknowledged 9.9B credit, reported ledger block 17206177. This is a mutation, not a status lookup; missing later observations do not authorize repeating it |
-| 4 — already satisfied | Inspect zero overdraft and disabled target refill | Both were already reported; no settings mutation needed. A setting is not a proved global charge cap |
-| 5 | `payment_account_canister_add_v1` with actual owner, explicit payer, bounded positive daily limit and absolute expiry | First establish timestamp units and limit behavior; retain the actual relationship. No guessed expiry, fallback ABI or upload |
+| 4 — observed, interpretation corrected | Inspect overdraft and target settings | Zero overdraft and a null target were reported. Null selects the provider default; it does **not** disable refill. No settings mutation was made |
+| 5 — completed experiment below | `payment_account_canister_add_v1` with actual owner, explicit payer, 1B daily allowance and ten-minute absolute expiry | Link allocated 1B immediately; exact terms and removal were read back. Expiry/daily-limit enforcement remains under qualification |
 
-The exact relationship and owner arguments remain unprepared until a real owner
-exists and expiry semantics are sourced. Reviewed legacy [funding evidence][funding-review]
+The static artifact findings and selected experiment below now supply the
+relationship terms; the installed owner already exists. Reviewed legacy [funding evidence][funding-review]
 supports this deposit/notify distinction but supplies no retry permission. The
 DFINITY [setup script][dfinity-setup] calls `add_gateway_principal`, absent from
 its Rust backend, and guesses a principal with text matching. Use the backend's
@@ -183,9 +189,254 @@ credit both before and after the candidate expiry. Returned nanosecond-shaped
 timestamps alone do not qualify units or enforcement. The [later legacy setup][funding]
 separately reported owner allocation and usable gateway credit. These distinguish
 **payer credit, payment relationship, owner allocation and gateway admission**.
-Next select a fresh owner and qualify its binding/credit path using that evidence;
+Next qualify the recorded fresh owner's binding/credit path using that evidence;
 do not require another deposit simply because gateway credit is zero. Any expiry
 experiment must be labelled as such and bounded independently of assumed expiry.
+
+### Fresh empty owner witness — 2026-11-15
+
+One timestamped Cycles Ledger `create_canister` call returned owner
+`mjjg7-wqaaa-aaaai-ayghq-cai` and block **17206696**. The request explicitly selected
+`brlsh-zidhj-3yy3e-6vqbz-7xnih-xeq2l-as5oc-g32c4-i5pdn-2wwof-oae` and the existing
+`canic-mainnet` principal as sole controller. Before dispatch, the CMC default
+subnet list included that subnet and the [IC dashboard API][subnet-directory]
+reported an application subnet with 13 nodes. These are preflight observations;
+the later status replies do not independently report routing subnet identity.
+
+Source balance fell from **50,404,979,124,210** to **49,404,879,124,210 cycles**,
+exactly the planned **1,000,100,000,000-cycle debit**. Authenticated management
+status reported **499,998,056,000 cycles**, zero reserved cycles and no module;
+public state-tree inspection agreed on the sole controller and absent module.
+The initial owner balance is an observation after creation/status execution,
+not an itemized creation bill. Status also reported an idle burn of
+864,319,605 cycles/day; the empty canister's balance is not static.
+
+Original signed request, exclusive dispatch claim, preflight, result and readback
+remain in private Git-ignored `.operations/caffeine-owner-01008/`. Reuse this
+owner; do not repeat creation, mint or payer funding. The full original 1.0102T
+source-debit budget has been consumed. Its remaining canister cycles and the
+previously credited 9.9B Cashier balance are separate resources, not permission
+for another top-up or proof of bounded storage liability.
+
+This witness establishes an independently controlled **empty IC canister**, not
+a Rust/Caffeine integration. No Wasm, payment relationship, certificate or object
+was introduced. The narrow owner-origin probe below is now locally qualified;
+the subsequent retained installation witness is below. Link expiry/limit behavior, owner allocation and gateway credit still
+need evidence. D0 remains open.
+
+[subnet-directory]: https://ic-api.internetcomputer.org/api/v3/subnets
+
+### Single-use enrollment probe — local qualification for 0.100.8
+
+The unpublished [qualification package](../../qualification/ic-blob-storage-enrollment-probe/Cargo.toml)
+owns exactly one immutable owner-origin `account_top_up_v1` attempt. It uses the
+existing Platform transport/Candid codec, Storage cell and Wire byte bounds.
+The product library, host and CLI gain no funding API or provider effects.
+
+| Boundary | Selected rule |
+| --- | --- |
+| Installation | Explicit operator and Cashier; positive target balance at most the pilot's 9.9B credit. Operator must be a controller. Account is always the installed canister's own principal. Target balance is not an enforced debit/charge cap |
+| Request | Retain exact Candid bytes at initialization: present request, present explicit account, present target balance. Method is fixed; attached cycles are always zero; bounded wait is 30 seconds |
+| Dispatch | Configured operator must still be a controller. Persist the attempt before the external await. All subsequent invocations return the same retained attempt; no request ID, reset, retry, timer or reconfiguration path |
+| Callback | Record transport result before rechecking operator authority. Raw replies up to 8 KiB are retained without interpreting them as provider success; rejection/oversize leaves effects unresolved |
+| Inspection | Nonmutating replicated `enrollment_inspect` update; same authority check, no dispatch. `enrollment_attempt` is the only effect-capable endpoint. Both take unit Wire requests; lifecycle inputs use `enrollment_init` and `enrollment_upgrade` frames |
+| Upgrade | Stop and drain runtime calls; pre-upgrade refuses an active callback. Reopen the bounded versioned cell and verify owner, configuration and original bytes. A retained attempt without a result never becomes ready again |
+
+`make test-enrollment` passes one native maximum-record test and three installed
+cases. They cover exact retained account/target arguments, caller denial and bad
+frames without mutation, concurrent replay, upgrade refusal during a held call,
+revocation before result delivery, lost ingress results, completed/rejected
+outcomes through upgrade, malformed/maximum/oversized replies, unavailable peers
+and refusal to reopen foreign/missing state. A same-owner pre-callback stable
+image injected after draining also reopens as attempted without resubmission;
+that synthetic interruption is not a snapshot-continuity witness. The maximum record uses Wire's
+existing bounded byte type, avoiding per-element traversal of an opaque reply.
+Testkit owns synthetic raw/held replies; they do not validate Caffeine behavior
+or prove timeout/charge semantics. The separate mainnet installation witness below
+does not exercise the provider call. Unrestricted controller reinstall/snapshot replacement is
+outside the supported stop/drain/upgrade procedure; no continuity claim follows.
+
+Targeted legacy review at `25bed1352f3d2b9659f0d2583f50fa9af859ea84` examined
+[request encoding][legacy-top-up-request], its [schema/principal regressions][legacy-top-up-tests],
+[attempt admission][legacy-top-up-attempt] and [installed transport cases][legacy-top-up-transport].
+Retained lessons are explicit account/target binding, intent before exposure,
+independent transport/provider outcomes and no retry after uncertainty. The new
+probe independently implements those rules for one zero-attachment operation;
+the legacy multi-operation journal, positive offers, refund accounting and
+substitute-service graph have no consumer here and are not imported.
+
+The [offline example](../../qualification/ic-blob-storage-enrollment-probe/examples/enrollment/main.rs)
+uses the actual Wire codec and probe types to prepare initialization, inspection,
+attempt and upgrade frames, or decode a retained inspection/attempt response.
+It has no signer, network or identity-file access. Three native cases qualify frame
+direction/method checks, CLI bounds and classification of the actual provider refusal;
+`make test-enrollment` includes them. Wire decoding leaves provider bytes intact.
+An explicit `decode-top-up` command classifies the selected Cashier Candid result
+separately; an `Ok` tag does not interpret its payload or establish credit.
+The [changelog quickstart](../../CHANGELOG.md#01008---unreleased)
+shows preparation only; generated attempt bytes are not permission to submit.
+
+### Mainnet probe installation witness — 2026-11-15
+
+The existing owner `mjjg7-wqaaa-aaaai-ayghq-cai` now runs the locally qualified
+329,459-byte Rust probe. One acknowledged `install_code` request used **install**
+mode after verifying an empty module and the sole `canic-mainnet` controller.
+Management status returned module SHA-256
+`4fc165878bd4d4ab6334d93ec56114df64309ca79cb9088e2c44a7bafee4e0fe`, matching the
+exact retained build artifact, and **498,369,997,713 cycles**. Installation used
+the existing owner balance; no additional ledger debit or provider deposit occurred.
+The observed balance difference also includes execution/time and is not an itemized fee.
+
+An operator-signed replicated `enrollment_inspect` returned that same owner,
+the existing operator, Cashier `72ch2-fiaaa-aaaar-qbsvq-cai`, target balance
+**1,000,000,000**, exact retained request bytes, and **no attempt or outcome**.
+This witnesses independent Rust installation and durable configuration, not
+Caffeine enrollment, owner credit or gateway admission. The target is a request,
+not a provider-enforced maximum charge. No payer link or provider call was sent.
+
+Exact source/lock/snapshot hashes, module, intent, signed requests, exclusive
+dispatch records and readbacks remain in private Git-ignored
+`.operations/caffeine-install-01008/`; public identities and hashes are in the
+[compact observation](caffeine-observation.json). Do not reinstall or recreate
+this owner. The signer key stayed in the existing named identity. The
+[CLI 1.6.0 signing path](https://github.com/dfinity/icp-cli/blob/v1.6.0/crates/icp-cli/src/commands/canister/call.rs)
+defaults management-call routing to `aaaaa-aa`; before dispatch, the retained
+copy's explicit effective destination was corrected to the signed owner argument
+using its [signed-message routing format](https://github.com/dfinity/icp-cli/blob/v1.6.0/crates/icp-app/src/signed_message.rs).
+The signed request remained unchanged; the routed copy was dry-run validated.
+
+Further source search found only the public example's no-expiry linking command
+and a moving `icfs/latest` download. Subsequent static inspection below recovered
+embedded contract documentation; the executable was not adopted. The legacy
+short-expiry witness above remains inconclusive. Installation alone does not
+establish provider enrollment or limit enforcement.
+
+### Published CLI contract findings and bounded link experiment — 2026-11-15
+
+Static inspection of the [published Linux CLI artifact][icfs-artifact] found
+embedded Candid type documentation for `PaymentAccountCanisterAddRequest`,
+`PaymentRelationship` and `AccountSettings`. The retained 21,194,256-byte artifact
+has SHA-256 `0385e9211130af0d0dd4b341ef9947d973754cd5db00bf751007ce9f7e90ea6e`.
+It was read as data, never executed or installed. Its URL is moving: the hash and
+exact statement byte ranges in `.operations/caffeine-link-01008/artifact-review.json`
+identify this evidence, not any later download. These are published type/CLI
+claims, not audited deployed Cashier code or live enforcement witnesses.
+
+| Field | Artifact's documented meaning | Qualification consequence |
+| --- | --- | --- |
+| Relationship expiry | Absolute Unix nanoseconds; inactive at or after that instant | Select the unit explicitly; visibility of a historical row does not show spending permission |
+| Daily limit | Positive maximum transfer from payer to paid account, resetting at UTC midnight | It limits transfers according to documentation, not all storage charges or liability |
+| Null account target | Uses the provider default; CLI identifies that default as 1T | Correct the earlier disabled-refill interpretation; avoid relying on null as an off switch |
+| Removed relationship | Retains last payer/removal time for a reassignment cooldown | Removal is not object deletion, refunded credit or charge settlement |
+
+Selected bounded experiment: link only the existing payer and installed owner,
+with a **1B** daily allowance and expiry **ten minutes after preparation**, without
+crossing UTC midnight. Inspect exact terms, call the probe's existing single-use
+**1B target** with **zero attached cycles**, retain transport/provider observations,
+then remove that exact relationship. No extension, replacement, retry, extra
+funding, certificate or object is part of the experiment. Refusal or uncertainty
+does not authorize repeating a mutation. Cleanup follows a matching relationship
+read; an unknown add outcome first requires reconciliation, not a second add.
+
+The existing 9.9B payer credit is the resource at risk; no additional source-ledger
+debit is planned. The daily allowance and expiry are provider claims being tested,
+not independently proved liability caps. The probe has no upload/certificate path,
+timer or second dispatch. Preserve all results and any allocation even after
+relationship removal; no closure follows. This experiment can witness enrollment
+and accounting, but does not by itself prove expiry or daily-limit enforcement.
+
+[icfs-artifact]: https://caffeinelabs.github.io/object-storage/artifacts/icfs/latest/icfs-linux-x86_64
+
+### Gateway preflight and next local host gate — 2026-11-15
+
+One HTTPS GET used the SDK's direct-read URL shape, this checkout's owner, an
+explicit qualification project selector and a deterministic never-issued root.
+It returned **HTTP 404**, a 92-byte missing-tree response, verified TLS and no
+redirect. The request allowed at most 64 KiB/15 seconds, with no retries,
+credentials, certificate or object write. Cashier separately reported no stored
+callback API version for this owner. Exact request/results remain privately in
+`.operations/caffeine-gateway-01008/`; [public evidence](caffeine-observation.json)
+omits the unused session cookie. No request was repeated.
+
+This witnesses route reachability and a negative lookup only. It does not show
+which account checks ran, positive admission, project isolation, deletion or
+charge cutoff. The advertised `X-Dry-Run` header remains unqualified and unused;
+legacy's [transport review][legacy-transport] reached the same limitation.
+
+Re-review of the pinned Rust example, Motoko mixin and legacy GC contract leaves
+two incompatible deletion-list candidates: `vec text` and `vec blob`. Both use
+the `_immutableObjectStorage*` names; a V2 marker alone cannot select the return
+type. No live callback was observed here. Do not add automatic type fallback or
+advertise a callback version to manufacture compatibility. The Rust example also
+returns false for unknown keys and removes records on confirmation without first
+requiring Closing; those policies must not be carried into this library.
+
+The next local qualification must compose the **existing durable Service** with
+one explicit candidate provider adapter, preserving these cases:
+
+| Case | Required local result |
+| --- | --- |
+| Unknown/malformed key; reserved, retired or live root | Unknown keys are protected; malformed input refuses before mutation; no absent-record deletion permission |
+| Two uploads share one root | One retention owner; releasing one reference preserves another live use |
+| Final release and certificate ordering | Closing is irreversible; registration/exposure commits before certified reply; no later issuance or resurrection |
+| Deletion-list profile | One selected Candid shape, with real nonempty fixtures; an empty response is not compatibility evidence |
+| Confirmation from wrong sender or for live/unknown root | Refuse before mutation; controllers/operators cannot impersonate the configured gateway |
+| Authenticated matching Closing confirmation | Retain an acknowledgment only; never erase history, free exposure or claim settlement |
+| Upgrade with prior probe receipt | Keep the consumed attempt and original raw refusal; no reinstall, reset or repeated provider operation |
+
+The current enrollment probe is not this host: it has no Service, certificate
+endpoint or retention callbacks. Its Storage directory was created with **one
+allocation and one extent**, occupied by `enrollment.control.v1`. Storage 0.74.1
+intersects new runtime limits with persisted directory capacities; raising a
+configuration number does not create another slot. Select and qualify the
+composition/lifecycle path locally before reusing this owner for a service.
+Do not overwrite the probe record, add a second root-memory custodian or rebuild
+Blob's reference/accounting model inside the probe to evade that constraint.
+No new canister, migration, callback or certificate-producing deployment occurred
+in this preflight.
+
+[legacy-transport]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/docs/evidence/caffeine-probes/deployed/2026-10-02-gateway-stream-01/summary.json
+
+### Link, allocation and owner-call witness — 2026-11-15
+
+The selected experiment completed with one link, one probe attempt and one removal.
+Before linking, the fresh owner had no relationship and the payer held 9.9B cycles.
+The acknowledged link returned the exact payer/owner, 1B daily allowance and expiry
+`1794745153395000000` (12:19:13.395 UTC). It **immediately allocated 1B**, before
+the probe call: the owner balance was 1B and reported period spend was already 1B.
+Payer audit sequence **1416836**, event `RelationshipAdd`, attributes that transfer
+to linking. The period start matched midnight UTC; this is not a rollover test.
+
+The installed Rust owner then made its one exact `account_top_up_v1` call, requesting
+a 1B target with zero attached cycles. Transport returned 105 bytes; the provider
+result was **`Err(TopUpWithoutCycles)`**. The existing allocation must not be
+credited to this refused call. A separate replicated probe inspection returned the
+same durable attempt and raw reply. The retained bytes are now an offline decoder
+fixture covering refusal, truncation, trailing bytes, wrong shape and size limits.
+The probe remains consumed; no repeat, reset or positive-cycle fallback is authorized
+by that failure. Legacy's explicit positive attachment remains a distinct protocol
+path, not a reason to import its funding engine or change this experiment.
+
+Cashier reported **166,666,666** available credit for the actual listed storage
+gateway, with all usage counters zero. This is a Cashier budget observation, not
+an HTTP gateway acceptance test or proof of the credit-allocation formula.
+The explicit removal returned `Ok` and relationship readback became absent.
+Balances afterward remained **8.9B payer / 1B owner**, with the same reported
+gateway budget. Removal neither refunded that allocation nor established closure.
+
+No additional source funding, certificate, object, expiry extension or repeated
+provider attempt occurred. Preserve `.operations/caffeine-link-01008/`, including
+signed requests, dispatch claims, static artifact, provider audit, raw reply and
+cleanup readback. [The compact observation](caffeine-observation.json) records
+hashes and exact identities. Next investigate gateway admission and the selected
+retention/authority boundary using this existing owner/credit; do not treat the
+zero-attachment top-up as an enrollment recipe. D0 remains open, while D2 now has
+a real payer-to-owner allocation witness and a real owner-origin refusal witness.
+
+[legacy-top-up-request]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/caffeine/funding/request/mod.rs
+[legacy-top-up-tests]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/caffeine/funding/request/tests/mod.rs
+[legacy-top-up-attempt]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/workflow/funding/attempt/mod.rs
+[legacy-top-up-transport]: https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/storage_funding/transport/mod.rs
 
 ### Independent-access follow-up for 0.100.2
 
@@ -435,10 +686,11 @@ test inputs, not selected production size limits.
 Each eventual live plan must name its fresh account/scopes, exact objects and
 request limits, funding/charge terms, permitted replay, observation deadline and
 custodian for unresolved obligations. A deadline stops observation; it does not
-settle an object. There is no live runner or selected live installation here.
-The separate `qualification/` workspace now exercises the real standalone host;
-keep pure checks beside their library owner. No new framework, retained probe
-ledger or placeholder package is needed for this plan.
+settle an object. There is no live transfer runner or installed live Blob service.
+The separate `qualification/` workspace exercises the real standalone host and
+the single-use enrollment probe above; keep pure checks beside their owner.
+The probe's one intent/result record exists to prevent duplicate enrollment
+effects, not to introduce a parallel object ledger or a general funding framework.
 
 ## Recovery and SDK disposition
 

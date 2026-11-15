@@ -1,6 +1,67 @@
 # Changelog
 
-## [0.100.8] - Unreleased
+## [0.100.8] - 2026-11-15
+
+GitHub development checkpoint on branch `0.100`; not published to crates.io.
+Product behavior, API and durable format are unchanged. The enrollment probe is
+independently versioned at 0.100.8; existing qualification packages stay at 0.100.5.
+
+### 🧪 Testing
+
+- Create and reconcile one fresh, empty mainnet owner for Caffeine enrollment
+  qualification within the approved cycle budget. Retain its identity and exact
+  request custody for reuse. The temporary payment binding below is observed;
+  usable Rust-host upload enrollment and uploads remain unqualified. No product
+  API or deployment runner is added.
+- Add a single-use owner enrollment probe and `make test-enrollment`. Retain
+  exact intent and bounded raw replies across upgrades, refuse repeat dispatch,
+  and preserve results when the operator loses authority during a call. Local
+  installed checks use synthetic Cashier replies. Install the qualified probe
+  on the existing mainnet owner and verify its module/configuration before its
+  single provider attempt below; payer-link expiry and limits remain unqualified.
+- Add an offline qualification example to encode lifecycle/method Wire frames
+  and decode retained inspection replies. Reuse the named-identity signer;
+  add no wallet-key export, product funding API or deployment runner.
+- Recover relationship expiry/limit documentation by static inspection of the
+  published provider CLI. Correct the earlier interpretation of a null target:
+  it selects the default refill target, rather than disabling refill. Keep
+  documented semantics separate from live enforcement evidence.
+- Qualify one temporary payer link: it immediately allocates 1B of existing
+  credit to the owner. Retain the owner-origin `TopUpWithoutCycles` refusal,
+  nonzero Cashier-reported gateway budget and confirmed link removal. No upload,
+  extra funding or closure claim; the probe remains consumed. Add an offline
+  decoder regression from the actual reply.
+- Record a bounded missing-object gateway read and absent callback-version
+  observation. Specify the next local Service/callback qualification cases,
+  including incompatible deletion-list shapes and preservation of the consumed
+  probe's single-allocation state. These reads do not establish upload admission.
+
+### ▶️ Try it
+
+From the repository root, after `make install-tools` and the documented locked
+dependency preparation, run `make test-enrollment` for local installed checks.
+The offline helper below prints frames only; it needs no identity credentials,
+network or cycles and does not install, sign or send anything:
+
+```sh
+cargo run --offline --locked --manifest-path qualification/Cargo.toml \
+  -p ic-blob-storage-enrollment-probe --example enrollment -- prepare \
+  --operator o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe \
+  --cashier 72ch2-fiaaa-aaaar-qbsvq-cai --target-balance 1000000000
+```
+
+For a retained response, use the same example with
+`decode --method inspect --reply-hex HEX`. These are private qualification frames,
+not a live enrollment recipe. See the [probe contract and installation witness](docs/design/caffeine-contract-review.md#single-use-enrollment-probe--local-qualification-for-01008).
+Classify the retained provider refusal offline with:
+
+```sh
+cargo run --offline --locked --manifest-path qualification/Cargo.toml \
+  -p ic-blob-storage-enrollment-probe --example enrollment -- decode-top-up \
+  --reply-hex "$(cat qualification/ic-blob-storage-enrollment-probe/examples/enrollment/fixtures/top-up-without-cycles.hex)"
+```
+
+This reports `Err` / `TopUpWithoutCycles`, without signing, sending or retrying.
 
 ## [0.100.7] - 2026-11-15
 
@@ -29,7 +90,8 @@ Durable state stays at format 1. Qualification packages remain independently 0.1
   outreach; owner enrollment, upload and closure remain unqualified.
 - Validate fresh payer funding with a bounded 10.1B-cycle debit and acknowledged
   9.9B provider credit. Retain exact requests and distinguish payer credit from
-  owner/gateway capacity; zero overdraft and disabled refill were already reported.
+  owner/gateway capacity; zero overdraft and a null target were reported. The
+  0.100.8 investigation corrects null to mean the default refill target.
   No funding API, automatic refill or provider upload is added to Blob.
 - Recover Canic legacy's historical Cashier ABI and self-funded Rust account path
   from pinned inventories and original Toko source. Record the deletion-list ABI

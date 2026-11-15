@@ -1,6 +1,6 @@
 {
   "observed_date": "2026-11-15",
-  "purpose": "Caffeine interface discovery and bounded fresh payer funding; not owner enrollment or object qualification",
+  "purpose": "Caffeine interface discovery, bounded fresh payer funding and empty owner creation; not Rust-host enrollment or object qualification",
   "tool": {
     "name": "icp",
     "version": "1.6.0",
@@ -68,7 +68,7 @@
     "Metadata output is not a retained portable certificate proof.",
     "Price factors and costs are returned values; billing interval, monetary conversion and charge cutoff are not qualified.",
     "Same public query output hashes as legacy September observation; no legacy account or obligation was resumed.",
-    "The authorized signer completed ICP-to-cycles conversion and one bounded fresh Cashier deposit/notification. No key export, legacy recovery, owner deployment, relationship, object upload or deletion occurred."
+    "The authorized signer completed ICP-to-cycles conversion, one bounded fresh Cashier deposit/notification and one empty owner creation. No key export, legacy recovery, Wasm installation, relationship, object upload or deletion occurred."
   ],
   "raw_output": "target/evidence/caffeine/ (local scratch, not retained in Git)",
   "funding_preflight": {
@@ -187,6 +187,409 @@
         "sha256": "44491af6d1fc52233c86deed87bcd2945307aac6104427f9fe380c4fd464c8ac"
       }
     ],
-    "disposition": "Acknowledged payer funding only. Preserve credit and exact records; no inferred gateway capacity, refund, closure, or permission to repeat unknown effects."
+    "disposition": "Acknowledged payer funding only. Preserve credit and exact records; no inferred gateway capacity, refund, closure, or permission to repeat unknown effects.",
+    "reported_target_balance_interpretation": "Provider CLI documentation found later says null selects the default target, not disabled refill; original raw observation unchanged."
+  },
+  "owner_creation": {
+    "status": "created-empty-unlinked",
+    "observed_at": "2026-11-15T11:27:10.359Z",
+    "owner": "mjjg7-wqaaa-aaaai-ayghq-cai",
+    "controllers": [
+      "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe"
+    ],
+    "requested_subnet": "brlsh-zidhj-3yy3e-6vqbz-7xnih-xeq2l-as5oc-g32c4-i5pdn-2wwof-oae",
+    "subnet_evidence": "Explicit subnet in acknowledged create request; preflight CMC default list and public dashboard report application/13 nodes. Status reads do not report routing subnet.",
+    "ledger_block": "17206696",
+    "source_balance_before": "50404979124210",
+    "source_balance_after": "49404879124210",
+    "source_debit_cycles": "1000100000000",
+    "creation_amount_cycles": "1000000000000",
+    "observed_ledger_fee_cycles": "100000000",
+    "owner_cycles_at_status": "499998056000",
+    "reserved_cycles": "0",
+    "idle_cycles_burned_per_day": "864319605",
+    "module_hash": null,
+    "owner_creations": 1,
+    "wasm_installs": 0,
+    "payment_relationships_added": 0,
+    "upload_authorities_issued": 0,
+    "objects_uploaded": 0,
+    "remaining_source_budget_under_original_1010200000000_cap": "0",
+    "disposition": "Reuse this exact fresh owner. Preserve signed request and custody; do not recreate or repeat funding. Empty infrastructure is not Caffeine enrollment. Build and locally qualify the narrow owner enrollment behavior before installation. Provider expiry, allocation and gateway credit remain unqualified.",
+    "custody": ".operations/caffeine-owner-01008 (private, Git-ignored; preserve and reuse this owner)",
+    "tool": "icp 1.6.0",
+    "network": "https://icp-api.io",
+    "root_key": "mainnet",
+    "ledger": "um5iw-rqaaa-aaaaq-qaaba-cai",
+    "ledger_interface_sha256": "586516bf45d3d581e5dd0b64fe4081c246531d832f6f2dd40c49351c5777351a",
+    "subnet_directory": "https://ic-api.internetcomputer.org/api/v3/subnets",
+    "preflight_node_count": 13,
+    "preflight_subnet_type": "application",
+    "results": [
+      {
+        "file": "intent.json",
+        "sha256": "9f7d0ea88ecd1bc94f1f8f1f644678231f86a1cf5fc84c00a9348f76bd424e0e"
+      },
+      {
+        "file": "create.candid",
+        "sha256": "7eed0b2a97e8df9e3e6f07b3ade0013b160c0a3271f0dfd6bb4cce57091b1703"
+      },
+      {
+        "file": "create.dispatch.json",
+        "sha256": "5028ae5e6387cc4eaa191a030d84e78ca4c7ffaa37e0c640a06ea9e7fba7105c"
+      },
+      {
+        "file": "create.result.txt",
+        "sha256": "d527c23c9849b0de7a6065ecd9908c1475086db2e2e4251e49d40307529cd67e"
+      },
+      {
+        "file": "owner-status.json",
+        "sha256": "0dc691bb273b85558b934d50fd081e6c9cd66453649eb4192eadac6cf3fc93c1"
+      },
+      {
+        "file": "owner-public.json",
+        "sha256": "c3b329661074a50a93baf8957e6afbff7b9c100f8695d356f443f2d10d1aab7e"
+      },
+      {
+        "file": "source-before.json",
+        "sha256": "3f6844cd655845660b3dd13cb6058665471a482497ee0e26c5276fc7faf0d7b6"
+      },
+      {
+        "file": "source-after.json",
+        "sha256": "d725ce75fd1741105b1f9528163d0756b860d1ad6f115c34a5b8c4681ea75a5a"
+      },
+      {
+        "file": "outcome.json",
+        "sha256": "3af233b929384564de8c1be77d4aa89ad2809d688fe7814bc860d6b507be436e"
+      },
+      {
+        "file": "default-subnets.txt",
+        "sha256": "2c4d52e6e1420c207a0c849415d22d910f6bfe378debf6b65d6c141c27c57bb7"
+      },
+      {
+        "file": "subnets.json",
+        "sha256": "0bd556395f14d39a659c19966a32c6390b855276e73d6b381217c2533fbada3a"
+      }
+    ]
+  },
+  "probe_installation": {
+    "observed_at": "2026-11-15T11:56:59.268Z",
+    "status": "installed-unattempted",
+    "owner": "mjjg7-wqaaa-aaaai-ayghq-cai",
+    "mode": "install",
+    "wasm_sha256": "4fc165878bd4d4ab6334d93ec56114df64309ca79cb9088e2c44a7bafee4e0fe",
+    "wasm_bytes": 329459,
+    "configuration": {
+      "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+      "operator": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+      "target_balance": 1000000000
+    },
+    "attempted_at": null,
+    "outcome": null,
+    "retained_provider_arguments_hex": "4449444c046e016c02eec580aa0902adf9e78a0a036e7d6e68010001018094ebdc0301010a000000000100c18f0101",
+    "owner_cycles_at_status": "498369997713",
+    "idle_cycles_burned_per_day": "919624037",
+    "installations": 1,
+    "enrollment_attempts": 0,
+    "payment_relationships_added": 0,
+    "additional_source_ledger_debits": "0",
+    "request_id": "3256291738c5b4bced31f5eefcbd41d58f5b3380f0ed779581188aa4605b9639",
+    "custody": ".operations/caffeine-install-01008 (private, Git-ignored)",
+    "disposition": "Installed Rust probe and replicated configuration read only. No Caffeine call, payer link, owner allocation or gateway admission. Retain this owner and original installation custody; no reinstall or recreation.",
+    "tool": "icp 1.6.0",
+    "network": "https://icp-api.io",
+    "root_key": "mainnet",
+    "results": [
+      {
+        "file": "intent.json",
+        "sha256": "6a10c1ce416eab1f8aeffc531edcf6da8760a0185ca8e185a6f1bbc5d10328b7"
+      },
+      {
+        "file": "probe.wasm",
+        "sha256": "4fc165878bd4d4ab6334d93ec56114df64309ca79cb9088e2c44a7bafee4e0fe"
+      },
+      {
+        "file": "install.routed.json",
+        "sha256": "b43222646be0d359598286914efc8a43905578601a01311929572e0ed87f7fff"
+      },
+      {
+        "file": "routing-review.json",
+        "sha256": "a6732135e2f76c23609aaf1f041a3f06e5693bf5c39475eac5b9671f58b136d2"
+      },
+      {
+        "file": "install.dispatch.json",
+        "sha256": "1128d387340e4abc0a5f0afa075bf4c974c193f01154b68bd1fc1939be75fa7b"
+      },
+      {
+        "file": "install.result.txt",
+        "sha256": "8675a405c54a12f0b2251e1b359108143603767f86ab70501fcb901f21814eb2"
+      },
+      {
+        "file": "owner-after.json",
+        "sha256": "136ce11c6dacff396ed999005200bb6211150fc87ae4943919f94f16e3ec4793"
+      },
+      {
+        "file": "inspect.dispatch.json",
+        "sha256": "670ce2b5979317ab3d56430dc8aee0fa3812282849f25e34905101efb5327a26"
+      },
+      {
+        "file": "inspect.result.hex",
+        "sha256": "7944efb9ef08af52e5c36d8dfef3f5ddca9360c506b4531abced459f6b735b18"
+      },
+      {
+        "file": "inspect.decoded.json",
+        "sha256": "9baf792e7e78356b61bd1bfef6606935d8bea2ede38b98915d4515a0b10e5b2b"
+      },
+      {
+        "file": "outcome.json",
+        "sha256": "7d3ef0f041347f921c3074ae5c2a28f033da944fa24122e8bcdfc8935b5188ec"
+      }
+    ]
+  },
+  "provider_cli_contract": {
+    "at": "2026-11-15T12:07:56.472Z",
+    "url": "https://caffeinelabs.github.io/object-storage/artifacts/icfs/latest/icfs-linux-x86_64",
+    "sha256": "0385e9211130af0d0dd4b341ef9947d973754cd5db00bf751007ce9f7e90ea6e",
+    "bytes": 21194256,
+    "executed": false,
+    "adopted": false,
+    "claims": [
+      {
+        "claim": "expiry_unit",
+        "offset": 2653643,
+        "length": 60,
+        "sha256": "d3736b92b30e39f29bef4a1a702c8d3afcd76fd5dcfb6e317330e595319e90b7"
+      },
+      {
+        "claim": "daily_limit",
+        "offset": 2653541,
+        "length": 60,
+        "sha256": "c7f203b1125534f2d000e4dd819a62768d44b1f18b2e1fceebc2b02f9246d932"
+      },
+      {
+        "claim": "reset",
+        "offset": 2661287,
+        "length": 67,
+        "sha256": "b7a1841527efc5f3d5097ba1e42927865cb0846013acd4136990587c29735a57"
+      },
+      {
+        "claim": "inactive",
+        "offset": 2661922,
+        "length": 75,
+        "sha256": "c4dfac6743568bdd5bb40a2cc237b29a4d86e9f8426737d013d22f74d56fe8e9"
+      },
+      {
+        "claim": "null_target",
+        "offset": 2659581,
+        "length": 77,
+        "sha256": "f60568f0fe17b9f5cc37bd0003f91db94e5c02a2134d9a3e2cc4c5acfebe0088"
+      },
+      {
+        "claim": "default_target",
+        "offset": 2570528,
+        "length": 48,
+        "sha256": "254c892e78321b7dbab6f8140a499a26fdf6aa8aa07442d8ba46710aeed47b98"
+      }
+    ],
+    "qualification": "Embedded CLI/Candid type documentation, not deployed Cashier source or behavioral proof",
+    "disposition": "Static type documentation only. Artifact retained as non-executable data; never adopted as tooling."
+  },
+  "link_experiment": {
+    "observed_at": "2026-11-15T12:13:42.591Z",
+    "status": "relationship-removed-owner-credit-retained-probe-refused",
+    "owner": "mjjg7-wqaaa-aaaai-ayghq-cai",
+    "payer": "o5trf-oqyg7-cawjp-xs4pw-aomb3-iwki5-hyezf-qahfz-j3ffd-jh4fc-oqe",
+    "cashier": "72ch2-fiaaa-aaaar-qbsvq-cai",
+    "network": "https://icp-api.io",
+    "root_key": "mainnet",
+    "link": {
+      "result": "Ok",
+      "daily_allowance_cycles": "1000000000",
+      "expiration_timestamp_ns": "1794745153395000000",
+      "expiration_at": "2026-11-15T12:19:13.395Z",
+      "added_timestamp_ns": "1794744575611439698",
+      "current_period_start_ns": "1794700800000000000",
+      "current_period_spent": "1000000000",
+      "request_id": "d5231319bbbd6d297b90ea07182ca4d0aefd8e8abd81f95ba59694fd6a41d8f4"
+    },
+    "allocation": {
+      "source": "RelationshipAdd provider audit event",
+      "audit_sequence": "1416836",
+      "payer_before": "9900000000",
+      "payer_after": "8900000000",
+      "owner_before_probe": "1000000000",
+      "owner_after_removal": "1000000000",
+      "allocation_occurred_before_probe": true,
+      "additional_source_ledger_debit": "0"
+    },
+    "probe": {
+      "method": "enrollment_attempt",
+      "provider_method": "account_top_up_v1",
+      "attached_cycles": "0",
+      "target_balance": "1000000000",
+      "attempted_at_ns": "1794744613505788917",
+      "transport": "Reply",
+      "provider_result": "Err(TopUpWithoutCycles)",
+      "raw_reply_bytes": 105,
+      "raw_reply_sha256": "a9dcfc2e1ecbf600bfb830f534d7fd0641cccca08f70b8069ed3806b757ec74b",
+      "retained_inspection_matches": true,
+      "request_id": "ed13b25c9e3126e25c5b35c4bc6ccc3d966dbd217183f5c493a8166cba107651"
+    },
+    "gateway": {
+      "principal": "jf2g2-sl4zh-zhvyx-v3zcb-hmumz-2at2q-wuamm-4qiml-43msi-r3man-eqe",
+      "cashier_reported_available_credit": "166666666",
+      "same_after_removal": true,
+      "all_reported_usage_zero": true,
+      "actual_gateway_admission_tested": false
+    },
+    "removal": {
+      "result": "Ok",
+      "relationship_readback": null,
+      "refund_inferred": false,
+      "request_id": "85ff6ade1cd5a349ab26122555523fe0acd6be6f4f0f4a5bfca1d042023591e3"
+    },
+    "effects": {
+      "link_submissions": 1,
+      "probe_submissions": 1,
+      "removal_submissions": 1,
+      "additional_funding": 0,
+      "certificates": 0,
+      "objects": 0
+    },
+    "limitations": [
+      "Published type documentation is not deployed source proof",
+      "No expiry-boundary or allowance-exhaustion behavior test",
+      "Cashier-reported gateway credit is not actual gateway admission",
+      "Provider refusal does not erase the preceding link allocation",
+      "Removal is not refund, deletion or charge closure"
+    ],
+    "custody": ".operations/caffeine-link-01008 (private, Git-ignored; preserve alongside installation and funding custody)",
+    "next": "Preserve completed single-use attempt; no reset/retry. Investigate gateway admission and callback/authority contract using existing owner credit before any upload qualification.",
+    "results": [
+      {
+        "file": "intent.json",
+        "sha256": "53a9495dfa35d487dbd8bb160342326f7c95cc7ae7c91ecf44f2ab97eac96f21"
+      },
+      {
+        "file": "link.dispatch.json",
+        "sha256": "4de336c2331a71b4bebe2f285d533b71a46888a1be519dd6e1e715b788e2143d"
+      },
+      {
+        "file": "link.result.txt",
+        "sha256": "9a1854bf383225e8f13111f3404f08e86fcf51c227dcc23c806555497b065f10"
+      },
+      {
+        "file": "relationship-linked.txt",
+        "sha256": "cc7180ea6d52dae0a04a0d5b05d021e627eb1a30c62d36bd1871c8d113af8eab"
+      },
+      {
+        "file": "owner-balance-before-attempt.txt",
+        "sha256": "640df47d7791fef34cdcb2c7589ec9e29910d0b995ccc5a6613effee0447b027"
+      },
+      {
+        "file": "attempt.dispatch.json",
+        "sha256": "3f6a91369d74a450d8f7d4af48c540dc57a674165d8ea205874d159051802a7c"
+      },
+      {
+        "file": "attempt.result.hex",
+        "sha256": "eb4e07fe3c6d611fa24e39869dad1786a45cfb82354e27091cd8138bb7c8189c"
+      },
+      {
+        "file": "cashier-reply.hex",
+        "sha256": "2380438674adb9765219b1a8de1b1c00cd64387a344bf5d1ce9ca3887f8cb1c5"
+      },
+      {
+        "file": "cashier-reply.decoded.json",
+        "sha256": "a602fe1a40927429962b40c55423fa8ece4d273d9a53a4b2cae5dad966c184f9"
+      },
+      {
+        "file": "inspect.result.hex",
+        "sha256": "871ad83f18a5386fe380311fc73eddba7a76c432b640dcd7a45ce1fed4daf8f8"
+      },
+      {
+        "file": "payer-audit.txt",
+        "sha256": "1f83d80d86ea235ce92c4bdd82609ccd122dd7ae17959403b8c6850b21d3c835"
+      },
+      {
+        "file": "remove.dispatch.json",
+        "sha256": "1ffd2762b6572dcd76b90b514a71782ecfade5e54ea797a496dd8f3afe39f16c"
+      },
+      {
+        "file": "remove.result.txt",
+        "sha256": "9a1854bf383225e8f13111f3404f08e86fcf51c227dcc23c806555497b065f10"
+      },
+      {
+        "file": "relationship-after-remove.txt",
+        "sha256": "529f220ced76da768252fa65f24613682c57488b98de84fe7e03ec276b1dd1c1"
+      },
+      {
+        "file": "payer-after-remove.txt",
+        "sha256": "5500c00e7fc6fb4f2be5e60944642bc9a4ea94604662d705777ad67a336a8122"
+      },
+      {
+        "file": "owner-balance-after-remove.txt",
+        "sha256": "640df47d7791fef34cdcb2c7589ec9e29910d0b995ccc5a6613effee0447b027"
+      },
+      {
+        "file": "gateway-budget-after-remove.txt",
+        "sha256": "a0b076b7b9ebd325fae34046e4188a4b2c03ca202a676ecf5d1d44137e34da61"
+      },
+      {
+        "file": "outcome.json",
+        "sha256": "e9d63d12c6a3895b76801a53114babecd9c4226d09429d2126c578c7a3bee7c7"
+      }
+    ]
+  },
+  "gateway_negative_read": {
+    "observed_at": "2026-11-15T12:27:17.446Z",
+    "owner": "mjjg7-wqaaa-aaaai-ayghq-cai",
+    "root": "sha256:6e7739206dcf26edc2a427b86fe3a43d1293baa259e5f658276ecd04ab28fc83",
+    "project_id": "ic-blob-storage-qualification-01008",
+    "url": "https://blob.caffeine.ai/v1/blob/?blob_hash=sha256%3A6e7739206dcf26edc2a427b86fe3a43d1293baa259e5f658276ecd04ab28fc83&owner_id=mjjg7-wqaaa-aaaai-ayghq-cai&project_id=ic-blob-storage-qualification-01008",
+    "method": "GET",
+    "status": 404,
+    "response_bytes": 92,
+    "response_body": "Blob tree not found: sha256:6e7739206dcf26edc2a427b86fe3a43d1293baa259e5f658276ecd04ab28fc83",
+    "response_body_sha256": "9d57fe7f38075ab63d64877d2514c4d10cd46a4447cc4412b497c48b00334fd8",
+    "redirects": 0,
+    "tls_verify_result": 0,
+    "http_requests": 1,
+    "cashier_callback_version": null,
+    "upload_authority_issued": false,
+    "objects_uploaded": 0,
+    "additional_funding": 0,
+    "admission_qualified": false,
+    "limitations": [
+      "Missing-tree response does not prove owner/account checks ran or positive upload admission",
+      "Project selector acceptance does not establish namespace isolation",
+      "An absent-object 404 is not deletion or billing-closure evidence",
+      "Advertised X-Dry-Run header has unqualified semantics and was not used",
+      "Null callback version does not choose text versus binary deletion-list ABI",
+      "No before/after charge attribution was measured for this read"
+    ],
+    "custody": ".operations/caffeine-gateway-01008 (private, Git-ignored; response headers include an unused session cookie)",
+    "next": "Locally qualify actual Service plus one explicit candidate callback profile and lifecycle preservation before any certificate-producing deployment",
+    "results": [
+      {
+        "file": "intent.json",
+        "sha256": "360cf8019070bfcd7a0cb48d1a16da7c4f727d74362c2b93fc4b05ec61c7506f"
+      },
+      {
+        "file": "read.dispatch.json",
+        "sha256": "6e3ecb242ae10e37094aa33486fa6a4cc69f544dddf16a968764f840a8491944"
+      },
+      {
+        "file": "response.body",
+        "sha256": "9d57fe7f38075ab63d64877d2514c4d10cd46a4447cc4412b497c48b00334fd8"
+      },
+      {
+        "file": "callback-version.txt",
+        "sha256": "faa1eacca6a2c61c39f0564cf68d8e950a398fb697c8237c8265cc79d2ca118f"
+      },
+      {
+        "file": "outcome.json",
+        "sha256": "db515314ed8f76325aae3b83e08efaedbcd300e102e7ea25971dda03ebf63065"
+      }
+    ]
   }
 }

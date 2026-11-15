@@ -72,6 +72,9 @@ charges and allocated memory; these are not raw instruction counts or provider c
 `make test-endpoints` checks raw frames
 on the production host and encoding-failure rollback in a qualification-only probe.
 These checks do not qualify Caffeine or a production management runner.
+`make test-enrollment` checks the private single-use owner enrollment probe's
+native capacity bound and installed authorization, reply custody and upgrades
+against synthetic Cashier peers. It does not deploy or contact Caffeine.
 `make test-signed` checks signed application/uploader calls and authenticated replies
 through the local gateway, including inspection after deliberately discarding a reply.
 `make test-application` exercises the product reference application and Blob host:
