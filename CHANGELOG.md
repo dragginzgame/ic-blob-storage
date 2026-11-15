@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.100.8] - Unreleased
+
 ## [0.100.7] - 2026-11-15
 
 GitHub development checkpoint on branch `0.100`; not published to crates.io.
