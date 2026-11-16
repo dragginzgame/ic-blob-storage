@@ -9,7 +9,7 @@ exclude = ["qualification"]
 resolver = "3"
 
 [workspace.package]
-version = "0.100.11"
+version = "0.100.12"
 edition = "2024"
 rust-version = "1.100.0"
 license-file = "LICENSE.md"
@@ -18,6 +18,7 @@ publish = false
 [workspace.dependencies]
 clap = { version = "4.6.7", features = ["derive"] }
 ic-blob-storage = { path = "crates/ic-blob-storage" }
+ic-blob-storage-reference-app = { path = "crates/ic-blob-storage-reference-app" }
 ic-host-artifacts = { version = "0.80.1", default-features = false }
 ic-host-fs = { version = "0.80.1", default-features = false }
 ic-platform = { version = "0.33.3", default-features = false }
@@ -29,7 +30,7 @@ serde = { version = "1.0.229", features = ["derive"] }
 sha2 = { version = "0.11.1", default-features = false }
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread", "time", "process"] }
 # Source tooling only.
-toko-tooling = "=0.44.4"
+toko-tooling = "=0.44.5"
 url = "2.5.8"
 
 [workspace.lints.cargo]

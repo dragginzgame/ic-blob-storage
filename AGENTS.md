@@ -65,6 +65,9 @@ Read [the current handoff](docs/status/current.md) first.
 
 Prepare with `make install-tools`; `make ci` is the aggregate gate for tooling,
 formatting, strict Clippy, local behavior, Rustdoc and documentation links.
+`make dependency-pins-check` runs the installed Toko declaration checker across
+both Cargo workspaces and action pins, including workspace inheritance and tracked
+lockfiles. It also runs in `make ci`; runtime and npm checks retain their own owners.
 Use `make test-references` for the in-memory reference tests and `make test-caffeine`
 for streaming and manifest integrity tests. `make test-local` checks the composed
 grant/reference/accounting model and bounded durable reopening. `make example-local`
@@ -109,6 +112,11 @@ browser custody adapter and local cross-origin reads/PUTs. Reload refuses replay
 after success, a lost reply or in-flight cancellation. This does not qualify
 provider acceptance, profile rollback or multi-device custody.
 It installs no browser and stays separate from Node CI and provider qualification.
+`make test-browser-application BROWSER=/absolute/path/to/chrome` joins that browser
+flow to the installed reference catalog, checking publication after verification
+and refusal after cancellation during readback, including stopped/drained
+same-format upgrades of both canisters. Rust owns signed application calls;
+this opt-in local check does not qualify a deployed UI or live provider.
 Package inventory is `make deps-list`;
 `make update` delegates to the shared `deps-update` target for Cargo lock updates.
 LOC is `toko-cloc`. An exact tooling-pin change still requires the authenticated

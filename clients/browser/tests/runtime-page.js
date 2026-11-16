@@ -9,7 +9,7 @@ const length = 5 * 1024 * 1024 + 17;
 const check = (condition, message) => { if (!condition) throw new Error(message); };
 
 try {
-  check(["success", "lost-final-reply", "cancel-chunk"].includes(scenario), "known transport scenario");
+  check(["success", "lost-final-reply", "cancel-chunk", "cancel-read"].includes(scenario), "known transport scenario");
   check(isSecureContext, "Web Crypto requires a secure context");
   const bytes = Uint8Array.from({ length }, (_, i) => (i * 31 + 7) % 251);
   const preparing = prepare(bytes);
@@ -108,7 +108,7 @@ try {
       }
       const { value: transfer, error } = await settled;
       if (error) throw error;
-      check(scenario === "success" && transfer.outcome === "http-acknowledged"
+      check(["success", "cancel-read"].includes(scenario) && transfer.outcome === "http-acknowledged"
         && transfer.acknowledged === 7, "tree and six chunks acknowledged");
       outcome = "http-acknowledged";
     } catch (error) {

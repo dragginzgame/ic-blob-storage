@@ -1,5 +1,61 @@
 # Changelog
 
+## [0.100.12] - 2026-11-16
+
+GitHub development checkpoint; registry publication remains disabled.
+
+### ▶️ Try it
+
+From the repository root, prepare tools once with `make install-tools`. Then:
+
+```sh
+make blob
+blob application --help
+blob application catalog --help
+blob application draft --help
+```
+
+Help shows `Blob 0.100.12` and the required application, network and signing-user
+inputs. Help needs no credentials or network access. Actual inspection uses signed,
+read-only network queries; it does not upload, publish or perform paid provider calls.
+
+### 🔎 Reference-application inspection
+
+- Add `blob application catalog` and `blob application draft --id ...` for the
+  signing user's existing application records. Show the original root, asset,
+  declared length and publication/cleanup disposition; escape asset names for
+  terminal display. Unknown or other-user draft IDs fail without partial output.
+- Reuse the application protocol and CLI query transport. No new canister endpoint,
+  catalog state, publication command or provider operation is added. An installed
+  two-user journey checks isolation, empty/published/cleaned views and unchanged
+  application/Blob state after inspection.
+
+### 🔧 Tooling and dependency declarations
+
+- Adopt Toko Tooling 0.44.5 in both workspace pins/locks through its authenticated
+  exporter. Keep the existing baseline and add the shared declaration checker's
+  required runtime files to the managed snapshot.
+- Add `make dependency-pins-check` to the Linux CI aggregate. Check both Cargo
+  workspaces, inheritance, tracked lockfiles and action pins without treating the
+  exact tooling pin or private qualification versions as policy exceptions.
+
+### 🧪 Browser and application qualification
+
+- Add opt-in `make test-browser-application BROWSER=/absolute/path/to/chrome`,
+  joining actual Chromium proof verification, IndexedDB custody, serial upload,
+  reload replay refusal and verified readback to the installed reference catalog.
+  Upload acknowledgments alone leave the draft unpublished. Cancellation during
+  readback prevents publication even when the late complete read verifies. Both
+  journeys hold readback across supported stop/drain/upgrades of the application
+  and callback host; original state/proof survive and activation stays explicit.
+- Reuse the existing browser and installed-application fixtures. Rust owns signed
+  application calls; no product state, public endpoint or dependency is added.
+  Cleanup preserves outstanding provider exposure. This is local qualification,
+  not a live Caffeine acceptance, snapshot recovery or browser signing witness.
+- Preserve the existing Host FS/Artifacts 0.80.2 lock selections and qualify their
+  direct CLI callers. Blob does not adopt the new retained-stage recovery API;
+  incomplete custody still refuses replacement or automatic recovery.
+
 ## [0.100.11] - 2026-11-16
 
 GitHub development checkpoint; registry publication remains disabled.

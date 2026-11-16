@@ -37,6 +37,12 @@ not Candid methods or a frozen client contract:
 | `app_draft` query | Draft ID | Return current durable disposition to its owning user |
 | `app_catalog` query | Unit | Return this user's published drafts |
 
+`blob application catalog` and `blob application draft --id ...` expose these
+owner-only queries through the native CLI. Select the application canister and
+the user's signing key; the [inspection guide](../operations/storage-inspection.md#your-reference-application-catalog-and-drafts)
+owns command examples and observation limits. The CLI imports the existing protocol
+types rather than duplicating them. It does not create drafts or publish/cancel them.
+
 Choose a globally unique nonzero 128-bit draft ID. It also names the Blob upload
 and first reference and is never reused. Knowledge of it grants no permission.
 The saved input includes the asset name, root, length, deadline, leaves and headers;
@@ -187,3 +193,40 @@ The pinned [legacy publication helper](https://github.com/dragginzgame/ic-blob-s
 also separated immutable preparation and transfer from publication. Its SDK patch,
 browser journal and worker framework are not needed for this consumer; no legacy
 code or recovery records are imported.
+
+### Chromium and the installed catalog — development 0.100.12
+
+`make test-browser-application BROWSER=/absolute/path/to/chrome` reuses the installed
+composition and the real Chromium runtime fixture. Each of its two independent
+installations supplies a newly recovered original proof and its trust root to the
+browser. Chromium authenticates it, commits its IndexedDB claim, sends the tree and
+six chunks, reloads, refuses upload replay and verifies the received bytes against
+the original declaration. The actual application catalog stays empty after PUT
+acknowledgments. Successful verification then precedes the owner's signed
+publication call.
+
+Both cases hold the read remainder through a supported same-format upgrade of the
+application and callback host: stop the application, drain/stop Blob, upgrade both,
+start Blob with admission still closed, explicitly activate the same maintenance
+attempt, then start the application. The fixture compares both stable images before
+and after upgrade; it never replaces state or reissues upload authority.
+
+The cancellation case first cleans the actual draft, then performs that upgrade.
+Chromium still verifies the valid remainder, but the ensuing signed publication
+returns `Cancelled` and the catalog remains empty. Original request, dispatch and
+certificate bytes are unchanged; cleanup retains the full declared provider
+exposure in both cases. Readback and the subsequent publication decision leave
+Blob's post-maintenance stable image unchanged.
+
+The private test pipe carries only synchronization bytes. Rust continues to own IC
+signing and Wire application calls; Chromium owns proof authentication, custody and
+HTTP transfer/read execution. This is installed local composition, not a browser
+signing integration, deployed UI, read attestation or Caffeine acceptance witness.
+No production code, second catalog or new recovery ledger is added. This retains
+the legacy publication helper's ordering invariant cited above and the
+[legacy lifecycle regression's](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/standalone_lifecycle/mod.rs)
+preservation of original obligations and closed admission across upgrades. No
+legacy code or IC-history recovery mechanism is imported: the rewrite qualifies
+ordinary upgrades under trusted controller custody, not snapshot restoration or
+arbitrary rollback. The test is explicitly selected and excluded from routine
+Node/installed callback runs because it requires an externally supplied browser.

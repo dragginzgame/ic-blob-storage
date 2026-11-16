@@ -499,6 +499,19 @@ advances the earlier scaffold assessment without closing the existing-owner gate
 The sibling's dirty ongoing implementation was excluded; only committed evidence
 was read, without changing or executing that checkout.
 
+Follow-up committed review for development 0.100.12 at
+[`0.1.13 / 683adfa`](https://github.com/dragginzgame/ic-storage-new/tree/683adfaad3ae6cc53d229231f180eb818c6fe227)
+finds a transitional 0.74.1 checkpoint adapter and installed native reconstruction
+experiments. These own newly written checkpoint envelopes and locators; they do
+not provide an importer or allocation-growth transition for Blob's already
+consumed enrollment image. The original provider still owns its stored format.
+Dirty sibling work remains excluded, and the existing-owner gate remains open.
+
+Committed follow-up [`92af0d1`](https://github.com/dragginzgame/ic-storage-new/tree/92af0d180676a0cc6dcf7ec09cc7406c14887daa)
+adds installed native record-vector qualification. It still supplies no transition
+for the consumed Blob enrollment image; [the owning issue](https://github.com/dragginzgame/ic-storage-new/issues/1)
+remains open. This review did not execute or modify the sibling.
+
 Keep the selected live probe and Storage dependency unchanged. Revisit
 [ic-storage-new #1](https://github.com/dragginzgame/ic-storage-new/issues/1) when its
 owner supplies the retained-image path; then qualify the exact consumed image and

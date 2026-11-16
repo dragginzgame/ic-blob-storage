@@ -960,7 +960,9 @@ Local evidence covers installed caller rules, bounded domain state, maintenance
 custody and reopening. The 0.100.9 qualification issuer now joins original proof
 recovery, durable transfer claims, six-chunk upload/read and the real application's
 catalog, including corruption and cancellation. The HTTP peer is an owned fixture;
-the standalone product still exports no provider issuer. **D1 is not declared
+0.100.12 also exercises Chromium readback across stopped/drained application and
+callback-host upgrades, preserving state and cancellation. The standalone product
+still exports no provider issuer. **D1 is not declared
 complete:** the selected D0 contract and a qualified production arrangement remain
 open. Local recovery and lifecycle evidence cannot establish provider proof
 acceptance, retention or charge closure.

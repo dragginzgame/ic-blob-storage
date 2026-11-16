@@ -65,8 +65,9 @@ live deployment are not. API and persistence are experimental;
 these local tests do not establish D0/D1 completion or provider closure.
 
 The native [CLI](crates/ic-blob-storage-cli/src/main.rs) supports
-[principal storage overviews](docs/operations/storage-inspection.md), Caffeine account
-inspection, offline enrollment proposals and guarded drain/stop/upgrade/start/activation. The
+[principal storage overviews](docs/operations/storage-inspection.md), owner-only
+reference-application draft/catalog queries, Caffeine account inspection, offline
+enrollment proposals and guarded drain/stop/upgrade/start/activation. The
 [standalone maintenance runbook](docs/operations/standalone-maintenance.md) gives
 the exact inputs, command sequence and interruption decisions. It covers the
 locally qualified experimental host; fresh provisioning and live deployment remain
@@ -78,6 +79,7 @@ view command inputs with:
 make blob
 blob --help
 blob overview --help
+blob application --help
 blob maintenance inspect --help
 ```
 
@@ -89,12 +91,12 @@ The previous implementation, Git history and provider/recovery custody are in
 `../ic-blob-storage-legacy` (see its `LEGACY.md`) and the private
 [legacy GitHub repository](https://github.com/dragginzgame/ic-blob-storage-legacy).
 Existing crates.io releases remain the legacy line. The rewrite's first GitHub
-checkpoint is `0.100.0`; this checkpoint is `0.100.11`, inherited from the root
+checkpoint is `0.100.0`; this checkpoint is `0.100.12`, inherited from the root
 workspace version. Publication remains disabled. This is a new breaking release
 line, not a registry version reset or a migration for existing installations.
 
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.44.4. Both workspaces select IC Wire 0.24.0's root-level
+and published Toko Tooling 0.44.5. Both workspaces select IC Wire 0.24.1's root-level
 `Encoding` API; no old `native` API adapter is retained. GitHub development uses the `0.100` branch of
 `dragginzgame/ic-blob-storage`. There is no release/deployment configuration.
 
@@ -179,6 +181,9 @@ delegates to Toko Tooling's `make deps-update` (`cargo update -v`), updating loc
 within the manifest requirements. To select one dependency, use
 `make update DEPENDENCY_PACKAGE=toko-tooling`; `DEPENDENCY_PRECISE` optionally
 selects a version allowed by its manifest requirement.
+`make dependency-pins-check` admits Cargo declarations/inheritance in both
+workspaces, tracked lockfiles and GitHub action pins. It is part of `make ci`;
+it does not replace locked dependency preparation or behavior tests.
 
 Toko Tooling remains exactly pinned. Adopting a newer release requires updating
 both workspace pins and lockfiles, then running `TMPDIR=/tmp make toko-tooling-preview` followed by

@@ -1,7 +1,8 @@
 # Storage inspection
 
-The `blob` binary from `ic-blob-storage-cli` has two separate storage views. Neither
-enumerates an entire network or discovers all installations for a principal.
+The `blob` binary from `ic-blob-storage-cli` inspects a selected Blob installation,
+reference application or Caffeine account. It does not enumerate an entire network
+or discover all installations for a principal.
 Run `make blob` from the repository root after `make install-tools`. It builds and
 installs the development executable using Cargo's standard installer, normally
 at `~/.cargo/bin/blob`, so the examples below use `blob` directly. Run `make blob`
@@ -22,6 +23,7 @@ Start with `blob --help`, then use a group's help for its operations:
 | Command | Purpose |
 | --- | --- |
 | `blob overview` | Inspect one uploader in a Blob installation |
+| `blob application catalog` / `draft` | Inspect the signing user's reference-application records |
 | `blob provider inspect` | Inspect one Caffeine account |
 | `blob provider prepare-enrollment` | Prepare an offline enrollment proposal |
 | `blob certificate --help` | Prepare, dispatch once, then recover the original certificate request |
@@ -72,6 +74,41 @@ ledger. The standalone service returns its entire bounded history (at most 64 up
 and 64 reference names) in one observation. There is no cursor or partial-success
 mode. Older hosts without the appended Wire inspection variant reject the command;
 the CLI does not guess an inventory. No durable format change or migration is needed.
+
+## Your reference-application catalog and drafts
+
+Use the reference application's canister ID and the owning user's key:
+
+```sh
+blob application catalog \
+  --url https://icp-api.io --canister "$APPLICATION_CANISTER" \
+  --identity "$USER_PEM"
+
+blob application draft \
+  --url https://icp-api.io --canister "$APPLICATION_CANISTER" \
+  --identity "$USER_PEM" --id "$DRAFT_ID"
+```
+
+For an owned local replica, use its loopback `--url` and supply the independently
+trusted `--root-key` DER file. The CLI never fetches a replacement trust root.
+`catalog` lists only this user's Published drafts; `draft` inspects the original
+nonzero ID, including Draft, Cancelled and Cleaned records. An empty catalog says
+nothing about unpublished drafts, provider storage or other users. Knowledge of
+another user's ID does not grant access, even if both users are allowed by the app.
+Unknown and denied requests fail without printing a partial report.
+
+The report shows the saved asset name, original root, declared length, first
+reference ID and current application disposition. Asset names are escaped for
+terminal display. `Cancelled` means cleanup remains pending; `Cleaned` means the
+application finished reference cleanup or established that the exact grant expired
+without admission. Neither status proves provider deletion or billing settlement.
+
+These are signed queries with reply-signature verification, not consensus-certified
+observations or current Blob liveness checks. There is no fallback to another
+principal, host or endpoint, and no create, publication, cancellation or provider
+effect. The CLI directly reuses the reference application's existing protocol
+types; no new endpoint or catalog ledger is added. It cannot sign as an application
+canister to provide `blob overview`'s application-wide inventory.
 
 ## One Caffeine account or owner
 

@@ -7,6 +7,9 @@ fn help_navigates_groups_without_loading_inputs() {
     for path in [
         vec![],
         vec!["provider"],
+        vec!["application"],
+        vec!["application", "catalog"],
+        vec!["application", "draft"],
         vec!["certificate"],
         vec!["transfer"],
         vec!["maintenance"],
@@ -38,6 +41,8 @@ fn groups_and_incomplete_dispatch_never_select_an_operation() {
     for path in [
         vec!["certificate"],
         vec!["maintenance"],
+        vec!["application"],
+        vec!["application", "draft"],
         vec!["certificate", "dispatch"],
         vec!["maintenance", "dispatch-drain"],
     ] {
@@ -50,4 +55,27 @@ fn groups_and_incomplete_dispatch_never_select_an_operation() {
                 | ErrorKind::MissingRequiredArgument
         ));
     }
+}
+
+#[test]
+fn application_inspection_requires_a_signer_and_nonzero_draft_id() {
+    let target = [
+        "--url",
+        "https://icp-api.io",
+        "--canister",
+        "rrkah-fqaaa-aaaaa-aaaaq-cai",
+    ];
+    let missing = Cli::try_parse_from(["blob", "application", "catalog"].into_iter().chain(target))
+        .err()
+        .unwrap();
+    assert_eq!(missing.kind(), ErrorKind::MissingRequiredArgument);
+    let invalid = Cli::try_parse_from(
+        ["blob", "application", "draft"]
+            .into_iter()
+            .chain(target)
+            .chain(["--identity", "not-opened.pem", "--id", "0"]),
+    )
+    .err()
+    .unwrap();
+    assert_eq!(invalid.kind(), ErrorKind::ValueValidation);
 }

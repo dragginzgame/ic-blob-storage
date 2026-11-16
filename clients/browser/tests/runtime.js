@@ -4,15 +4,39 @@ import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { createServer } from "node:http";
 import { mkdir, mkdtemp, readFile, rm, open } from "node:fs/promises";
-import { resolve } from "node:path";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseArgs } from "node:util";
 import { build } from "esbuild";
 
 const browser = process.env.BROWSER;
 assert.ok(browser?.startsWith("/"), "Set BROWSER to an absolute Chromium executable path");
+const { values } = parseArgs({ options: Object.fromEntries(
+  ["directory", "request", "issuer", "uploader", "url", "scenario"].map(key => [key, { type: "string" }])) });
+const application = values.directory !== undefined;
+const replies = application ? process.stdin[Symbol.asyncIterator]() : null;
+async function barrier(stage) {
+  process.stdout.write(stage);
+  const reply = await replies.next();
+  assert.equal(reply.done, false);
+  assert.equal(reply.value.length, 1);
+  return reply.value.toString();
+}
 const length = 5 * 1024 * 1024 + 17;
 const bytes = Buffer.from(Uint8Array.from({ length }, (_, i) => (i * 31 + 7) % 251));
 const fixture = JSON.parse(await readFile(new URL("./fixtures/certificate.json", import.meta.url)));
+if (application) {
+  assert.ok(values.request && values.issuer && values.uploader && values.url);
+  assert.ok(["success", "cancel-read"].includes(values.scenario));
+  assert.ok(["127.0.0.1", "localhost", "[::1]"].includes(new URL(values.url).hostname));
+  const certificate = await readFile(join(values.directory, "certificate.cbor"));
+  const badCertificate = Buffer.from(certificate);
+  badCertificate[badCertificate.length - 1] ^= 1;
+  Object.assign(fixture, { issuer: values.issuer, uploader: values.uploader,
+    request: (await readFile(values.request)).toString("base64"),
+    rootKey: (await readFile(join(values.directory, "root.der"))).toString("base64"),
+    certificate: certificate.toString("base64"), badCertificate: badCertificate.toString("base64") });
+}
 const bundle = await build({ entryPoints: [fileURLToPath(new URL("../src/custody.js", import.meta.url))],
   bundle: true, format: "esm", platform: "browser", write: false });
 
@@ -120,7 +144,17 @@ async function qualify(scenario) {
     } else if (request.url === "/partial") {
       response.writeHead(206).end(bytes);
     } else if (request.url === "/uploaded") {
-      response.end(Buffer.concat(uploaded));
+      const receivedBytes = Buffer.concat(uploaded);
+      if (application) {
+        response.writeHead(200, { "Content-Length": receivedBytes.length });
+        response.write(receivedBytes.subarray(0, 1));
+        // Keep Chromium's read pending through cancellation and supported upgrades.
+        void (async () => {
+          if (scenario === "cancel-read") assert.equal(await barrier("R"), "C");
+          assert.equal(await barrier("U"), "U");
+          response.end(receivedBytes.subarray(1));
+        })().catch(error => { peerFailure = error; response.destroy(); });
+      } else response.end(receivedBytes);
     } else if (["/ok", "/no-cors"].includes(request.url)) {
       response.end(bytes);
     } else {
@@ -153,7 +187,11 @@ async function qualify(scenario) {
           chunks.push(chunk);
         }
         const value = JSON.parse(Buffer.concat(chunks).toString());
-        if (value.stage === "first") first = value;
+        if (value.stage === "first") {
+          first = value;
+          // The owning user still has an unpublished draft after every PUT succeeds.
+          if (application) assert.equal(await barrier("A"), "A");
+        }
         else report(value);
         response.end();
       } catch (error) {
@@ -167,8 +205,9 @@ async function qualify(scenario) {
     response.writeHead(200, { "Content-Type": source[0], "Cache-Control": "no-store" }).end(source[1]);
   });
 
-  await mkdir(resolve("target"), { recursive: true });
-  const scratch = await mkdtemp(resolve("target/browser-runtime-"));
+  const outputDirectory = fileURLToPath(new URL("../../../target/", import.meta.url));
+  await mkdir(outputDirectory, { recursive: true });
+  const scratch = await mkdtemp(join(outputDirectory, "browser-runtime-"));
   const log = await open(`${scratch}/chromium.log`, "w");
   let child, closed, timer;
   try {
@@ -178,6 +217,8 @@ async function qualify(scenario) {
     await once(page, "listening");
     pageOrigin = `http://127.0.0.1:${page.address().port}`;
     const peerOrigin = `http://127.0.0.1:${peer.address().port}`;
+    // Private parent pipe: Rust owns actual user signing and Wire app operations.
+    if (application) assert.equal(await barrier("S"), "S");
     child = spawn(browser, ["--headless", "--disable-gpu", "--no-first-run",
       "--no-default-browser-check", "--disable-background-networking", "--disable-sync",
       `--user-data-dir=${scratch}/profile`, `${pageOrigin}/?peer=${encodeURIComponent(peerOrigin)}&scenario=${scenario}`],
@@ -197,7 +238,7 @@ async function qualify(scenario) {
     assert.equal(result.refused, true);
     assert.equal(result.root, first.root);
     assert.equal(result.verified, scenario !== "cancel-chunk");
-    assert.equal(first.outcome, scenario === "success" ? "http-acknowledged" : "uncertain");
+    assert.equal(first.outcome, ["success", "cancel-read"].includes(scenario) ? "http-acknowledged" : "uncertain");
     assert.equal(first.root, "sha256:bc608ea2567f6809b872afc8e9ec44fc0addf3fd58a00e7f7aa7757b35927a03");
     assert.deepEqual(first.refused, ["corrupt", "short", "extra", "partial", "redirect", "no-cors", "stall"]);
     assert.equal(first.cancelled, true);
@@ -207,7 +248,13 @@ async function qualify(scenario) {
     assert.equal(uploaded.length, scenario === "cancel-chunk" ? 1 : 6);
     assert.equal(activePuts, 0);
     assert.ok(preflights > 0, "actual cross-origin PUT preflight");
-    console.log(`Chromium ${scenario} passed: ${puts} PUTs, reload refuses replay, read ${result.verified ? "verified" : "refused incomplete bytes"}.`);
+    if (application) {
+      // Only the verified browser result permits asking the real app to publish.
+      assert.equal(result.verified, true);
+      assert.equal(await barrier("P"), scenario === "success" ? "P" : "C");
+      assert.equal(await barrier("X"), "X");
+    }
+    console.error(`Chromium ${scenario} passed: ${puts} PUTs, reload refuses replay, read ${result.verified ? "verified" : "refused incomplete bytes"}.`);
   } finally {
     clearTimeout(timer);
     if (child) {
@@ -218,11 +265,15 @@ async function qualify(scenario) {
     }
     for (const server of [page, peer]) { server.closeAllConnections(); server.close(); }
     await log.close();
-    console.log(`Browser diagnostics: ${scratch}/chromium.log`);
+    console.error(`Browser diagnostics: ${scratch}/chromium.log`);
     // Chromium helpers may finish profile writes just after the parent closes.
     // Bound cleanup retries; an exhausted failure still fails the qualification.
     await rm(`${scratch}/profile`, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
   }
 }
 
-for (const scenario of ["success", "lost-final-reply", "cancel-chunk"]) await qualify(scenario);
+try {
+  for (const scenario of application ? [values.scenario] : ["success", "lost-final-reply", "cancel-chunk"]) {
+    await qualify(scenario);
+  }
+} finally { if (application) process.stdin.destroy(); }

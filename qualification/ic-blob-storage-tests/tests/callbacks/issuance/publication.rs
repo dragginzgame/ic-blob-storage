@@ -78,8 +78,59 @@ async fn catalog(user: &Agent, app: CanisterId) -> Vec<DraftView> {
     .unwrap()
 }
 
+async fn cli_application(
+    directory: &Path,
+    url: &str,
+    app: CanisterId,
+    id: Option<u128>,
+) -> std::process::Output {
+    let mut command =
+        tokio::process::Command::new(std::env::var_os("BLOB_CLI").expect("set BLOB_CLI"));
+    command
+        .args([
+            "application",
+            if id.is_some() { "draft" } else { "catalog" },
+            "--url",
+            url,
+            "--canister",
+            &app.to_text(),
+        ])
+        .arg("--identity")
+        .arg(directory.join("uploader.pem"))
+        .arg("--root-key")
+        .arg(directory.join("root.der"))
+        .kill_on_drop(true);
+    if let Some(id) = id {
+        command.args(["--id", &id.to_string()]);
+    }
+    tokio::time::timeout(Duration::from_secs(30), command.output())
+        .await
+        .unwrap()
+        .unwrap()
+}
+
+fn cli_report(output: &std::process::Output) -> &str {
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    std::str::from_utf8(&output.stdout).unwrap()
+}
+
 #[tokio::test]
 async fn verified_read_publication_and_inflight_cancellation_use_the_real_catalog() {
+    publication_cases(false).await;
+}
+
+#[tokio::test]
+#[ignore = "requires explicit BROWSER; run make test-browser-application"]
+async fn browser_publication_and_late_read_use_the_real_catalog() {
+    assert!(std::env::var_os("BROWSER").is_some(), "set BROWSER");
+    publication_cases(true).await;
+}
+
+async fn publication_cases(browser: bool) {
     let mut owned = server()
         .build_instance(
             PocketIcBuilder::new()
@@ -95,18 +146,28 @@ async fn verified_read_publication_and_inflight_cancellation_use_the_real_catalo
     .unwrap();
     let url = owned.instance_mut().make_live(None).await;
     let draft = declaration();
-    for (scenario, stages) in [
-        ("success", "APX"),
-        ("corrupt", "AFX"),
-        ("cancel-transfer", "TPX"),
-        ("cancel-read", "ARPX"),
-        ("lost-final-reply", "LFX"),
-        ("interrupted-read", "ADFX"),
-        ("crash-transfer", "K"),
-        ("reconcile", "LFSPX"),
-        ("reconcile-corrupt", "LFSFX"),
-        ("reconcile-cancelled", "LFSRPX"),
-    ] {
+    let cases: &[(&str, &str)] = if browser {
+        &[("success", "SAUPX"), ("cancel-read", "SARUPX")]
+    } else {
+        &[
+            ("success", "APX"),
+            ("corrupt", "AFX"),
+            ("cancel-transfer", "TPX"),
+            ("cancel-read", "ARPX"),
+            ("lost-final-reply", "LFX"),
+            ("interrupted-read", "ADFX"),
+            ("crash-transfer", "K"),
+            ("reconcile", "LFSPX"),
+            ("reconcile-corrupt", "LFSFX"),
+            ("reconcile-cancelled", "LFSRPX"),
+        ]
+    };
+    for &(scenario, stages) in cases {
+        let mut draft = draft.clone();
+        let inspect_cli = !browser && scenario == "success";
+        if inspect_cli {
+            draft.asset = "portrait\n\u{1b}[31m".into();
+        }
         // Each case owns a fresh installation, not a reset of an exposed root.
         let app = owned.instance().create_canister().await;
         owned.instance().add_cycles(app, 10_000_000_000_000).await;
@@ -126,7 +187,7 @@ async fn verified_read_publication_and_inflight_cancellation_use_the_real_catalo
                     "app_init",
                     &AppInstallation {
                         blob: Principal::from_slice(owner.as_slice()),
-                        users: vec![signer(2)],
+                        users: vec![signer(2), signer(3)],
                     },
                 ),
                 None,
@@ -140,16 +201,58 @@ async fn verified_read_publication_and_inflight_cancellation_use_the_real_catalo
                 .phase,
             Phase::Draft
         );
-        let directory = certificate_directory(&format!("publication-{scenario}-test"), &trust_root);
+        let directory = certificate_directory(
+            &format!("publication-{browser}-{scenario}-test"),
+            &trust_root,
+        );
         let claim = retain_proof(&directory, url.as_str(), owner, draft.root, &trust_root).await;
         let original_packet = std::fs::read(claim.join("request.cbor")).unwrap();
         let original_dispatch = std::fs::read(claim.join("dispatch.claim")).unwrap();
+        let original_proof = std::fs::read(directory.join("certificate.cbor")).unwrap();
+        if inspect_cli {
+            // A second allowed user owns a published use of this same object.
+            // The CLI's signer cannot inspect it just by knowing its draft ID.
+            let other = agent(url.as_str(), &trust_root, 3);
+            let mut other_draft = draft.clone();
+            other_draft.id = 2.try_into().unwrap();
+            app_update(&other, app, "app_create", &other_draft)
+                .await
+                .unwrap();
+            app_update(&other, app, "app_publish", &other_draft.id)
+                .await
+                .unwrap();
+            let app_before = owned.instance().get_stable_memory(app).await;
+            let blob_before = owned.instance().get_stable_memory(owner).await;
+            let output = cli_application(&directory, url.as_str(), app, None).await;
+            assert!(cli_report(&output).contains("Published catalog entries: 0"));
+            let output = cli_application(&directory, url.as_str(), app, Some(1)).await;
+            let report = cli_report(&output);
+            assert!(report.contains("Draft (unpublished)"));
+            assert!(report.contains("portrait\\n\\u{1b}[31m"));
+            assert!(!report.contains('\u{1b}'));
+            for (id, refusal) in [(2, "Denied"), (99, "Unknown")] {
+                let output = cli_application(&directory, url.as_str(), app, Some(id)).await;
+                assert!(!output.status.success());
+                assert!(output.stdout.is_empty());
+                assert!(
+                    std::str::from_utf8(&output.stderr)
+                        .unwrap()
+                        .contains(refusal)
+                );
+            }
+            assert_eq!(owned.instance().get_stable_memory(app).await, app_before);
+            assert_eq!(owned.instance().get_stable_memory(owner).await, blob_before);
+            app_update(&other, app, "app_cancel", &other_draft.id)
+                .await
+                .unwrap();
+        }
         let mut client = tokio::process::Command::new("node");
         client
-            .arg(
-                PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                    .join("../../clients/browser/tests/installed-transfer.js"),
-            )
+            .arg(PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(if browser {
+                "../../clients/browser/tests/runtime.js"
+            } else {
+                "../../clients/browser/tests/installed-transfer.js"
+            }))
             .arg("--directory")
             .arg(&directory)
             .args([
@@ -166,6 +269,9 @@ async fn verified_read_publication_and_inflight_cancellation_use_the_real_catalo
             .stdout(Stdio::piped())
             .stderr(Stdio::inherit())
             .kill_on_drop(true);
+        if browser {
+            client.arg("--request").arg(claim.join("request.cbor"));
+        }
         let mut child = client.spawn().unwrap();
         let mut events = child.stdout.take().unwrap();
         let mut replies = child.stdin.take().unwrap();
@@ -199,11 +305,46 @@ async fn verified_read_publication_and_inflight_cancellation_use_the_real_catalo
                         before_read = Some(owned.instance().get_stable_memory(owner).await);
                         b'S'
                     }
+                    b'U' => {
+                        // The HTTP read is outside both canisters. Stop/drain their
+                        // runtime calls, preserving the draft and issued obligation.
+                        let pic = owned.instance();
+                        assert!(catalog(&user, app).await.is_empty());
+                        pic.stop_canister(app, None).await.unwrap();
+                        let app_before = pic.get_stable_memory(app).await;
+                        let manager = agent(url.as_str(), &trust_root, 9);
+                        let drained = signed_command(&manager, owner, Command::Drain(1)).await;
+                        assert!(matches!(drained, Outcome::Maintenance(m) if m.attempt == 1 && !m.active));
+                        pic.stop_canister(owner, None).await.unwrap();
+                        let owner_before = pic.get_stable_memory(owner).await;
+                        pic.upgrade_canister(owner, wasm(), frame("callback_upgrade", &()), None)
+                            .await.unwrap();
+                        pic.upgrade_canister(app, app_wasm.clone(), frame("app_post_upgrade", &()), None)
+                            .await.unwrap();
+                        assert_eq!(pic.get_stable_memory(owner).await, owner_before);
+                        assert_eq!(pic.get_stable_memory(app).await, app_before);
+                        pic.start_canister(owner, None).await.unwrap();
+                        // Reopening must not silently activate admission.
+                        assert_eq!(signed_command(&manager, owner, Command::Drain(1)).await, drained);
+                        assert_eq!(pic.get_stable_memory(owner).await, owner_before);
+                        let active = signed_command(&manager, owner, Command::Activate(1)).await;
+                        assert!(matches!(active, Outcome::Maintenance(m) if m.attempt == 1 && m.active));
+                        pic.start_canister(app, None).await.unwrap();
+                        assert!(catalog(&user, app).await.is_empty());
+                        before_read = Some(pic.get_stable_memory(owner).await);
+                        b'U'
+                    }
                     b'P' => {
                         let published = app_update(&user, app, "app_publish", &draft.id).await;
                         if matches!(scenario, "success" | "reconcile") {
                             assert_eq!(published.unwrap().phase, Phase::Published);
                             assert_eq!(catalog(&user, app).await[0].input, draft);
+                            if inspect_cli {
+                                let output = cli_application(&directory, url.as_str(), app, None).await;
+                                let report = cli_report(&output);
+                                assert!(report.contains("Published catalog entries: 1"));
+                                assert!(report.contains("Published (in application catalog)"));
+                            }
                             b'P'
                         } else {
                             // A correct late read, or a stale client command, cannot undo cancellation.
@@ -234,39 +375,45 @@ async fn verified_read_publication_and_inflight_cancellation_use_the_real_catalo
             std::fs::read(claim.join("dispatch.claim")).unwrap(),
             original_dispatch
         );
-        let intent = std::fs::read(claim.join("transfer/intent.wire")).unwrap();
-        assert!(!intent.is_empty());
-        let proof = std::fs::read(claim.join("transfer/certificate.cbor")).unwrap();
         assert_eq!(
-            proof,
-            std::fs::read(directory.join("certificate.cbor")).unwrap()
+            std::fs::read(directory.join("certificate.cbor")).unwrap(),
+            original_proof
         );
-        if scenario.starts_with("reconcile")
-            || matches!(
-                scenario,
-                "lost-final-reply" | "interrupted-read" | "crash-transfer"
-            )
-        {
-            // An independently started client reopens the original claim. It uses
-            // a fresh prepared handle/gateway but must not issue another PUT.
-            let output =
-                tokio::time::timeout(Duration::from_secs(30), client.arg("--replay").output())
-                    .await
-                    .unwrap()
-                    .unwrap();
-            assert!(output.status.success(), "{scenario}");
+        if !browser {
+            let intent = std::fs::read(claim.join("transfer/intent.wire")).unwrap();
+            assert!(!intent.is_empty());
+            let proof = std::fs::read(claim.join("transfer/certificate.cbor")).unwrap();
             assert_eq!(
-                String::from_utf8_lossy(&output.stdout).trim(),
-                "replay-refused"
+                proof,
+                std::fs::read(directory.join("certificate.cbor")).unwrap()
             );
-            assert_eq!(
-                std::fs::read(claim.join("transfer/intent.wire")).unwrap(),
-                intent
-            );
-            assert_eq!(
-                std::fs::read(claim.join("transfer/certificate.cbor")).unwrap(),
-                proof
-            );
+            if scenario.starts_with("reconcile")
+                || matches!(
+                    scenario,
+                    "lost-final-reply" | "interrupted-read" | "crash-transfer"
+                )
+            {
+                // An independently started client reopens the original claim. It uses
+                // a fresh prepared handle/gateway but must not issue another PUT.
+                let output =
+                    tokio::time::timeout(Duration::from_secs(30), client.arg("--replay").output())
+                        .await
+                        .unwrap()
+                        .unwrap();
+                assert!(output.status.success(), "{scenario}");
+                assert_eq!(
+                    String::from_utf8_lossy(&output.stdout).trim(),
+                    "replay-refused"
+                );
+                assert_eq!(
+                    std::fs::read(claim.join("transfer/intent.wire")).unwrap(),
+                    intent
+                );
+                assert_eq!(
+                    std::fs::read(claim.join("transfer/certificate.cbor")).unwrap(),
+                    proof
+                );
+            }
         }
         let bytes = user
             .query(&app, "app_draft")
@@ -305,6 +452,16 @@ async fn verified_read_publication_and_inflight_cancellation_use_the_real_catalo
             Phase::Cleaned
         );
         assert!(catalog(&user, app).await.is_empty());
+        if inspect_cli {
+            let app_before = owned.instance().get_stable_memory(app).await;
+            let blob_before = owned.instance().get_stable_memory(owner).await;
+            let output = cli_application(&directory, url.as_str(), app, None).await;
+            assert!(cli_report(&output).contains("Published catalog entries: 0"));
+            let output = cli_application(&directory, url.as_str(), app, Some(1)).await;
+            assert!(cli_report(&output).contains("Cleaned (application cleanup finished)"));
+            assert_eq!(owned.instance().get_stable_memory(app).await, app_before);
+            assert_eq!(owned.instance().get_stable_memory(owner).await, blob_before);
+        }
         // Simulator inspection as the application authority; application operations
         // above use the real user signature and the application's outgoing calls.
         let bytes = owned

@@ -6,6 +6,11 @@ permissions, pinned external action revisions and no deployment credentials.
 
 - Linux owns `make ci`: tooling/pin admission, non-mutating formatting, strict
   product and qualification Clippy, local Rust/Node behavior, Rustdoc and links.
+  `make dependency-pins-check` uses Toko's declaration checker for both Cargo
+  workspaces, workspace inheritance, tracked lockfiles and GitHub action pins.
+  Private qualification versions remain independent; the exact tooling pin needs
+  no exception. This is declaration admission, not transitive dependency or npm
+  verification; locked preparation and runtime checks remain separate.
   `make build-host build-reference-app` also checks and builds the production
   Wasm boundaries. Setup prepares the compiler from `rust-toolchain.toml`, pinned
   common tools, both locked Cargo graphs and the browser's locked npm graph.

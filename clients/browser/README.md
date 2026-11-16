@@ -63,6 +63,24 @@ of Caffeine upload admission or serving behavior. Separate bodyless OPTIONS call
 to its two public upload routes returned HTTP 200 and advertised PUT, wildcard
 origin and the required headers; see the [provider observation](../../docs/design/caffeine-observation.json).
 
+To join Chromium to the installed reference application's real catalog, run:
+
+```sh
+make test-browser-application BROWSER=/absolute/path/to/chrome
+```
+
+This opt-in local fixture recovers a fresh installed issuer's original proof and
+uses browser IndexedDB custody, cross-origin PUTs and verified readback. Upload
+acknowledgments leave the catalog empty; reload refuses upload replay. A verified
+read precedes the owning user's publication call. A second case cancels the draft
+while readback is pending: the valid late read still cannot publish it. Rust owns
+the actual signed application calls through private test pipes; this does not
+provide a deployed browser UI or browser IC signing. Both cases preserve unresolved
+provider exposure after cleanup. They also hold readback across stop/drain and
+same-format upgrades of both canisters, preserving stable state, original proof
+and explicit admission activation. This does not qualify snapshot recovery. See the
+[installed browser evidence](../../docs/design/reference-application.md#chromium-and-the-installed-catalog--development-010012).
+
 ## Application boundary
 
 ```js

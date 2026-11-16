@@ -1,5 +1,6 @@
 //! Native storage inspection, offline enrollment proposals and maintenance custody.
 
+mod application;
 mod certificate;
 mod files;
 mod management;
@@ -54,6 +55,9 @@ fn help_command() -> clap::Command {
 enum Command {
     /// List one uploader's local grants, distinct roots and application references.
     Overview(overview::Input),
+    /// Inspect your drafts and published catalog in the reference application.
+    #[command(subcommand)]
+    Application(application::Command),
     /// Inspect Caffeine accounts and prepare enrollment proposals.
     #[command(subcommand)]
     Provider(ProviderCommand),
@@ -442,6 +446,7 @@ impl Context {
 async fn run(command: Command) -> Result<String, String> {
     match command {
         Command::Overview(input) => overview::run(input).await,
+        Command::Application(command) => application::run(command).await,
         Command::Provider(ProviderCommand::Inspect(input)) => provider::inspect(input).await,
         Command::Provider(ProviderCommand::PrepareEnrollment(input)) => provider::prepare(&input),
         Command::Certificate(CertificateCommand::Recover(input)) => certificate::run(input).await,
@@ -684,6 +689,7 @@ async fn main() -> ExitCode {
     let read_only = matches!(
         command,
         Command::Overview(_)
+            | Command::Application(_)
             | Command::Provider(_)
             | Command::Certificate(CertificateCommand::Recover(_) | CertificateCommand::Prepare(_))
             | Command::Transfer(_)

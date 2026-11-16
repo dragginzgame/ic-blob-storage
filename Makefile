@@ -9,18 +9,21 @@ include vendor/toko-tooling/make/consumer.mk
 include vendor/toko-tooling/make/cargo-dependencies.mk
 
 .PHONY: help deps update clippy clippy-qualification test-references test-caffeine test-local test-cli example-local test-example-local docs-check docs-qualification-check documentation-links-check ci qualification-tooling-check install-test-server test-server-check clippy-host build-host test-standalone test-capacity blob build-cli test-management build-reply-probe test-endpoints test-signed build-reference-app test-application build-enrollment-probe test-enrollment
-.PHONY: build-callback-probe test-callbacks test-browser test-browser-runtime install-browser-tools browser-tools-check
+.PHONY: build-callback-probe test-callbacks test-browser test-browser-runtime test-browser-application install-browser-tools browser-tools-check
+.PHONY: dependency-pins-check
 
 help:
 	@printf '%s\n' \
 	  'make install-tools / tools-check  Prepare / admit the selected development tools' \
 	  'make toko-tooling-check           Admit the locked tooling snapshot' \
+	  'make dependency-pins-check       Check Cargo inheritance, lockfiles and action pins' \
 	  'make fmt / fmt-check              Format / check workspace source' \
 	  'make clippy / clippy-qualification  Strict product / qualification lint checks' \
 	  'make test-references             Bounded object-reference behavior tests' \
 	  'make test-caffeine               Caffeine stream and manifest integrity tests' \
 	  'make test-browser               Minimal transfer client (Node 24+, local HTTP only)' \
 	  'make test-browser-runtime       Chromium transport (BROWSER=/absolute/path)' \
+	  'make test-browser-application   Chromium with the installed application catalog' \
 	  'make install-browser-tools      Install locked npm dependencies without scripts' \
 	  'make test-local                  Local grant, reference and accounting tests' \
 	  'make test-cli                    Provider reply and offline enrollment checks' \
@@ -68,6 +71,9 @@ qualification-tooling-check: toko-tooling-check
 	  qualification="$$(perl vendor/toko-tooling/scripts/dev/tooling-lock.pl "$(CURDIR)/qualification")" && \
 	  { test "$$product" = "$$qualification" || { printf '%s\n' 'Qualification must select the same installed Toko Tooling payload as the product workspace.' >&2; exit 1; }; }
 
+dependency-pins-check: qualification-tooling-check
+	bash vendor/toko-tooling/scripts/ci/check-dependency-pins.sh --consumer "$(CURDIR)" --cargo-inheritance
+
 test-references:
 	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --lib references::tests
 
@@ -88,6 +94,14 @@ browser-tools-check:
 
 test-browser-runtime: toko-tooling-check
 	BROWSER="$(BROWSER)" node clients/browser/tests/runtime.js
+
+test-browser-application: build-callback-probe build-cli build-reference-app
+	@test -n "$(BROWSER)" || { printf '%s\n' 'Set BROWSER to an absolute Chromium executable path.' >&2; exit 1; }
+	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test callbacks -- -D warnings
+	@probe="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_callback_probe") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one callback probe artifact") end' target/blob-callback-probe-artifacts.jsonl)" && \
+	  cli="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "blob" and .executable != null) | .executable] | if length == 1 then .[0] else error("expected one Blob CLI artifact") end' target/blob-cli-artifacts.jsonl)" && \
+	  app="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_reference_app") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one application Wasm artifact") end' target/blob-reference-app-artifacts.jsonl)" && \
+	  BROWSER="$(BROWSER)" BLOB_CALLBACK_PROBE="$$probe" BLOB_CLI="$$cli" BLOB_REFERENCE_APP="$$app" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test callbacks browser_publication_and_late_read_use_the_real_catalog -- --ignored
 
 test-local:
 	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --lib local::
@@ -194,4 +208,4 @@ test-example-local:
 documentation-links-check:
 	@find docs clients -name node_modules -prune -o -type f -name '*.md' -print0 | xargs -0 perl vendor/toko-tooling/scripts/ci/check-documentation-links.pl --root . *.md
 
-ci: toko-tooling-check fmt-check clippy clippy-qualification test-references test-caffeine test-local test-cli test-browser example-local test-example-local docs-check docs-qualification-check documentation-links-check
+ci: toko-tooling-check dependency-pins-check fmt-check clippy clippy-qualification test-references test-caffeine test-local test-cli test-browser example-local test-example-local docs-check docs-qualification-check documentation-links-check

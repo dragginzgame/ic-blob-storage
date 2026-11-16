@@ -204,7 +204,7 @@ fn agent(url: &str, root: &[u8], seed: u8) -> Agent {
     agent.set_root_key(root.to_vec());
     agent
 }
-async fn signed_command(agent: &Agent, owner: CanisterId, command: Command) {
+async fn signed_command(agent: &Agent, owner: CanisterId, command: Command) -> Outcome {
     let bytes = agent
         .update(&owner, "blob_update")
         .with_arg(frame("blob_update", &command))
@@ -220,7 +220,7 @@ async fn signed_command(agent: &Agent, owner: CanisterId, command: Command) {
         RPC_LIMITS,
     )
     .unwrap();
-    result.unwrap();
+    result.unwrap()
 }
 
 fn certificate_command(
