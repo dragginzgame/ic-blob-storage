@@ -2,10 +2,11 @@
 
 ## Delivery and scope
 
-Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.12 is prepared for
-the requested GitHub release**. Four product packages and both locks select
-0.100.12; qualification versions stay independent and publication stays disabled.
-Previous delivered checkpoint: [0.100.11](https://github.com/dragginzgame/ic-blob-storage/tree/v0.100.11).
+Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.12 is pushed** at
+[`9d0e343`](https://github.com/dragginzgame/ic-blob-storage/commit/9d0e343cd0d1be1f31dc20c81b67e4112d3c1023).
+Remote branch and annotated `v0.100.12` peeled tag were verified. Four product
+packages and both locks select 0.100.12; qualification versions stay independent
+and publication stays disabled.
 
 Rust 1.100.0, Tooling 0.44.5 (61-file snapshot), Platform 0.33.7, Runtime 0.22.5,
 Types 0.20.4, Testkit 0.106.0/PocketIC 16.1.0 remain selected.
@@ -20,7 +21,7 @@ No unrestricted-controller rollback/snapshot continuity guarantee exists.
 Registry freshness review in `target/010012-release-suppliers.log` confirms current
 first-party direct selections. Testkit's private Host 0.79 edges remain supplier-owned;
 its latest 0.106.0 has no newer supported selection. No optional refresh is pending.
-`make dependency-pins-check` now runs in Linux CI; hosted acceptance awaits a push.
+`make dependency-pins-check` now runs in Linux CI; hosted acceptance is pending.
 
 **0.100.12:** `blob application catalog` / `draft --id ...`
 inspect the signing user's existing reference-app records without mutation.
@@ -124,7 +125,8 @@ installed suites, both Chromium/catalog upgrade journeys, three Chromium transpo
 cases and PATH installation pass (`target/010012-release-installed.log`). Original
 custody prepared by the flat-command 0.100.10 CLI remains recoverable. The new
 application queries check owner isolation, escaped names and unchanged stable state.
-Hosted acceptance of this checkpoint remains pending delivery.
+[Hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/workflows/ci.yml?query=branch%3A0.100)
+is asynchronous; this handoff does not claim a hosted 0.100.12 pass.
 Browser evidence is local Linux only; no live/provider custody changed.
 Node 24+ and explicit `make install-browser-tools` select npm Platform 0.2.0
 and esbuild 0.28.2. Profile rollback, eviction, multi-device custody and live provider
@@ -140,7 +142,11 @@ not its multi-operation journals, refund engine or substitute-service graph.
 
 ## Latest delivery review
 
-Reviewed delivered `a7b0805..f61c414`: Host custody, grouped help, direct CLI/test
-callers, docs and CI. No actionable sediment found in that scope. Old adapters and
-flat commands are removed; predecessor handling is test-only. Testkit's older Host
-graph remains a supplier boundary. Live custody and ownership remain unchanged.
+Reviewed delivered `4cf2626..9d0e343`: application CLI and direct callers, Chromium
+composition, dependency selections, managed checker and documentation. No actionable
+sediment found in that scope. The 133-line inspection module reuses existing protocol
+types/transport; no new endpoint, persistence or recovery ledger. Browser additions
+reuse existing fixtures. The 1,086 new managed-tool lines are Toko's declared checker
+closure, not Blob-owned release machinery. Legacy lessons remain test invariants;
+no legacy code/custody was imported. Library, host, Canic and provider ownership,
+retained exposure and live custody remain unchanged.
