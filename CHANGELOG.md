@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.101.0] - Unreleased
+## [0.101.0] - 2026-11-16
 
 ### ⚠️ Breaking
 
