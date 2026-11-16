@@ -2,20 +2,22 @@
 
 ## Delivery and active work
 
-Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.12 is pushed** at
-[`9d0e343`](https://github.com/dragginzgame/ic-blob-storage/commit/9d0e343cd0d1be1f31dc20c81b67e4112d3c1023), with verified annotated tag.
-[Hosted CI on delivery handoff `bbb37fc`](https://github.com/dragginzgame/ic-blob-storage/actions/runs/43869174888)
-passed all jobs. Four product packages/both locks select 0.100.12; qualification
-versions remain independent. The maintainer has now authorized crates.io publication;
-`0.101.0` is the selected first registry release.
+Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.101.0 is pushed and
+published to crates.io** for all four product packages at
+[`7a9f723`](https://github.com/dragginzgame/ic-blob-storage/commit/7a9f723421b4b0a2f2a6fc64cbcdf2b8643bd4d4),
+with verified annotated tag `v0.101.0`. Both locks select the product version;
+qualification package versions remain independent and unpublished.
+[Hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/43894805408)
+was still running at the delivery readback. All four registry archives match their
+local SHA-256 and exact clean source provenance. The CLI is installed on PATH.
 
-**Pending 0.101.0, local only:** the CLI group is renamed to `blob app`, matching
-Canic; this breaking command-path change selects the next minor release. Offline `blob app prepare-installation`
-encodes paired init arguments with explicit authorities/users/limits. It reuses
-existing Wire types and held-directory publication; occupied/partial outputs refuse
-replacement. No network, signing, creation or installation. The existing installed
-application journey now consumes those exact files. [The guide](../design/reference-application.md#prepare-fresh-installation-inputs)
-owns usage, proposed-target limits and the targeted legacy comparison.
+The release renames the CLI group to `blob app`, matching Canic. Offline
+`blob app prepare-installation` encodes paired init arguments with explicit
+roles/limits; the installed application journey consumes those exact files.
+[The guide](../design/reference-application.md#prepare-fresh-installation-inputs)
+owns usage and proposed-target limits. Publication adds no provider effects or
+API/persistence stability guarantee. [The release procedure](../operations/releases.md)
+owns the shared Git/registry commands and packaged tooling fingerprint binding.
 
 Rust 1.100.0, Tooling 0.44.5 (84-file snapshot), Platform 0.33.7, Runtime 0.22.5,
 Types 0.20.4, Wire 0.24.1, direct Host FS/Artifacts 0.80.2 and Testkit 0.106.0 /
@@ -25,11 +27,7 @@ first-party versions current; no optional supplier upgrade is included.
 
 ## Next action and provider boundary
 
-**Now:** qualify and deliver the four product crates to crates.io at 0.101.0.
-Shared Toko owns Git release/publication mechanics; the CLI archive includes its
-exact tooling snapshot fingerprint with a CI binding check. Qualification stays private.
-
-**After release:** qualify target/controller admission and signed install custody for fresh
+**Next:** qualify target/controller admission and signed install custody for fresh
 application provisioning. Offline arguments and local upgrades do not establish
 those guarantees. Canic's separate fleet work is owned by
 [#12 — Provision embedded Blob applications through approved fleet installation arguments](https://github.com/dragginzgame/canic/issues/12)
@@ -102,15 +100,15 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Qualification and integration
 
-Released 0.100.12 passes local `make ci`, eight installed suites and five Chromium
-journeys: `target/010012-release-{ci,installed}.log`. Its application queries preserve
-owner isolation and state; browser readback/cancellation survives stopped/drained
-upgrades. The flat-command 0.100.10 CLI's original custody remains recoverable.
-Pending 0.101.0 passes focused CLI Clippy/refusal tests, exact-input installed
-application qualification, formatting and links (`target/010013-install-input-*.log`).
-The `app` rename passes all 13 CLI tests and strict Clippy (`target/app-command-*.log`);
-installed qualification callers and current command examples use the new spelling.
-The development CLI is installed on PATH; its version remains 0.100.12 until release.
+Release 0.101.0 passes `make ci` and all eight installed suites:
+`target/01010-release-corrected.log`. Metadata projection preserves private versions
+and external selections; publication refuses private packages and dirty source.
+The first release attempt stopped at early Clippy; its formatter fix is included.
+Archive builds and clean-source retrieval pass (`target/01010-publish-check.log`,
+`target/publication/provenance-01010/`); registry readback is
+`target/01010-registry-verified.json`. No upload retries were needed.
+The opt-in Chromium journeys last passed at 0.100.12; they were not rerun for
+this native CLI/package change. PATH `blob --version` reports 0.101.0.
 Node 24+, npm Platform 0.2.0 and esbuild 0.28.2 remain selected. Browser profile
 rollback/eviction, multi-device custody, live acceptance and settlement are unqualified.
 
@@ -126,8 +124,12 @@ own real fleet initialization and maintenance. No Canic source changed or ran.
 
 ## Latest delivery review
 
-Reviewed `4cf2626..9d0e343` and its delivery-only handoff: CLI/application callers,
-browser composition, tooling and docs. No actionable sediment in that scope.
-Protocol/transport and fixtures are reused; no new service state/recovery ledger or
-legacy custody. Toko owns its managed checker closure. Legacy stays read-only at
-`25bed1352f3d2b9659f0d2583f50fa9af859ea84`; retain lessons for actual consumers.
+Reviewed `bbb37fc..7a9f723`: offline init preparation reuses existing Wire types
+and held-directory publication; the runtime delta is small and introduces no service
+state or recovery ledger. Most added lines are Toko-owned release helpers, kept in
+the authenticated 84-file snapshot. Blob’s thin metadata adapter owns only its
+four product identities/two locks; the existing installed suite checks fingerprint
+admission and refusal. The post-push review corrected stale README release wording
+and the observed Cargo batch archive path in the runbook. No remaining actionable
+sediment in this scope. Live/legacy custody is untouched; the historical sibling
+checkout was unavailable during release-tool adoption.

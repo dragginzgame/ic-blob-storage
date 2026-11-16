@@ -92,7 +92,7 @@ The previous implementation, Git history and provider/recovery custody are in
 `../ic-blob-storage-legacy` (see its `LEGACY.md`) and the private
 [legacy GitHub repository](https://github.com/dragginzgame/ic-blob-storage-legacy).
 Crates.io versions through `0.82.1` are the legacy line. The rewrite started with
-GitHub checkpoint `0.100.0`; `0.101.0` is its first selected registry release. All
+GitHub checkpoint `0.100.0`; `0.101.0` is its first published registry release. All
 four product crates share the root workspace version. This is a breaking rewrite,
 not a migration for existing installations. See the [release procedure](docs/operations/releases.md).
 
@@ -103,7 +103,7 @@ required. Guarded maintenance still needs the matching source checkout and tools
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
 and published Toko Tooling 0.44.5. Both workspaces select IC Wire 0.24.1's root-level
 `Encoding` API; no old `native` API adapter is retained. GitHub development uses the `0.100` branch of
-`dragginzgame/ic-blob-storage`. There is no release/deployment configuration.
+`dragginzgame/ic-blob-storage`. Releases use the shared Toko workflow; there is no production deployment configuration.
 
 The [selected crate layout](docs/design/ic-blob-storage-design.md#selected-crate-layout)
 keeps the host thin. Installed tests under `qualification/` use the real

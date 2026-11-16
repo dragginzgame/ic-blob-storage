@@ -27,7 +27,7 @@ archives, then check their provenance before `make publish`:
 
 ```sh
 bash vendor/toko-tooling/scripts/ci/check-cargo-package-provenance.sh \
-  target/publication/provenance-NEW-ATTEMPT target/package \
+  target/publication/provenance-NEW-ATTEMPT target/package/tmp-crate \
   https://github.com/dragginzgame/ic-blob-storage "$(git rev-parse HEAD)" \
   --package "ic-blob-storage@VERSION" crates/ic-blob-storage \
   --package "ic-blob-storage-reference-app@VERSION" crates/ic-blob-storage-reference-app \
@@ -35,7 +35,8 @@ bash vendor/toko-tooling/scripts/ci/check-cargo-package-provenance.sh \
   --package "ic-blob-storage-cli@VERSION" crates/ic-blob-storage-cli
 ```
 
-Replace `VERSION` and use a fresh evidence directory. Publication requires clean
+Replace `VERSION` and use a fresh evidence directory. Cargo 1.100’s coordinated
+publish dry-run places these archives in `target/package/tmp-crate/`. Publication requires clean
 source at its annotated release tag. Cargo verifies the coordinated archives and
 orders uploads; Toko retains selection, dispatch intent and exit status under
 `target/publication/`. It does not rerun the installed suites. Keep failed evidence;
