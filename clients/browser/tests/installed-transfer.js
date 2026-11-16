@@ -23,6 +23,7 @@ const content = values.scenario
 const contentType = values.scenario ? "application/octet-stream" : "text/plain";
 const requestCount = 1 + Math.ceil(content.length / (1024 * 1024));
 const certificate = new Uint8Array(await readFile(join(directory, "certificate.cbor")));
+const rootSubnet = (await readFile(join(directory, "root-subnet.txt"), "utf8")).trim();
 const received = [];
 let reads = 0;
 const reconcile = values.scenario?.startsWith("reconcile") ?? false;
@@ -101,6 +102,7 @@ function options(file, proof, path) {
       await execute(process.env.BLOB_CLI, ["transfer", "claim", "--url", url,
         "--canister", issuer, "--uploader", uploader, "--root", plan.declaration.root,
         "--identity", join(directory, "uploader.pem"), "--root-key", join(directory, "root.der"),
+        "--root-subnet", rootSubnet,
         "--custody", join(directory, "custody"), "--certificate", path,
         "--certificate-sha256", plan.certificateSha256, "--gateway", plan.gateway,
         "--project", plan.project, "--bucket", plan.bucket], { signal, timeout: 10_000, maxBuffer: 8192 });

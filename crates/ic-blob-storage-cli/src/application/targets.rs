@@ -1,7 +1,8 @@
 //! Observe proposed targets without creating, installing or changing their controllers.
 
 use clap::Args;
-use ic_platform_legacy::{Principal, management_canister_types::CanisterStatusType};
+use ic_platform_protocol::management_snapshots::Status as CanisterStatusType;
+use ic_platform_types::Principal;
 use std::{fmt::Write, time::Duration};
 
 use crate::{
@@ -29,11 +30,8 @@ pub(crate) async fn run(input: Input) -> Result<String, String> {
     if input.canister == input.blob_canister {
         return Err("application and Blob targets must differ".into());
     }
-    let agent = input.network.agent()?;
-    let signer = agent
-        .get_principal()
-        .map_err(|_| "identity has no sender")?;
-    let signer = Principal::from_slice(signer.as_slice());
+    let agent = input.network.client()?;
+    let signer = agent.principal();
     if signer == Principal::anonymous() {
         return Err("target status requires a controller identity".into());
     }

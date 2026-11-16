@@ -2,6 +2,9 @@
 
 #![forbid(unsafe_code)]
 
+#[path = "support/mod.rs"]
+mod support;
+
 use ic_blob_storage_enrollment_probe::protocol::{
     Error, Installation, LIMITS, Outcome, REPLY_BYTES, View,
 };
@@ -15,12 +18,7 @@ use ic_storage::{
     MemoryRuntime, RuntimeBootstrapError, SealedDeclarationSnapshot, StorageConfig,
 };
 use ic_testkit::{
-    pic::{
-        PocketIcStartupConfig,
-        fixtures::{
-            RawReplyLimits, RawReplyMethod, ReplyMode, held::HeldReplyFixture, raw_reply_canister,
-        },
-    },
+    held::{Catalog, Fixture, Limits as HeldLimits, Reply},
     pocket_ic::{
         CanisterId, PocketIcBuilder, RejectCode, common::rest::BlobCompression,
         nonblocking::PocketIc,
@@ -28,7 +26,22 @@ use ic_testkit::{
 };
 use ic_wire as wire;
 use serde::Serialize;
-use std::{cell::RefCell, path::Path, rc::Rc, time::Duration};
+use std::{cell::RefCell, rc::Rc};
+
+fn raw_reply(bytes: &[u8]) -> Vec<u8> {
+    assert!(bytes.len() <= REPLY_BYTES + 1);
+    let data: String = bytes.iter().map(|b| format!("\\{b:02x}")).collect();
+    wat::parse_str(format!(
+        r#"(module
+      (import "ic0" "msg_reply_data_append" (func $append (param i32 i32)))
+      (import "ic0" "msg_reply" (func $reply))
+      (memory 2) (data (i32.const 0) "{data}")
+      (func (export "canister_update account_top_up_v1")
+        i32.const 0 i32.const {} call $append call $reply))"#,
+        bytes.len()
+    ))
+    .unwrap()
+}
 
 const OPERATOR: &[u8] = &[1, 1];
 
@@ -126,45 +139,35 @@ async fn upgrade(pic: &PocketIc, owner: CanisterId) {
     pic.start_canister(owner, Some(actor())).await.unwrap();
 }
 
-fn server() -> PocketIcStartupConfig {
-    let directory = std::env::var_os("BLOB_TEST_SERVER").expect("set BLOB_TEST_SERVER");
-    PocketIcStartupConfig::Spawn {
-        server_binary: ic_testkit::pic::server_assets::check(Path::new(&directory)).unwrap(),
-        timeout: Duration::from_secs(60),
-        server_hard_ttl: Some(Duration::from_secs(180)),
-        server_idle_ttl: None,
-        server_output_files: None,
-    }
-}
-
 ic_platform_legacy::candid_record! {
     struct TopUp { 2504008430 => target_balance: Option<Nat>, 2707029165 => account: Option<ic_platform_legacy::Principal> }
 }
 
 #[tokio::test]
 async fn one_attempt_survives_concurrency_revocation_lost_reply_and_upgrade() {
-    let owned = server()
-        .build_instance(PocketIcBuilder::new().with_application_subnet())
-        .await
-        .unwrap();
-    let pic = owned.instance();
+    let (server, owned) =
+        support::instance(PocketIcBuilder::new().with_application_subnet(), 180).await;
+    let pic = owned.client();
     let cashier = pic.create_canister().await;
     pic.add_cycles(cashier, 10_000_000_000_000).await;
     // The second slot witnesses an accidental retry, including one after upgrade.
-    let methods = [RawReplyMethod {
-        name: "account_top_up_v1",
-        mode: ReplyMode::Update,
-        reply: b"raw provider observation",
+    let methods = [Reply {
+        method: "account_top_up_v1",
+        bytes: b"raw provider observation",
     }; 2];
-    let mut fixture = HeldReplyFixture::new(
-        pic,
-        cashier,
+    let catalog = Catalog::new(
         &methods,
-        RawReplyLimits {
-            methods: 2,
+        HeldLimits {
+            slots: 2,
             reply_bytes: 100,
-            method_name_bytes: 40,
+            name_bytes: 40,
         },
+    )
+    .unwrap();
+    let mut fixture = Fixture::new(
+        pic,
+        Principal::from_slice(cashier.as_slice()),
+        &catalog,
         50_000_000_000,
         100_000,
     )
@@ -267,7 +270,7 @@ async fn one_attempt_survives_concurrency_revocation_lost_reply_and_upgrade() {
     assert_eq!(
         retained.outcome,
         Some(Outcome::Reply(
-            ic_wire::Bytes::new(methods[0].reply.to_vec()).unwrap()
+            ic_wire::Bytes::new(methods[0].bytes.to_vec()).unwrap()
         ))
     );
     assert_eq!(retained.attempted_at, uncertain.attempted_at);
@@ -288,15 +291,14 @@ async fn one_attempt_survives_concurrency_revocation_lost_reply_and_upgrade() {
         pic.tick().await;
     }
     assert!(fixture.pending(pic).await.unwrap().is_empty());
+    support::close(server, owned).await;
 }
 
 #[tokio::test]
 async fn malformed_oversized_and_rejected_replies_never_reopen_the_attempt() {
-    let owned = server()
-        .build_instance(PocketIcBuilder::new().with_application_subnet())
-        .await
-        .unwrap();
-    let pic = owned.instance();
+    let (server, owned) =
+        support::instance(PocketIcBuilder::new().with_application_subnet(), 180).await;
+    let pic = owned.client();
     for bytes in [
         vec![],
         b"not candid".to_vec(),
@@ -305,19 +307,7 @@ async fn malformed_oversized_and_rejected_replies_never_reopen_the_attempt() {
     ] {
         let cashier = pic.create_canister().await;
         pic.add_cycles(cashier, 10_000_000_000_000).await;
-        let reply = raw_reply_canister(
-            &[RawReplyMethod {
-                name: "account_top_up_v1",
-                mode: ReplyMode::Update,
-                reply: &bytes,
-            }],
-            RawReplyLimits {
-                methods: 1,
-                reply_bytes: REPLY_BYTES + 1,
-                method_name_bytes: 20,
-            },
-        )
-        .unwrap();
+        let reply = raw_reply(&bytes);
         pic.install_canister(cashier, reply, vec![], None).await;
         let owner = install(pic, cashier).await;
         let retained = attempt(pic, owner).await;
@@ -339,15 +329,14 @@ async fn malformed_oversized_and_rejected_replies_never_reopen_the_attempt() {
     assert!(matches!(retained.outcome, Some(Outcome::Rejected(_))));
     upgrade(pic, owner).await;
     assert_eq!(attempt(pic, owner).await, retained);
+    support::close(server, owned).await;
 }
 
 #[tokio::test]
 async fn unavailable_cashier_and_foreign_state_never_reopen_admission() {
-    let owned = server()
-        .build_instance(PocketIcBuilder::new().with_application_subnet())
-        .await
-        .unwrap();
-    let pic = owned.instance();
+    let (server, owned) =
+        support::instance(PocketIcBuilder::new().with_application_subnet(), 180).await;
+    let pic = owned.client();
     let cashier = pic.create_canister().await;
     pic.add_cycles(cashier, 10_000_000_000_000).await;
     pic.stop_canister(cashier, None).await.unwrap();
@@ -383,6 +372,7 @@ async fn unavailable_cashier_and_foreign_state_never_reopen_admission() {
         .await
         .is_err()
     );
+    support::close(server, owned).await;
 }
 
 // Inspect an isolated copy of the actual installed image, never live backing.
@@ -478,11 +468,9 @@ fn refuses_service_composition(image: &[u8]) {
 
 #[tokio::test]
 async fn incompatible_service_upgrade_preserves_consumed_probe() {
-    let owned = server()
-        .build_instance(PocketIcBuilder::new().with_application_subnet())
-        .await
-        .unwrap();
-    let pic = owned.instance();
+    let (server, owned) =
+        support::instance(PocketIcBuilder::new().with_application_subnet(), 180).await;
+    let pic = owned.client();
     let cashier = pic.create_canister().await;
     pic.add_cycles(cashier, 10_000_000_000_000).await;
     let hex = include_str!(
@@ -493,19 +481,7 @@ async fn incompatible_service_upgrade_preserves_consumed_probe() {
         .step_by(2)
         .map(|offset| u8::from_str_radix(&hex[offset..offset + 2], 16).unwrap())
         .collect();
-    let peer = raw_reply_canister(
-        &[RawReplyMethod {
-            name: "account_top_up_v1",
-            mode: ReplyMode::Update,
-            reply: &refusal,
-        }],
-        RawReplyLimits {
-            methods: 1,
-            reply_bytes: REPLY_BYTES,
-            method_name_bytes: 20,
-        },
-    )
-    .unwrap();
+    let peer = raw_reply(&refusal);
     pic.install_canister(cashier, peer, vec![], None).await;
     let owner = install(pic, cashier).await;
     let retained = attempt(pic, owner).await;
@@ -542,4 +518,5 @@ async fn incompatible_service_upgrade_preserves_consumed_probe() {
     assert_eq!(inspect(pic, owner).await, retained);
     assert_eq!(attempt(pic, owner).await, retained);
     assert_eq!(pic.get_stable_memory(owner).await, image);
+    support::close(server, owned).await;
 }

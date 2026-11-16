@@ -1,6 +1,10 @@
 use super::*;
 use clap::Parser;
-use ic_platform_legacy::agent::{Agent, BasicIdentity};
+use ic_platform::native::{Ed25519Identity, UpdateArgs};
+const PEM: &str = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC\n-----END PRIVATE KEY-----\n";
+fn identity() -> Ed25519Identity {
+    Ed25519Identity::from_pem(PEM, 4096).unwrap()
+}
 use sha2::Digest;
 
 #[test]
@@ -20,12 +24,8 @@ fn offline_preparation_keeps_one_root_claim() {
     let key = directory.join("uploader.pem");
     // Public deterministic test seed; no wallet key.
     std::fs::write(&key, "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC\n-----END PRIVATE KEY-----\n").unwrap();
-    let agent = Agent::builder()
-        .with_url("https://invalid.example")
-        .with_identity(BasicIdentity::from_raw_key(&[2; 32]))
-        .build()
-        .unwrap();
-    let uploader = agent.get_principal().unwrap().to_text();
+    let identity = identity();
+    let uploader = identity.principal().to_text();
     let args = [
         "blob",
         "certificate",
@@ -50,7 +50,8 @@ fn offline_preparation_keeps_one_root_claim() {
     };
     custody::prepare(&input).unwrap();
     assert!(custody::prepare(&input).is_err());
-    let network = crate::overview::hex(&sha2::Sha256::digest(agent.read_root_key()));
+    let network =
+        crate::overview::hex(&sha2::Sha256::digest(include_bytes!("../mainnet-root.der")));
     let claim = directory
         .join(network)
         .join("rrkah-fqaaa-aaaaa-aaaaq-cai")
@@ -66,62 +67,73 @@ fn offline_preparation_keeps_one_root_claim() {
 
 #[test]
 fn original_request_binding_and_expired_history() {
-    let agent = Agent::builder()
-        .with_url("http://127.0.0.1:1")
-        .with_identity(BasicIdentity::from_raw_key(&[2; 32]))
-        .build()
-        .unwrap();
-    let sender = Principal::from_slice(agent.get_principal().unwrap().as_slice());
+    let identity = identity();
+    let sender = identity.principal();
     let target = Principal::from_slice(&[1, 1]);
     let other = Principal::from_slice(&[3, 1]);
     let root = format!("sha256:{}", "ab".repeat(32));
     // Expiry is intentionally historical: recovery must not renew the request.
-    let signed = agent
-        .update(&target.as_slice().try_into().unwrap(), METHOD)
-        .with_arg(encode_args(&(root.clone(),), 1024).unwrap())
-        .expire_at(std::time::SystemTime::UNIX_EPOCH)
-        .sign()
+    let signed = identity
+        .prepare_update(
+            UpdateArgs {
+                recipient: target,
+                effective: target,
+                method: METHOD,
+                arg: &c::encode_root(&root, 1024).unwrap(),
+                expiry: 0,
+                nonce: None,
+            },
+            PACKET_LIMIT,
+        )
         .unwrap();
     assert_eq!(
-        original(&signed.signed_update, sender, target, &root).unwrap(),
-        signed.request_id
+        original(signed.envelope_bytes(), sender, target, &root).unwrap(),
+        *signed.request_id()
     );
     // Admission covers the original authentication envelope too. Never repair
     // malformed custody merely because its content still has the expected ID.
-    let mut unknown_authentication = signed.signed_update.clone();
+    let mut unknown_authentication = signed.envelope_bytes().to_vec();
     let key = b"sender_sig";
     let offset = unknown_authentication
         .windows(key.len())
         .position(|bytes| bytes == key)
         .unwrap();
     unknown_authentication[offset] = b'x';
-    let mut trailing = signed.signed_update.clone();
+    let mut trailing = signed.envelope_bytes().to_vec();
     trailing.push(0);
     for packet in [
         unknown_authentication,
         trailing,
-        signed.signed_update[..signed.signed_update.len() - 1].to_vec(),
+        signed.envelope_bytes()[..signed.envelope_bytes().len() - 1].to_vec(),
     ] {
         assert!(original(&packet, sender, target, &root).is_err());
     }
     assert_eq!(
-        original(&signed.signed_update, sender, target, &root).unwrap(),
-        signed.request_id
+        original(signed.envelope_bytes(), sender, target, &root).unwrap(),
+        *signed.request_id()
     );
     for (uploader, issuer, expected) in [
         (other, target, root.clone()),
         (sender, other, root.clone()),
         (sender, target, format!("sha256:{}", "cd".repeat(32))),
     ] {
-        assert!(original(&signed.signed_update, uploader, issuer, &expected).is_err());
+        assert!(original(signed.envelope_bytes(), uploader, issuer, &expected).is_err());
     }
-    let wrong_method = agent
-        .update(&target.as_slice().try_into().unwrap(), "unrelated")
-        .with_arg(encode_args(&(root.clone(),), 1024).unwrap())
-        .sign()
+    let wrong_method = identity
+        .prepare_update(
+            UpdateArgs {
+                recipient: target,
+                effective: target,
+                method: "unrelated",
+                arg: &c::encode_root(&root, 1024).unwrap(),
+                expiry: 0,
+                nonce: None,
+            },
+            PACKET_LIMIT,
+        )
         .unwrap();
     for packet in [
-        wrong_method.signed_update,
+        wrong_method.envelope_bytes().to_vec(),
         vec![],
         vec![0; PACKET_LIMIT + 1],
     ] {
@@ -141,11 +153,11 @@ fn exact_upload_reply_and_root_admission() {
         assert!(root(&value).is_err());
     }
     let reply = |method: &str, hash: &str| {
-        encode_args(
-            &(Reply {
+        c::encode_certificate(
+            &c::CertificateReply {
                 method: method.into(),
                 blob_hash: hash.into(),
-            },),
+            },
             1024,
         )
         .unwrap()

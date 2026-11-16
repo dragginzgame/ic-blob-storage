@@ -3,7 +3,7 @@
 use super::{CERTIFICATE_LIMIT, admit_reply, custody, root};
 use crate::files;
 use clap::Args;
-use ic_platform_legacy::{agent::lookup_value, certification::cbor::decode_certificate};
+use ic_platform::native::{PreparedUpdate, RequestStatus};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
@@ -57,8 +57,8 @@ struct Claim<'a> {
 
 pub(crate) fn claim(input: &Input) -> Result<String, String> {
     let target = &input.original.target;
-    let agent = target.agent()?;
-    let (held, _, id) = custody::load(&input.original, &agent)?;
+    let agent = target.client()?;
+    let (held, packet, id) = custody::load(&input.original, &agent)?;
     if files::read_at(&held, "dispatch.claim".as_ref(), 32)? != id.to_vec() {
         return Err("original dispatch custody is incomplete; preserve it".into());
     }
@@ -67,21 +67,16 @@ pub(crate) fn claim(input: &Input) -> Result<String, String> {
     if format!("sha256:{}", crate::overview::hex(&hash)) != input.certificate_sha256 {
         return Err("certificate differs from the client's transfer plan".into());
     }
-    let certificate = decode_certificate(&bytes, CERTIFICATE_LIMIT)
-        .map_err(|_| "invalid retained certificate")?;
-    agent
-        .verify(&certificate, target.effective()?)
+    let original = PreparedUpdate::from_bytes(&packet, target.canister, super::PACKET_LIMIT)
+        .map_err(|_| "invalid retained signed request")?;
+    let observed = agent
+        .transport
+        .authenticate_request(&original, &bytes, crate::network::policy(true)?)
         .map_err(|_| "retained certificate authentication failed")?;
-    let path = |leaf: &'static [u8]| [b"request_status".as_slice(), id.as_ref(), leaf];
-    if lookup_value(&certificate, path(b"status")).map_err(|_| "missing certified status")?
-        != b"replied"
-    {
-        return Err("original certified status is not replied".into());
-    }
-    admit_reply(
-        lookup_value(&certificate, path(b"reply")).map_err(|_| "missing certified reply")?,
-        &target.root,
-    )?;
+    let RequestStatus::Replied(reply) = observed.status() else {
+        return Err("certificate has no reply".into());
+    };
+    admit_reply(reply, &target.root)?;
     let intent = ic_wire::encode(
         &Claim {
             version: 1,
@@ -114,6 +109,7 @@ pub(crate) fn claim(input: &Input) -> Result<String, String> {
         })?;
     }
     Ok(format!(
-        "Transfer claim retained for original request={id}; no network call made.\nThis authenticates historical proof, not current application permission or provider acceptance."
+        "Transfer claim retained for original request={}; no network call made.\nThis authenticates historical proof, not current application permission or provider acceptance.",
+        crate::overview::hex(&id)
     ))
 }

@@ -3,25 +3,23 @@
 
 #![forbid(unsafe_code)]
 
+#[path = "support/mod.rs"]
+mod support;
+
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error, Limits, ReferenceStatus, UploadRequest, Usage, persistence::MAX_RECORDS},
     protocol::{Command, Inspection, Installation, Observation, Outcome, RPC_LIMITS},
 };
-use ic_platform_legacy::{
-    candid_codec::{self, Nat, decoder},
-    management_canister_types::CanisterIdRecord,
-};
+use ic_platform_legacy::candid_codec::{Nat, decoder};
+use ic_platform_protocol::management_snapshots::CanisterArgs;
 use ic_platform_types::Principal;
-use ic_testkit::{
-    pic::PocketIcStartupConfig,
-    pocket_ic::{
-        CanisterId, PocketIcBuilder, common::rest::RawEffectivePrincipal, nonblocking::PocketIc,
-    },
+use ic_testkit::pocket_ic::{
+    CanisterId, PocketIcBuilder, common::rest::RawEffectivePrincipal, nonblocking::PocketIc,
 };
 use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
-use std::{num::NonZeroU128, path::Path, time::Duration};
+use std::num::NonZeroU128;
 
 // External management protocol projection: retain the required counter, skip other use cases.
 ic_platform_legacy::candid_record! {
@@ -79,12 +77,10 @@ async fn resources(pic: &PocketIc, canister: CanisterId) -> Resources {
             RawEffectivePrincipal::CanisterId(canister.as_slice().to_vec()),
             CanisterId::anonymous(),
             "canister_metrics",
-            candid_codec::encode_one(
-                &CanisterIdRecord {
-                    canister_id: ic_platform_legacy::Principal::from_slice(canister.as_slice()),
-                },
-                1024,
-            )
+            CanisterArgs {
+                canister_id: Principal::from_slice(canister.as_slice()),
+            }
+            .encode(1024)
             .unwrap(),
         )
         .await
@@ -178,19 +174,9 @@ async fn usage(pic: &PocketIc, canister: CanisterId, label: Option<&str>) -> Usa
 
 #[tokio::test]
 async fn full_history_remains_inspectable_cleanable_and_upgradeable() {
-    let directory = std::env::var_os("BLOB_TEST_SERVER").expect("set BLOB_TEST_SERVER");
-    let server = ic_testkit::pic::server_assets::check(Path::new(&directory)).unwrap();
-    let owned = PocketIcStartupConfig::Spawn {
-        server_binary: server,
-        timeout: Duration::from_secs(60),
-        server_hard_ttl: Some(Duration::from_secs(300)),
-        server_idle_ttl: None,
-        server_output_files: None,
-    }
-    .build_instance(PocketIcBuilder::new().with_application_subnet())
-    .await
-    .unwrap();
-    let pic = owned.instance();
+    let (server, owned) =
+        support::instance(PocketIcBuilder::new().with_application_subnet(), 300).await;
+    let pic = owned.client();
     let wasm = std::fs::read(std::env::var_os("BLOB_WASM").unwrap()).unwrap();
     let config = Installation {
         application: actor(1),
@@ -416,5 +402,5 @@ async fn full_history_remains_inspectable_cleanable_and_upgradeable() {
             "cleanup does not reclaim lifetime identities"
         );
     }
-    owned.close().await;
+    support::close(server, owned).await;
 }

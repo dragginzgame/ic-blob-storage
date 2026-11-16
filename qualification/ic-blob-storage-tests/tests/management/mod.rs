@@ -2,6 +2,9 @@
 
 #![forbid(unsafe_code)]
 
+#[path = "../support/mod.rs"]
+mod support;
+
 mod lifecycle;
 mod overview;
 mod targets;
@@ -11,17 +14,13 @@ use ic_blob_storage::{
     local::Limits,
     protocol::{Command, Installation, RPC_LIMITS},
 };
-use ic_platform_legacy::agent::{BasicIdentity, Identity};
+use ic_platform::native::Ed25519Identity;
 use ic_platform_types::Principal;
-use ic_testkit::{
-    pic::PocketIcStartupConfig,
-    pocket_ic::{CanisterId, PocketIcBuilder},
-};
+use ic_testkit::pocket_ic::{CanisterId, PocketIcBuilder};
 use sha2::{Digest, Sha256};
 use std::{
     path::{Path, PathBuf},
     process::Output,
-    time::Duration,
 };
 
 // Public deterministic test seed [7; 32], used only in this disposable simulator.
@@ -79,6 +78,8 @@ fn command(
         .arg(directory.join("manager.pem"))
         .arg("--root-key")
         .arg(directory.join("root.der"))
+        .arg("--root-subnet")
+        .arg(std::fs::read_to_string(directory.join("root-subnet.txt")).unwrap())
         .arg("--installation")
         .arg(directory.join("installation.wire"))
         .arg("--wasm")
@@ -116,39 +117,40 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     let wasm = std::fs::read(std::env::var_os("BLOB_WASM").expect("set BLOB_WASM")).unwrap();
     std::fs::write(directory.join("host.wasm"), &wasm).unwrap();
     std::fs::write(directory.join("manager.pem"), TEST_PEM).unwrap();
-    let manager = BasicIdentity::from_pem(TEST_PEM).unwrap().sender().unwrap();
+    let manager = CanisterId::from_slice(
+        Ed25519Identity::from_pem(TEST_PEM, 4096)
+            .unwrap()
+            .principal()
+            .as_slice(),
+    );
     let input = installation(Principal::from_slice(manager.as_slice()));
     std::fs::write(directory.join("installation.wire"), encode(&input)).unwrap();
-    let server_directory = std::env::var_os("BLOB_TEST_SERVER").expect("set BLOB_TEST_SERVER");
-    let server = ic_testkit::pic::server_assets::check(Path::new(&server_directory)).unwrap();
-    let mut owned = PocketIcStartupConfig::Spawn {
-        server_binary: server,
-        timeout: Duration::from_secs(60),
-        server_hard_ttl: Some(Duration::from_secs(300)),
-        server_idle_ttl: None,
-        server_output_files: None,
-    }
-    .build_instance(
+    let (server, mut owned) = support::instance(
         PocketIcBuilder::new()
             .with_nns_subnet()
             .with_application_subnet(),
+        300,
     )
-    .await
-    .unwrap();
-    let canister = owned.instance().create_canister().await;
+    .await;
+    let canister = owned.client().create_canister().await;
     owned
-        .instance()
+        .client()
         .add_cycles(canister, 10_000_000_000_000)
         .await;
     owned
-        .instance()
+        .client()
         .install_canister(canister, wasm.clone(), encode(&input), None)
         .await;
     // Root comes from the fixture's owned server, never the command's HTTP endpoint.
-    let root = owned.instance().root_key().await.unwrap();
+    let root = owned.client().root_key().await.unwrap();
     std::fs::write(directory.join("root.der"), &root).unwrap();
-    let url = owned.instance_mut().make_live(None).await;
-    let before = owned.instance().get_stable_memory(canister).await;
+    std::fs::write(
+        directory.join("root-subnet.txt"),
+        owned.client().topology().await.get_nns().unwrap().to_text(),
+    )
+    .unwrap();
+    let url = owned.client_mut().make_live(None).await;
+    let before = owned.client().get_stable_memory(canister).await;
     let output = inspect(&directory, url.as_str(), canister, "1").await;
     assert!(
         output.status.success(),
@@ -156,7 +158,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=0 active=true"));
-    assert_eq!(owned.instance().get_stable_memory(canister).await, before);
+    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     refused(
         &inspect(&directory, url.as_str(), canister, "2").await,
         "state format mismatch",
@@ -177,8 +179,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "Wasm does not match",
     );
     std::fs::write(directory.join("host.wasm"), &wasm).unwrap();
-    let mut wrong_root = root.clone();
-    *wrong_root.last_mut().unwrap() ^= 1;
+    let wrong_root = include_bytes!("../../../../crates/ic-blob-storage-cli/src/mainnet-root.der");
     std::fs::write(directory.join("root.der"), wrong_root).unwrap();
     refused(
         &inspect(&directory, url.as_str(), canister, "1").await,
@@ -186,13 +187,10 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     );
     std::fs::write(directory.join("root.der"), root).unwrap();
     // Matching a known target/hash does not grant another identity management access.
-    let foreign = owned.instance().create_canister().await;
+    let foreign = owned.client().create_canister().await;
+    owned.client().add_cycles(foreign, 10_000_000_000_000).await;
     owned
-        .instance()
-        .add_cycles(foreign, 10_000_000_000_000)
-        .await;
-    owned
-        .instance()
+        .client()
         .install_canister(
             foreign,
             wasm.clone(),
@@ -208,7 +206,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "host refused management inspection",
     );
     let claim = directory.join("drain-1");
-    let before = owned.instance().get_stable_memory(canister).await;
+    let before = owned.client().get_stable_memory(canister).await;
     let output = command(&directory, url.as_str(), canister, "1", "prepare-drain")
         .arg("--record")
         .arg(&claim)
@@ -288,7 +286,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "claim binding mismatch",
     );
     std::fs::write(claim.join("request.cbor"), &packet).unwrap();
-    assert_eq!(owned.instance().get_stable_memory(canister).await, before);
+    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let checkout = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../..")
         .canonicalize()
@@ -339,7 +337,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "tooling admission refused",
     );
     assert!(!custody.exists());
-    let network: String = Sha256::digest(owned.instance().root_key().await.unwrap())
+    let network: String = Sha256::digest(owned.client().root_key().await.unwrap())
         .iter()
         .map(|byte| format!("{byte:02x}"))
         .collect();
@@ -372,7 +370,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "already locked",
     );
     assert!(!target_directory.join("attempt-1.claim").exists());
-    assert_eq!(owned.instance().get_stable_memory(canister).await, before);
+    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     drop(lock);
     // Two real processes compete: exactly one may claim dispatch. A separate
     // process then observes the original outcome without relying on its stdout.
@@ -409,7 +407,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         .unwrap()
         .value
         .content;
-    let original_id = ic_platform_legacy::agent::RequestId::new(&content.request_id().unwrap());
+    let original_id = content.request_id().unwrap();
     let marker = std::fs::read(target_directory.join("attempt-1.claim")).unwrap();
     assert_eq!(marker, original_id.to_vec());
     refused(
@@ -449,7 +447,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     )
     .unwrap();
     owned
-        .instance()
+        .client()
         .update_call(
             canister,
             CanisterId::from_slice(manager.as_slice()),
@@ -458,7 +456,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         )
         .await
         .unwrap();
-    let before = owned.instance().get_stable_memory(canister).await;
+    let before = owned.client().get_stable_memory(canister).await;
     let output = inspect(&directory, url.as_str(), canister, "1").await;
     assert!(
         output.status.success(),
@@ -466,16 +464,16 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=1 active=false"));
-    assert_eq!(owned.instance().get_stable_memory(canister).await, before);
+    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     // A crash after claiming but before transmission is deliberately unrecoverable
     // by dispatch. A new record/request ID cannot bypass that same target attempt.
-    let stranded = owned.instance().create_canister().await;
+    let stranded = owned.client().create_canister().await;
     owned
-        .instance()
+        .client()
         .add_cycles(stranded, 10_000_000_000_000)
         .await;
     owned
-        .instance()
+        .client()
         .install_canister(stranded, wasm, encode(&input), None)
         .await;
     let stranded_claim = directory.join("stranded");
@@ -503,7 +501,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         std::fs::read(stranded_claim.join("request.cbor")).unwrap(),
         std::fs::read(retry_claim.join("request.cbor")).unwrap()
     );
-    let before = owned.instance().get_stable_memory(stranded).await;
+    let before = owned.client().get_stable_memory(stranded).await;
     refused(
         &command(&directory, url.as_str(), stranded, "1", "dispatch-drain")
             .arg("--record")
@@ -526,7 +524,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .unwrap(),
         "outcome unavailable",
     );
-    assert_eq!(owned.instance().get_stable_memory(stranded).await, before);
+    assert_eq!(owned.client().get_stable_memory(stranded).await, before);
     for transition in [Command::Activate(1), Command::Drain(2)] {
         let bytes = ic_wire::encode(
             &transition,
@@ -538,7 +536,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         )
         .unwrap();
         owned
-            .instance()
+            .client()
             .update_call(
                 canister,
                 CanisterId::from_slice(manager.as_slice()),
@@ -548,7 +546,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .await
             .unwrap();
     }
-    let before = owned.instance().get_stable_memory(canister).await;
+    let before = owned.client().get_stable_memory(canister).await;
     let output = command(&directory, url.as_str(), canister, "1", "observe-drain")
         .arg("--record")
         .arg(&claim)
@@ -561,7 +559,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert!(String::from_utf8_lossy(&output.stdout).contains("historical outcome only"));
-    assert_eq!(owned.instance().get_stable_memory(canister).await, before);
+    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let stop_claim = directory.join("stop");
     refused(
         &command(&directory, url.as_str(), stranded, "1", "prepare-stop")
@@ -586,7 +584,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     assert!(!stop_claim.exists());
     let controller = CanisterId::from_slice(manager.as_slice());
     owned
-        .instance()
+        .client()
         .set_controllers(canister, None, vec![controller])
         .await
         .unwrap();
@@ -615,7 +613,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     // A previously prepared stop cannot cross activation or a newer drain attempt.
     for transition in [Command::Activate(2), Command::Drain(3)] {
         owned
-            .instance()
+            .client()
             .update_call(
                 canister,
                 controller,
@@ -673,7 +671,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .unwrap(),
         "platform=Running",
     );
-    let before = owned.instance().get_stable_memory(canister).await;
+    let before = owned.client().get_stable_memory(canister).await;
     let unused_stop = directory.join("unused-stop");
     let output = command(&directory, url.as_str(), canister, "1", "prepare-stop")
         .arg("--record")
@@ -763,7 +761,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .unwrap(),
         "already claimed",
     );
-    assert_eq!(owned.instance().get_stable_memory(canister).await, before);
+    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let upgrade_claim = directory.join("upgrade");
     let unused_upgrade = directory.join("unused-upgrade");
     let next_wasm = directory.join("next.wasm");
@@ -898,7 +896,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .unwrap(),
         "already claimed",
     );
-    assert_eq!(owned.instance().get_stable_memory(canister).await, before);
+    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let start_claim = directory.join("start");
     let unused_start = directory.join("unused-start");
     let start_command = |operation: &str, record: &Path, upgrade: &Path, stop: &Path| {
@@ -1040,7 +1038,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=3 active=false"));
-    assert_eq!(owned.instance().get_stable_memory(canister).await, before);
+    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let activation = directory.join("activation");
     let unused_activation = directory.join("unused-activation");
     let activate_command = |operation: &str, record: &Path, start: &Path| {
@@ -1099,7 +1097,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         assert!(!target_directory.join("attempt-3.activate.claim").exists());
         std::fs::write(marker, saved).unwrap();
     }
-    assert_eq!(owned.instance().get_stable_memory(canister).await, before);
+    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let output = activate_command("dispatch-activate", &activation, &start_claim)
         .arg("--custody")
         .arg(&custody)
@@ -1114,7 +1112,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=3 active=true"));
-    let active = owned.instance().get_stable_memory(canister).await;
+    let active = owned.client().get_stable_memory(canister).await;
     let output = activate_command("observe-activate", &activation, &start_claim)
         .output()
         .await
@@ -1155,7 +1153,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "does not match the current drained attempt",
     );
     assert!(!after_active.exists());
-    assert_eq!(owned.instance().get_stable_memory(canister).await, active);
+    assert_eq!(owned.client().get_stable_memory(canister).await, active);
     refused(
         &start_command("observe-start", &start_claim, &upgrade_claim, &current_stop)
             .output()
@@ -1166,7 +1164,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     // A newer drain must survive even an activation that reaches execution late.
     for transition in [Command::Drain(4), Command::Activate(3)] {
         let bytes = owned
-            .instance()
+            .client()
             .update_call(
                 canister,
                 controller,
@@ -1209,7 +1207,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             "does not match the current drained attempt",
         );
     }
-    let drained = owned.instance().get_stable_memory(canister).await;
+    let drained = owned.client().get_stable_memory(canister).await;
     refused(
         &activate_command("observe-activate", &activation, &start_claim)
             .output()
@@ -1227,7 +1225,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "does not match the current drained attempt",
     );
     assert!(!stale_activation.exists());
-    assert_eq!(owned.instance().get_stable_memory(canister).await, drained);
+    assert_eq!(owned.client().get_stable_memory(canister).await, drained);
     let output = inspect(&directory, url.as_str(), canister, "1").await;
     assert!(output.status.success());
     assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=4 active=false"));
@@ -1272,7 +1270,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    let before = owned.instance().get_stable_memory(canister).await;
+    let before = owned.client().get_stable_memory(canister).await;
     let output = upgrade_command("dispatch-upgrade", &failed_upgrade, &failure_stop)
         .arg("--custody")
         .arg(&custody)
@@ -1315,7 +1313,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .unwrap(),
         "already claimed",
     );
-    assert_eq!(owned.instance().get_stable_memory(canister).await, before);
+    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let output = command(&directory, url.as_str(), canister, "1", "observe-stop")
         .arg("--record")
         .arg(&failure_stop)
@@ -1335,5 +1333,5 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .unwrap();
         refused(&output, "unrecognized subcommand");
     }
-    owned.close().await;
+    support::close(server, owned).await;
 }

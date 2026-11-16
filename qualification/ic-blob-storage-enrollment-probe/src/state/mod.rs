@@ -1,7 +1,7 @@
 //! One bounded durable intent/result using the existing Storage and Wire owners.
 
 use crate::protocol::{Installation, LIMITS, Outcome, View};
-use ic_platform_legacy::candid_codec::{Nat, arguments::encode_args};
+use ic_platform_protocol::caffeine::{Nat, TopUpArgs, encode_top_up};
 use ic_platform_types::Principal;
 #[cfg(target_arch = "wasm32")]
 use ic_storage::{
@@ -11,10 +11,6 @@ use ic_storage::{
 };
 use ic_wire as wire;
 use serde::{Deserialize, Serialize};
-
-ic_platform_legacy::candid_record! {
-    struct TopUp { 2504008430 => target_balance: Option<Nat>, 2707029165 => account: Option<ic_platform_legacy::Principal> }
-}
 
 #[derive(Deserialize, Serialize)]
 struct Record {
@@ -92,11 +88,11 @@ impl State {
 
 fn arguments(owner: Principal, target: u64) -> ic_wire::Bytes<1024> {
     ic_wire::Bytes::new(
-        encode_args(
-            &(Some(TopUp {
+        encode_top_up(
+            Some(&TopUpArgs {
                 target_balance: Some(Nat::from(target)),
-                account: Some(ic_platform_legacy::Principal::from_slice(owner.as_slice())),
-            }),),
+                account: Some(owner),
+            }),
             1024,
         )
         .expect("fixed Cashier request"),

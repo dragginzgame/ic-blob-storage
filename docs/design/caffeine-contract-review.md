@@ -49,7 +49,7 @@ was exported, legacy journal resumed, certificate issued or object uploaded.
 The maintainer directs independent research without Caffeine outreach and permits
 the local `canic-mainnet` wallet to pay cycles when needed. The immediate route is
 public protocol evidence, then bounded fresh-account qualification, rather than
-waiting for an answer to issue #16. Preserve possible effects before paid calls;
+waiting for an answer to Caffeine #16. Preserve possible effects before paid calls;
 neither permission to fund nor a finite deposit establishes finite liability.
 
 DFINITY's example is pinned to `ef29e8a6e8063c6fe654cac53a3497cab585fefa`.
@@ -731,7 +731,7 @@ Historical search result, superseded for the public Rust enrollment recipe by
 [the November 15 independent qualification review](#independent-qualification--2026-11-15).
 
 The November 14/15 search found unchanged Caffeine skills at the revision above,
-package 1.1.2, issue #16 open with zero comments, and an export guide that requires
+package 1.1.2, Caffeine #16 open with zero comments, and an export guide that requires
 replacement of managed storage for independently deployed exports. That guide's
 scope does not establish the terms of lower-level Cashier integration. No account
 or provider calls were made in that earlier search.
@@ -798,7 +798,7 @@ canister with bounded cycle acceptance. It proves wrapper/accounting behavior
 under controlled replies, not live Cashier enrollment. Canic's
 [demo acceptance record][canic-acceptance] still requires selected provider,
 payer and gateway inputs and real upload/download/deletion/billing evidence.
-[Legacy issue #494][canic-funding-issue] also distinguishes acknowledged payments
+[Canic Legacy #494][canic-funding-issue] also distinguishes acknowledged payments
 from independent credit; its later `not_planned` closure is not qualification.
 
 **Disposition:** the historical Rust self-funded call path and ABI are now sourced;
@@ -811,7 +811,7 @@ review selects no live target, performs no provider call and closes no D0 guaran
 
 ### Prepared provider clarification — not sent
 
-Local clarification draft referencing [Caffeine issue #16][gc-issue]. The maintainer
+Local clarification draft referencing [Caffeine #16][gc-issue]. The maintainer
 declined posting it and subsequently authorized Caffeine calls when ready.
 Provider-call approval does not authorize sending this message: retain these
 questions as design inputs, not a queued outreach task. The approval removes the

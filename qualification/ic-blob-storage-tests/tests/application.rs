@@ -2,6 +2,9 @@
 
 #![forbid(unsafe_code)]
 
+#[path = "support/mod.rs"]
+mod support;
+
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error as BlobError, Limits},
@@ -9,12 +12,8 @@ use ic_blob_storage::{
 };
 use ic_blob_storage_reference_app::protocol::{DraftInput, DraftView, Error, Installation, Phase};
 use ic_platform_types::Principal;
-use ic_testkit::{
-    pic::PocketIcStartupConfig,
-    pocket_ic::{
-        CanisterId, PocketIcBuilder, RejectCode, common::rest::BlobCompression,
-        nonblocking::PocketIc,
-    },
+use ic_testkit::pocket_ic::{
+    CanisterId, PocketIcBuilder, RejectCode, common::rest::BlobCompression, nonblocking::PocketIc,
 };
 use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
@@ -89,23 +88,14 @@ fn input(id: u128, name: &str, root: u8) -> DraftInput {
 
 #[tokio::test]
 async fn catalog_cancellation_and_recovery_use_original_references() {
-    let directory = std::env::var_os("BLOB_TEST_SERVER").expect("set BLOB_TEST_SERVER");
-    let server = ic_testkit::pic::server_assets::check(Path::new(&directory)).unwrap();
-    let owned = PocketIcStartupConfig::Spawn {
-        server_binary: server,
-        timeout: Duration::from_secs(60),
-        server_hard_ttl: Some(Duration::from_secs(180)),
-        server_idle_ttl: None,
-        server_output_files: None,
-    }
-    .build_instance(
+    let (server, owned) = support::instance(
         PocketIcBuilder::new()
             .with_application_subnet()
             .with_application_subnet(),
+        180,
     )
-    .await
-    .unwrap();
-    let pic = owned.instance();
+    .await;
+    let pic = owned.client();
     let subnets = pic.topology().await.get_app_subnets();
     let app = pic.create_canister_on_subnet(None, None, subnets[0]).await;
     let blob = pic.create_canister_on_subnet(None, None, subnets[1]).await;
@@ -260,10 +250,12 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
         .upgrade_canister(app, wasm.clone(), encode("app_post_upgrade", &()), None)
         .await
         .unwrap_err();
+    // Runtime preserves the pre-upgrade trap; panic prose is not an API.
+    assert_eq!(refused.reject_code, RejectCode::CanisterError);
+    assert!(refused.certified);
     assert!(
-        refused
-            .reject_message
-            .contains("stop and drain application calls before upgrade")
+        refused.reject_message.contains("canister_pre_upgrade"),
+        "{refused:?}"
     );
     let resumed: Result<DraftView, Error> =
         decode("app_create", &pic.await_call(pending).await.unwrap());
@@ -603,5 +595,5 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
         draft(pic, app, alice, &replacement).await.phase,
         Phase::Cleaned
     );
-    owned.close().await;
+    support::close(server, owned).await;
 }

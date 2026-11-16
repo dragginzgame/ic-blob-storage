@@ -154,45 +154,46 @@ async fn changed_artifact_preserves_obligations_through_native_lifecycle() {
     std::fs::write(directory.join("host.wasm"), &wasm).unwrap();
     std::fs::write(directory.join("next.wasm"), &replacement).unwrap();
     std::fs::write(directory.join("manager.pem"), TEST_PEM).unwrap();
-    let manager = BasicIdentity::from_pem(TEST_PEM).unwrap().sender().unwrap();
+    let manager = CanisterId::from_slice(
+        Ed25519Identity::from_pem(TEST_PEM, 4096)
+            .unwrap()
+            .principal()
+            .as_slice(),
+    );
     let input = installation(Principal::from_slice(manager.as_slice()));
     std::fs::write(directory.join("installation.wire"), encode(&input)).unwrap();
-    let server_directory = std::env::var_os("BLOB_TEST_SERVER").expect("set BLOB_TEST_SERVER");
-    let server = ic_testkit::pic::server_assets::check(Path::new(&server_directory)).unwrap();
-    let mut owned = PocketIcStartupConfig::Spawn {
-        server_binary: server,
-        timeout: Duration::from_secs(60),
-        server_hard_ttl: Some(Duration::from_secs(300)),
-        server_idle_ttl: None,
-        server_output_files: None,
-    }
-    .build_instance(
+    let (server, mut owned) = support::instance(
         PocketIcBuilder::new()
             .with_nns_subnet()
             .with_application_subnet(),
+        300,
     )
-    .await
-    .unwrap();
+    .await;
     let controller = CanisterId::from_slice(manager.as_slice());
     let canister = owned
-        .instance()
+        .client()
         .create_canister_with_settings(Some(controller), None)
         .await;
     owned
-        .instance()
+        .client()
         .add_cycles(canister, 10_000_000_000_000)
         .await;
     owned
-        .instance()
+        .client()
         .install_canister(canister, wasm, encode(&input), Some(controller))
         .await;
     std::fs::write(
         directory.join("root.der"),
-        owned.instance().root_key().await.unwrap(),
+        owned.client().root_key().await.unwrap(),
     )
     .unwrap();
-    let url = owned.instance_mut().make_live(None).await;
-    let pic = owned.instance();
+    std::fs::write(
+        directory.join("root-subnet.txt"),
+        owned.client().topology().await.get_nns().unwrap().to_text(),
+    )
+    .unwrap();
+    let url = owned.client_mut().make_live(None).await;
+    let pic = owned.client();
     let uploader = Principal::from_slice(&[2, 1]);
     let other = Principal::from_slice(&[3, 1]);
     let open = request(1, uploader, 3);
@@ -386,5 +387,5 @@ async fn changed_artifact_preserves_obligations_through_native_lifecycle() {
             references: 5
         }))
     );
-    owned.close().await;
+    support::close(server, owned).await;
 }

@@ -2,14 +2,11 @@
 
 use crate::overview::{Network, hex, principal};
 use clap::Args;
-use ic_platform_legacy::{
-    Principal,
-    candid_codec::{
-        Int, Reserved,
-        arguments::encode_args,
-        decoder::{Arity, Limits, decode_args},
-    },
+use ic_platform_protocol::{
+    caffeine::{self as c, Account, AccountRequest, AccountResult},
+    candid::Limits,
 };
+use ic_platform_types::Principal;
 use std::num::NonZeroU64;
 
 #[derive(Args)]
@@ -24,44 +21,8 @@ pub(crate) struct Inspect {
     principal: Principal,
 }
 
-// Required projections of the reviewed Cashier account_info_get_v1 interface.
-// Candid labels are protocol field IDs, not owned Blob endpoint DTOs.
-ic_platform_legacy::candid_record! { struct AccountRequest { 2707029165 => account: Principal } }
-ic_platform_legacy::candid_record! {
-    struct Gauges {
-        390851327 => chunk_size_bytes: u64,
-        2550751805 => chunk_count: u64,
-        2562436397 => blob_count: u64,
-        2947807759 => blob_size_bytes: u64,
-    }
-}
-ic_platform_legacy::candid_record! {
-    struct Account {
-        52836537 => account_owner_id: Principal,
-        2564671811 => cycle_balance: Int,
-        2695045597 => storage_usage: Gauges,
-        3475686851 => last_charge_ts_ns: u64,
-    }
-}
-ic_platform_legacy::candid_variant! {
-    #[derive(Debug)]
-    enum AccountError {
-        566069724 => AccountNotFound,
-        878697764 => OperationFailed(Reserved),
-        1653746489 => InsufficientBalance(Reserved),
-        2022095248 => InsufficientCycles(Reserved),
-        2102411630 => NotAuthorized(Reserved),
-        3028638836 => InvalidArgument(Reserved),
-        3638018673 => AccountBalanceOverflow,
-        4052296485 => TopUpWithoutCycles,
-    }
-}
-ic_platform_legacy::candid_variant! {
-    enum AccountResult { 17724 => Ok(Account), 3456837 => Err(AccountError) }
-}
-
 fn decode(reply: &[u8], expected: Principal) -> Result<Account, String> {
-    let (result,): (AccountResult,) = decode_args(
+    let result = c::decode_account(
         reply,
         Limits {
             bytes: 65_536,
@@ -69,8 +30,9 @@ fn decode(reply: &[u8], expected: Principal) -> Result<Account, String> {
             types: 128,
             work: 262_144,
             allocation: 262_144,
+            vector: 65_536,
+            skipping: 262_144,
         },
-        Arity::Exact,
     )
     .map_err(|_| "invalid or oversized Cashier account reply")?;
     let account = match result {
@@ -81,37 +43,29 @@ fn decode(reply: &[u8], expected: Principal) -> Result<Account, String> {
             ));
         }
     };
-    if account.account_owner_id != expected {
+    if account.account_owner_id.as_slice() != expected.as_slice() {
         return Err("Cashier returned a different account principal".into());
     }
     Ok(account)
 }
 
 pub(crate) async fn inspect(input: Inspect) -> Result<String, String> {
-    let request = encode_args(
-        &(AccountRequest {
-            account: input.principal,
-        },),
-        1024,
-    )
+    let request = AccountRequest {
+        account: input.principal,
+    }
+    .encode(1024)
     .map_err(|_| "cannot encode Cashier query")?;
-    let target = input
-        .cashier
-        .as_slice()
-        .try_into()
-        .map_err(|_| "invalid Cashier")?;
+    let target = input.cashier;
     let reply = tokio::time::timeout(
         std::time::Duration::from_secs(30),
         input
             .network
-            .agent()?
-            .query(&target, "account_info_get_v1")
-            .with_arg(request)
-            .call(),
+            .client()?
+            .query(target, "account_info_get_v1", &request),
     )
     .await
     .map_err(|_| "Cashier query timed out; storage is unknown")?
-    .map_err(|error| format!("Cashier query failed: {:?}", error.to_string()))?;
+    .map_err(|error| format!("Cashier query failed: {:?}", error))?;
     let account = decode(&reply, input.principal)?;
     let usage = account.storage_usage;
     Ok(format!(

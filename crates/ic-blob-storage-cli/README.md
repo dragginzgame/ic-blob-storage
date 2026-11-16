@@ -19,6 +19,9 @@ Cargo installs `blob` into its bin directory (normally `~/.cargo/bin`); keep tha
 directory on PATH. Maintenance additionally requires the matching source checkout
 and admitted tools. Inspection and offline preparation do not require a checkout.
 
+For a custom network, pair `--root-key` with the independently trusted
+`--root-subnet` principal. Mainnet inspection uses the built-in public trust data.
+
 See the [repository](https://github.com/dragginzgame/ic-blob-storage) for the
 design, limits and qualification. Licensed under the Toko Studios Network Licence
 1.0; see the packaged `LICENSE.md`.

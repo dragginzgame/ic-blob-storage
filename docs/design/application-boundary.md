@@ -375,57 +375,62 @@ renewal refusal and explicit release of a grant admitted before its deadline.
 Blob’s 0.102.0 public records and Service arguments select registry Types
 0.21.2. Canic must use that same Rust type at direct Service crossings. Blob’s
 standalone host now uses canonical caller/canister identities directly from Runtime
-0.23.13; the temporary host byte conversions have been removed. The library does
-not depend on Runtime. The native CLI keeps old Platform/Candid DTOs at its
-transport boundary and copies significant identity bytes into Blob records.
+0.23.14; the temporary host byte conversions have been removed. The library does
+not depend on Runtime. The native CLI uses the canonical identity type; there is no
+legacy Platform conversion in product code.
 
 ### Platform replacement prerequisites — 2026-11-16
 
-The latest refresh checked published, non-yanked Platform 0.34.6,
-Runtime/Macros/Guard 0.23.13, Protocol 0.2.5 and Types 0.21.2. Both workspaces
-adopt Types and the new Runtime for authored hosts/probes, plus Platform's
-`ingress-packets` capability for CLI and qualification custody inspection. The initial 0.23.9
-resolution failures remain historical evidence in `target/platform-0343-adoption/`;
-the new Runtime supplies the missing host APIs under explicit entrypoints rather than
-the previous `cdk` facade. Native Agent/management migration remains incomplete.
+The refresh selects published Platform 0.34.8, Runtime/Macros/Guard 0.23.14,
+Types 0.21.2 in both workspaces, Protocol 0.2.7 in the product and Testkit
+0.107.3 / Protocol 0.2.6 in qualification. Testkit 0.107.2 selected Protocol 0.2.5
+and could not resolve with this cohort; 0.107.3 removes that blocker. API and persistence remain unfrozen.
 
-| Consumer boundary | Required replacement capability and acceptance |
+| Consumer boundary | Selected owner and remaining work |
 | --- | --- |
-| CLI signed transport and certificate custody | Original envelope admission and request-ID derivation now use Platform 0.34.6. Signing, dispatch and authenticated request-status recovery still use 0.33.7; qualify existing callback and management journeys without generating replacement requests after uncertainty. |
-| External management and Cashier protocols | Typed, bounded encoding/decoding for the exact existing requests and responses. Protocol 0.2.5 adds selected management chunk and raw-random codecs, but not Blob's status/start/stop/install or Cashier/callback formats. No unused Protocol dependency or general application Candid facade was added. |
-| Standalone and reference-app hosts | Migrated to Runtime 0.23.13's explicit lifecycle/query/update entrypoints, caller/self/time, pre-copy input bounds and consuming calls with a 30-second bounded wait. Domain and record formats remain unchanged. |
-| Stable allocation backing | Storage 0.74.1 still selects Runtime 0.22.5 with only `ic0`: no old executor, macros, guard or Types. The actual host graph has one new executor/guard generation and canonical Types 0.21.2. Keep Storage-issued handles; no forced transitive upgrade. |
-| Upgrade and callback safety | Re-run the affected installed suites with populated predecessor artifacts, stop/drain behavior, delayed replies, encoding traps and retained uncertainty. Matching method names or successful compilation alone cannot qualify replacement. |
+| CLI signed transport and certificate custody | Platform owns PEM signing, exact packet admission, one-attempt dispatch, original-request observation, signed queries and proof authentication. Blob owns custody, deadlines and admission decisions. No legacy Agent or certificate adapter remains. |
+| External Caffeine protocols | Protocol owns root/certificate, liveness/deletion, account-info and top-up request codecs. Existing bounds and independent vectors remain. Provider support and settlement are still unqualified. |
+| External management protocols | Protocol 0.2.7 owns status/start/stop and ordinary `install_code` upgrades, preserving absent upgrade flags and exact module/argument bytes. No legacy Platform remains in the product. |
+| Standalone and reference-app hosts | Runtime 0.23.14 owns explicit entrypoints, caller/self/time, pre-copy input bounds and consuming calls with a 30-second bounded wait. Domain and record formats are unchanged. |
+| Stable allocation backing | Storage 0.74.1 retains Runtime 0.22.5's IC0-only edge; no second executor or guard. Keep Storage-issued handles. |
+| Installed qualification | Testkit owns prepared-server admission, bounded process lifetime, explicit instance deletion/process teardown and held replies. Blob selects deadlines and asserts cleanup. A tiny synthetic WAT peer supplies raw enrollment replies because the old helper was removed. |
+| Remaining qualification codecs | Legacy Candid remains for independent malformed-input/enrollment fixtures, the metrics projection and opaque Cashier top-up outcome inspection. Callback/certificate and management-target codecs use Protocol; legacy management types and the local reply DTO are removed. It supplies no native transport or certificate authentication. |
 
-The published [Runtime contract](https://docs.rs/crate/ic-platform-runtime/0.23.13)
-and [Protocol contract](https://docs.rs/crate/ic-platform-protocol/0.2.5)
-explicitly limit their scope; [Platform 0.34.6](https://docs.rs/crate/ic-platform/0.34.6)
-adds strict original ingress admission to its authenticated anonymous reads.
-It does not sign or dispatch retained authenticated updates. The CLI now selects
-the new ingress API and wraps only its 32-byte request ID for the old transport.
-Remaining uses of 0.33.7 are explicitly named `ic-platform-legacy` in both
-workspaces: signing, transport, certificate DTO/authentication integration and
-external codecs, including private Caffeine probes. This is an unfinished migration,
-not a frozen comparison exemption. The old direct `ic-protocol` feature is removed.
-No local codec, executor or external SDK implementation was added. The
-maintainer chose **pause provisioning and focus on migration requirements**,
-rather than approving continued provisioning on a compatibility hold, then requested
-adoption of the newly published Runtime. Provisioning remains paused; the native
-Platform migration still needs the named capabilities.
+The supplier APIs are documented in [Platform 0.34.8](https://docs.rs/crate/ic-platform/0.34.8),
+[Protocol 0.2.7](https://docs.rs/crate/ic-platform-protocol/0.2.7) and
+[Testkit 0.107.3](https://docs.rs/crate/ic-testkit/0.107.3). Supplier tracking remains
+[Platform #17 — signed transport/recovery](https://github.com/dragginzgame/ic-platform/issues/17),
+[Platform #18 — Caffeine codecs](https://github.com/dragginzgame/ic-platform/issues/18),
+and [Platform #11 — management codecs](https://github.com/dragginzgame/ic-platform/issues/11).
+Testkit 0.107.3 selects Protocol exactly at 0.2.6; its qualification graph remains
+on that version. Legacy codecs remain only in private fixtures and diagnostics.
+The native migration is qualified; offline installation custody/readback is the next
+local provisioning task. Existing live owner/probe custody remains unchanged.
 
-Supplier work is tracked in Platform [#17 — signed transport and original-request
-recovery](https://github.com/dragginzgame/ic-platform/issues/17),
-[#18 — bounded Caffeine codecs](https://github.com/dragginzgame/ic-platform/issues/18),
-and the existing [#11 — management codecs, with Blob's lifecycle requirements](https://github.com/dragginzgame/ic-platform/issues/11#issuecomment-6927085084).
-These issues own supplier implementation; Blob's adoption still requires the
-consumer checks below across product and qualification.
+Custom networks now require both an independently trusted `--root-key` and
+`--root-subnet`. The simulator's root subnet comes from its owned topology, never
+an untrusted HTTP response. Mainnet inspection uses the public root DER and NNS
+subnet constant retained from published ic-agent 0.49.3; these are trust data,
+not a transport implementation. Current network observations admit certificates
+up to 300 seconds old and 30 seconds ahead; delegations up to one day old.
+Offline retained-proof checks admit historical time back to the epoch with the
+same future bound. Neither policy proves current availability or provider acceptance.
 
-Strict envelope admission rejects unknown or malformed authentication metadata as
-well as malformed content. Inspection does not verify a signature or authorize
-dispatch. Original bytes, expiry and request identity remain unchanged; a refused
-packet is never repaired or re-signed. Qualification checks malformed envelopes,
-existing Agent-produced packets and historical request recovery. npm Platform
-0.2.0 remains the latest published browser release and is unchanged.
+Original bytes, expiry and request IDs survive migration. Invalid metadata or
+signatures refuse without repair or replacement requests. Recovered certificate
+files retain the exact authenticated bytes. The late-recovery fixture now waits
+for actual ingress expiry instead of advancing simulator time alone, so it also
+checks the explicit network freshness window. npm Platform 0.2.0 is unchanged.
+The legacy sibling is unavailable in this checkout; this migration preserves the
+existing rewrite's regression contracts and previously retained protocol vectors.
+
+Acceptance evidence is under `target/platform-testkit-adoption/`: aggregate CI,
+all eight installed suites’ cases, populated predecessor upgrades and exact
+released-CLI request custody. The final scoped reruns cover current certificate
+dispatch/transfer and the controller-loss case; network rejection stays explicitly
+uncertified. Runtime’s pre-upgrade trap replaces the old panic prose while the
+fixture still proves refusal, resumed original calls and unchanged durable state.
+Optional Chromium and live-provider qualification are not claimed.
 
 #### Concrete host contract
 

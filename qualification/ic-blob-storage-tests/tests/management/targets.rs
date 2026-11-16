@@ -24,6 +24,8 @@ fn check(
         .arg(directory.join("manager.pem"))
         .arg("--root-key")
         .arg(directory.join("root.der"))
+        .arg("--root-subnet")
+        .arg(std::fs::read_to_string(directory.join("root-subnet.txt")).unwrap())
         .kill_on_drop(true);
     command
 }
@@ -36,40 +38,38 @@ async fn proposed_targets_require_current_controller_and_absent_modules() {
     std::fs::create_dir_all(&directory).unwrap();
     let directory = directory.canonicalize().unwrap();
     std::fs::write(directory.join("manager.pem"), TEST_PEM).unwrap();
-    let signer = BasicIdentity::from_pem(TEST_PEM).unwrap().sender().unwrap();
+    let signer = CanisterId::from_slice(
+        Ed25519Identity::from_pem(TEST_PEM, 4096)
+            .unwrap()
+            .principal()
+            .as_slice(),
+    );
     let manager = CanisterId::from_slice(signer.as_slice());
-    let server_directory = std::env::var_os("BLOB_TEST_SERVER").unwrap();
-    let server = ic_testkit::pic::server_assets::check(Path::new(&server_directory)).unwrap();
-    let mut owned = PocketIcStartupConfig::Spawn {
-        server_binary: server,
-        timeout: Duration::from_secs(60),
-        server_hard_ttl: Some(Duration::from_secs(180)),
-        server_idle_ttl: None,
-        server_output_files: None,
-    }
-    .build_instance(
+    let (server, mut owned) = support::instance(
         PocketIcBuilder::new()
             .with_nns_subnet()
             .with_application_subnet(),
+        180,
     )
-    .await
-    .unwrap();
-    let app = owned.instance().create_canister().await;
-    let blob = owned.instance().create_canister().await;
+    .await;
+    let app = owned.client().create_canister().await;
+    let blob = owned.client().create_canister().await;
     for target in [app, blob] {
+        owned.client().add_cycles(target, 10_000_000_000_000).await;
         owned
-            .instance()
-            .add_cycles(target, 10_000_000_000_000)
-            .await;
-        owned
-            .instance()
+            .client()
             .set_controllers(target, None, vec![manager])
             .await
             .unwrap();
     }
-    let root = owned.instance().root_key().await.unwrap();
+    let root = owned.client().root_key().await.unwrap();
     std::fs::write(directory.join("root.der"), &root).unwrap();
-    let url = owned.instance_mut().make_live(None).await;
+    std::fs::write(
+        directory.join("root-subnet.txt"),
+        owned.client().topology().await.get_nns().unwrap().to_text(),
+    )
+    .unwrap();
+    let url = owned.client_mut().make_live(None).await;
     refused(
         &check(&directory, url.as_str(), app, app)
             .output()
@@ -77,8 +77,7 @@ async fn proposed_targets_require_current_controller_and_absent_modules() {
             .unwrap(),
         "targets must differ",
     );
-    let mut wrong_root = root.clone();
-    *wrong_root.last_mut().unwrap() ^= 1;
+    let wrong_root = include_bytes!("../../../../crates/ic-blob-storage-cli/src/mainnet-root.der");
     std::fs::write(directory.join("root.der"), wrong_root).unwrap();
     refused(
         &check(&directory, url.as_str(), app, blob)
@@ -103,7 +102,7 @@ async fn proposed_targets_require_current_controller_and_absent_modules() {
     assert!(report.contains("not a reservation"));
     for target in [app, blob] {
         let status = owned
-            .instance()
+            .client()
             .canister_status(target, Some(manager))
             .await
             .unwrap();
@@ -113,7 +112,7 @@ async fn proposed_targets_require_current_controller_and_absent_modules() {
     // A successful observation cannot hide a later controller change.
     let other = CanisterId::from_slice(&[4, 1]);
     owned
-        .instance()
+        .client()
         .set_controllers(app, Some(manager), vec![manager, other])
         .await
         .unwrap();
@@ -125,7 +124,7 @@ async fn proposed_targets_require_current_controller_and_absent_modules() {
         "sole controller",
     );
     owned
-        .instance()
+        .client()
         .set_controllers(app, Some(manager), vec![other])
         .await
         .unwrap();
@@ -134,16 +133,16 @@ async fn proposed_targets_require_current_controller_and_absent_modules() {
             .output()
             .await
             .unwrap(),
-        "authentication failed",
+        "uncertified dispatch rejection",
     );
     owned
-        .instance()
+        .client()
         .set_controllers(app, Some(other), vec![manager])
         .await
         .unwrap();
     let wasm = std::fs::read(std::env::var_os("BLOB_WASM").unwrap()).unwrap();
     owned
-        .instance()
+        .client()
         .install_canister(
             blob,
             wasm,
@@ -151,7 +150,7 @@ async fn proposed_targets_require_current_controller_and_absent_modules() {
             Some(manager),
         )
         .await;
-    let before = owned.instance().get_stable_memory(blob).await;
+    let before = owned.client().get_stable_memory(blob).await;
     refused(
         &check(&directory, url.as_str(), app, blob)
             .output()
@@ -159,13 +158,13 @@ async fn proposed_targets_require_current_controller_and_absent_modules() {
             .unwrap(),
         "Blob target already has an installed module",
     );
-    assert_eq!(owned.instance().get_stable_memory(blob).await, before);
+    assert_eq!(owned.client().get_stable_memory(blob).await, before);
     let status = owned
-        .instance()
+        .client()
         .canister_status(blob, Some(manager))
         .await
         .unwrap();
     assert!(status.module_hash.is_some());
     assert_eq!(status.settings.controllers, vec![manager]);
-    owned.close().await;
+    support::close(server, owned).await;
 }

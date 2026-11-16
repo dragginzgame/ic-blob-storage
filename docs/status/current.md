@@ -3,70 +3,55 @@
 ## Delivery and active work
 
 Private `dragginzgame/ic-blob-storage`, branch `main`; **0.102.0 is pushed and
-published to crates.io** for all four product packages at
+published** for all four product packages at
 [`548d9c3`](https://github.com/dragginzgame/ic-blob-storage/commit/548d9c3de7a3a224e66693685634d79cad191406),
-with verified annotated tag `v0.102.0`. Qualification remains independently
-versioned and unpublished. [The release procedure](../operations/releases.md)
-owns Git/registry delivery; the [application guide](../design/reference-application.md)
-owns `blob app` and offline paired installation inputs. This release is complete.
+with annotated tag `v0.102.0`. Qualification is independent and unpublished.
+[Release procedure](../operations/releases.md); [application guide](../design/reference-application.md).
+Release 0.103.0 is selected for the custom-root CLI compatibility change;
+GitHub/crates.io delivery is authorized and in preparation. No live canister change.
 
-**Delivered in 0.102.0:** `blob app check-targets` observes both proposed
-canisters through authenticated management status, requiring absent modules and
-the signer as sole controller. It shares maintenance transport/decoding and creates
-no install authority. [The guide](../design/reference-application.md#check-proposed-targets)
-owns the freshness and non-atomic-observation limits.
+**Platform adoption:** Types 0.21.2, Runtime/Macros/Guard 0.23.14 and Platform
+0.34.8 are selected in both workspaces. Product Protocol 0.2.7 supplies management
+install/status and Caffeine codecs; **no legacy Platform remains in the product**.
+The native API owns signing, one-attempt dispatch, original-request recovery,
+signed queries and exact proof authentication. Custom roots require an explicit
+root-subnet principal. Wire/stable formats and original custody are preserved.
+Storage 0.74.1 retains Runtime 0.22.5's IC0-only edge, not another executor/guard.
 
-**Partial Platform adoption:** both workspaces select Types 0.21.2 and authored hosts/probes
-now use Runtime/Macros/Guard 0.23.13. Explicit bounded entrypoints preserve Wire
-frames, trap rollback and lifecycle policy; consuming calls retain 30-second waits
-and uncertainty. Runtime supplies canonical identities directly, removing temporary
-host conversions. Wasm-only host modules/dependencies keep native DTO use independent.
-Storage 0.74.1 retains Runtime 0.22.5's IC0-only edge: no second executor or guard.
-The public identity change is released in 0.102.0; API/persistence remain unfrozen.
+**Testkit 0.107.3:** managed server preparation, owned instance deletion/process
+teardown and bounded held replies replace the old helpers. Its exact Protocol
+0.2.6 requirement keeps qualification on that version. Legacy Platform 0.33.7
+remains only for independent malformed-input fixtures, enrollment decoding, metrics
+and opaque top-up outcome inspection. Callback/certificate and management-target
+codecs now use Protocol; legacy management types and the local reply DTO are removed.
+Evidence: `target/platform-testkit-adoption/`; aggregate CI and all installed
+migration cases pass, including old CLI custody and populated predecessor upgrades.
+[Migration contract](../design/application-boundary.md#platform-replacement-prerequisites--2026-11-16).
 
-Development evidence remains in `target/platform-0346-adoption/`,
-`target/runtime-02311-adoption/` and `target/runtime-02312-adoption/`.
-Original IDs, late recovery and populated pre-migration host upgrades survive.
-Release checks are recorded below; Chromium was not rerun and no live effects occurred.
-
-**Native boundary:** Platform 0.34.6 now owns original ingress admission and request
-IDs in the CLI and qualification; unknown authentication fields refuse without repair.
-`ic-platform-legacy` explicitly identifies remaining 0.33.7 signing, transport,
-certificate integration and external codecs in both workspaces and private probes.
-The old direct `ic-protocol` feature is removed. Protocol 0.2.5's chunk APIs do not
-cover Blob's management/Cashier formats; no unused dependency was added.
-[Migration requirements](../design/application-boundary.md#platform-replacement-prerequisites--2026-11-16)
-own remaining work. Provisioning stays paused; old native uses are not a frozen exception.
-
-Rust 1.100.0, Tooling 0.44.9 (84-file snapshot), Platform 0.34.6/legacy 0.33.7,
-Runtime 0.23.13, Types 0.21.2, Wire 0.24.2, Host FS/Artifacts 0.80.2 and Testkit 0.106.0 /
-PocketIC 16.1.0 remain selected. Testkit owns its older internal Host edges.
-Tooling 0.44.9 updates both exact pins/locks and the CLI fingerprint; executable
-tool bytes are unchanged. Both-workspace admission and 13 CLI tests pass;
-evidence: `target/tooling-0449-adoption/`. Named-supplier adoption includes native
-and qualification callers; remaining Platform migration is explicitly partial.
-npm Platform 0.2.0 is still current. The development CLI is installed on PATH.
+**Tooling 0.44.11:** both pins/locks, authenticated 84-file snapshot and CLI binding
+are updated. CI retains bounded sanitized failure output, preserves original status
+and reports upload failures. Prior tooling checks passed under the earlier Platform
+cohort (`target/tooling-04411-adoption/`); hosted upload/macOS remains for CI.
+Rust 1.100.0, Wire 0.24.3 and Host FS/Artifacts 0.80.2 remain selected.
 
 ## Next action and provider boundary
 
-**Next:** supplier gaps now have Platform [#17 — signed transport/recovery](https://github.com/dragginzgame/ic-platform/issues/17),
-[#18 — Caffeine codecs](https://github.com/dragginzgame/ic-platform/issues/18), and
-[#11 — management codecs with Blob's added requirements](https://github.com/dragginzgame/ic-platform/issues/11#issuecomment-6927085084).
-Adopt their APIs across both workspaces and qualify the CLI. Provisioning stays
-paused; signed install custody/readback remain future work. Canic's fleet work is owned by
-[#12 — Provision embedded Blob applications through approved fleet installation arguments](https://github.com/dragginzgame/canic/issues/12)
-and [#13 — Integrate Blob drain, upgrade and explicit activation into fleet maintenance](https://github.com/dragginzgame/canic/issues/13).
-The [current handoff](../design/application-boundary.md#fleet-integration-handoff--2026-11-16)
-confirms the existing Blob Service API is sufficient; no duplicate adapter here.
-The live owner's one-slot Storage 0.74.1 image also needs the
-Storage-owned retained-image transition in [ic-storage-new #1](https://github.com/dragginzgame/ic-storage-new/issues/1).
-Latest reviewed committed Storage `92af0d1` adds native record-vector qualification,
-not that transition. No sibling edits/execution. Keep the consumed live probe unchanged.
+Next: finish 0.103.0 GitHub/crates.io delivery, then offline signed installation
+custody/readback using the adopted Platform APIs;
+review private codec replacements when their supplier surfaces exist. Supplier
+tracking: [Platform #17](https://github.com/dragginzgame/ic-platform/issues/17),
+[Platform #18](https://github.com/dragginzgame/ic-platform/issues/18),
+[Platform #11](https://github.com/dragginzgame/ic-platform/issues/11).
+Canic owns fleet integration in [#12](https://github.com/dragginzgame/canic/issues/12)
+and [#13](https://github.com/dragginzgame/canic/issues/13); the existing Service API
+is sufficient, with no duplicate Blob adapter. The retained live Storage image
+still needs [ic-storage-new #1](https://github.com/dragginzgame/ic-storage-new/issues/1).
+Keep the consumed owner/probe unchanged; no sibling source was changed or executed.
 
 Caffeine calls and the existing `canic-mainnet` signer are authorized once the exact
-operation and effect custody are ready. No provider outreach, key export, legacy
-custody import, implicit retry/reset, new owner, funding or link is authorized by
-local progress. [The contract review](../design/caffeine-contract-review.md#independent-qualification--2026-11-15)
+operation and effect custody are ready. No outreach, key export, custody import,
+implicit retry/reset, new owner, funding or link is implied by local progress.
+[Contract review](../design/caffeine-contract-review.md#independent-qualification--2026-11-15)
 and [compact observation](../design/caffeine-observation.json) own provider evidence.
 D0 remains open for enrollment, scope, enforced bounds, proof recovery/lifetime and
 charge closure. D1/D3 are partial; D2 has no positive gateway-admission/upload witness.
@@ -124,6 +109,14 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Qualification and integration
 
+Local adoption passed `make ci` (`ci-final.log`) and installed standalone, capacity,
+endpoint, signed caller, application, enrollment, callback and management cases.
+`custody-final.log` covers released-CLI preparation and expired original recovery;
+`callbacks-response-final.log` covers final dispatch/transfer handling. Management
+passed three cases in `management-final.log`; `target-final.log` passes the corrected
+controller-loss diagnostic case.
+Optional Chromium was not rerun. PATH `blob` is rebuilt locally at version 0.102.0.
+
 Release 0.102.0 passed `make ci`, all eight installed suites and archive/provenance
 checks (`target/01020-release/`). All four registry archives match the prepared
 packages; readback: `target/01020-release/registry-verified.json`.
@@ -145,4 +138,5 @@ own real fleet initialization and maintenance. No Canic source changed or ran.
 Delivery review (`6efe329..548d9c3`) covered host ownership, shared status transport,
 ingress custody, tests and dependencies. Stale pending-release prose is corrected
 in this handoff update; no additional code sediment found in the delivered scope.
-Legacy Platform uses remain explicit and issue-linked. Live/legacy custody is untouched.
+The current migration removes obsolete native adapters and product legacy dependencies.
+Private codec uses remain explicit. Live/legacy custody is untouched.

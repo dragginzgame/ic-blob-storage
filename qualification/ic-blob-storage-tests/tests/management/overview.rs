@@ -1,18 +1,13 @@
+use super::support;
 use super::{TEST_PEM, encode, installation, refused};
 use ic_blob_storage::{
     local::{Error, UploadRequest},
     protocol::{Command, Outcome, RPC_LIMITS},
 };
-use ic_platform_legacy::agent::{BasicIdentity, Identity};
+use ic_platform::native::Ed25519Identity;
 use ic_platform_types::Principal;
-use ic_testkit::{
-    pic::PocketIcStartupConfig,
-    pocket_ic::{CanisterId, PocketIcBuilder, nonblocking::PocketIc},
-};
-use std::{
-    path::{Path, PathBuf},
-    time::Duration,
-};
+use ic_testkit::pocket_ic::{CanisterId, PocketIcBuilder, nonblocking::PocketIc};
+use std::path::{Path, PathBuf};
 
 async fn mutate(pic: &PocketIc, canister: CanisterId, caller: CanisterId, input: Command) {
     let bytes = ic_wire::encode(
@@ -60,6 +55,8 @@ fn command(
         ])
         .arg("--root-key")
         .arg(directory.join("root.der"))
+        .arg("--root-subnet")
+        .arg(std::fs::read_to_string(directory.join("root-subnet.txt")).unwrap())
         .kill_on_drop(true);
     command
 }
@@ -71,36 +68,30 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
         .join(std::process::id().to_string());
     std::fs::create_dir_all(&directory).unwrap();
     std::fs::write(directory.join("application.pem"), TEST_PEM).unwrap();
-    let application = BasicIdentity::from_pem(TEST_PEM).unwrap().sender().unwrap();
+    let application = CanisterId::from_slice(
+        Ed25519Identity::from_pem(TEST_PEM, 4096)
+            .unwrap()
+            .principal()
+            .as_slice(),
+    );
     let mut input = installation(Principal::from_slice(application.as_slice()));
     input.application = input.manager;
     let uploader = Principal::from_slice(&[8; 29]);
     let wasm = std::fs::read(std::env::var_os("BLOB_WASM").expect("set BLOB_WASM")).unwrap();
-    let server = ic_testkit::pic::server_assets::check(Path::new(
-        &std::env::var_os("BLOB_TEST_SERVER").expect("set BLOB_TEST_SERVER"),
-    ))
-    .unwrap();
-    let mut owned = PocketIcStartupConfig::Spawn {
-        server_binary: server,
-        timeout: Duration::from_secs(60),
-        server_hard_ttl: Some(Duration::from_secs(300)),
-        server_idle_ttl: None,
-        server_output_files: None,
-    }
-    .build_instance(
+    let (server, mut owned) = support::instance(
         PocketIcBuilder::new()
             .with_nns_subnet()
             .with_application_subnet(),
+        300,
     )
-    .await
-    .unwrap();
-    let canister = owned.instance().create_canister().await;
+    .await;
+    let canister = owned.client().create_canister().await;
     owned
-        .instance()
+        .client()
         .add_cycles(canister, 10_000_000_000_000)
         .await;
     owned
-        .instance()
+        .client()
         .install_canister(canister, wasm.clone(), encode(&input), None)
         .await;
     // Full-width identities and principals, with one shared root and 62 reservations.
@@ -108,7 +99,7 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
         let root = if n == 2 { [1; 32] } else { [n; 32] };
         let id = (u128::MAX - u128::from(n)).try_into().unwrap();
         mutate(
-            owned.instance(),
+            owned.client(),
             canister,
             application,
             Command::Authorize {
@@ -127,7 +118,7 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
         .await;
         if n == 1 {
             mutate(
-                owned.instance(),
+                owned.client(),
                 canister,
                 CanisterId::from_slice(uploader.as_slice()),
                 Command::Register(root),
@@ -137,11 +128,16 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
     }
     std::fs::write(
         directory.join("root.der"),
-        owned.instance().root_key().await.unwrap(),
+        owned.client().root_key().await.unwrap(),
     )
     .unwrap();
-    let url = owned.instance_mut().make_live(None).await;
-    let before = owned.instance().get_stable_memory(canister).await;
+    std::fs::write(
+        directory.join("root-subnet.txt"),
+        owned.client().topology().await.get_nns().unwrap().to_text(),
+    )
+    .unwrap();
+    let url = owned.client_mut().make_live(None).await;
+    let before = owned.client().get_stable_memory(canister).await;
     let output = command(&directory, url.as_str(), canister, uploader)
         .arg("--identity")
         .arg(directory.join("application.pem"))
@@ -161,10 +157,15 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
     assert!(text.contains(&(u128::MAX - 1).to_string()));
     assert!(text.contains("Attached"));
     assert!(text.contains("provider storage not observed"));
-    assert_eq!(owned.instance().get_stable_memory(canister).await, before);
+    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let untrusted = directory.join("untrusted");
     std::fs::create_dir_all(&untrusted).unwrap();
     std::fs::write(untrusted.join("root.der"), [0; 32]).unwrap();
+    std::fs::copy(
+        directory.join("root-subnet.txt"),
+        untrusted.join("root-subnet.txt"),
+    )
+    .unwrap();
     refused(
         &command(&untrusted, url.as_str(), canister, uploader)
             .arg("--identity")
@@ -172,7 +173,7 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
             .output()
             .await
             .unwrap(),
-        "Blob query failed",
+        "invalid trusted root key",
     );
     refused(
         &command(&directory, url.as_str(), canister, uploader)
@@ -200,19 +201,15 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
     );
     for n in 1..=2 {
         mutate(
-            owned.instance(),
+            owned.client(),
             canister,
             application,
             Command::Release((u128::MAX - n).try_into().unwrap()),
         )
         .await;
     }
-    mutate(owned.instance(), canister, application, Command::Drain(1)).await;
-    owned
-        .instance()
-        .stop_canister(canister, None)
-        .await
-        .unwrap();
+    mutate(owned.client(), canister, application, Command::Drain(1)).await;
+    owned.client().stop_canister(canister, None).await.unwrap();
     let args = ic_wire::encode(
         &(),
         ic_wire::Encoding::Frame {
@@ -223,15 +220,11 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
     )
     .unwrap();
     owned
-        .instance()
+        .client()
         .upgrade_canister(canister, wasm, args, None)
         .await
         .unwrap();
-    owned
-        .instance()
-        .start_canister(canister, None)
-        .await
-        .unwrap();
+    owned.client().start_canister(canister, None).await.unwrap();
     let output = command(&directory, url.as_str(), canister, uploader)
         .arg("--identity")
         .arg(directory.join("application.pem"))
@@ -248,5 +241,5 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
     assert!(text.contains("Closing"));
     assert!(text.contains("Released"));
     assert!(text.contains("Matching uploads: 64"));
-    owned.close().await;
+    support::close(server, owned).await;
 }

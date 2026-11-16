@@ -37,15 +37,13 @@ fn declaration() -> DraftInput {
 }
 
 async fn app_update<T: Serialize>(
-    user: &Agent,
+    user: &Client,
     app: CanisterId,
     method: &str,
     input: &T,
 ) -> Result<DraftView, AppError> {
     let bytes = user
-        .update(&app, method)
-        .with_arg(frame(method, input))
-        .call_and_wait()
+        .update(&app, method, &frame(method, input))
         .await
         .unwrap();
     wire::decode(
@@ -59,11 +57,9 @@ async fn app_update<T: Serialize>(
     .unwrap()
 }
 
-async fn catalog(user: &Agent, app: CanisterId) -> Vec<DraftView> {
+async fn catalog(user: &Client, app: CanisterId) -> Vec<DraftView> {
     let bytes = user
-        .query(&app, "app_catalog")
-        .with_arg(frame("app_catalog", &()))
-        .call()
+        .query(&app, "app_catalog", &frame("app_catalog", &()))
         .await
         .unwrap();
     wire::decode::<Result<Vec<DraftView>, AppError>>(
@@ -99,6 +95,8 @@ async fn cli_application(
         .arg(directory.join("uploader.pem"))
         .arg("--root-key")
         .arg(directory.join("root.der"))
+        .arg("--root-subnet")
+        .arg(std::fs::read_to_string(directory.join("root-subnet.txt")).unwrap())
         .kill_on_drop(true);
     if let Some(id) = id {
         command.args(["--id", &id.to_string()]);
@@ -131,20 +129,19 @@ async fn browser_publication_and_late_read_use_the_real_catalog() {
 }
 
 async fn publication_cases(browser: bool) {
-    let mut owned = server()
-        .build_instance(
-            PocketIcBuilder::new()
-                .with_nns_subnet()
-                .with_application_subnet(),
-        )
-        .await
-        .unwrap();
+    let (server, mut owned) = support::instance(
+        PocketIcBuilder::new()
+            .with_nns_subnet()
+            .with_application_subnet(),
+        180,
+    )
+    .await;
     let app_wasm = std::fs::read(
         std::env::var_os("BLOB_REFERENCE_APP")
             .expect("set BLOB_REFERENCE_APP to the built product Wasm"),
     )
     .unwrap();
-    let url = owned.instance_mut().make_live(None).await;
+    let url = owned.client_mut().make_live(None).await;
     let draft = declaration();
     let cases: &[(&str, &str)] = if browser {
         &[("success", "SAUPX"), ("cancel-read", "SARUPX")]
@@ -169,8 +166,8 @@ async fn publication_cases(browser: bool) {
             draft.asset = "portrait\n\u{1b}[31m".into();
         }
         // Each case owns a fresh installation, not a reset of an exposed root.
-        let app = owned.instance().create_canister().await;
-        owned.instance().add_cycles(app, 10_000_000_000_000).await;
+        let app = owned.client().create_canister().await;
+        owned.client().add_cycles(app, 10_000_000_000_000).await;
         let mut limits = issuer_limits();
         limits.manifest.max_content_bytes = draft.bytes.try_into().unwrap();
         limits.manifest.max_chunks = draft.chunks.len().try_into().unwrap();
@@ -179,7 +176,7 @@ async fn publication_cases(browser: bool) {
         let (owner, trust_root) =
             install_issuer(&owned, Principal::from_slice(app.as_slice()), limits).await;
         owned
-            .instance()
+            .client()
             .install_canister(
                 app,
                 app_wasm.clone(),
@@ -193,7 +190,12 @@ async fn publication_cases(browser: bool) {
                 None,
             )
             .await;
-        let user = agent(url.as_str(), &trust_root, 2);
+        let user = Client::new(
+            url.as_str(),
+            &trust_root,
+            owned.client().topology().await.get_nns().unwrap(),
+            2,
+        );
         assert_eq!(
             app_update(&user, app, "app_create", &draft)
                 .await
@@ -204,6 +206,7 @@ async fn publication_cases(browser: bool) {
         let directory = certificate_directory(
             &format!("publication-{browser}-{scenario}-test"),
             &trust_root,
+            owned.client().topology().await.get_nns().unwrap(),
         );
         let claim = retain_proof(&directory, url.as_str(), owner, draft.root, &trust_root).await;
         let original_packet = std::fs::read(claim.join("request.cbor")).unwrap();
@@ -212,7 +215,12 @@ async fn publication_cases(browser: bool) {
         if inspect_cli {
             // A second allowed user owns a published use of this same object.
             // The CLI's signer cannot inspect it just by knowing its draft ID.
-            let other = agent(url.as_str(), &trust_root, 3);
+            let other = Client::new(
+                url.as_str(),
+                &trust_root,
+                owned.client().topology().await.get_nns().unwrap(),
+                3,
+            );
             let mut other_draft = draft.clone();
             other_draft.id = 2.try_into().unwrap();
             app_update(&other, app, "app_create", &other_draft)
@@ -221,8 +229,8 @@ async fn publication_cases(browser: bool) {
             app_update(&other, app, "app_publish", &other_draft.id)
                 .await
                 .unwrap();
-            let app_before = owned.instance().get_stable_memory(app).await;
-            let blob_before = owned.instance().get_stable_memory(owner).await;
+            let app_before = owned.client().get_stable_memory(app).await;
+            let blob_before = owned.client().get_stable_memory(owner).await;
             let output = cli_application(&directory, url.as_str(), app, None).await;
             assert!(cli_report(&output).contains("Published catalog entries: 0"));
             let output = cli_application(&directory, url.as_str(), app, Some(1)).await;
@@ -240,8 +248,8 @@ async fn publication_cases(browser: bool) {
                         .contains(refusal)
                 );
             }
-            assert_eq!(owned.instance().get_stable_memory(app).await, app_before);
-            assert_eq!(owned.instance().get_stable_memory(owner).await, blob_before);
+            assert_eq!(owned.client().get_stable_memory(app).await, app_before);
+            assert_eq!(owned.client().get_stable_memory(owner).await, blob_before);
             app_update(&other, app, "app_cancel", &other_draft.id)
                 .await
                 .unwrap();
@@ -297,22 +305,21 @@ async fn publication_cases(browser: bool) {
                         break;
                     }
                     b'S' => {
-                        let bytes = user.query(&app, "app_draft").with_arg(frame("app_draft", &draft.id))
-                            .call().await.unwrap();
+                        let bytes = user.query(&app, "app_draft", &frame("app_draft", &draft.id)).await.unwrap();
                         let saved = wire::decode::<Result<DraftView, AppError>>(&bytes, wire::Encoding::Frame { method: wire::method_id("app_draft"), direction: wire::Direction::Response }, RPC_LIMITS).unwrap().unwrap();
                         assert_eq!(saved.input, draft);
                         assert_eq!(saved.phase, Phase::Draft);
-                        before_read = Some(owned.instance().get_stable_memory(owner).await);
+                        before_read = Some(owned.client().get_stable_memory(owner).await);
                         b'S'
                     }
                     b'U' => {
                         // The HTTP read is outside both canisters. Stop/drain their
                         // runtime calls, preserving the draft and issued obligation.
-                        let pic = owned.instance();
+                        let pic = owned.client();
                         assert!(catalog(&user, app).await.is_empty());
                         pic.stop_canister(app, None).await.unwrap();
                         let app_before = pic.get_stable_memory(app).await;
-                        let manager = agent(url.as_str(), &trust_root, 9);
+                        let manager = Client::new(url.as_str(), &trust_root, owned.client().topology().await.get_nns().unwrap(), 9);
                         let drained = signed_command(&manager, owner, Command::Drain(1)).await;
                         assert!(matches!(drained, Outcome::Maintenance(m) if m.attempt == 1 && !m.active));
                         pic.stop_canister(owner, None).await.unwrap();
@@ -365,7 +372,7 @@ async fn publication_cases(browser: bool) {
             && scenario != "reconcile-cancelled"
         {
             // Verified GET and catalog publication do not mutate Blob's state.
-            assert_eq!(owned.instance().get_stable_memory(owner).await, before);
+            assert_eq!(owned.client().get_stable_memory(owner).await, before);
         }
         assert_eq!(
             std::fs::read(claim.join("request.cbor")).unwrap(),
@@ -416,9 +423,7 @@ async fn publication_cases(browser: bool) {
             }
         }
         let bytes = user
-            .query(&app, "app_draft")
-            .with_arg(frame("app_draft", &draft.id))
-            .call()
+            .query(&app, "app_draft", &frame("app_draft", &draft.id))
             .await
             .unwrap();
         let observed = wire::decode::<Result<DraftView, AppError>>(
@@ -453,19 +458,19 @@ async fn publication_cases(browser: bool) {
         );
         assert!(catalog(&user, app).await.is_empty());
         if inspect_cli {
-            let app_before = owned.instance().get_stable_memory(app).await;
-            let blob_before = owned.instance().get_stable_memory(owner).await;
+            let app_before = owned.client().get_stable_memory(app).await;
+            let blob_before = owned.client().get_stable_memory(owner).await;
             let output = cli_application(&directory, url.as_str(), app, None).await;
             assert!(cli_report(&output).contains("Published catalog entries: 0"));
             let output = cli_application(&directory, url.as_str(), app, Some(1)).await;
             assert!(cli_report(&output).contains("Cleaned (application cleanup finished)"));
-            assert_eq!(owned.instance().get_stable_memory(app).await, app_before);
-            assert_eq!(owned.instance().get_stable_memory(owner).await, blob_before);
+            assert_eq!(owned.client().get_stable_memory(app).await, app_before);
+            assert_eq!(owned.client().get_stable_memory(owner).await, blob_before);
         }
         // Simulator inspection as the application authority; application operations
         // above use the real user signature and the application's outgoing calls.
         let bytes = owned
-            .instance()
+            .client()
             .query_call(
                 owner,
                 app,
@@ -479,5 +484,5 @@ async fn publication_cases(browser: bool) {
             Observation::Usage(u) if u.live_bytes == 0 && u.unresolved_bytes == draft.bytes)
         );
     }
-    owned.close().await;
+    support::close(server, owned).await;
 }

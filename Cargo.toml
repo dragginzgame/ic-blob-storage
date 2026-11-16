@@ -22,9 +22,9 @@ ic-blob-storage = { version = "0.102.0", path = "crates/ic-blob-storage" }
 ic-blob-storage-reference-app = { version = "0.102.0", path = "crates/ic-blob-storage-reference-app" }
 ic-host-artifacts = { version = "0.80.1", default-features = false }
 ic-host-fs = { version = "0.80.1", default-features = false }
-ic-platform = { version = "0.34.6", default-features = false }
-ic-platform-legacy = { package = "ic-platform", version = "0.33.7", default-features = false }
-ic-platform-runtime = { version = "0.23.13", default-features = false }
+ic-platform = { version = "0.34.8", default-features = false }
+ic-platform-protocol = { version = "0.2.7", default-features = false }
+ic-platform-runtime = { version = "0.23.14", default-features = false }
 ic-platform-types = { version = "0.21.2", default-features = false }
 ic-storage = "0.74.1"
 ic-wire = { version = "0.24.0", default-features = false }
@@ -32,7 +32,7 @@ serde = { version = "1.0.229", features = ["derive"] }
 sha2 = { version = "0.11.1", default-features = false }
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread", "time", "process"] }
 # Source tooling only.
-toko-tooling = "=0.44.9"
+toko-tooling = "=0.44.11"
 url = "2.5.8"
 
 [workspace.lints.cargo]

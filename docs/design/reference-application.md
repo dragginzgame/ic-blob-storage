@@ -88,7 +88,7 @@ blob app check-targets \
 The signer must currently be the sole controller of both targets. This controller
 is distinct from the maintenance-manager role named in the init arguments, though
 an operator may deliberately choose the same principal. Local gateways require an
-independently trusted `--root-key`; no root is fetched from the selected endpoint.
+independently trusted `--root-key` and `--root-subnet`; no root is fetched from the selected endpoint.
 
 The command uses replicated management status, the existing bounded decoder and
 a 30-second overall deadline. It refuses equal/special targets, installed modules,

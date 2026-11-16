@@ -1,7 +1,7 @@
 # Continuous integration
 
 [The repository workflow](../../.github/workflows/ci.yml) runs on pull requests,
-pushes to `0.100` and `main`, and manual dispatch. It has read-only repository
+pushes to `main`, and manual dispatch. It has read-only repository
 permissions, pinned external action revisions and no deployment credentials.
 
 - Linux owns `make ci`: tooling/pin admission, non-mutating formatting, strict
@@ -28,9 +28,32 @@ permissions, pinned external action revisions and no deployment credentials.
 CI deliberately selects setup targets instead of `make install-tools`, which
 also provisions the optional simulator. Installed PocketIC suites, Chromium,
 live-provider qualification, funding and deployment remain separate operations.
-Build/formatting failure logs are retained for seven days. Missing or failed
-hosted evidence is not a pass.
+Failed shell setup/check steps use [the bounded output wrapper](../../scripts/ci/run-step.pl).
+It retains up to 64 KiB of sanitized command output plus phase/tool/status metadata
+per failed step, caps console output and marks truncation or missing diagnostics.
+Toko's Rust installer already prints its selected attempt's `install.log` on
+compilation failure, so that output is captured even before tests start. Unprinted
+files are omitted; the wrapper does not scan hidden directories, tool stores,
+homes, raw environment or provider custody. Known sensitive fields, credentials,
+private-key blocks and URLs are removed before either printing or retention.
+This is for the credential-free repository CI commands, not arbitrary payload logging.
 
-The initial workflow resolves [#2 — Complete hosted CI wiring](https://github.com/dragginzgame/ic-blob-storage/issues/2).
+The shared Toko tool-evidence collector retains full failed tool candidates and
+does not supply this consumer's redaction/size contract. We therefore retain only
+the command stream here, without adding a second tool-bundle collector.
+[The local upload action](../../.github/actions/retain-failure-logs/action.yml)
+uploads these diagnostic files for seven days and links the artifact in the job
+summary. Missing evidence, collection failures and upload failures are explicit;
+none can turn an original command failure into success. Failures before shell
+capture (for example checkout or setup-node) remain in the action's hosted log;
+an absent artifact is reported, not represented as complete retention.
+
+`perl scripts/ci/test-run-step.pl` checks early setup failure with an explicitly
+printed hidden attempt log, sanitization, bounds, missing output, collector
+refusal and original status preservation. The workflow/security job owns that
+small regression. Local execution does not qualify hosted artifact upload or
+retrieval, or native macOS execution; those require the corresponding hosted run.
+
+The initial workflow resolves [BlobStorage #2 — Complete hosted CI wiring](https://github.com/dragginzgame/ic-blob-storage/issues/2).
 [Release 0.100.11's first hosted run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/43859650612)
 passed all three jobs on `f61c414`, including native macOS and production Wasm.

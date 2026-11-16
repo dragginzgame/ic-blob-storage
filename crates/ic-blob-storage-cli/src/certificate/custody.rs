@@ -2,20 +2,19 @@
 
 use super::{METHOD, PACKET_LIMIT, Target, original};
 use crate::files;
+use crate::network::Client;
 use crate::overview::hex;
 use clap::Args;
 use ic_host_fs::Directory;
 use ic_platform::ingress::{Content, decode_envelope};
-use ic_platform_legacy::{
-    Principal,
-    agent::{Agent, RequestId},
-    candid_codec::arguments::encode_args,
-};
+use ic_platform::native::{Dispatch as NativeDispatch, PreparedUpdate, RequestStatus};
+use ic_platform_protocol::caffeine as c;
+use ic_platform_types::Principal;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
     path::PathBuf,
-    time::{Duration, SystemTime, UNIX_EPOCH},
+    time::{SystemTime, UNIX_EPOCH},
 };
 
 const LIMITS: ic_wire::Limits = ic_wire::Limits {
@@ -55,25 +54,23 @@ struct Intent {
 }
 
 impl Input {
-    pub(super) fn directory(&self, agent: &Agent) -> PathBuf {
+    pub(super) fn directory(&self, agent: &Client) -> PathBuf {
         self.custody
-            .join(hex(&Sha256::digest(agent.read_root_key())))
+            .join(hex(&Sha256::digest(&agent.root)))
             .join(self.target.canister.to_text())
             .join(&self.target.root[7..])
     }
 }
 
 pub(crate) fn prepare(input: &Input) -> Result<String, String> {
-    let agent = input.target.agent()?;
-    let signed = agent
-        .update(&input.target.effective()?.as_principal(), METHOD)
-        .with_arg(
-            encode_args(&(input.target.root.clone(),), 1024).map_err(|_| "cannot encode root")?,
-        )
-        .expire_after(Duration::from_secs(120))
-        .sign()
-        .map_err(|_| "cannot sign original certificate request")?;
-    if signed.signed_update.len() > PACKET_LIMIT {
+    let agent = input.target.client()?;
+    let signed = agent.prepare(
+        input.target.canister,
+        input.target.canister,
+        METHOD,
+        &c::encode_root(&input.target.root, 1024).map_err(|_| "cannot encode root")?,
+    )?;
+    if signed.envelope_bytes().len() > PACKET_LIMIT {
         return Err("signed request exceeds custody budget".into());
     }
     let intent = Intent {
@@ -82,8 +79,8 @@ pub(crate) fn prepare(input: &Input) -> Result<String, String> {
         canister: input.target.canister,
         uploader: input.target.uploader,
         root: input.target.root.clone(),
-        root_key_hash: Sha256::digest(agent.read_root_key()).into(),
-        packet_hash: Sha256::digest(&signed.signed_update).into(),
+        root_key_hash: Sha256::digest(&agent.root).into(),
+        packet_hash: Sha256::digest(signed.envelope_bytes()).into(),
     };
     let bytes = ic_wire::encode(&intent, ic_wire::Encoding::Payload, LIMITS)
         .map_err(|_| "cannot encode certificate intent")?;
@@ -94,18 +91,18 @@ pub(crate) fn prepare(input: &Input) -> Result<String, String> {
     let claim = parent.create_directory(directory.file_name().ok_or("missing root name")?, 0o700, 0o077)
         .map_err(|_| "certificate root already claimed or custody unavailable; preserve it, do not reprepare")?;
     files::publish(&claim, "intent.wire".as_ref(), &bytes)?;
-    files::publish(&claim, "request.cbor".as_ref(), &signed.signed_update)?;
+    files::publish(&claim, "request.cbor".as_ref(), signed.envelope_bytes())?;
     Ok(format!(
         "Prepared original request={} without submission.\nRetain request at {:?}; expires in 120 seconds, never renew it.",
-        signed.request_id,
+        hex(signed.request_id()),
         directory.join("request.cbor")
     ))
 }
 
 pub(super) fn load(
     input: &Input,
-    agent: &Agent,
-) -> Result<(Directory, Vec<u8>, RequestId), String> {
+    agent: &Client,
+) -> Result<(Directory, Vec<u8>, [u8; 32]), String> {
     let target = &input.target;
     let directory = input.directory(agent);
     let held = files::directory(&directory, false)?;
@@ -121,7 +118,7 @@ pub(super) fn load(
         || intent.canister != target.canister
         || intent.uploader != target.uploader
         || intent.root != target.root
-        || intent.root_key_hash != <[u8; 32]>::from(Sha256::digest(agent.read_root_key()))
+        || intent.root_key_hash != <[u8; 32]>::from(Sha256::digest(&agent.root))
         || intent.packet_hash != <[u8; 32]>::from(Sha256::digest(&packet))
     {
         return Err("certificate custody does not match original bindings and packet".into());
@@ -131,7 +128,7 @@ pub(super) fn load(
 }
 
 pub(crate) async fn dispatch(input: Dispatch) -> Result<String, String> {
-    let agent = input.input.target.agent()?;
+    let agent = input.input.target.client()?;
     let target = &input.input.target;
     let (held, packet, id) = load(&input.input, &agent)?;
     let Content::Call { ingress_expiry, .. } = decode_envelope(&packet, PACKET_LIMIT)
@@ -151,12 +148,35 @@ pub(crate) async fn dispatch(input: Dispatch) -> Result<String, String> {
     }
     // CreateNew is the cross-process arbitration point. Even an empty/partial
     // marker bars another invocation; no outcome can remove this claim.
-    files::publish(&held, "dispatch.claim".as_ref(), &id.to_vec())?;
-    // The Agent may internally retry HTTP 429/503 with identical signed bytes.
-    // This is one application dispatch, not a promise of one HTTP attempt.
-    agent.update_signed(target.effective()?, packet).await
+    files::publish(&held, "dispatch.claim".as_ref(), &id)?;
+    // One HTTP attempt with exact retained bytes; any uncertainty keeps the claim.
+    let prepared = PreparedUpdate::from_bytes(&packet, target.canister, PACKET_LIMIT)
+        .map_err(|_| "invalid original signed request")?;
+    let result = agent.transport.dispatch(&prepared, crate::network::policy(false)?).await
         .map_err(|_| "certificate dispatch outcome uncertain; preserve custody and recover the original request, never resubmit")?;
+    match result {
+        NativeDispatch::UncertifiedRejection { .. } => {
+            return Err(
+                "uncertified dispatch rejection; preserve custody and recover the original request"
+                    .into(),
+            );
+        }
+        NativeDispatch::Observed(observed) => match observed.status() {
+            RequestStatus::Replied(bytes) => super::admit_reply(bytes, &target.root)?,
+            RequestStatus::Rejected { .. } => {
+                return Err("original request rejected; preserve custody, no resubmission".into());
+            }
+            RequestStatus::Done | RequestStatus::Unavailable => {
+                return Err(
+                    "original outcome unavailable; preserve custody, no resubmission".into(),
+                );
+            }
+            RequestStatus::Unknown | RequestStatus::Received | RequestStatus::Processing => {}
+        },
+        NativeDispatch::Accepted => {}
+    }
     Ok(format!(
-        "Original request={id} dispatched; preserve custody and use blob certificate recover.\nNo provider acceptance or availability is established."
+        "Original request={} dispatched; preserve custody and use blob certificate recover.\nNo provider acceptance or availability is established.",
+        hex(&id)
     ))
 }

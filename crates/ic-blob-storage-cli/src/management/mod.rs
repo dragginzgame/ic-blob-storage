@@ -1,5 +1,7 @@
 //! Immutable maintenance-request custody and guarded dispatch; no renewal or resubmission.
 
+use ic_platform::native::RequestStatus;
+
 mod activate;
 mod start;
 pub(crate) mod status;
@@ -14,16 +16,13 @@ use ic_blob_storage::{
 };
 use ic_host_fs::{Directory, FilePolicy};
 use ic_platform::ingress::{Content, decode_envelope};
-use ic_platform_legacy::{
-    Principal,
-    agent::{CallResponse, EffectiveId, RequestId, RequestStatusResponse},
-};
+use ic_platform_types::Principal;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
     path::Path,
     process::Stdio,
-    time::{Duration, SystemTime, UNIX_EPOCH},
+    time::{SystemTime, UNIX_EPOCH},
 };
 
 const LIMITS: ic_wire::Limits = ic_wire::Limits {
@@ -103,7 +102,7 @@ impl<'a> Operation<'a> {
                 context,
                 &original.id,
                 attempt,
-                request_status(context, &original.id).await?,
+                request_status(context, &original).await?,
                 wasm,
             )
             .await?;
@@ -249,27 +248,12 @@ pub(super) async fn prepare(
 ) -> Result<String, String> {
     operation.admit(context, attempt).await?;
     let recipient = operation.recipient(context);
-    let target = EffectiveId::Canister(
-        context
-            .canister
-            .as_slice()
-            .try_into()
-            .map_err(|_| "invalid target")?,
-    );
-    let signed = context
-        .agent
-        .update(
-            &recipient
-                .as_slice()
-                .try_into()
-                .map_err(|_| "invalid recipient")?,
-            operation.method(),
-        )
-        .with_effective_canister_id(target.as_principal())
-        .with_arg(operation.argument(context, attempt)?)
-        .expire_after(Duration::from_secs(120))
-        .sign()
-        .map_err(|_| "cannot sign management request")?;
+    let signed = context.client.prepare(
+        recipient,
+        context.canister,
+        operation.method(),
+        &operation.argument(context, attempt)?,
+    )?;
     let intent = Intent {
         version: 1,
         url: context.url.clone(),
@@ -279,11 +263,11 @@ pub(super) async fn prepare(
         root_hash: context.root_hash,
         state_version: context.state_version,
         attempt,
-        packet_hash: Sha256::digest(&signed.signed_update).into(),
+        packet_hash: Sha256::digest(signed.envelope_bytes()).into(),
     };
     let bytes = ic_wire::encode(&intent, ic_wire::Encoding::Payload, LIMITS)
         .map_err(|_| "cannot encode management intent")?;
-    if signed.signed_update.len() > operation.packet_limit() {
+    if signed.envelope_bytes().len() > operation.packet_limit() {
         return Err("signed management request exceeds record limit".into());
     }
     // A partial directory remains claimed. No automatic cleanup or repair on any
@@ -295,23 +279,23 @@ pub(super) async fn prepare(
         format!("management intent publication failed; preserve claim: {error}")
     })?;
     if let Some(previous) = operation.predecessor(context, attempt)? {
-        files::publish(&held, "predecessor.id".as_ref(), &previous.id.to_vec())
+        files::publish(&held, "predecessor.id".as_ref(), &previous.id)
             .map_err(|_| "predecessor publication failed; preserve claim")?;
     }
-    files::publish(&held, "request.cbor".as_ref(), &signed.signed_update).map_err(|error| {
+    files::publish(&held, "request.cbor".as_ref(), signed.envelope_bytes()).map_err(|error| {
         format!("signed management request publication failed; preserve claim: {error}")
     })?;
     Ok(format!(
         "Prepared {}: request_id={} attempt={attempt}; NOT submitted. Preserve the original claim; no renewal or retry is authorized.",
         operation.name(),
-        signed.request_id
+        crate::overview::hex(signed.request_id())
     ))
 }
 
 struct Original {
     attempt: u64,
     packet: Vec<u8>,
-    id: RequestId,
+    id: [u8; 32],
     expires_at: u64,
 }
 
@@ -370,11 +354,9 @@ fn load(context: &Context, directory: &Path, operation: Operation<'_>) -> Result
     }
     // Derive the request ID from original content; never regenerate a fresh signed call.
     // Expired requests remain inspectable until the network forgets their outcomes.
-    let id = RequestId::new(
-        &content
-            .request_id()
-            .map_err(|_| "cannot derive original request ID")?,
-    );
+    let id = content
+        .request_id()
+        .map_err(|_| "cannot derive original request ID")?;
     Ok(Original {
         attempt: intent.attempt,
         packet,
@@ -389,7 +371,7 @@ pub(super) async fn observe(
     operation: Operation<'_>,
 ) -> Result<String, String> {
     let original = load(context, directory, operation)?;
-    let status = request_status(context, &original.id).await?;
+    let status = request_status(context, &original).await?;
     if let Operation::Activate { wasm, .. } = operation {
         return activate::observe(context, &original.id, original.attempt, status, wasm).await;
     }
@@ -403,41 +385,30 @@ pub(super) async fn observe(
         return stop::observe(context, &original.id, status).await;
     }
     match status {
-        RequestStatusResponse::Replied(reply) => {
-            acknowledge(&original.id, original.attempt, &reply.arg, false)
-        }
-        RequestStatusResponse::Rejected(_) => {
+        RequestStatus::Replied(reply) => acknowledge(&original.id, original.attempt, &reply, false),
+        RequestStatus::Rejected { .. } => {
             Err("original drain was rejected; no retry authorized".into())
         }
-        RequestStatusResponse::Unknown | RequestStatusResponse::Done => {
+        RequestStatus::Unknown | RequestStatus::Unavailable | RequestStatus::Done => {
             Err("original drain outcome unavailable; keep unresolved, no resubmission".into())
         }
-        RequestStatusResponse::Received | RequestStatusResponse::Processing => {
+        RequestStatus::Received | RequestStatus::Processing => {
             Err("original drain remains pending; no resubmission".into())
         }
     }
 }
 
-async fn request_status(
-    context: &Context,
-    id: &RequestId,
-) -> Result<RequestStatusResponse, String> {
-    let target = EffectiveId::Canister(
-        context
-            .canister
-            .as_slice()
-            .try_into()
-            .map_err(|_| "invalid target")?,
-    );
-    let (status, _) = context
-        .agent
-        .request_status_raw(id, target)
-        .await
-        .map_err(|_| "original request status authentication failed")?;
-    Ok(status)
+async fn request_status(context: &Context, original: &Original) -> Result<RequestStatus, String> {
+    let prepared = ic_platform::native::PreparedUpdate::from_bytes(
+        &original.packet,
+        context.canister,
+        crate::network::MESSAGE_BYTES,
+    )
+    .map_err(|_| "invalid original signed request")?;
+    Ok(context.client.observe(&prepared).await?.status().clone())
 }
 
-fn acknowledge(id: &RequestId, attempt: u64, bytes: &[u8], active: bool) -> Result<String, String> {
+fn acknowledge(id: &[u8; 32], attempt: u64, bytes: &[u8], active: bool) -> Result<String, String> {
     let operation = if active { "activation" } else { "drain" };
     let result: Result<Outcome, Error> = ic_wire::decode(
         bytes,
@@ -451,8 +422,9 @@ fn acknowledge(id: &RequestId, attempt: u64, bytes: &[u8], active: bool) -> Resu
     match result {
         Ok(Outcome::Maintenance(state)) if state.attempt == attempt && state.active == active => {
             Ok(format!(
-                "Original {operation} acknowledged: request_id={id} attempt={}; historical outcome only, not current admission or activation approval.",
-                attempt
+                "Original {operation} acknowledged: request_id={display_id} attempt={}; historical outcome only, not current admission or activation approval.",
+                attempt,
+                display_id = crate::overview::hex(id)
             ))
         }
         _ => Err(format!(
@@ -548,31 +520,43 @@ pub(super) async fn dispatch(
     unexpired(original.expires_at)?;
     // This is an irreversible local exposure boundary, not proof of transmission.
     // A crash or sync failure may strand a safe unsent request; never delete/retry it.
-    files::publish(&held, marker.as_ref(), &original.id.to_vec()).map_err(|error| {
+    files::publish(&held, marker.as_ref(), &original.id).map_err(|error| {
         format!("dispatch claim failed; preserve custody and do not resubmit: {error}")
     })?;
-    let target = EffectiveId::Canister(
-        context
-            .canister
-            .as_slice()
-            .try_into()
-            .map_err(|_| "invalid target")?,
-    );
-    match context.agent.update_signed(target, original.packet).await {
-        Ok(CallResponse::Response(bytes)) => match operation {
-            Operation::Drain => acknowledge(&original.id, original.attempt, &bytes, false),
-            Operation::Stop => stop::acknowledge(&original.id, &bytes),
-            Operation::Upgrade { .. } => upgrade::acknowledge(&original.id, &bytes),
-            Operation::Start { wasm, .. } => {
-                start::acknowledge(context, &original.id, original.attempt, &bytes, wasm).await
+    let prepared = ic_platform::native::PreparedUpdate::from_bytes(
+        &original.packet,
+        context.canister,
+        crate::network::MESSAGE_BYTES,
+    )
+    .map_err(|_| "invalid original signed request")?;
+    let result = context
+        .client
+        .transport
+        .dispatch(&prepared, crate::network::policy(false)?)
+        .await;
+    match result {
+        Ok(ic_platform::native::Dispatch::Observed(observed))
+            if matches!(observed.status(), RequestStatus::Replied(_)) =>
+        {
+            let RequestStatus::Replied(bytes) = observed.status() else {
+                unreachable!()
+            };
+            match operation {
+                Operation::Drain => acknowledge(&original.id, original.attempt, bytes, false),
+                Operation::Stop => stop::acknowledge(&original.id, bytes),
+                Operation::Upgrade { .. } => upgrade::acknowledge(&original.id, bytes),
+                Operation::Start { wasm, .. } => {
+                    start::acknowledge(context, &original.id, original.attempt, bytes, wasm).await
+                }
+                Operation::Activate { wasm, .. } => {
+                    activate::acknowledge(context, &original.id, original.attempt, bytes, wasm)
+                        .await
+                }
             }
-            Operation::Activate { wasm, .. } => {
-                activate::acknowledge(context, &original.id, original.attempt, &bytes, wasm).await
-            }
-        },
-        Ok(CallResponse::Poll(_)) => {
-            Err("original request pending; observe it, do not resubmit".into())
         }
+        Ok(ic_platform::native::Dispatch::UncertifiedRejection { .. }) => Err("uncertified dispatch rejection; preserve custody and observe the original request".into()),
+        Ok(ic_platform::native::Dispatch::Observed(observed)) if matches!(observed.status(), RequestStatus::Rejected { .. } | RequestStatus::Done | RequestStatus::Unavailable) => Err("original request rejected or outcome unavailable; preserve custody, no resubmission".into()),
+        Ok(_) => Err("original request pending; observe it, do not resubmit".into()),
         Err(_) => Err(
             "dispatch outcome uncertain; preserve custody and observe the original request".into(),
         ),

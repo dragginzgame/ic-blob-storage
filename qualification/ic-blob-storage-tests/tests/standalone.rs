@@ -3,6 +3,9 @@
 
 #![forbid(unsafe_code)]
 
+#[path = "support/mod.rs"]
+mod support;
+
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error, Limits, ReferenceStatus, UploadRequest, UploadState},
@@ -12,12 +15,9 @@ use ic_blob_storage::{
     },
 };
 use ic_platform_types::Principal;
-use ic_testkit::{
-    pic::PocketIcStartupConfig,
-    pocket_ic::{CanisterId, PocketIcBuilder, nonblocking::PocketIc},
-};
+use ic_testkit::pocket_ic::{CanisterId, PocketIcBuilder, nonblocking::PocketIc};
 use serde::{Serialize, de::DeserializeOwned};
-use std::{num::NonZeroU128, path::Path, time::Duration};
+use std::num::NonZeroU128;
 
 fn actor(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
@@ -144,21 +144,9 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
     let installed_wasm = std::env::var_os("BLOB_PREVIOUS_WASM")
         .map(|path| std::fs::read(path).unwrap())
         .unwrap_or_else(|| wasm.clone());
-    let server_directory = std::env::var_os("BLOB_TEST_SERVER")
-        .expect("set BLOB_TEST_SERVER to the prepared absolute directory");
-    let server = ic_testkit::pic::server_assets::check(Path::new(&server_directory))
-        .expect("run make install-test-server first");
-    let owned = PocketIcStartupConfig::Spawn {
-        server_binary: server,
-        timeout: Duration::from_secs(60),
-        server_hard_ttl: Some(Duration::from_secs(300)),
-        server_idle_ttl: None,
-        server_output_files: None,
-    }
-    .build_instance(PocketIcBuilder::new().with_application_subnet())
-    .await
-    .unwrap();
-    let pic = owned.instance();
+    let (server, owned) =
+        support::instance(PocketIcBuilder::new().with_application_subnet(), 300).await;
+    let pic = owned.client();
     let canister = pic
         .create_canister_with_settings(Some(pic_actor(9)), None)
         .await;
@@ -421,5 +409,5 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
             ..initial
         })
     );
-    owned.close().await;
+    support::close(server, owned).await;
 }

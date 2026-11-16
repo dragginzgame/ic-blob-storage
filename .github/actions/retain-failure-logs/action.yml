@@ -1,0 +1,51 @@
+name: Retain bounded Blob CI diagnostics
+description: Upload only sanitized command diagnostics and report missing evidence separately.
+inputs:
+  name:
+    description: Job-specific artifact name.
+    required: true
+runs:
+  using: composite
+  steps:
+    - id: select
+      shell: bash
+      run: |
+        evidence="$RUNNER_TEMP/blob-ci-evidence"
+        [[ -d "$evidence" && ! -L "$evidence" ]] || {
+          echo 'Failure evidence directory is missing or redirected.' >&2
+          exit 1
+        }
+        paths=()
+        for phase in admit workflow-and-secrets linux-setup linux-checks macos-setup macos-checks; do
+          path="$evidence/$phase.txt"
+          if [[ -e "$path" || -L "$path" ]]; then
+            [[ -f "$path" && ! -L "$path" && "$(wc -c < "$path")" -le 67000 ]] || {
+              echo 'Failure evidence is not a bounded regular diagnostic file.' >&2
+              exit 1
+            }
+            paths+=("$path")
+          fi
+        done
+        [[ ${#paths[@]} -gt 0 ]] || { echo 'Failure evidence is missing.' >&2; exit 1; }
+        { printf 'paths<<BLOB_EVIDENCE\n'; printf '%s\n' "${paths[@]}"; printf 'BLOB_EVIDENCE\n'; } >> "$GITHUB_OUTPUT"
+    - id: upload
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: ${{ inputs.name }}
+        path: ${{ steps.select.outputs.paths }}
+        if-no-files-found: error
+        retention-days: 7
+    - if: always()
+      shell: bash
+      env:
+        UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
+        ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+      run: |
+        if [[ "$UPLOAD_OUTCOME" == success && -n "$ARTIFACT_URL" ]]; then
+          printf 'Failure evidence: %s\n' "$ARTIFACT_URL"
+          printf '[Sanitized failure evidence](%s) (7-day retention).\n' "$ARTIFACT_URL" >> "$GITHUB_STEP_SUMMARY"
+        else
+          echo 'Failure evidence upload failed or evidence is missing; inspect the original failed step.' >&2
+          echo 'Failure evidence upload failed or evidence is missing.' >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+        fi

@@ -94,7 +94,7 @@ blob app draft \
 ```
 
 For an owned local replica, use its loopback `--url` and supply the independently
-trusted `--root-key` DER file. The CLI never fetches a replacement trust root.
+trusted `--root-key` DER file and `--root-subnet` principal. The CLI never fetches a replacement trust root.
 `catalog` lists only this user's Published drafts; `draft` inspects the original
 nonzero ID, including Draft, Cancelled and Cleaned records. An empty catalog says
 nothing about unpublished drafts, provider storage or other users. Knowledge of
@@ -142,7 +142,7 @@ storage. The adapter uses Platform's bounded external Candid codec; owned Blob
 endpoints continue to use Wire.
 
 Both query commands verify IC query signatures using the built-in mainnet root,
-or an explicitly supplied `--root-key trusted-root.der`. Loopback HTTP requires
+or an explicitly supplied `--root-key trusted-root.der --root-subnet ROOT_SUBNET`. Loopback HTTP requires
 that key, obtained from your owned simulator; neither command fetches a new trust
 root from its endpoint. Queries have a 30-second deadline. They are observations,
 not consensus-certified state receipts or permission for a subsequent mutation.
@@ -164,7 +164,7 @@ blob certificate dispatch --url "$IC_API" --canister "$ORIGINAL_ISSUER" \
   --custody "$CERTIFICATE_CUSTODY" --checkout "$BLOB_CHECKOUT"
 ```
 
-Supply `--root-key trusted-root.der` to both commands for the owned local simulator.
+Supply `--root-key trusted-root.der --root-subnet ROOT_SUBNET` to both commands for the owned local simulator.
 All operators/uploaders must use one trusted custody root. Below it, the trusted
 network-key hash, issuer and canonical content root select one permanent claim;
 changing uploader, URL or request filename does not create another lifetime.
@@ -229,7 +229,7 @@ the network retains its outcome. Pending, rejected, unknown or pruned outcomes
 refuse without creating a certificate; none authorizes a fresh request.
 
 Mainnet uses Platform's built-in root key. For a local simulator, supply an
-independently obtained `--root-key trusted-root.der`; loopback HTTP requires it.
+independently obtained `--root-key trusted-root.der --root-subnet ROOT_SUBNET`; loopback HTTP requires it.
 The command never fetches trust from the endpoint. Input is limited to 8 KiB,
 decoded replies to 1 KiB and encoded certificates to 128 KiB, within the existing
 2 MiB HTTP response budget and 45-second command deadline.
@@ -262,7 +262,7 @@ blob transfer claim --url "$IC_API" --canister "$ORIGINAL_ISSUER" \
   --gateway "$SELECTED_GATEWAY_ORIGIN" --project "$SELECTED_PROJECT" --bucket "$SELECTED_BUCKET"
 ```
 
-For loopback, also pass `--root-key "$TRUSTED_ROOT_DER"`. The certificate digest is
+For loopback, also pass `--root-key "$TRUSTED_ROOT_DER" --root-subnet "$TRUSTED_ROOT_SUBNET"`. The certificate digest is
 the `sha256:...` value from the [client's frozen plan](../../clients/browser/README.md#application-boundary),
 not an independently reselected proof. This command makes **no network call**.
 It checks original intent/packet/dispatch identity, authenticates the certificate
@@ -329,8 +329,8 @@ the recovered proof to the actual `transfer claim` command and owned loopback PU
 corrupted proofs refuse, a complete read verifies against the original declaration,
 and a fresh process cannot replay the transfer. Final release retains exposure.
 This does not simulate power loss, browser deployment or provider acceptance.
-`BLOB_PREVIOUS_CLI` can select a retained flat-command predecessor (through
-0.100.10) only for certificate preparation in that fixture; dispatch, recovery and transfer claims still use
+`BLOB_PREVIOUS_CLI` selects a retained predecessor only for certificate preparation
+in that fixture. Set `BLOB_PREVIOUS_CLI_GROUPED=1` for releases after 0.100.10; dispatch, recovery and transfer claims still use
 `BLOB_CLI`. Wire 0.24 was checked against earlier 0.22 custody, and Host 0.80.1
 against the released Blob 0.100.10 CLI using Host 0.79.0. Neither introduces a
 runtime fallback reader or changes live custody.

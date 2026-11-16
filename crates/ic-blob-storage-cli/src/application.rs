@@ -3,10 +3,11 @@
 mod prepare;
 mod targets;
 
+use crate::network::Client;
 use clap::{Args, Subcommand};
 use ic_blob_storage::protocol::RPC_LIMITS;
 use ic_blob_storage_reference_app::protocol::{DraftView, Error, Phase};
-use ic_platform_legacy::{Principal, agent::Agent};
+use ic_platform_types::Principal;
 use serde::{Serialize, de::DeserializeOwned};
 use std::{fmt::Write, num::NonZeroU128};
 
@@ -44,7 +45,7 @@ pub(crate) enum Command {
 }
 
 async fn query<T: Serialize, R: DeserializeOwned>(
-    agent: &Agent,
+    agent: &Client,
     canister: Principal,
     method: &str,
     input: &T,
@@ -58,16 +59,10 @@ async fn query<T: Serialize, R: DeserializeOwned>(
         RPC_LIMITS,
     )
     .map_err(|_| "cannot encode application inspection")?;
-    let canister = canister
-        .as_slice()
-        .try_into()
-        .map_err(|_| "invalid canister")?;
     let reply = agent
-        .query(&canister, method)
-        .with_arg(request)
-        .call()
+        .query(canister, method, &request)
         .await
-        .map_err(|error| format!("Application query failed: {:?}", error.to_string()))?;
+        .map_err(|error| format!("Application query failed: {:?}", error))?;
     let result: Result<R, Error> = ic_wire::decode(
         &reply,
         ic_wire::Encoding::Frame {
@@ -87,10 +82,8 @@ pub(crate) async fn run(command: Command) -> Result<String, String> {
         Command::Catalog(target) => (target, None),
         Command::Draft { target, id } => (target, Some(id)),
     };
-    let agent = target.network.agent()?;
-    let caller = agent
-        .get_principal()
-        .map_err(|_| "identity has no sender")?;
+    let agent = target.network.client()?;
+    let caller = agent.principal();
     if caller.as_slice() == Principal::anonymous().as_slice() {
         return Err(
             "reference-application inspection requires the owning user's --identity".into(),

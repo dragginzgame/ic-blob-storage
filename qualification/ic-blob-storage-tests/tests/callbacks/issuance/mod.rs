@@ -4,39 +4,31 @@ mod publication;
 
 use super::*;
 use ic_blob_storage::local::{ReferenceStatus, UploadState};
+use ic_blob_storage_tests::native::{Client, identity, policy};
 use ic_host_artifacts::Length;
 use ic_host_fs::{Commit, Destination, Directory, Policy, Retention};
+use ic_platform::certificate::{
+    CertificateDecodeLimits, PreparedRootKey, TimePolicy, TimeWindow, VerificationLimits,
+    authenticate_certificate, decode_certificate,
+};
 use ic_platform::ingress::{Content, decode_envelope};
-use ic_platform_legacy::agent::{
-    Agent, AgentError, BasicIdentity, Identity, RequestId, RequestStatusResponse, lookup_value,
-    signed_update_inspect,
-};
-use ic_platform_legacy::certification::cbor::{decode_certificate, encode_certificate};
-use ic_platform_legacy::certification::historical::{
-    Limits as CertificateLimits, TimePolicy, TimeWindow, authenticate_certificate_at,
-};
-use ic_testkit::pic::PocketIcInstance;
+use ic_platform::native::{PreparedUpdate, ReadError, RequestStatus};
+
+use ic_testkit::server::{Instance, Server};
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 
 const ISSUE: &str = "_immutableObjectStorageCreateCertificate";
-
-ic_platform_legacy::candid_record! {
-    struct ProviderReply {
-        156956385 => method: String,
-        278101296 => blob_hash: String,
-    }
-}
 
 fn root_text(root: Root) -> String {
     let hex: String = root.iter().map(|b| format!("{b:02x}")).collect();
     format!("sha256:{hex}")
 }
 fn issue_args(root: Root) -> Vec<u8> {
-    encode_args(&(root_text(root),), 1024).unwrap()
+    provider::encode_root(&root_text(root), 1024).unwrap()
 }
 fn assert_reply(bytes: &[u8], root: Root) {
-    let (reply,): (ProviderReply,) = decode_args(bytes, CANDID, Arity::Exact).unwrap();
+    let reply = provider::decode_certificate(bytes, PROVIDER_LIMITS).unwrap();
     assert_eq!(reply.method, "upload");
     assert_eq!(reply.blob_hash, root_text(root));
 }
@@ -64,11 +56,9 @@ async fn inspect(pic: &PocketIc, owner: CanisterId, request: Inspection) -> Obse
 
 #[tokio::test]
 async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
-    let owned = server()
-        .build_instance(PocketIcBuilder::new().with_application_subnet())
-        .await
-        .unwrap();
-    let pic = owned.instance();
+    let (server, owned) =
+        support::instance(PocketIcBuilder::new().with_application_subnet(), 180).await;
+    let pic = owned.client();
     let owner = install(pic).await;
     let root = [42; 32];
     update(pic, owner, 1, grant(1, root, 2)).await.unwrap();
@@ -184,31 +174,16 @@ async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
     );
     assert!(candidates(pic, owner).await.is_empty());
     assert_eq!(usage(pic, owner).await, exposure);
+    support::close(server, owned).await;
 }
 
 fn signer(seed: u8) -> Principal {
-    let principal = BasicIdentity::from_raw_key(&[seed; 32]).sender().unwrap();
-    Principal::from_slice(principal.as_slice())
+    identity(seed).principal()
 }
-fn agent(url: &str, root: &[u8], seed: u8) -> Agent {
-    // Public deterministic fixture keys; root comes from simulator custody, never HTTP discovery.
-    let agent = Agent::builder()
-        .with_url(url)
-        .with_identity(BasicIdentity::from_raw_key(&[seed; 32]))
-        .with_verify_query_signatures(true)
-        .with_max_response_body_size(2 * 1024 * 1024)
-        .with_max_polling_time(Duration::from_secs(30))
-        .with_max_tcp_error_retries(0)
-        .build()
-        .unwrap();
-    agent.set_root_key(root.to_vec());
-    agent
-}
-async fn signed_command(agent: &Agent, owner: CanisterId, command: Command) -> Outcome {
+
+async fn signed_command(agent: &Client, owner: CanisterId, command: Command) -> Outcome {
     let bytes = agent
-        .update(&owner, "blob_update")
-        .with_arg(frame("blob_update", &command))
-        .call_and_wait()
+        .update(&owner, "blob_update", &frame("blob_update", &command))
         .await
         .unwrap();
     let result: Result<Outcome, Error> = wire::decode(
@@ -231,7 +206,8 @@ fn certificate_command(
     root: Root,
     uploader: Principal,
 ) -> tokio::process::Command {
-    // A flat-command predecessor (through 0.100.10) may prepare original custody.
+    // A predecessor may prepare original custody. Through 0.100.10 it used flat
+    // commands; set BLOB_PREVIOUS_CLI_GROUPED for later grouped predecessors.
     // Current grouped commands must dispatch/recover it without rewriting it.
     let previous = (operation == "prepare-certificate")
         .then(|| std::env::var_os("BLOB_PREVIOUS_CLI"))
@@ -240,7 +216,7 @@ fn certificate_command(
     let mut command = tokio::process::Command::new(previous.unwrap_or_else(|| {
         std::env::var_os("BLOB_CLI").expect("set BLOB_CLI to the built native artifact")
     }));
-    if legacy_cli {
+    if legacy_cli && std::env::var_os("BLOB_PREVIOUS_CLI_GROUPED").is_none() {
         command.arg(operation);
     } else {
         command.args([
@@ -264,6 +240,11 @@ fn certificate_command(
         .arg("--root-key")
         .arg(directory.join("root.der"))
         .kill_on_drop(true);
+    if !legacy_cli {
+        command
+            .arg("--root-subnet")
+            .arg(std::fs::read_to_string(directory.join("root-subnet.txt")).unwrap());
+    }
     command
 }
 
@@ -287,25 +268,23 @@ fn recovery_command(
 // Authenticate the actual certified time through Platform, not a consumer LEB128
 // parser. This fixture selects an explicit inclusive window; it is no provider TTL.
 fn certificate_time(bytes: &[u8], key: &[u8], owner: CanisterId, start: u64, end: u64) -> u64 {
-    authenticate_certificate_at(
-        bytes,
-        key,
-        ic_platform_legacy::Principal::from_slice(owner.as_slice()),
+    authenticate_certificate(
+        decode_certificate(bytes, CertificateDecodeLimits { bytes: 128 * 1024 }).unwrap(),
+        &PreparedRootKey::from_der(key).unwrap(),
+        Principal::from_slice(owner.as_slice()),
         TimePolicy {
             certificate: TimeWindow {
-                reference_ns: start,
-                max_age_ns: 0,
-                max_future_skew_ns: end.checked_sub(start).unwrap(),
+                reference_ns: end,
+                max_age_ns: end.checked_sub(start).unwrap(),
+                max_future_skew_ns: 0,
             },
-            // The simulator's root delegation predates the recovered certificate.
             delegation: TimeWindow {
                 reference_ns: end,
                 max_age_ns: end,
                 max_future_skew_ns: 0,
             },
         },
-        CertificateLimits {
-            certificate_bytes: 128 * 1024,
+        VerificationLimits {
             delegation_bytes: 128 * 1024,
             tree_nodes: 4096,
             tree_depth: 64,
@@ -313,20 +292,33 @@ fn certificate_time(bytes: &[u8], key: &[u8], owner: CanisterId, start: u64, end
         },
     )
     .unwrap_or_else(|error| panic!("certificate outside expected [{start}, {end}]: {error}"))
-    .time_ns
+    .time_ns()
 }
 
-async fn signed_issuer() -> (PocketIcInstance, CanisterId, Vec<u8>) {
-    let owned = server()
-        .build_instance(
-            PocketIcBuilder::new()
-                .with_nns_subnet()
-                .with_application_subnet(),
-        )
-        .await
-        .unwrap();
+fn corrupt_signature(bytes: &[u8]) -> Vec<u8> {
+    let decoded = decode_certificate(bytes, CertificateDecodeLimits { bytes: 128 * 1024 }).unwrap();
+    let signature = &decoded.unverified().signature;
+    let offsets: Vec<_> = bytes
+        .windows(signature.len())
+        .enumerate()
+        .filter_map(|(offset, value)| (value == signature).then_some(offset))
+        .collect();
+    assert_eq!(offsets.len(), 1);
+    let mut changed = bytes.to_vec();
+    changed[offsets[0]] ^= 1;
+    changed
+}
+
+async fn signed_issuer() -> (Server, Instance, CanisterId, Vec<u8>) {
+    let (server, owned) = support::instance(
+        PocketIcBuilder::new()
+            .with_nns_subnet()
+            .with_application_subnet(),
+        300,
+    )
+    .await;
     let (owner, trust_root) = install_issuer(&owned, signer(1), issuer_limits()).await;
-    (owned, owner, trust_root)
+    (server, owned, owner, trust_root)
 }
 
 fn issuer_limits() -> Limits {
@@ -336,19 +328,19 @@ fn issuer_limits() -> Limits {
 }
 
 async fn install_issuer(
-    owned: &PocketIcInstance,
+    owned: &Instance,
     application: Principal,
     limits: Limits,
 ) -> (CanisterId, Vec<u8>) {
-    let owner = owned.instance().create_canister().await;
-    owned.instance().add_cycles(owner, 10_000_000_000_000).await;
+    let owner = owned.client().create_canister().await;
+    owned.client().add_cycles(owner, 10_000_000_000_000).await;
     let input = Installation {
         application,
         manager: signer(9),
         limits,
     };
     owned
-        .instance()
+        .client()
         .install_canister(
             owner,
             wasm(),
@@ -356,11 +348,11 @@ async fn install_issuer(
             None,
         )
         .await;
-    let trust_root = owned.instance().root_key().await.unwrap();
+    let trust_root = owned.client().root_key().await.unwrap();
     (owner, trust_root)
 }
 
-fn certificate_directory(name: &str, trust_root: &[u8]) -> PathBuf {
+fn certificate_directory(name: &str, trust_root: &[u8], root_subnet: CanisterId) -> PathBuf {
     // Public deterministic seed [2; 32]; no wallet key is exported.
     const PEM: &str = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC\n-----END PRIVATE KEY-----\n";
     let directory = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -376,6 +368,11 @@ fn certificate_directory(name: &str, trust_root: &[u8]) -> PathBuf {
     let directory = directory.canonicalize().unwrap();
     publish_fixture(&directory.join("uploader.pem"), PEM.as_bytes()).unwrap();
     publish_fixture(&directory.join("root.der"), trust_root).unwrap();
+    publish_fixture(
+        &directory.join("root-subnet.txt"),
+        root_subnet.to_text().as_bytes(),
+    )
+    .unwrap();
     directory
 }
 
@@ -392,11 +389,25 @@ fn certificate_claim(custody: &Path, trust_root: &[u8], owner: CanisterId, root:
 
 #[tokio::test]
 async fn cancelled_authority_and_transport_failure_never_release_dispatch_custody() {
-    let (mut owned, owner, trust_root) = signed_issuer().await;
-    let url = owned.instance_mut().make_live(None).await;
-    let application = agent(url.as_str(), &trust_root, 1);
-    let uploader = agent(url.as_str(), &trust_root, 2);
-    let directory = certificate_directory("certificate-refusal-test", &trust_root);
+    let (server, mut owned, owner, trust_root) = signed_issuer().await;
+    let url = owned.client_mut().make_live(None).await;
+    let application = Client::new(
+        url.as_str(),
+        &trust_root,
+        owned.client().topology().await.get_nns().unwrap(),
+        1,
+    );
+    let uploader = Client::new(
+        url.as_str(),
+        &trust_root,
+        owned.client().topology().await.get_nns().unwrap(),
+        2,
+    );
+    let directory = certificate_directory(
+        "certificate-refusal-test",
+        &trust_root,
+        owned.client().topology().await.get_nns().unwrap(),
+    );
     let custody = directory.join("custody");
     for (number, root) in [(1, [21; 32]), (2, [22; 32])] {
         let mut authorize = grant(number, root, 2);
@@ -422,14 +433,10 @@ async fn cancelled_authority_and_transport_failure_never_release_dispatch_custod
         );
         let claim = certificate_claim(&custody, &trust_root, owner, root);
         let packet = std::fs::read(claim.join("request.cbor")).unwrap();
-        let id = RequestId::new(
-            &decode_envelope(&packet, 8192)
-                .unwrap()
-                .value
-                .content
-                .request_id()
-                .unwrap(),
-        );
+        let original =
+            PreparedUpdate::from_bytes(&packet, Principal::from_slice(owner.as_slice()), 8192)
+                .unwrap();
+        let id = *original.request_id();
         if number == 1 {
             // Cancellation occurs after the signature exists, before it is sent.
             signed_command(
@@ -441,9 +448,9 @@ async fn cancelled_authority_and_transport_failure_never_release_dispatch_custod
         } else {
             // Stop only the owned HTTP gateway. No proxy or substitute issuer:
             // the CLI cannot know whether a general transport error means no effect.
-            owned.instance_mut().stop_live().await;
+            owned.client_mut().stop_live().await;
         }
-        let before = owned.instance().get_stable_memory(owner).await;
+        let before = owned.client().get_stable_memory(owner).await;
         let mut dispatch = certificate_command(
             "dispatch-certificate",
             &directory,
@@ -462,15 +469,18 @@ async fn cancelled_authority_and_transport_failure_never_release_dispatch_custod
             // Dispatch may have returned Poll; only the certified original result
             // establishes rejection. A CLI exit code is not provider disposition.
             assert!(matches!(
-                uploader.wait(&id, owner).await,
-                Err(AgentError::CertifiedReject { .. })
+                uploader.wait(&original).await.status(),
+                RequestStatus::Rejected { .. }
             ));
         } else {
             assert!(!output.status.success());
-            let restored = owned.instance_mut().make_live(url.port()).await;
+            let restored = owned.client_mut().make_live(url.port()).await;
             assert_eq!(restored, url);
-            let (status, _) = uploader.request_status_raw(&id, owner).await.unwrap();
-            assert!(matches!(status, RequestStatusResponse::Unknown));
+            let observed = uploader.observe(&original).await.unwrap();
+            assert!(matches!(
+                observed.status(),
+                RequestStatus::Unknown | RequestStatus::Unavailable
+            ));
         }
         assert_eq!(
             std::fs::read(claim.join("dispatch.claim")).unwrap(),
@@ -499,7 +509,7 @@ async fn cancelled_authority_and_transport_failure_never_release_dispatch_custod
             .unwrap();
         assert!(!output.status.success());
         assert!(!proof.exists());
-        assert_eq!(owned.instance().get_stable_memory(owner).await, before);
+        assert_eq!(owned.client().get_stable_memory(owner).await, before);
         if number == 2 {
             // An unused reservation can still be released through its real owner;
             // this does not erase or reset the CLI's uncertain dispatch claim.
@@ -512,9 +522,11 @@ async fn cancelled_authority_and_transport_failure_never_release_dispatch_custod
         }
     }
     let bytes = application
-        .query(&owner, "blob_query")
-        .with_arg(frame("blob_query", &Inspection::Usage))
-        .call()
+        .query(
+            &owner,
+            "blob_query",
+            &frame("blob_query", &Inspection::Usage),
+        )
         .await
         .unwrap();
     let observed: Result<Observation, Error> = wire::decode(
@@ -529,16 +541,31 @@ async fn cancelled_authority_and_transport_failure_never_release_dispatch_custod
     assert!(
         matches!(observed, Ok(Observation::Usage(u)) if u.reserved_bytes == 0 && u.live_bytes == 0 && u.unresolved_bytes == 0 && u.uploads == 2 && u.references == 2)
     );
-    owned.close().await;
+    support::close(server, owned).await;
 }
 
 #[tokio::test]
 async fn original_request_recovery_authenticates_history_after_release_without_reissuance() {
-    let (mut owned, owner, trust_root) = signed_issuer().await;
-    let url = owned.instance_mut().make_live(None).await;
-    let application = agent(url.as_str(), &trust_root, 1);
-    let uploader = agent(url.as_str(), &trust_root, 2);
-    let gateway = agent(url.as_str(), &trust_root, 7);
+    let (server, mut owned, owner, trust_root) = signed_issuer().await;
+    let url = owned.client_mut().make_live(None).await;
+    let application = Client::new(
+        url.as_str(),
+        &trust_root,
+        owned.client().topology().await.get_nns().unwrap(),
+        1,
+    );
+    let uploader = Client::new(
+        url.as_str(),
+        &trust_root,
+        owned.client().topology().await.get_nns().unwrap(),
+        2,
+    );
+    let gateway = Client::new(
+        url.as_str(),
+        &trust_root,
+        owned.client().topology().await.get_nns().unwrap(),
+        7,
+    );
     let root = [7; 32];
     let mut authorize = grant(1, root, 2);
     let Command::Authorize { request, .. } = &mut authorize else {
@@ -546,7 +573,11 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
     };
     request.uploader = signer(2);
     signed_command(&application, owner, authorize).await;
-    let directory = certificate_directory("certificate-recovery-test", &trust_root);
+    let directory = certificate_directory(
+        "certificate-recovery-test",
+        &trust_root,
+        owned.client().topology().await.get_nns().unwrap(),
+    );
     let custody = directory.join("custody");
     let mut prepare = certificate_command(
         "prepare-certificate",
@@ -566,12 +597,14 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
     let claim = certificate_claim(&custody, &trust_root, owner, root);
     let packet = std::fs::read(claim.join("request.cbor")).unwrap();
     let content = decode_envelope(&packet, 8192).unwrap().value.content;
-    let id = RequestId::new(&content.request_id().unwrap());
+    let id = content.request_id().unwrap();
+    let original =
+        PreparedUpdate::from_bytes(&packet, Principal::from_slice(owner.as_slice()), 8192).unwrap();
     let Content::Call {
         sender,
         ingress_expiry: expiry,
         ..
-    } = content
+    } = &content
     else {
         panic!("not a call")
     };
@@ -586,28 +619,19 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
         .await
         .unwrap();
     assert!(!output.status.success());
-    assert!(String::from_utf8_lossy(&output.stderr).contains("no recoverable reply"));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("no certified reply"));
     assert!(!directory.join("certificate.cbor").exists());
-    signed_update_inspect(
-        sender.as_slice().try_into().unwrap(),
-        owner,
-        ISSUE,
-        &issue_args(root),
-        expiry,
-        packet.clone(),
-    )
-    .unwrap();
-    assert!(
-        signed_update_inspect(
-            sender.as_slice().try_into().unwrap(),
-            owner,
-            ISSUE,
-            &issue_args([8; 32]),
-            expiry,
-            packet.clone()
-        )
-        .is_err()
-    );
+    assert_eq!(original.sender().as_slice(), sender.as_slice());
+    assert_eq!(original.expiry(), *expiry);
+    let Content::Call {
+        arg, method_name, ..
+    } = &content
+    else {
+        unreachable!()
+    };
+    assert_eq!(method_name, ISSUE);
+    assert_eq!(arg.as_slice(), issue_args(root));
+    assert_ne!(arg.as_slice(), issue_args([8; 32]));
     let mut dispatch = certificate_command(
         "dispatch-certificate",
         &directory,
@@ -658,16 +682,14 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
     );
     assert!(!dispatch.output().await.unwrap().status.success());
     // Discard completion data. Recovery receives no in-memory dispatch response.
-    drop(uploader.wait(&id, owner).await.unwrap());
+    assert!(matches!(
+        uploader.wait(&original).await.status(),
+        RequestStatus::Replied(_)
+    ));
     signed_command(&application, owner, Command::Release(1.try_into().unwrap())).await;
-    let bytes = gateway
-        .update(&owner, ACK)
-        .with_arg(roots(&[root]))
-        .call_and_wait()
-        .await
-        .unwrap();
-    decode_args::<()>(&bytes, CANDID, Arity::Exact).unwrap();
-    // Independently started CLI processes never share the fixture Agent or its reply.
+    let bytes = gateway.update(&owner, ACK, &roots(&[root])).await.unwrap();
+    provider::decode_empty(&bytes, PROVIDER_LIMITS).unwrap();
+    // Independently started CLI processes never share the fixture client or its reply.
     for (target, expected_root, who, reason) in [
         (owner, [8; 32], signer(2), "retained request does not match"),
         (
@@ -686,15 +708,15 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
         assert!(String::from_utf8_lossy(&output.stderr).contains(reason));
         assert!(!directory.join("certificate.cbor").exists());
     }
-    let mut untrusted = trust_root.clone();
-    *untrusted.last_mut().unwrap() ^= 1;
+    let untrusted =
+        include_bytes!("../../../../../crates/ic-blob-storage-cli/src/mainnet-root.der");
     std::fs::write(directory.join("root.der"), untrusted).unwrap();
     let output = recovery_command(&directory, url.as_str(), owner, root, signer(2))
         .output()
         .await
         .unwrap();
     assert!(!output.status.success());
-    assert!(String::from_utf8_lossy(&output.stderr).contains("cannot authenticate"));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("authentication failed"));
     assert!(!directory.join("certificate.cbor").exists());
     std::fs::write(directory.join("root.der"), &trust_root).unwrap();
     // Partial previous output is evidence too; recovery must leave it untouched.
@@ -727,22 +749,19 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(String::from_utf8_lossy(&output.stdout).contains(&id.to_string()));
-    let saved = std::fs::read(directory.join("certificate.cbor")).unwrap();
-    let certificate = decode_certificate(&saved, 128 * 1024).unwrap();
-    uploader.verify(&certificate, owner).unwrap();
-    assert_reply(
-        lookup_value(
-            &certificate,
-            [
-                b"request_status".as_slice(),
-                id.as_ref(),
-                b"reply".as_slice(),
-            ],
-        )
-        .unwrap(),
-        root,
+    assert!(
+        String::from_utf8_lossy(&output.stdout)
+            .contains(&id.iter().map(|b| format!("{b:02x}")).collect::<String>())
     );
+    let saved = std::fs::read(directory.join("certificate.cbor")).unwrap();
+    let proof = uploader
+        .transport
+        .authenticate_request(&original, &saved, policy())
+        .unwrap();
+    let RequestStatus::Replied(reply) = proof.status() else {
+        panic!("retained proof has no reply")
+    };
+    assert_reply(reply, root);
     let output = recovery_command(&directory, url.as_str(), owner, root, signer(2))
         .output()
         .await
@@ -756,59 +775,62 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
         std::fs::read(directory.join("request.cbor")).unwrap(),
         packet
     );
-    // A new Agent with the same signer recovers the original certified result.
-    let recovered = agent(url.as_str(), &trust_root, 2);
-    let (status, certificate) = recovered.request_status_raw(&id, owner).await.unwrap();
-    let RequestStatusResponse::Replied(reply) = status else {
+    // A fresh client authenticates the same original result without issuing again.
+    let recovered = Client::new(
+        url.as_str(),
+        &trust_root,
+        owned.client().topology().await.get_nns().unwrap(),
+        2,
+    );
+    let observation = recovered.observe(&original).await.unwrap();
+    let RequestStatus::Replied(reply) = observation.status() else {
         panic!("original result not retained")
     };
-    assert_reply(&reply.arg, root);
-    let path = [
-        b"request_status".as_slice(),
-        id.as_ref(),
-        b"reply".as_slice(),
-    ];
-    assert_eq!(lookup_value(&certificate, path).unwrap(), reply.arg);
-    let absent = [0u8; 32];
-    assert!(
-        lookup_value(
-            &certificate,
-            [b"request_status".as_slice(), &absent, b"reply".as_slice()]
-        )
-        .is_err()
-    );
-    let mut changed = certificate;
-    changed.signature[0] ^= 1;
-    assert!(recovered.verify(&changed, owner).is_err());
-    let mut wrong_root = trust_root.clone();
-    *wrong_root.last_mut().unwrap() ^= 1;
-    let error = agent(url.as_str(), &wrong_root, 2)
-        .request_status_raw(&id, owner)
-        .await
-        .unwrap_err();
-    assert!(matches!(error, AgentError::CertificateVerificationFailed()));
-    let another = recovered
-        .update(&owner, ISSUE)
-        .with_arg(issue_args(root))
-        .expire_after(Duration::from_secs(120))
-        .sign()
+    assert_reply(reply, root);
+    let another = recovered.prepare(owner, ISSUE, &issue_args(root));
+    assert_ne!(another.request_id(), &id);
+    let absent = recovered
+        .transport
+        .authenticate_request(&another, observation.certificate_bytes(), policy())
         .unwrap();
-    assert_ne!(another.request_id, id);
-    // A new request identity cannot obtain fresh authority for the already consumed root.
-    match recovered.update_signed(owner, another.signed_update).await {
-        Err(AgentError::CertifiedReject { .. }) => {}
-        Ok(ic_platform_legacy::agent::CallResponse::Poll(id)) => {
-            assert!(matches!(
-                recovered.wait(&id, owner).await,
-                Err(AgentError::CertifiedReject { .. })
-            ));
-        }
-        result => panic!("fresh issuance unexpectedly succeeded: {result:?}"),
-    }
+    assert!(matches!(
+        absent.status(),
+        RequestStatus::Unknown | RequestStatus::Unavailable
+    ));
+    assert!(
+        recovered
+            .transport
+            .authenticate_request(
+                &original,
+                &corrupt_signature(observation.certificate_bytes()),
+                policy()
+            )
+            .is_err()
+    );
+    // A different valid root is admitted structurally but cannot authenticate this network.
+    let wrong_root =
+        include_bytes!("../../../../../crates/ic-blob-storage-cli/src/mainnet-root.der");
+    let error = Client::new(
+        url.as_str(),
+        wrong_root,
+        owned.client().topology().await.get_nns().unwrap(),
+        2,
+    )
+    .observe(&original)
+    .await
+    .unwrap_err();
+    assert!(matches!(error, ReadError::Verification(_)));
+    // A new request identity cannot obtain fresh authority for the consumed root.
+    assert!(matches!(
+        recovered.update(owner, ISSUE, &issue_args(root)).await,
+        Err(ReadError::Rejected { .. })
+    ));
     let bytes = application
-        .update(&owner, "blob_query")
-        .with_arg(frame("blob_query", &Inspection::Usage))
-        .call_and_wait()
+        .update(
+            owner,
+            "blob_query",
+            &frame("blob_query", &Inspection::Usage),
+        )
         .await
         .unwrap();
     let observed: Result<Observation, Error> = wire::decode(
@@ -823,25 +845,20 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
     assert!(
         matches!(observed, Ok(Observation::Usage(u)) if u.live_bytes == 0 && u.unresolved_bytes == 1 && u.uploads == 1 && u.references == 1)
     );
-    let earlier_time = certificate_time(&saved, &trust_root, owner, 0, expiry);
+    let earlier_time = certificate_time(&saved, &trust_root, owner, 0, *expiry);
     // Age the already-executed request past its original expiry without resigning
     // or replaying it. The old reply remains within this fixture's history retention.
-    owned
-        .instance()
-        .advance_time(Duration::from_secs(121))
-        .await;
+    // Keep the simulator and the CLI's wall clock aligned. Advancing only the
+    // simulator would violate the explicitly selected certificate future window.
+    let wait_ns = expiry
+        .saturating_add(1_000_000_000)
+        .saturating_sub(ic_blob_storage_tests::native::now());
+    tokio::time::sleep(Duration::from_nanos(wait_ns)).await;
     // set_time alone need not publish a new certified state. Execute rounds so
     // recovery reads a certificate produced after the simulated expiry boundary.
-    owned.instance().tick().await;
-    owned.instance().tick().await;
-    assert!(
-        owned
-            .instance()
-            .get_time()
-            .await
-            .as_nanos_since_unix_epoch()
-            > expiry
-    );
+    owned.client().tick().await;
+    owned.client().tick().await;
+    assert!(owned.client().get_time().await.as_nanos_since_unix_epoch() > *expiry);
     std::fs::rename(
         directory.join("certificate.cbor"),
         directory.join("before-expiry.cbor"),
@@ -857,25 +874,23 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
         String::from_utf8_lossy(&output.stderr)
     );
     let later = std::fs::read(directory.join("certificate.cbor")).unwrap();
-    let now = owned
-        .instance()
-        .get_time()
-        .await
-        .as_nanos_since_unix_epoch();
+    let now = owned.client().get_time().await.as_nanos_since_unix_epoch();
     let later_time = certificate_time(&later, &trust_root, owner, expiry + 1, now);
     assert!(later_time > earlier_time);
-    let later = decode_certificate(&later, 128 * 1024).unwrap();
-    uploader.verify(&later, owner).unwrap();
-    assert_eq!(lookup_value(&later, path).unwrap(), reply.arg);
+    let proof = uploader
+        .transport
+        .authenticate_request(&original, &later, policy())
+        .unwrap();
+    assert_eq!(proof.status(), observation.status());
     assert_eq!(
         std::fs::read(directory.join("request.cbor")).unwrap(),
         packet
     );
     let after = owned
-        .instance()
+        .client()
         .query_call(
             owner,
-            application.get_principal().unwrap(),
+            CanisterId::from_slice(signer(1).as_slice()),
             "blob_query",
             frame("blob_query", &Inspection::Usage),
         )
@@ -893,7 +908,7 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
         .unwrap(),
         observed
     );
-    owned.close().await;
+    support::close(server, owned).await;
 }
 
 fn abc_authorization() -> Command {
@@ -929,7 +944,13 @@ async fn retain_proof(
     root: Root,
     trust_root: &[u8],
 ) -> PathBuf {
-    let uploader = agent(url, trust_root, 2);
+    let uploader = Client::new(
+        url,
+        trust_root,
+        CanisterId::from_text(std::fs::read_to_string(directory.join("root-subnet.txt")).unwrap())
+            .unwrap(),
+        2,
+    );
     let custody = directory.join("custody");
     for operation in ["prepare-certificate", "dispatch-certificate"] {
         let mut command = certificate_command(operation, directory, url, owner, root, signer(2));
@@ -948,15 +969,12 @@ async fn retain_proof(
     }
     let claim = certificate_claim(&custody, trust_root, owner, root);
     let packet = std::fs::read(claim.join("request.cbor")).unwrap();
-    let id = RequestId::new(
-        &decode_envelope(&packet, 8192)
-            .unwrap()
-            .value
-            .content
-            .request_id()
-            .unwrap(),
-    );
-    drop(uploader.wait(&id, owner).await.unwrap());
+    let original =
+        PreparedUpdate::from_bytes(&packet, Principal::from_slice(owner.as_slice()), 8192).unwrap();
+    assert!(matches!(
+        uploader.wait(&original).await.status(),
+        RequestStatus::Replied(_)
+    ));
     publish_fixture(&directory.join("request.cbor"), &packet).unwrap();
     let output = recovery_command(directory, url, owner, root, signer(2))
         .output()
@@ -968,11 +986,9 @@ async fn retain_proof(
         String::from_utf8_lossy(&output.stderr)
     );
     let proof = std::fs::read(directory.join("certificate.cbor")).unwrap();
-    let mut corrupted = decode_certificate(&proof, 128 * 1024).unwrap();
-    corrupted.signature[0] ^= 1;
     publish_fixture(
         &directory.join("bad-certificate.cbor"),
-        &encode_certificate(&corrupted, 128 * 1024).unwrap(),
+        &corrupt_signature(&proof),
     )
     .unwrap();
     claim
@@ -980,16 +996,25 @@ async fn retain_proof(
 
 #[tokio::test]
 async fn owned_transfer_authenticates_proof_verifies_read_and_refuses_process_replay() {
-    let (mut owned, owner, trust_root) = signed_issuer().await;
-    let url = owned.instance_mut().make_live(None).await;
-    let application = agent(url.as_str(), &trust_root, 1);
+    let (server, mut owned, owner, trust_root) = signed_issuer().await;
+    let url = owned.client_mut().make_live(None).await;
+    let application = Client::new(
+        url.as_str(),
+        &trust_root,
+        owned.client().topology().await.get_nns().unwrap(),
+        1,
+    );
     let authorize = abc_authorization();
     let Command::Authorize { request, .. } = &authorize else {
         unreachable!()
     };
     let root = request.root;
     signed_command(&application, owner, authorize).await;
-    let directory = certificate_directory("owned-transfer-test", &trust_root);
+    let directory = certificate_directory(
+        "owned-transfer-test",
+        &trust_root,
+        owned.client().topology().await.get_nns().unwrap(),
+    );
     let claim = retain_proof(&directory, url.as_str(), owner, root, &trust_root).await;
     let proof = std::fs::read(directory.join("certificate.cbor")).unwrap();
     let mut client = tokio::process::Command::new("node");
@@ -1029,16 +1054,18 @@ async fn owned_transfer_authenticates_proof_verifies_read_and_refuses_process_re
     // A verified read does not close the provider obligation after final release.
     signed_command(&application, owner, Command::Release(1.try_into().unwrap())).await;
     let bytes = application
-        .query(&owner, "blob_query")
-        .with_arg(frame("blob_query", &Inspection::Usage))
-        .call()
+        .query(
+            &owner,
+            "blob_query",
+            &frame("blob_query", &Inspection::Usage),
+        )
         .await
         .unwrap();
     assert!(
         matches!(wire::decode::<Result<Observation, Error>>(&bytes, wire::Encoding::Frame { method: wire::method_id("blob_query"), direction: wire::Direction::Response }, RPC_LIMITS).unwrap().unwrap(),
         Observation::Usage(u) if u.live_bytes == 0 && u.unresolved_bytes == 3)
     );
-    owned.close().await;
+    support::close(server, owned).await;
 }
 
 // Fixture setup uses the same published Host primitives, without exposing CLI internals.

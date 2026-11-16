@@ -2,6 +2,9 @@
 
 #![forbid(unsafe_code)]
 
+#[path = "../support/mod.rs"]
+mod support;
+
 mod issuance;
 
 use ic_blob_storage::{
@@ -13,11 +16,9 @@ use ic_platform_legacy::candid_codec::{
     arguments::encode_args,
     decoder::{Arity, Limits as CandidLimits, decode_args},
 };
+use ic_platform_protocol::{caffeine as provider, candid::Limits as ProviderLimits};
 use ic_platform_types::Principal;
-use ic_testkit::{
-    pic::PocketIcStartupConfig,
-    pocket_ic::{CanisterId, PocketIcBuilder, RejectCode, nonblocking::PocketIc},
-};
+use ic_testkit::pocket_ic::{CanisterId, PocketIcBuilder, RejectCode, nonblocking::PocketIc};
 use ic_wire as wire;
 use serde::Serialize;
 use std::{path::Path, time::Duration};
@@ -31,6 +32,16 @@ const CANDID: CandidLimits = CandidLimits {
     types: 8,
     work: 65_536,
     allocation: 65_536,
+};
+
+const PROVIDER_LIMITS: ProviderLimits = ProviderLimits {
+    bytes: 4096,
+    header: 512,
+    types: 8,
+    work: 65_536,
+    allocation: 65_536,
+    vector: 4096,
+    skipping: 65_536,
 };
 
 fn actor(n: u8) -> Principal {
@@ -133,26 +144,21 @@ async fn usage(pic: &PocketIc, owner: CanisterId) -> Observation {
     .unwrap()
 }
 fn roots(values: &[Root]) -> Vec<u8> {
-    encode_args(
-        &(values.iter().map(|r| r.to_vec()).collect::<Vec<_>>(),),
-        8192,
-    )
-    .unwrap()
+    provider::encode_roots(&values.iter().map(|r| r.to_vec()).collect::<Vec<_>>(), 8192).unwrap()
 }
 async fn liveness(pic: &PocketIc, owner: CanisterId, values: &[Root]) -> Vec<bool> {
     let bytes = pic
         .query_call(owner, CanisterId::anonymous(), LIVE, roots(values))
         .await
         .unwrap();
-    let (result,): (Vec<bool>,) = decode_args(&bytes, CANDID, Arity::Exact).unwrap();
-    result
+    provider::decode_liveness(&bytes, PROVIDER_LIMITS).unwrap()
 }
 async fn candidates(pic: &PocketIc, owner: CanisterId) -> Vec<Vec<u8>> {
     let bytes = pic
-        .query_call(owner, caller(7), LIST, encode_args(&(), 32).unwrap())
+        .query_call(owner, caller(7), LIST, provider::encode_empty(32).unwrap())
         .await
         .unwrap();
-    let (result,): (Vec<Vec<u8>>,) = decode_args(&bytes, CANDID, Arity::Exact).unwrap();
+    let result = provider::decode_roots(&bytes, PROVIDER_LIMITS).unwrap();
     if !result.is_empty() {
         assert!(
             decode_args::<(Vec<String>,)>(&bytes, CANDID, Arity::Exact).is_err(),
@@ -166,19 +172,7 @@ async fn ack(pic: &PocketIc, owner: CanisterId, values: &[Root]) {
         .update_call(owner, caller(7), ACK, roots(values))
         .await
         .unwrap();
-    decode_args::<()>(&bytes, CANDID, Arity::Exact).unwrap();
-}
-fn server() -> PocketIcStartupConfig {
-    PocketIcStartupConfig::Spawn {
-        server_binary: ic_testkit::pic::server_assets::check(Path::new(
-            &std::env::var_os("BLOB_TEST_SERVER").expect("set BLOB_TEST_SERVER"),
-        ))
-        .unwrap(),
-        timeout: Duration::from_secs(60),
-        server_hard_ttl: Some(Duration::from_secs(180)),
-        server_idle_ttl: None,
-        server_output_files: None,
-    }
+    provider::decode_empty(&bytes, PROVIDER_LIMITS).unwrap();
 }
 async fn install(pic: &PocketIc) -> CanisterId {
     let owner = pic
@@ -197,11 +191,9 @@ async fn install(pic: &PocketIc) -> CanisterId {
 
 #[tokio::test]
 async fn callbacks_share_retention_preserve_acknowledgments_and_never_settle() {
-    let owned = server()
-        .build_instance(PocketIcBuilder::new().with_application_subnet())
-        .await
-        .unwrap();
-    let pic = owned.instance();
+    let (server, owned) =
+        support::instance(PocketIcBuilder::new().with_application_subnet(), 180).await;
+    let pic = owned.client();
     let owner = install(pic).await;
     let shared = [1; 32];
     let reserved = [2; 32];
@@ -296,15 +288,14 @@ async fn callbacks_share_retention_preserve_acknowledgments_and_never_settle() {
             .await
             .is_err()
     );
+    support::close(server, owned).await;
 }
 
 #[tokio::test]
 async fn callback_decoding_refuses_malformed_over_budget_and_wrong_profile_without_writes() {
-    let owned = server()
-        .build_instance(PocketIcBuilder::new().with_application_subnet())
-        .await
-        .unwrap();
-    let pic = owned.instance();
+    let (server, owned) =
+        support::instance(PocketIcBuilder::new().with_application_subnet(), 180).await;
+    let pic = owned.client();
     let owner = install(pic).await;
     let root = [42; 32];
     update(pic, owner, 1, grant(1, root, 2)).await.unwrap();
@@ -348,4 +339,5 @@ async fn callback_decoding_refuses_malformed_over_budget_and_wrong_profile_witho
     assert_eq!(liveness(pic, owner, &[root; 64]).await, vec![false; 64]);
     ack(pic, owner, &[root; 64]).await;
     assert!(candidates(pic, owner).await.is_empty());
+    support::close(server, owned).await;
 }

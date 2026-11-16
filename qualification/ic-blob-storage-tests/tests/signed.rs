@@ -3,36 +3,23 @@
 
 #![forbid(unsafe_code)]
 
+#[path = "support/mod.rs"]
+mod support;
+
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error, Limits, ReferenceStatus, UploadRequest, UploadState, UploadView},
     protocol::{Command, Inspection, Installation, Observation, Outcome, RPC_LIMITS},
 };
-use ic_platform_legacy::agent::{Agent, AgentError, BasicIdentity, Identity};
+use ic_blob_storage_tests::native::{Client, identity};
+use ic_platform::native::ReadError;
 use ic_platform_types::Principal;
-use ic_testkit::{pic::PocketIcStartupConfig, pocket_ic::PocketIcBuilder};
+use ic_testkit::pocket_ic::PocketIcBuilder;
 use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
-use std::{path::Path, time::Duration};
 
 fn principal(seed: u8) -> Principal {
-    let sender = BasicIdentity::from_raw_key(&[seed; 32]).sender().unwrap();
-    Principal::from_slice(sender.as_slice())
-}
-
-fn agent(url: &str, root: &[u8], seed: u8) -> Agent {
-    // Public deterministic keys for this disposable simulator only.
-    let agent = Agent::builder()
-        .with_url(url)
-        .with_identity(BasicIdentity::from_raw_key(&[seed; 32]))
-        .with_verify_query_signatures(true)
-        .with_max_response_body_size(2 * 1024 * 1024)
-        .with_max_polling_time(Duration::from_secs(30))
-        .with_max_tcp_error_retries(0)
-        .build()
-        .unwrap();
-    agent.set_root_key(root.to_vec());
-    agent
+    identity(seed).principal()
 }
 
 fn encode<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
@@ -59,25 +46,21 @@ fn decode<T: DeserializeOwned>(method: &str, bytes: &[u8]) -> T {
     .unwrap()
 }
 
-async fn update(agent: &Agent, target: Principal, command: &Command) -> Result<Outcome, Error> {
+async fn update(agent: &Client, target: Principal, command: &Command) -> Result<Outcome, Error> {
     let bytes = agent
-        .update(&target.as_slice().try_into().unwrap(), "blob_update")
-        .with_arg(encode("blob_update", command))
-        .call_and_wait()
+        .update(target, "blob_update", &encode("blob_update", command))
         .await
         .unwrap();
     decode("blob_update", &bytes)
 }
 
 async fn query(
-    agent: &Agent,
+    agent: &Client,
     target: Principal,
     request: Inspection,
 ) -> Result<Observation, Error> {
     let bytes = agent
-        .query(&target.as_slice().try_into().unwrap(), "blob_query")
-        .with_arg(encode("blob_query", &request))
-        .call()
+        .query(target, "blob_query", &encode("blob_query", &request))
         .await
         .unwrap();
     decode("blob_query", &bytes)
@@ -93,22 +76,13 @@ fn authorize(request: UploadRequest) -> Command {
 
 #[tokio::test]
 async fn signed_uploaders_cannot_substitute_authority_or_repeat_registration() {
-    let server_directory = std::env::var_os("BLOB_TEST_SERVER").expect("set BLOB_TEST_SERVER");
-    let server = ic_testkit::pic::server_assets::check(Path::new(&server_directory)).unwrap();
-    let mut owned = PocketIcStartupConfig::Spawn {
-        server_binary: server,
-        timeout: Duration::from_secs(60),
-        server_hard_ttl: Some(Duration::from_secs(180)),
-        server_idle_ttl: None,
-        server_output_files: None,
-    }
-    .build_instance(
+    let (server, mut owned) = support::instance(
         PocketIcBuilder::new()
             .with_nns_subnet()
             .with_application_subnet(),
+        180,
     )
-    .await
-    .unwrap();
+    .await;
     let input = Installation {
         application: principal(1),
         manager: principal(9),
@@ -125,13 +99,13 @@ async fn signed_uploaders_cannot_substitute_authority_or_repeat_registration() {
             exposure_bytes: 100.try_into().unwrap(),
         },
     };
-    let canister = owned.instance().create_canister().await;
+    let canister = owned.client().create_canister().await;
     owned
-        .instance()
+        .client()
         .add_cycles(canister, 10_000_000_000_000)
         .await;
     owned
-        .instance()
+        .client()
         .install_canister(
             canister,
             std::fs::read(std::env::var_os("BLOB_WASM").expect("set BLOB_WASM")).unwrap(),
@@ -141,12 +115,13 @@ async fn signed_uploaders_cannot_substitute_authority_or_repeat_registration() {
         .await;
     let target = Principal::from_slice(canister.as_slice());
     // Independent fixture custody supplies the trust root; never fetch it from HTTP.
-    let root = owned.instance().root_key().await.unwrap();
-    let url = owned.instance_mut().make_live(None).await;
-    let application = agent(url.as_str(), &root, 1);
-    let uploader = agent(url.as_str(), &root, 2);
-    let other = agent(url.as_str(), &root, 3);
-    let manager = agent(url.as_str(), &root, 9);
+    let root = owned.client().root_key().await.unwrap();
+    let url = owned.client_mut().make_live(None).await;
+    let root_subnet = owned.client().topology().await.get_nns().unwrap();
+    let application = Client::new(url.as_str(), &root, root_subnet, 1);
+    let uploader = Client::new(url.as_str(), &root, root_subnet, 2);
+    let other = Client::new(url.as_str(), &root, root_subnet, 3);
+    let manager = Client::new(url.as_str(), &root, root_subnet, 9);
     let request = UploadRequest {
         id: 1.try_into().unwrap(),
         uploader: principal(2),
@@ -183,14 +158,16 @@ async fn signed_uploaders_cannot_substitute_authority_or_repeat_registration() {
     // This models caller-side reply loss, not a network fault or certificate recovery.
     drop(
         uploader
-            .update(&canister, "blob_update")
-            .with_arg(encode("blob_update", &Command::Register(request.root)))
-            .call_and_wait()
+            .update(
+                &canister,
+                "blob_update",
+                &encode("blob_update", &Command::Register(request.root)),
+            )
             .await
             .unwrap(),
     );
     // A fresh signer/Agent inspects the original identity without another registration.
-    let uploader = agent(url.as_str(), &root, 2);
+    let uploader = Client::new(url.as_str(), &root, root_subnet, 2);
     assert_eq!(
         query(&uploader, target, Inspection::Upload(request.id)).await,
         Ok(Observation::Upload(UploadView {
@@ -309,18 +286,16 @@ async fn signed_uploaders_cannot_substitute_authority_or_repeat_registration() {
     assert_eq!((usage.uploads, usage.references), (2, 2));
 
     // A matching target and correct signer cannot make an untrusted response acceptable.
-    let mut wrong_root = root;
-    *wrong_root.last_mut().unwrap() ^= 1;
-    let untrusted = agent(url.as_str(), &wrong_root, 1);
+    let wrong_root = include_bytes!("../../../crates/ic-blob-storage-cli/src/mainnet-root.der");
+    let untrusted = Client::new(url.as_str(), wrong_root, root_subnet, 1);
     let error = untrusted
-        .query(&canister, "blob_query")
-        .with_arg(encode("blob_query", &Inspection::Usage))
-        .call()
+        .query(
+            &canister,
+            "blob_query",
+            &encode("blob_query", &Inspection::Usage),
+        )
         .await
         .unwrap_err();
-    assert!(
-        matches!(error, AgentError::CertificateVerificationFailed()),
-        "{error}"
-    );
-    owned.close().await;
+    assert!(matches!(error, ReadError::Verification(_)), "{error}");
+    support::close(server, owned).await;
 }

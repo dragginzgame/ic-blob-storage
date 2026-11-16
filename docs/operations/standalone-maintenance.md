@@ -20,6 +20,7 @@ Use an existing installation and independently reviewed inputs:
 | Endpoint and canister | The exact installed target; HTTPS, or loopback HTTP for local qualification |
 | `manager.pem` | Ed25519 PKCS#8 identity matching the installation's manager; also a platform controller for stop/upgrade/start |
 | `root.der` | Independently trusted network BLS root key; never discover trust from the endpoint being checked |
+| Root subnet principal | Independently established root subnet identity paired with that key |
 | `installation.wire` | Original bounded Wire `blob_init` request with the expected immutable configuration |
 | `current.wasm` | Reviewed uncompressed artifact currently installed before this maintenance attempt |
 | `next.wasm` | Reviewed state-compatible replacement, uncompressed and at most 1 MiB; compatibility is the operator's responsibility |
@@ -53,6 +54,7 @@ blob_target=(
   --canister 'REPLACE_CANISTER_PRINCIPAL'
   --identity "$blob_inputs/manager.pem"
   --root-key "$blob_inputs/root.der"
+  --root-subnet 'REPLACE_ROOT_SUBNET_PRINCIPAL'
   --installation "$blob_inputs/installation.wire"
   --wasm "$blob_inputs/current.wasm"
   --state-version 1

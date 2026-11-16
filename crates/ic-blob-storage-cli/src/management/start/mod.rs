@@ -1,11 +1,10 @@
 //! Start only an acknowledged upgrade, then verify the reopened host remains drained.
 
+use ic_platform::native::RequestStatus;
+use ic_platform_protocol::management_snapshots::Status as CanisterStatusType;
+
 use super::{Context, Operation, load, request_status, stop, upgrade};
 use ic_blob_storage::protocol::ManagementView;
-use ic_platform_legacy::{
-    agent::{RequestId, RequestStatusResponse},
-    management_canister_types::CanisterStatusType,
-};
 use sha2::{Digest, Sha256};
 use std::path::Path;
 
@@ -30,7 +29,7 @@ pub(super) async fn admit(
     upgrade::observe(
         context,
         &original.id,
-        request_status(context, &original.id).await?,
+        request_status(context, &original).await?,
         wasm,
     )
     .await?;
@@ -39,7 +38,7 @@ pub(super) async fn admit(
 
 pub(super) async fn acknowledge(
     context: &Context,
-    id: &RequestId,
+    id: &[u8; 32],
     attempt: u64,
     bytes: &[u8],
     wasm: &[u8],
@@ -53,7 +52,8 @@ pub(super) async fn acknowledge(
         );
     }
     Ok(format!(
-        "Start observed: request_id={id} attempt={attempt} active=false; replacement artifact, configuration and reopened host matched; no activation performed."
+        "Start observed: request_id={display_id} attempt={attempt} active=false; replacement artifact, configuration and reopened host matched; no activation performed.",
+        display_id = crate::overview::hex(id)
     ))
 }
 
@@ -67,16 +67,14 @@ pub(super) async fn inspect(context: &Context, wasm: &[u8]) -> Result<Management
 
 pub(super) async fn observe(
     context: &Context,
-    id: &RequestId,
+    id: &[u8; 32],
     attempt: u64,
-    original: RequestStatusResponse,
+    original: RequestStatus,
     wasm: &[u8],
 ) -> Result<String, String> {
     match original {
-        RequestStatusResponse::Replied(reply) => {
-            acknowledge(context, id, attempt, &reply.arg, wasm).await
-        }
-        RequestStatusResponse::Rejected(_) => {
+        RequestStatus::Replied(reply) => acknowledge(context, id, attempt, &reply, wasm).await,
+        RequestStatus::Rejected { .. } => {
             Err("original start rejected; preserve custody, no resubmission".into())
         }
         _ => Err(

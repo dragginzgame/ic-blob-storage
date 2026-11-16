@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.103.0] - Unreleased
+
+### 🔧 Tooling and CI diagnostics
+
+- Adopt published Toko Tooling 0.44.11 in both workspaces, its authenticated
+  snapshot and the CLI binding. Selected executable tooling bytes are unchanged.
+- Retain bounded, sanitized setup/check output on failed CI jobs, preserving
+  original command status and reporting collection/upload failures separately.
+  Retain only diagnostic text for seven days; no tool-store or workspace uploads.
+- Qualify issue references with their owning repository.
+
+### Platform and Testkit adoption
+
+- Adopt Platform 0.34.8 and Runtime/Macros/Guard 0.23.14 in both workspaces,
+  Protocol 0.2.7 in the product and Testkit 0.107.3 / Protocol 0.2.6 in qualification.
+- Replace legacy Agent and certificate integration with signed native Platform
+  calls, original-request recovery and exact authenticated proof custody.
+- Move Caffeine and management codecs to Protocol, removing legacy Platform
+  entirely from the product. Private fixture/diagnostic codecs remain.
+- Breaking CLI change: custom trust keys now require an explicit `--root-subnet`
+  principal; select 0.103.0 for this compatibility change.
+- Move qualification callback, certificate and management-target codecs to
+  Protocol; remove the legacy management-types feature and local reply projection.
+- Registry review confirms Platform 0.34.8 is current. Qualification Protocol
+  0.2.7 cannot resolve with Testkit 0.107.3’s exact 0.2.6 requirement; retain the
+  qualified graph for this release and revisit with the next Testkit update.
+  Metrics/top-up-result decoders and malformed-input oracles still need legacy codecs.
+- Defer the optional IC Build release-editor refresh (0.73.0 to 0.87.3) to the next
+  tooling maintenance batch; its existing two-lock metadata fixture remains required.
+- Prepare local simulators through Testkit’s managed-server API and assert
+  instance deletion/process teardown; use its bounded held-reply fixtures.
+- Qualify populated predecessor upgrades and recovery of exact released-CLI
+  requests after expiry, plus transfer, lifecycle and caller-isolation regressions.
+
 ## [0.102.0] - 2026-11-16
 
 ### ⚠️ Platform Types and Runtime migration
@@ -98,8 +132,8 @@ network access or cycles and does not create or install canisters.
 ### 📚 Canic integration handoff
 
 - Record Canic's completed immutable supplier pin and separate its existing adapter
-  from remaining [#12 — Fleet installation arguments](https://github.com/dragginzgame/canic/issues/12)
-  and [#13 — Blob fleet maintenance](https://github.com/dragginzgame/canic/issues/13).
+  from remaining [Canic #12 — Fleet installation arguments](https://github.com/dragginzgame/canic/issues/12)
+  and [Canic #13 — Blob fleet maintenance](https://github.com/dragginzgame/canic/issues/13).
   Clarify that standalone paired init files do not configure Canic's embedded
   catalog. These issues track Canic implementation; they are not completed here.
 
@@ -193,7 +227,7 @@ These help commands need no credentials and make no network or paid calls.
   are unchanged, including recovery of records prepared by 0.100.10.
 - Add GitHub Actions wiring for the existing Linux aggregate, native macOS tests,
   production Wasm builds and one full-history secret scan, addressing
-  [#2 — Complete hosted CI wiring](https://github.com/dragginzgame/ic-blob-storage/issues/2).
+  [BlobStorage #2 — Complete hosted CI wiring](https://github.com/dragginzgame/ic-blob-storage/issues/2).
   Reuse Toko 0.44.4's authenticated CI installers and compiler setup; no simulator,
   live-provider calls or deployment in routine CI. The only secret-scan exceptions
   identify five reviewed historical public test fixtures by exact fingerprint.
@@ -635,7 +669,7 @@ GitHub development checkpoint on branch `0.100`; not published to crates.io.
 - Replace retiring Wire Endpoint attributes with Platform's generic guard and
   codec hooks in the standalone host. Preserve method IDs, bounded Wire frames,
   caller policy, reply traps and lifecycle/storage behavior; Canic stays optional
-  ([#1](https://github.com/dragginzgame/ic-blob-storage/issues/1)).
+  ([BlobStorage #1](https://github.com/dragginzgame/ic-blob-storage/issues/1)).
 - Remove `ic-wire-endpoint` and its macro package from the dependency graph.
 - Add `make test-endpoints` for installed raw-frame compatibility and a separate
   qualification-only reply probe for rollback after encoding failure. Standalone

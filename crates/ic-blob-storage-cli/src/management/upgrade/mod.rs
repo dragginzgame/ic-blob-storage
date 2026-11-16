@@ -1,12 +1,11 @@
 //! One ordinary upgrade of a stopped host, chained to an acknowledged original stop.
 
+use ic_platform::native::RequestStatus;
+use ic_platform_protocol::management_snapshots::Status as CanisterStatusType;
+
 use super::{Context, Operation, load, request_status, stop};
 use ic_blob_storage::protocol::RPC_LIMITS;
-use ic_platform_legacy::{
-    agent::{RequestId, RequestStatusResponse},
-    candid_codec::arguments::encode_args,
-    management_canister_types::{CanisterInstallMode, CanisterStatusType, InstallCodeArgs},
-};
+use ic_platform_protocol::management::{InstallCodeArgs, InstallMode};
 use sha2::{Digest, Sha256};
 use std::path::Path;
 
@@ -23,18 +22,16 @@ pub(super) fn argument(context: &Context, wasm: &[u8]) -> Result<Vec<u8>, String
         RPC_LIMITS,
     )
     .map_err(|_| "cannot encode fixed upgrade arguments")?;
-    encode_args(
-        &(InstallCodeArgs {
-            // Omitted flags select ordinary upgrade: run pre_upgrade, replace heap.
-            // There are deliberately no CLI overrides or fresh-install fallback.
-            mode: CanisterInstallMode::Upgrade(None),
-            canister_id: context.canister,
-            wasm_module: wasm.to_vec(),
-            arg,
-            sender_canister_version: None,
-        },),
-        2 * 1024 * 1024,
-    )
+    InstallCodeArgs {
+        // Omitted flags select ordinary upgrade: run pre_upgrade, replace heap.
+        // There are deliberately no CLI overrides or fresh-install fallback.
+        mode: InstallMode::Upgrade(None),
+        canister_id: context.canister,
+        wasm_module: wasm.to_vec(),
+        arg,
+        sender_canister_version: None,
+    }
+    .encode(2 * 1024 * 1024)
     .map_err(|_| "cannot encode bounded upgrade".into())
 }
 
@@ -55,8 +52,8 @@ pub(super) async fn confirm_stop(
     if original.attempt != attempt {
         return Err("stop predecessor attempt mismatch".into());
     }
-    match request_status(context, &original.id).await? {
-        RequestStatusResponse::Replied(reply) => stop::reply(&reply.arg)?,
+    match request_status(context, &original).await? {
+        RequestStatus::Replied(reply) => stop::reply(&reply)?,
         _ => {
             return Err(
                 "upgrade requires original stop acknowledgment; preserve uncertainty".into(),
@@ -66,24 +63,25 @@ pub(super) async fn confirm_stop(
     Ok(())
 }
 
-pub(super) fn acknowledge(id: &RequestId, bytes: &[u8]) -> Result<String, String> {
+pub(super) fn acknowledge(id: &[u8; 32], bytes: &[u8]) -> Result<String, String> {
     stop::reply(bytes).map_err(|_| "invalid original upgrade reply")?;
     Ok(format!(
-        "Original upgrade acknowledged: request_id={id}; historical outcome only, no start or activation approval."
+        "Original upgrade acknowledged: request_id={display_id}; historical outcome only, no start or activation approval.",
+        display_id = crate::overview::hex(id)
     ))
 }
 
 pub(super) async fn observe(
     context: &Context,
-    id: &RequestId,
-    original: RequestStatusResponse,
+    id: &[u8; 32],
+    original: RequestStatus,
     wasm: &[u8],
 ) -> Result<String, String> {
     match original {
-        RequestStatusResponse::Replied(reply) => {
-            acknowledge(id, &reply.arg)?;
+        RequestStatus::Replied(reply) => {
+            acknowledge(id, &reply)?;
         }
-        RequestStatusResponse::Rejected(_) => {
+        RequestStatus::Rejected { .. } => {
             return Err(
                 "original upgrade rejected; preserve custody, no retry or reinstall".into(),
             );
@@ -98,6 +96,7 @@ pub(super) async fn observe(
         return Err("acknowledged upgrade target is no longer stopped".into());
     }
     Ok(format!(
-        "Upgrade observed: request_id={id}; original acknowledgment and replacement Wasm matched, platform=Stopped; no start or activation approval."
+        "Upgrade observed: request_id={display_id}; original acknowledgment and replacement Wasm matched, platform=Stopped; no start or activation approval.",
+        display_id = crate::overview::hex(id)
     ))
 }

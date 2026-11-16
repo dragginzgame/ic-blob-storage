@@ -603,7 +603,7 @@ The library owns only its record format and semantics. Canic can supply a lease
 from its own combined bootstrap without adopting the standalone host.
 
 The [private host codecs](../../crates/ic-blob-storage-canister/src/codec.rs) replace
-Wire Endpoint for [issue #1](https://github.com/dragginzgame/ic-blob-storage/issues/1).
+Wire Endpoint for [BlobStorage #1](https://github.com/dragginzgame/ic-blob-storage/issues/1).
 Platform remains the sole export/copy/dispatch/reply owner. The guard checks the
 byte allowance and fixed Wire header before payload copying; decode/encode failures
 trap. Application authorization remains in Service and returns typed `Error::Denied`.

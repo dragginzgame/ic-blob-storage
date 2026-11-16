@@ -1,14 +1,12 @@
 //! Read-only remote observations; no management or provider-effect authority.
 
+use crate::network::Client;
 use clap::Args;
 use ic_blob_storage::{
     local::Error,
     protocol::{Inspection, Observation, RPC_LIMITS},
 };
-use ic_platform_legacy::{
-    Principal,
-    agent::{Agent, BasicIdentity},
-};
+use ic_platform_types::Principal;
 use std::{fmt::Write, path::PathBuf};
 use url::Url;
 
@@ -23,30 +21,37 @@ pub(crate) struct Network {
     /// Independently trusted BLS DER key. Omission uses the built-in IC mainnet key.
     #[arg(long)]
     root_key: Option<PathBuf>,
+    /// Independently trusted root subnet; required with a custom root key.
+    #[arg(long, requires = "root_key")]
+    root_subnet: Option<Principal>,
 }
 
 impl Network {
-    pub(crate) fn agent(&self) -> Result<Agent, String> {
+    pub(crate) fn client(&self) -> Result<Client, String> {
         if self.url.scheme() == "http" && self.root_key.is_none() {
             return Err("loopback inspection requires an independently trusted --root-key".into());
         }
-        let mut builder = Agent::builder()
-            .with_url(self.url.as_str())
-            .with_verify_query_signatures(true)
-            .with_max_response_body_size(2 * 1024 * 1024)
-            .with_max_tcp_error_retries(0);
-        if let Some(path) = &self.identity {
-            let signer = BasicIdentity::from_pem(crate::read(path, 16 * 1024)?)
-                .map_err(|_| "invalid Ed25519 identity PEM")?;
-            builder = builder.with_identity(signer);
-        }
-        let agent = builder
-            .build()
-            .map_err(|_| "cannot configure IC transport")?;
-        if let Some(path) = &self.root_key {
-            agent.set_root_key(crate::read(path, 1024)?);
-        }
-        Ok(agent)
+        let (key, subnet) = match &self.root_key {
+            Some(path) => (
+                crate::read(path, 1024)?,
+                self.root_subnet
+                    .ok_or("custom root requires --root-subnet")?,
+            ),
+            // Public trust data from ic-agent 0.49.3 and its NNS subnet constant.
+            None => (
+                include_bytes!("mainnet-root.der").to_vec(),
+                Principal::from_text(
+                    "tdb26-jop6k-aogll-7ltgs-eruif-6kk7m-qpktf-gdiqx-mxtrf-vb5e6-eqe",
+                )
+                .unwrap(),
+            ),
+        };
+        let pem = self
+            .identity
+            .as_ref()
+            .map(|p| crate::read(p, 16 * 1024))
+            .transpose()?;
+        Client::new(self.url.as_str(), key, subnet, pem.as_deref())
     }
 }
 
@@ -72,9 +77,7 @@ pub(crate) struct Input {
 
 pub(crate) async fn run(input: Input) -> Result<String, String> {
     let request = ic_wire::encode(
-        &Inspection::Overview(ic_platform_types::Principal::from_slice(
-            input.principal.as_slice(),
-        )),
+        &Inspection::Overview(input.principal),
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id("blob_query"),
             direction: ic_wire::Direction::Request,
@@ -82,23 +85,17 @@ pub(crate) async fn run(input: Input) -> Result<String, String> {
         RPC_LIMITS,
     )
     .map_err(|_| "cannot encode overview")?;
-    let target = input
-        .canister
-        .as_slice()
-        .try_into()
-        .map_err(|_| "invalid canister")?;
+    let target = input.canister;
     let reply = tokio::time::timeout(
         std::time::Duration::from_secs(30),
         input
             .network
-            .agent()?
-            .query(&target, "blob_query")
-            .with_arg(request)
-            .call(),
+            .client()?
+            .query(target, "blob_query", &request),
     )
     .await
     .map_err(|_| "Blob query timed out; storage is unknown")?
-    .map_err(|error| format!("Blob query failed: {:?}", error.to_string()))?;
+    .map_err(|error| format!("Blob query failed: {:?}", error))?;
     let result: Result<Observation, Error> = ic_wire::decode(
         &reply,
         ic_wire::Encoding::Frame {

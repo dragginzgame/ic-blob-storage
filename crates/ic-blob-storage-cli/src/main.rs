@@ -6,6 +6,7 @@ mod application;
 mod certificate;
 mod files;
 mod management;
+mod network;
 mod overview;
 mod provider;
 #[cfg(test)]
@@ -16,10 +17,8 @@ use ic_blob_storage::{
     local::Error,
     protocol::{Installation, ManagementView, RPC_LIMITS},
 };
-use ic_platform_legacy::{
-    Principal,
-    agent::{Agent, BasicIdentity, Identity},
-};
+use ic_platform_types::Principal;
+use network::Client;
 use sha2::{Digest, Sha256};
 use std::{
     path::{Path, PathBuf},
@@ -277,6 +276,9 @@ struct Target {
     /// Independently trusted network BLS root key (DER). Never fetched automatically.
     #[arg(long)]
     root_key: PathBuf,
+    /// Independently trusted subnet corresponding to the root key.
+    #[arg(long)]
+    root_subnet: Principal,
     /// Exact Wire blob_init request containing the expected immutable configuration.
     #[arg(long)]
     installation: PathBuf,
@@ -289,7 +291,7 @@ struct Target {
 }
 
 struct Context {
-    agent: Agent,
+    client: Client,
     url: String,
     canister: Principal,
     configuration: Installation,
@@ -337,6 +339,7 @@ impl Context {
             canister,
             identity,
             root_key,
+            root_subnet,
             installation,
             wasm,
             state_version,
@@ -353,26 +356,16 @@ impl Context {
             RPC_LIMITS,
         )
         .map_err(|_| "invalid expected installation frame")?;
-        let signer = BasicIdentity::from_pem(read(&identity, 16 * 1024)?)
-            .map_err(|_| "invalid Ed25519 identity PEM")?;
-        let caller = signer.sender().map_err(|_| "identity has no sender")?;
-        if caller.as_slice() != configuration.manager.as_slice() {
-            return Err("identity does not match the expected manager".into());
-        }
+        let pem = read(&identity, 16 * 1024)?;
         let wasm_hash = Sha256::digest(read(&wasm, 16 * 1024 * 1024)?).into();
         let key = read(&root_key, 1024)?;
         let root_hash = Sha256::digest(&key).into();
-        let agent = Agent::builder()
-            .with_url(url.as_str())
-            .with_identity(signer)
-            .with_max_response_body_size(2 * 1024 * 1024)
-            .with_max_polling_time(Duration::from_secs(30))
-            .with_max_tcp_error_retries(0)
-            .build()
-            .map_err(|_| "cannot configure IC transport")?;
-        agent.set_root_key(key);
+        let client = Client::new(url.as_str(), key, root_subnet, Some(&pem))?;
+        if client.principal() != configuration.manager {
+            return Err("identity does not match the expected manager".into());
+        }
         Ok(Self {
-            agent,
+            client,
             url: url.into(),
             canister,
             configuration,
@@ -387,11 +380,7 @@ impl Context {
     }
 
     async fn inspect_artifact(&self, expected: &[u8; 32]) -> Result<ManagementView, String> {
-        let target = self
-            .canister
-            .as_slice()
-            .try_into()
-            .map_err(|_| "invalid target")?;
+        let target = self.canister;
         let request = ic_wire::encode(
             &(),
             ic_wire::Encoding::Frame {
@@ -402,18 +391,21 @@ impl Context {
         )
         .map_err(|_| "cannot encode inspection")?;
         let observed = self
-            .agent
-            .read_state_canister_module_hash(target)
+            .client
+            .transport
+            .canister_module_hash(
+                target,
+                network::now()?.saturating_add(120_000_000_000),
+                network::policy(false)?,
+            )
             .await
             .map_err(|_| "module hash authentication failed")?;
         if observed != *expected {
             return Err("installed Wasm does not match the admitted artifact".into());
         }
         let bytes = self
-            .agent
-            .update(&target, "blob_management")
-            .with_arg(request)
-            .call_and_wait()
+            .client
+            .update(target, target, "blob_management", &request)
             .await
             .map_err(|_| "management inspection failed; no state-changing retry was attempted")?;
         let result: Result<ManagementView, Error> = ic_wire::decode(
@@ -434,8 +426,13 @@ impl Context {
         }
         // Authenticated observations are not atomic and do not establish continuity.
         let observed = self
-            .agent
-            .read_state_canister_module_hash(target)
+            .client
+            .transport
+            .canister_module_hash(
+                target,
+                network::now()?.saturating_add(120_000_000_000),
+                network::policy(false)?,
+            )
             .await
             .map_err(|_| "module hash authentication failed")?;
         if observed != *expected {

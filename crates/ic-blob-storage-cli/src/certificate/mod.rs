@@ -4,18 +4,13 @@ pub(crate) mod custody;
 pub(crate) mod transfer;
 
 use crate::files;
+use crate::network::Client;
 use crate::overview::{Network, principal};
 use clap::Args;
 use ic_platform::ingress::{Content, decode_envelope};
-use ic_platform_legacy::{
-    Principal,
-    agent::{Agent, EffectiveId, RequestId, RequestStatusResponse},
-    candid_codec::{
-        arguments::encode_args,
-        decoder::{Arity, Limits, decode_args},
-    },
-    certification::cbor::encode_certificate,
-};
+use ic_platform::native::{PreparedUpdate, RequestStatus};
+use ic_platform_protocol::{caffeine as c, candid::Limits};
+use ic_platform_types::Principal;
 use std::path::PathBuf;
 
 const METHOD: &str = "_immutableObjectStorageCreateCertificate";
@@ -27,6 +22,8 @@ const REPLY_LIMITS: Limits = Limits {
     types: 8,
     work: 65_536,
     allocation: 65_536,
+    vector: 1024,
+    skipping: 65_536,
 };
 
 #[derive(Args)]
@@ -57,26 +54,12 @@ pub(crate) struct Target {
 }
 
 impl Target {
-    fn agent(&self) -> Result<Agent, String> {
-        let agent = self.network.agent()?;
-        if agent
-            .get_principal()
-            .map_err(|_| "cannot identify signer")?
-            .as_slice()
-            != self.uploader.as_slice()
-        {
+    fn client(&self) -> Result<Client, String> {
+        let client = self.network.client()?;
+        if client.principal() != self.uploader {
             return Err("certificate identity must match original uploader".into());
         }
-        Ok(agent)
-    }
-
-    fn effective(&self) -> Result<EffectiveId, String> {
-        Ok(EffectiveId::Canister(
-            self.canister
-                .as_slice()
-                .try_into()
-                .map_err(|_| "invalid issuer")?,
-        ))
+        Ok(client)
     }
 }
 
@@ -99,7 +82,7 @@ fn original(
     uploader: Principal,
     canister: Principal,
     root: &str,
-) -> Result<RequestId, String> {
+) -> Result<[u8; 32], String> {
     let content = decode_envelope(packet, PACKET_LIMIT)
         .map_err(|_| "invalid retained ingress content")?
         .value
@@ -116,7 +99,7 @@ fn original(
         return Err("retained ingress is not a call".into());
     };
     let expected =
-        encode_args(&(root.to_owned(),), 1024).map_err(|_| "cannot encode expected root")?;
+        c::encode_root(&root.to_owned(), 1024).map_err(|_| "cannot encode expected root")?;
     if sender.as_slice() != uploader.as_slice()
         || canister_id.as_slice() != canister.as_slice()
         || method_name != METHOD
@@ -129,20 +112,12 @@ fn original(
     // establishes the outcome. Expired original ingress remains inspectable.
     content
         .request_id()
-        .map(|id| RequestId::new(&id))
         .map_err(|_| "cannot derive original request ID".into())
 }
 
-ic_platform_legacy::candid_record! {
-    struct Reply {
-        156956385 => method: String,
-        278101296 => blob_hash: String,
-    }
-}
-
 fn admit_reply(bytes: &[u8], root: &str) -> Result<(), String> {
-    let (reply,): (Reply,) = decode_args(bytes, REPLY_LIMITS, Arity::Exact)
-        .map_err(|_| "invalid certified upload reply")?;
+    let reply =
+        c::decode_certificate(bytes, REPLY_LIMITS).map_err(|_| "invalid certified upload reply")?;
     if reply.method != "upload" || reply.blob_hash != root {
         return Err("certified reply does not match upload and original root".into());
     }
@@ -150,7 +125,7 @@ fn admit_reply(bytes: &[u8], root: &str) -> Result<(), String> {
 }
 
 pub(crate) async fn run(input: Input) -> Result<String, String> {
-    let agent = input.target.agent()?;
+    let agent = input.target.client()?;
     let packet = crate::read(&input.request, PACKET_LIMIT)?;
     let id = original(
         &packet,
@@ -158,24 +133,24 @@ pub(crate) async fn run(input: Input) -> Result<String, String> {
         input.target.canister,
         &input.target.root,
     )?;
-    let target = input.target.effective()?;
-    let (status, certificate) = agent.request_status_raw(&id, target).await
-        .map_err(|_| "cannot authenticate original request status; preserve original request, do not reissue")?;
-    let RequestStatusResponse::Replied(reply) = status else {
-        return Err(
-            "original request has no recoverable reply; preserve original request, do not reissue"
-                .into(),
-        );
+    let original = PreparedUpdate::from_bytes(&packet, input.target.canister, PACKET_LIMIT)
+        .map_err(|_| "invalid retained signed request")?;
+    let observation = agent.observe(&original).await?;
+    let RequestStatus::Replied(reply) = observation.status() else {
+        return Err("original request has no certified reply; never resubmit".into());
     };
-    admit_reply(&reply.arg, &input.target.root)?;
-    let bytes = encode_certificate(&certificate, CERTIFICATE_LIMIT)
-        .map_err(|_| "authenticated certificate exceeds output encoding budget")?;
+    admit_reply(reply, &input.target.root)?;
+    let bytes = observation.certificate_bytes();
+    if bytes.len() > CERTIFICATE_LIMIT {
+        return Err("certificate exceeds custody budget".into());
+    }
     let (parent, name) = files::parent(&input.output)?;
-    files::publish(&parent, name, &bytes).map_err(|error| {
+    files::publish(&parent, name, bytes).map_err(|error| {
         format!("certificate publication failed; preserve original request and any output: {error}")
     })?;
     Ok(format!(
-        "Recovered certified historical reply: request={id} root={}\nCertificate saved; provider acceptance and current availability are not established.",
+        "Recovered certified historical reply: request={} root={}\nCertificate saved; provider acceptance and current availability are not established.",
+        crate::overview::hex(&id),
         input.target.root
     ))
 }

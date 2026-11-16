@@ -7,8 +7,7 @@ use ic_blob_storage::{
     protocol::{Installation as BlobInstallation, RPC_LIMITS},
 };
 use ic_blob_storage_reference_app::protocol::Installation;
-use ic_platform_legacy::Principal;
-use ic_platform_types::Principal as BlobPrincipal;
+use ic_platform_types::Principal;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::{
@@ -97,8 +96,8 @@ pub(crate) fn run(input: Input) -> Result<String, String> {
         return Err("canisters, manager and one to eight users must be distinct".into());
     }
     let blob = BlobInstallation {
-        application: BlobPrincipal::from_slice(input.canister.as_slice()),
-        manager: BlobPrincipal::from_slice(input.manager.as_slice()),
+        application: input.canister,
+        manager: input.manager,
         limits: Limits {
             manifest: ManifestLimits {
                 max_content_bytes: input.max_content_bytes,
@@ -113,12 +112,8 @@ pub(crate) fn run(input: Input) -> Result<String, String> {
         },
     };
     let app = Installation {
-        blob: BlobPrincipal::from_slice(input.blob_canister.as_slice()),
-        users: input
-            .user
-            .into_iter()
-            .map(|user| BlobPrincipal::from_slice(user.as_slice()))
-            .collect(),
+        blob: input.blob_canister,
+        users: input.user,
     };
     let blob_bytes = frame("blob_init", &blob)?;
     let app_bytes = frame("app_init", &app)?;
@@ -128,10 +123,7 @@ pub(crate) fn run(input: Input) -> Result<String, String> {
         input.canister,
         input.blob_canister,
         input.manager,
-        app.users
-            .iter()
-            .map(BlobPrincipal::to_text)
-            .collect::<Vec<_>>(),
+        app.users.iter().map(Principal::to_text).collect::<Vec<_>>(),
         blob.limits,
         hex(&Sha256::digest(&blob_bytes)),
         hex(&Sha256::digest(&app_bytes)),

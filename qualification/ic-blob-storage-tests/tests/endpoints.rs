@@ -2,6 +2,9 @@
 
 #![forbid(unsafe_code)]
 
+#[path = "support/mod.rs"]
+mod support;
+
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error, Limits, UploadRequest, Usage},
@@ -11,13 +14,11 @@ use ic_blob_storage::{
     },
 };
 use ic_platform_types::Principal;
-use ic_testkit::{
-    pic::PocketIcStartupConfig,
-    pocket_ic::{CanisterId, PocketIcBuilder, RejectCode, RejectResponse, nonblocking::PocketIc},
+use ic_testkit::pocket_ic::{
+    CanisterId, PocketIcBuilder, RejectCode, RejectResponse, nonblocking::PocketIc,
 };
 use ic_wire as wire;
 use serde::Serialize;
-use std::{path::Path, time::Duration};
 
 fn request<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
     wire::encode(
@@ -105,19 +106,9 @@ fn sized_request(bytes: usize) -> Vec<u8> {
 
 #[tokio::test]
 async fn installed_frames_and_reply_failure_preserve_the_contract() {
-    let server_directory = std::env::var_os("BLOB_TEST_SERVER").expect("set BLOB_TEST_SERVER");
-    let server = ic_testkit::pic::server_assets::check(Path::new(&server_directory)).unwrap();
-    let owned = PocketIcStartupConfig::Spawn {
-        server_binary: server,
-        timeout: Duration::from_secs(60),
-        server_hard_ttl: Some(Duration::from_secs(180)),
-        server_idle_ttl: None,
-        server_output_files: None,
-    }
-    .build_instance(PocketIcBuilder::new().with_application_subnet())
-    .await
-    .unwrap();
-    let pic = owned.instance();
+    let (server, owned) =
+        support::instance(PocketIcBuilder::new().with_application_subnet(), 180).await;
+    let pic = owned.client();
     let application = Principal::from_slice(&[1, 1]);
     let manager = Principal::from_slice(&[9, 1]);
     let caller = CanisterId::from_slice(application.as_slice());
@@ -303,5 +294,5 @@ async fn installed_frames_and_reply_failure_preserve_the_contract() {
             response("probe_read", &expected)
         );
     }
-    owned.close().await;
+    support::close(server, owned).await;
 }

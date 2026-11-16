@@ -27,9 +27,11 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Admit the installed tooling bytes
-        run: bash vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh --consumer "$PWD"
+        run: perl scripts/ci/run-step.pl admit bash vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh --consumer "$PWD"
       - name: Check workflow and scan full repository history once
         run: |
+          perl scripts/ci/run-step.pl workflow-and-secrets bash -e -o pipefail <<'BLOB_CI_STEP'
+          perl scripts/ci/test-run-step.pl
           installer=vendor/toko-tooling/scripts/ci/install-ci-tool.sh
           tool_dir="$RUNNER_TEMP/blob-ci-tools"
           actionlint_bin="$(bash "$installer" actionlint --install-dir "$tool_dir")"
@@ -37,6 +39,13 @@ jobs:
           gitleaks_bin="$(bash "$installer" gitleaks --install-dir "$tool_dir")"
           "$actionlint_bin" -shellcheck "$shellcheck_bin" .github/workflows/ci.yml
           "$gitleaks_bin" git --redact=100 --no-banner --no-color --log-level error
+          BLOB_CI_STEP
+
+      - name: Retain failure diagnostics
+        if: failure()
+        uses: ./.github/actions/retain-failure-logs
+        with:
+          name: workflow-failure-logs
 
   linux:
     runs-on: ubuntu-24.04
@@ -50,6 +59,7 @@ jobs:
           node-version: "24.21.0"
       - name: Prepare pinned compiler and tools
         run: |
+          perl scripts/ci/run-step.pl linux-setup bash -e -o pipefail <<'BLOB_CI_STEP'
           bash vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh --consumer "$PWD"
           make install-host-tools host-tools-check
           export PATH="$PWD/.tools/host/bin:$PATH"
@@ -58,20 +68,17 @@ jobs:
           make qualification-tooling-check
           make install-rust-tools rust-tools-check
           make install-browser-tools
+          BLOB_CI_STEP
       - name: Check product, qualification sources and Wasm hosts
         run: |
-          mkdir -p target
-          make ci build-host build-reference-app 2>&1 | tee target/hosted-ci.log
-      - name: Retain failure logs
+          perl scripts/ci/run-step.pl linux-checks bash -e -o pipefail <<'BLOB_CI_STEP'
+          make ci build-host build-reference-app
+          BLOB_CI_STEP
+      - name: Retain failure diagnostics
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: ./.github/actions/retain-failure-logs
         with:
           name: linux-failure-logs
-          path: |
-            target/hosted-ci.log
-            ${{ runner.temp }}/formatting.*
-          if-no-files-found: ignore
-          retention-days: 7
 
   macos:
     runs-on: macos-15
@@ -82,20 +89,20 @@ jobs:
           persist-credentials: false
       - name: Prepare pinned compiler and native dependencies
         run: |
+          perl scripts/ci/run-step.pl macos-setup bash -e -o pipefail <<'BLOB_CI_STEP'
           bash vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh --consumer "$PWD"
           make install-host-tools host-tools-check
           export PATH="$PWD/.tools/host/bin:$PATH"
           bash vendor/toko-tooling/scripts/dev/prepare-rust-toolchain.sh --toolchain-file rust-toolchain.toml
           make deps qualification-tooling-check
+          BLOB_CI_STEP
       - name: Check native storage and CLI behavior
         run: |
-          mkdir -p target
-          make test-references test-caffeine test-local test-cli test-example-local 2>&1 | tee target/hosted-ci.log
-      - name: Retain failure logs
+          perl scripts/ci/run-step.pl macos-checks bash -e -o pipefail <<'BLOB_CI_STEP'
+          make test-references test-caffeine test-local test-cli test-example-local
+          BLOB_CI_STEP
+      - name: Retain failure diagnostics
         if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: ./.github/actions/retain-failure-logs
         with:
           name: macos-failure-logs
-          path: target/hosted-ci.log
-          if-no-files-found: ignore
-          retention-days: 7
