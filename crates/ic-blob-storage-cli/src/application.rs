@@ -1,5 +1,6 @@
-//! Reference-application observations and offline installation inputs; no remote mutations.
+//! Reference-application observations and explicitly selected installation operations.
 
+mod install;
 mod prepare;
 mod targets;
 
@@ -25,11 +26,22 @@ pub(crate) struct Target {
 
 #[derive(Subcommand)]
 #[command(
-    after_help = "Catalog/draft queries require the owning user's --identity. Check-targets requires the controller's --identity. Prepare-installation writes local inputs without credentials or network access."
+    after_help = "Prepare-installation writes unsigned inputs. Prepare-install signs offline; inspect-install checks saved bytes without a private key. Only dispatch-install submits an installation. Observe-install recovers its original outcome and checks current status without resubmission. Remote operations require the appropriate user's or controller's --identity."
 )]
 pub(crate) enum Command {
     /// Prepare paired fresh-install arguments offline; does not create or install canisters.
     PrepareInstallation(prepare::Input),
+    /// Sign and retain one fresh install offline; never submits or replaces a claim.
+    #[command(mut_arg("identity", |arg| arg.required(true).help("Controller's Ed25519 PKCS#8 PEM for offline signing.")))]
+    PrepareInstall(install::Input),
+    /// Check retained install bytes against the selected artifacts and controller, offline.
+    #[command(mut_arg("identity", |arg| arg.help("Unused by offline inspection; no private key is read.")))]
+    InspectInstall(install::Input),
+    /// Admit a fresh target and submit the retained installation once.
+    DispatchInstall(install::execution::DispatchInput),
+    /// Retain the original certified outcome and check current module/controller.
+    #[command(mut_arg("identity", |arg| arg.required(true).help("Controller's Ed25519 PKCS#8 PEM for authenticated reads.")))]
+    ObserveInstall(install::Input),
     /// Check two proposed targets have no module and the signer as sole controller.
     CheckTargets(targets::Input),
     /// List published drafts in your reference-application catalog.
@@ -78,6 +90,10 @@ async fn query<T: Serialize, R: DeserializeOwned>(
 pub(crate) async fn run(command: Command) -> Result<String, String> {
     let (target, id) = match command {
         Command::PrepareInstallation(input) => return prepare::run(input),
+        Command::PrepareInstall(input) => return install::prepare(&input),
+        Command::InspectInstall(input) => return install::inspect(&input),
+        Command::DispatchInstall(input) => return install::execution::dispatch(input).await,
+        Command::ObserveInstall(input) => return install::execution::observe(&input).await,
         Command::CheckTargets(input) => return targets::run(input).await,
         Command::Catalog(target) => (target, None),
         Command::Draft { target, id } => (target, Some(id)),

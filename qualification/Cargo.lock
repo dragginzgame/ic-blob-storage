@@ -1058,7 +1058,7 @@ dependencies = [
  "ic-host-fs",
  "ic-host-process",
  "ic-platform 0.33.7",
- "ic-platform 0.34.8",
+ "ic-platform 0.34.9",
  "ic-platform-protocol",
  "ic-platform-types 0.21.2",
  "ic-storage",
@@ -1140,9 +1140,9 @@ dependencies = [
 
 [[package]]
 name = "ic-platform"
-version = "0.34.8"
+version = "0.34.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33bf34291d82ae3a1735c12aa20f1457c87e36bda3215a0a3e48c4c20efedbb1"
+checksum = "87c8d12d9b6294a3319e54cbe0ade3ac937a240ba85e3e762b4b56999055f35b"
 dependencies = [
  "curve25519-dalek",
  "ed25519-dalek",
@@ -1170,9 +1170,9 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-protocol"
-version = "0.2.6"
+version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "758e0b8455b2ab340a4503f211357b7725f52a55a2c8c209ee2f01b122763b7e"
+checksum = "e6c994e205363960ac400252160967bfdec2e9574e5086232d0ccef88ffa5d77"
 dependencies = [
  "ic-platform-types 0.21.2",
  "num-bigint 0.5.1",
@@ -1245,9 +1245,9 @@ dependencies = [
 
 [[package]]
 name = "ic-testkit"
-version = "0.107.3"
+version = "0.107.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f1abdecdc13e767e8f5f7f83f2c19e48a414d6a7eea2e2ffdbfe95222c56d6c2"
+checksum = "8629db43fa7a3e3655184c6173a5ccdecf67a87d29f0c929228bec7f8a1c392b"
 dependencies = [
  "ic-host-artifacts",
  "ic-host-fs",

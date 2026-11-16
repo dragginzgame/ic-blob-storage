@@ -101,10 +101,129 @@ that target configuration and stable bytes remain unchanged by inspection.
 These are two separate observations, not an atomic reservation or authorization
 for a later install. A canister without a module may have been used and uninstalled;
 require the original fresh-creation custody and recheck before any future effect.
-The check does not bind Wasm, init arguments or a signed install request. That
-custody and final readback remain the next implementation step. It retains the
+The check does not bind Wasm, init arguments or a signed install request. The
+commands below retain those bindings and separately admit dispatch and current
+module/controller readback. This retains the
 legacy distinction between proposed identity and actual platform observation,
 without copying its deployment/recovery framework.
+
+### Prepare and inspect one signed install
+
+`prepare-install` signs one request for either `--role blob` or `--role app`.
+Select that role's reviewed uncompressed Wasm (at most 1 MiB), the paired inputs
+above and the expected controller. Preparation makes no network call:
+
+```sh
+blob app prepare-install \
+  --url https://icp-api.io --role blob \
+  --canister "$APPLICATION_CANISTER" --blob-canister "$BLOB_CANISTER" \
+  --controller "$CONTROLLER_PRINCIPAL" --identity "$CONTROLLER_PEM" \
+  --inputs ./application-inputs --wasm "$BLOB_WASM" \
+  --custody ./installation-custody
+
+blob app inspect-install \
+  --url https://icp-api.io --role blob \
+  --canister "$APPLICATION_CANISTER" --blob-canister "$BLOB_CANISTER" \
+  --controller "$CONTROLLER_PRINCIPAL" \
+  --inputs ./application-inputs --wasm "$BLOB_WASM" \
+  --custody ./installation-custody
+```
+
+For the application request select `--role app` and its Wasm, retaining the same
+pair, controller and custody root. A custom network requires the independently
+trusted `--root-key` and `--root-subnet` on both commands. The signing controller
+need not be the Blob maintenance manager. Inspection needs no private key.
+
+One permanent directory at `<custody>/<root-key-hash>/<target>/install/` contains
+`intent.wire` and the exact `request.cbor`. Partial publication occupies the same
+claim; there is no overwrite, repair, renewal or retry path. Endpoint aliases,
+signer changes and role changes cannot acquire another claim for the same network
+and target. This depends on preserving a single operator-owned custody root;
+copying, deleting or rolling it back does not grant permission to prepare again.
+Retain the original paired input files and Wasm alongside custody.
+
+The signed request binds the controller, management recipient, `install_code`,
+target, exact Wasm and role-specific init bytes, absent nonce and original
+120-second expiry. It only permits `install`, never `reinstall` or `upgrade`.
+The local intent additionally binds endpoint, root key/subnet and both input
+hashes; these network bindings are not signed IC ingress fields. Readback verifies
+the signature and exact selected inputs, displays the configuration and hashes,
+and preserves expired requests without renewing them. Altered signatures, modes,
+targets, configuration or artifacts refuse inspection.
+
+Neither offline command establishes target freshness, current controller permission,
+artifact suitability or installed state. A signed envelope is executable authority;
+keep it private. The local `make test-application` witness exercises the CLI against
+fresh simulator canisters and independently checks module hashes, controllers,
+Blob configuration and application access. This carries forward the legacy
+exact-input/actual-host regression cited above without importing its deployment
+or recovery machinery.
+
+### Dispatch and observe the original install
+
+Review the target's original fresh-creation records, paired inputs and Wasm before
+signing; the original request expires after 120 seconds. Use the same arguments
+and custody root as preparation:
+
+```sh
+blob app dispatch-install \
+  --url https://icp-api.io --role blob \
+  --canister "$APPLICATION_CANISTER" --blob-canister "$BLOB_CANISTER" \
+  --controller "$CONTROLLER_PRINCIPAL" --identity "$CONTROLLER_PEM" \
+  --inputs ./application-inputs --wasm "$BLOB_WASM" \
+  --custody ./installation-custody --checkout "$BLOB_CHECKOUT" \
+  --confirm-fresh-target
+
+blob app observe-install \
+  --url https://icp-api.io --role blob \
+  --canister "$APPLICATION_CANISTER" --blob-canister "$BLOB_CANISTER" \
+  --controller "$CONTROLLER_PRINCIPAL" --identity "$CONTROLLER_PEM" \
+  --inputs ./application-inputs --wasm "$BLOB_WASM" \
+  --custody ./installation-custody
+```
+
+`--confirm-fresh-target` is the operator's assertion of retained fresh-creation
+custody, not a platform proof. Module absence cannot prove a canister was never
+used. Dispatch admits this binary's tooling snapshot from the trusted checkout,
+authenticates current management status, requires no installed module and the
+signer as sole controller, and refuses a stopping target. It checks expiry again
+before permanently publishing `dispatch.claim`, then makes one HTTP submission of
+the original envelope. Status admission and installation are not atomic; `install`
+mode cannot overwrite an intervening installed module. No creation, funding,
+reinstall, start or provider call is performed.
+
+A timeout, crash, pending result or uncertified rejection retains the dispatch
+claim. Even an empty/partial claim bars resubmission; preserve it and inspect the
+original outcome. Do not delete files, renew the request, change custody roots or
+infer nonexecution from an error. The command reports success only for an
+authenticated empty installation acknowledgment; other dispositions require
+observation and may remain unresolved.
+
+`observe-install` requires a matching original dispatch claim. It saves a terminal
+certified reply or rejection as `outcome.cbor` before interpreting the result or
+checking current state. Subsequent observations authenticate those exact saved
+certificate bytes rather than depending on the network retaining request history.
+Missing outcomes cause one authenticated read of the original ID, never another
+installation. Invalid or partial outcome files refuse without repair/replacement.
+Both commands have a 30-second overall deadline.
+
+Success from observation means the original request was acknowledged and a
+separate authenticated current status reports the expected module hash and sole
+controller. The reported lifecycle state is not changed. Exact init bytes are
+bound by the acknowledged request; the CLI does not independently read application
+configuration or establish continuity, provider acceptance or charge closure.
+A changed module/controller or failed status read preserves the historical outcome.
+The two roles are separate operations; no automatic pairing, rollback or recovery
+of a partially installed pair is implied.
+
+The installed qualification races two independent CLI dispatchers through a bounded
+loopback relay. Exactly one original installation reaches the real gateway; the
+relay drops its HTTP response. Neither dispatcher saves an outcome, and a fresh
+observer recovers and authenticates the original result without resubmission.
+The relay forwards actual signed requests and certified responses; it supplies no
+fabricated proof. Testkit's held canister replies cover a different boundary, so
+this transport fault stays local to the installation test. Its task and connections
+are aborted on early exit and explicitly joined on success.
 
 For Canic's embedded catalog, use the
 [Canic integration handoff](application-boundary.md#fleet-integration-handoff--2026-11-16).

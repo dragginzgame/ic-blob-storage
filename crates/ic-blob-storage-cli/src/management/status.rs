@@ -5,7 +5,7 @@ use ic_platform_protocol::{
     management_snapshots::{CanisterArgs, CanisterStatus, decode_canister_status},
 };
 use ic_platform_types::Principal;
-pub(super) const LIMITS: Limits = Limits {
+pub(crate) const LIMITS: Limits = Limits {
     bytes: 64 * 1024,
     header: 8 * 1024,
     types: 128,

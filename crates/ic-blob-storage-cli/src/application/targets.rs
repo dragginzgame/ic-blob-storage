@@ -7,8 +7,28 @@ use std::{fmt::Write, time::Duration};
 
 use crate::{
     management::status,
+    network::Client,
     overview::{Network, principal},
 };
+
+pub(super) async fn admit_fresh(
+    agent: &Client,
+    canister: Principal,
+) -> Result<CanisterStatusType, String> {
+    let observed = status::read(agent, canister).await?;
+    if observed.module_hash.is_some() {
+        return Err(
+            "target already has an installed module; no install or reinstall authorized".into(),
+        );
+    }
+    if observed.settings.controllers.as_slice() != [agent.principal()] {
+        return Err("target requires the signer as sole controller".into());
+    }
+    if observed.status == CanisterStatusType::Stopping {
+        return Err("target is stopping; disposition remains unresolved".into());
+    }
+    Ok(observed.status)
+}
 
 #[derive(Args)]
 #[command(
@@ -38,17 +58,8 @@ pub(crate) async fn run(input: Input) -> Result<String, String> {
     tokio::time::timeout(Duration::from_secs(30), async {
         let mut report = format!("Target observations\nController: {signer}\nSource: {}\n", input.network.url);
         for (role, canister) in [("Application", input.canister), ("Blob", input.blob_canister)] {
-            let observed = status::read(&agent, canister).await?;
-            if observed.module_hash.is_some() {
-                return Err(format!("{role} target already has an installed module; no install or reinstall authorized"));
-            }
-            if observed.settings.controllers.as_slice() != [signer] {
-                return Err(format!("{role} target requires the signer as sole controller"));
-            }
-            if observed.status == CanisterStatusType::Stopping {
-                return Err(format!("{role} target is stopping; disposition remains unresolved"));
-            }
-            writeln!(report, "{role}: {canister} module=absent sole_controller=signer status={:?}", observed.status).unwrap();
+            let observed = admit_fresh(&agent, canister).await.map_err(|error| format!("{role} {error}"))?;
+            writeln!(report, "{role}: {canister} module=absent sole_controller=signer status={observed:?}").unwrap();
         }
         report.push_str("\nSeparate authenticated observations, not a reservation. A missing module does not establish fresh creation, empty history or absence of provider obligations. No install, reinstall, controller change, creation or funding performed; recheck targets before any future installation.");
         Ok(report)

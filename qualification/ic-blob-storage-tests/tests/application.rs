@@ -5,6 +5,8 @@
 #[path = "support/mod.rs"]
 mod support;
 
+mod install;
+
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error as BlobError, Limits},

@@ -56,7 +56,7 @@ fn help_command() -> clap::Command {
 enum Command {
     /// List one uploader's local grants, distinct roots and application references.
     Overview(overview::Input),
-    /// Inspect your application catalog or prepare fresh installation inputs.
+    /// Inspect your catalog or manage an explicitly selected fresh installation.
     #[command(subcommand, name = "app")]
     Application(application::Command),
     /// Inspect Caffeine accounts and prepare enrollment proposals.

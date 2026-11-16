@@ -78,23 +78,36 @@ fn frame<T: Serialize>(method: &str, input: &T) -> Result<Vec<u8>, String> {
     .map_err(|_| "cannot encode installation input".into())
 }
 
-pub(crate) fn run(input: Input) -> Result<String, String> {
-    let authorities = [input.canister, input.blob_canister, input.manager];
+pub(super) fn validate_roles(
+    canister: Principal,
+    blob_canister: Principal,
+    manager: Principal,
+    users: &[Principal],
+) -> Result<(), String> {
+    let authorities = [canister, blob_canister, manager];
     // This is a proposed deployment arrangement; neither IDs nor output authenticate a host.
     if authorities
         .iter()
         .enumerate()
-        .any(|(i, p)| authorities[..i].contains(p))
-        || input.user.is_empty()
-        || input.user.len() > 8
-        || input
-            .user
-            .iter()
-            .enumerate()
-            .any(|(i, p)| authorities.contains(p) || input.user[..i].contains(p))
+        .any(|(i, p)| principal(&p.to_text()).is_err() || authorities[..i].contains(p))
+        || users.is_empty()
+        || users.len() > 8
+        || users.iter().enumerate().any(|(i, p)| {
+            principal(&p.to_text()).is_err() || authorities.contains(p) || users[..i].contains(p)
+        })
     {
         return Err("canisters, manager and one to eight users must be distinct".into());
     }
+    Ok(())
+}
+
+pub(crate) fn run(input: Input) -> Result<String, String> {
+    validate_roles(
+        input.canister,
+        input.blob_canister,
+        input.manager,
+        &input.user,
+    )?;
     let blob = BlobInstallation {
         application: input.canister,
         manager: input.manager,

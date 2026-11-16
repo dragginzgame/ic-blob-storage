@@ -11,16 +11,16 @@ The minor version reflects the required custom-root CLI `--root-subnet` argument
 No live canister changed.
 
 **Platform adoption:** Types 0.21.2, Runtime/Macros/Guard 0.23.14 and Platform
-0.34.8 are selected in both workspaces. Product Protocol 0.2.7 supplies management
-install/status and Caffeine codecs; **no legacy Platform remains in the product**.
+0.34.9 are selected in both lockfiles. Protocol 0.2.8 supplies management and
+Caffeine codecs in both workspaces; **no legacy Platform remains in the product**.
 The native API owns signing, one-attempt dispatch, original-request recovery,
 signed queries and exact proof authentication. Custom roots require an explicit
 root-subnet principal. Wire/stable formats and original custody are preserved.
 Storage 0.74.1 retains Runtime 0.22.5's IC0-only edge, not another executor/guard.
 
-**Testkit 0.107.3:** managed server preparation, owned instance deletion/process
-teardown and bounded held replies replace the old helpers. Its exact Protocol
-0.2.6 requirement keeps qualification on that version. Legacy Platform 0.33.7
+**Testkit 0.107.4:** managed server preparation, owned instance deletion/process
+teardown and bounded held replies replace the old helpers. Its compatible Protocol
+0.2.7 requirement removes the former exact 0.2.6 constraint. Legacy Platform 0.33.7
 remains only for independent malformed-input fixtures, enrollment decoding, metrics
 and opaque top-up outcome inspection. Callback/certificate and management-target
 codecs now use Protocol; legacy management types and the local reply DTO are removed.
@@ -36,7 +36,22 @@ Rust 1.100.0, Wire 0.24.3 and Host FS/Artifacts 0.80.2 remain selected.
 
 ## Next action and provider boundary
 
-Next: offline signed installation custody/readback using the adopted Platform APIs;
+**Pending 0.103.1:** `blob app` now prepares, inspects, dispatches and observes exact
+fresh-install requests. Dispatch admits tooling and current target/controller,
+requires fresh-creation custody confirmation and permanently claims before sending
+once. Observation retains the original certified outcome before checking current
+module/controller; it never reinstalls, renews or resubmits. Configuration bytes
+are bound by the acknowledgment, not independently read from application state.
+Evidence: `target/install-review/` covers actual dropped HTTP replies and competing
+CLI dispatchers: one submission, then recovery of its original certified result.
+Aggregate CI (including 21 CLI tests) and all eight installed suites pass on the
+current lockfiles: Platform 0.34.9 / Protocol 0.2.8 / Testkit 0.107.4.
+Changes remain local and unpublished; no live canister/provider operation was run.
+`target/01031-readiness/` records the remaining installed suites, passing two-lock
+release-metadata fixture, package inventories and scoped ownership review. Rust:
+5,414 product / 11,034 test / 397 example lines. Optional Chromium was not rerun.
+
+Next: deliver 0.103.1 through the release procedure when requested;
 review private codec replacements when their supplier surfaces exist. Supplier
 tracking: [Platform #17](https://github.com/dragginzgame/ic-platform/issues/17),
 [Platform #18](https://github.com/dragginzgame/ic-platform/issues/18),

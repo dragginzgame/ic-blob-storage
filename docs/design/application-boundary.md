@@ -381,10 +381,10 @@ legacy Platform conversion in product code.
 
 ### Platform replacement prerequisites — 2026-11-16
 
-The refresh selects published Platform 0.34.8, Runtime/Macros/Guard 0.23.14,
-Types 0.21.2 in both workspaces, Protocol 0.2.7 in the product and Testkit
-0.107.3 / Protocol 0.2.6 in qualification. Testkit 0.107.2 selected Protocol 0.2.5
-and could not resolve with this cohort; 0.107.3 removes that blocker. API and persistence remain unfrozen.
+The refresh selects published Platform 0.34.9, Runtime/Macros/Guard 0.23.14,
+Types 0.21.2 in both workspaces, Protocol 0.2.8 in the product and Testkit
+0.107.4 / Protocol 0.2.8 in qualification. Testkit 0.107.4 replaces its former exact
+Protocol 0.2.6 constraint with compatible 0.2.7. API and persistence remain unfrozen.
 
 | Consumer boundary | Selected owner and remaining work |
 | --- | --- |
@@ -396,16 +396,24 @@ and could not resolve with this cohort; 0.107.3 removes that blocker. API and pe
 | Installed qualification | Testkit owns prepared-server admission, bounded process lifetime, explicit instance deletion/process teardown and held replies. Blob selects deadlines and asserts cleanup. A tiny synthetic WAT peer supplies raw enrollment replies because the old helper was removed. |
 | Remaining qualification codecs | Legacy Candid remains for independent malformed-input/enrollment fixtures, the metrics projection and opaque Cashier top-up outcome inspection. Callback/certificate and management-target codecs use Protocol; legacy management types and the local reply DTO are removed. It supplies no native transport or certificate authentication. |
 
-The supplier APIs are documented in [Platform 0.34.8](https://docs.rs/crate/ic-platform/0.34.8),
+The supplier APIs are documented in [Platform 0.34.9](https://docs.rs/crate/ic-platform/0.34.9),
 [Protocol 0.2.7](https://docs.rs/crate/ic-platform-protocol/0.2.7) and
-[Testkit 0.107.3](https://docs.rs/crate/ic-testkit/0.107.3). Supplier tracking remains
+[Testkit 0.107.4](https://docs.rs/crate/ic-testkit/0.107.4). Supplier tracking remains
 [Platform #17 — signed transport/recovery](https://github.com/dragginzgame/ic-platform/issues/17),
 [Platform #18 — Caffeine codecs](https://github.com/dragginzgame/ic-platform/issues/18),
 and [Platform #11 — management codecs](https://github.com/dragginzgame/ic-platform/issues/11).
-Testkit 0.107.3 selects Protocol exactly at 0.2.6; its qualification graph remains
-on that version. Legacy codecs remain only in private fixtures and diagnostics.
-The native migration is qualified; offline installation custody/readback is the next
-local provisioning task. Existing live owner/probe custody remains unchanged.
+Both workspaces now resolve Protocol 0.2.8. Legacy codecs remain only in private
+fixtures and diagnostics; this dependency refresh does not supply their missing decoders.
+The native migration is qualified. Offline installation preparation/readback now
+retains exact signed requests under `blob app`; see the
+[installation guide](reference-application.md#prepare-and-inspect-one-signed-install).
+Guarded `dispatch-install` and `observe-install` now admit current target/controller,
+claim before one submission and retain original certified outcomes before current
+module/controller readback. They require operator-owned fresh-creation custody and
+do not supply an independent application-configuration read or continuity proof.
+Existing live owner/probe custody remains unchanged.
+The 0.34.9 / 0.2.8 / 0.107.4 qualification graph passes aggregate CI and all eight
+installed suites in `target/qualification-platform-adoption/`; Chromium remains opt-in.
 
 Custom networks now require both an independently trusted `--root-key` and
 `--root-subnet`. The simulator's root subnet comes from its owned topology, never

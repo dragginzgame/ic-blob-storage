@@ -25,6 +25,8 @@ Start with `blob --help`, then use a group's help for its operations:
 | `blob overview` | Inspect one uploader in a Blob installation |
 | `blob app catalog` / `draft` | Inspect the signing user's reference-application records |
 | `blob app prepare-installation` | Prepare paired fresh-install inputs offline |
+| `blob app prepare-install` / `inspect-install` | Sign one fresh install offline / verify its retained bytes and selected inputs |
+| `blob app dispatch-install` / `observe-install` | Submit the retained install once / recover its original outcome and check current module/controller |
 | `blob provider inspect` | Inspect one Caffeine account |
 | `blob provider prepare-enrollment` | Prepare an offline enrollment proposal |
 | `blob certificate --help` | Prepare, dispatch once, then recover the original certificate request |

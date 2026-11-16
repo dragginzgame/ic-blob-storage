@@ -1,5 +1,54 @@
 # Changelog
 
+## [0.103.1] - Unreleased
+
+### ▶️ Try it
+
+From any directory, install the CLI once (requires registry access), then inspect
+the new workflow's inputs offline:
+
+```sh
+cargo install ic-blob-storage-cli --version 0.103.1 --locked
+blob app prepare-install --help
+blob app dispatch-install --help
+blob app observe-install --help
+```
+
+The help lists the required artifacts, custody and controller inputs without
+loading credentials or contacting a canister. Follow the
+[installation guide](docs/design/reference-application.md#prepare-and-inspect-one-signed-install)
+to prepare exact bytes; actual dispatch requires a signer, fresh target and matching
+admitted checkout, and performs an installation that consumes canister cycles.
+
+### 🔧 Qualification dependencies
+
+- Select Platform 0.34.9 and Testkit 0.107.4 in qualification; both lockfiles resolve
+  Protocol 0.2.8 under compatible 0.2.7 declarations. Testkit's updated requirement
+  removes the former exact 0.2.6 constraint. Retain scoped legacy codec fixtures/diagnostics.
+- Registry freshness review confirms the selected first-party runtime suppliers.
+  Defer the optional IC Build editor 0.73.0 → 0.87.3 refresh to the next tooling
+  maintenance batch; preserve the tested two-lock release adapter.
+
+### ➕ Guarded installation requests
+
+- Add `blob app prepare-install` and `inspect-install` for one exact signed fresh
+  installation, with explicit role, paired targets, controller, Wasm and init inputs.
+- Retain one immutable network/target claim, including partial failures. Offline
+  inspection verifies the signature and selected bindings without a private key;
+  expired requests remain inspectable and cannot be renewed by preparation.
+- Qualify changed artifacts, targets, signatures and operations, partial claims and
+  cross-process replay refusal. The installed local witness consumes exact retained
+  requests for both product hosts and checks their resulting configuration.
+- Add `dispatch-install` with admitted tooling, explicit fresh-creation custody,
+  authenticated target checks and a permanent claim before one submission.
+- Add `observe-install` to retain and authenticate the original terminal outcome
+  before checking current module/controller. Pending, failed or lost replies never
+  permit resubmission; partial claims and corrupt outcomes remain preserved.
+- Race two CLI dispatchers against the local gateway, drop the actual installation
+  HTTP response and recover its certified result in a fresh process. Assert one
+  submission and preserve original custody through rejection and later state drift.
+- No canister creation, funding, reinstall fallback or live-provider effect.
+
 ## [0.103.0] - 2026-11-16
 
 ### 🔧 Tooling and CI diagnostics

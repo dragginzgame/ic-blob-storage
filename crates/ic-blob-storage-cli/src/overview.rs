@@ -27,11 +27,11 @@ pub(crate) struct Network {
 }
 
 impl Network {
-    pub(crate) fn client(&self) -> Result<Client, String> {
+    pub(crate) fn trust(&self) -> Result<(Vec<u8>, Principal), String> {
         if self.url.scheme() == "http" && self.root_key.is_none() {
             return Err("loopback inspection requires an independently trusted --root-key".into());
         }
-        let (key, subnet) = match &self.root_key {
+        let trust = match &self.root_key {
             Some(path) => (
                 crate::read(path, 1024)?,
                 self.root_subnet
@@ -46,6 +46,11 @@ impl Network {
                 .unwrap(),
             ),
         };
+        Ok(trust)
+    }
+
+    pub(crate) fn client(&self) -> Result<Client, String> {
+        let (key, subnet) = self.trust()?;
         let pem = self
             .identity
             .as_ref()

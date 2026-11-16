@@ -12,6 +12,10 @@ fn help_navigates_groups_without_loading_inputs() {
         vec!["app", "draft"],
         vec!["app", "prepare-installation"],
         vec!["app", "check-targets"],
+        vec!["app", "prepare-install"],
+        vec!["app", "inspect-install"],
+        vec!["app", "dispatch-install"],
+        vec!["app", "observe-install"],
         vec!["certificate"],
         vec!["transfer"],
         vec!["maintenance"],
@@ -45,6 +49,7 @@ fn groups_and_incomplete_dispatch_never_select_an_operation() {
         vec!["maintenance"],
         vec!["app"],
         vec!["app", "draft"],
+        vec!["app", "dispatch-install"],
         vec!["certificate", "dispatch"],
         vec!["maintenance", "dispatch-drain"],
     ] {
