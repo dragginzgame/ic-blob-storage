@@ -1,14 +1,14 @@
-# Current status — 2026-11-16
+# Current status — 2026-11-17
 
 ## Delivery and active work
 
-Private `dragginzgame/ic-blob-storage`, branch `main`; **0.103.0 is pushed and
+Private `dragginzgame/ic-blob-storage`, branch `main`; **0.103.1 is pushed and
 published** for all four product packages at
-[`75f08fd`](https://github.com/dragginzgame/ic-blob-storage/commit/75f08fddf6b5f3f6516dded561fa72eb88da5e33),
-with annotated tag `v0.103.0`. Qualification is independent and unpublished.
+[`3b2d7d2`](https://github.com/dragginzgame/ic-blob-storage/commit/3b2d7d20a0a2bc649c7791f870a7ac17277bd6d3),
+with annotated tag `v0.103.1`. Qualification is independent and unpublished.
 [Release procedure](../operations/releases.md); [application guide](../design/reference-application.md).
-The minor version reflects the required custom-root CLI `--root-subnet` argument.
-No live canister changed.
+This patch adds guarded fresh-install preparation, dispatch and observation.
+No live canister changed; the release tag and registry source remain identical.
 
 **Platform adoption:** Types 0.21.2, Runtime/Macros/Guard 0.23.14 and Platform
 0.34.9 are selected in both lockfiles. Protocol 0.2.8 supplies management and
@@ -30,13 +30,13 @@ migration cases pass, including old CLI custody and populated predecessor upgrad
 
 **Tooling 0.44.11:** both pins/locks, authenticated 84-file snapshot and CLI binding
 are updated. CI retains bounded sanitized failure output, preserves original status
-and reports upload failures. Prior tooling checks passed under the earlier Platform
-cohort (`target/tooling-04411-adoption/`); hosted upload/macOS remains for CI.
+and reports upload failures. Hosted upload/macOS remains for CI.
 Rust 1.100.0, Wire 0.24.3 and Host FS/Artifacts 0.80.2 remain selected.
+Qualification selects Host Process 0.80.3, including its macOS libproc 0.15 edge.
 
 ## Next action and provider boundary
 
-**Pending 0.103.1:** `blob app` now prepares, inspects, dispatches and observes exact
+**Delivered 0.103.1:** `blob app` prepares, inspects, dispatches and observes exact
 fresh-install requests. Dispatch admits tooling and current target/controller,
 requires fresh-creation custody confirmation and permanently claims before sending
 once. Observation retains the original certified outcome before checking current
@@ -44,15 +44,13 @@ module/controller; it never reinstalls, renews or resubmits. Configuration bytes
 are bound by the acknowledgment, not independently read from application state.
 Evidence: `target/install-review/` covers actual dropped HTTP replies and competing
 CLI dispatchers: one submission, then recovery of its original certified result.
-Aggregate CI (including 21 CLI tests) and all eight installed suites pass on the
-current lockfiles: Platform 0.34.9 / Protocol 0.2.8 / Testkit 0.107.4.
-Changes remain local and unpublished; no live canister/provider operation was run.
-`target/01031-readiness/` records the remaining installed suites, passing two-lock
-release-metadata fixture, package inventories and scoped ownership review. Rust:
-5,414 product / 11,034 test / 397 example lines. Optional Chromium was not rerun.
+The final release gate passed aggregate CI (including 21 CLI tests) and all eight
+installed suites: Platform 0.34.9 / Protocol 0.2.8 / Testkit 0.107.4 and qualification
+Host Process 0.80.3. Evidence: `target/01031-release/release-final.log`.
+Optional Chromium was not rerun. Original live and legacy custody is untouched.
 
-Next: deliver 0.103.1 through the release procedure when requested;
-review private codec replacements when their supplier surfaces exist. Supplier
+No pending product increment. Next: review private codec replacements when their
+supplier surfaces exist, and the Canic-owned fleet integration. Supplier
 tracking: [Platform #17](https://github.com/dragginzgame/ic-platform/issues/17),
 [Platform #18](https://github.com/dragginzgame/ic-platform/issues/18),
 [Platform #11](https://github.com/dragginzgame/ic-platform/issues/11).
@@ -123,13 +121,12 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Qualification and integration
 
-Release 0.103.0 passed `make ci`, all eight installed suites and archive/provenance
-checks (`target/01030-release/`). All four registry archives match the prepared
-packages; readback: `target/01030-release/registry-verified.json`.
-Prior migration evidence in `target/platform-testkit-adoption/` additionally covers
-released-CLI preparation (`custody-final.log`) and populated predecessor upgrades.
+Release 0.103.1 passed the complete gate and archive/provenance checks.
+All four downloaded registry archives match the prepared packages; readback:
+`target/01031-release/registry-verified.json`. Source provenance fetched the exact
+GitHub commit independently (`target/publication/provenance-01031/`).
 The opt-in Chromium journeys last passed at 0.100.12; they were not rerun for
-this release. PATH `blob --version` reports 0.103.0. Hosted CI was not awaited.
+this release. PATH `blob --version` reports 0.103.1. Hosted CI was not awaited.
 Node 24+, npm Platform 0.2.0 and esbuild 0.28.2 remain selected. Browser profile
 rollback/eviction, multi-device custody, live acceptance and settlement are unqualified.
 
@@ -143,8 +140,11 @@ Current committed Canic `0167a30` pins Blob `decde204` (0.100.6) immutably; its 
 composition evidence is not current-supplier qualification. The two Canic issues
 own real fleet initialization and maintenance. No Canic source changed or ran.
 
-Delivery review (`31dd236..75f08fd`) covered transport/codec ownership, request
-custody, simulator lifetimes and bounded CI diagnostics. No additional architecture
-sediment found in that scope; private codec uses remain explicit. Product Rust has
-109 net added source lines for native policy; no new service or persistence layer.
-Evidence: `target/01030-release/post-push-review.txt`. Live/legacy custody is untouched.
+Delivery review (`9c26943..3b2d7d2`) covered installation policy, caller bindings,
+original-request custody, relay cleanup and metadata-only release projection.
+No additional product architecture sediment found in that scope. Publication
+exposed a local-date/UTC mismatch across midnight: the shared runner completed
+with all admission checks using the UTC commit date, preserving the tagged source.
+The delivery follow-up corrects the adapter's date selection; its full admission
+passed on the actual cross-midnight tag under another host timezone. Evidence:
+`target/01031-release/utc-fix-check.log`. No tag was replaced or upload retried.

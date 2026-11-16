@@ -29,7 +29,7 @@ case "$1" in
         version="$(bash "$0" version)"
         [[ "$(git cat-file -t "v$version")" == tag ]]
         [[ "$(git rev-parse "v$version^{commit}")" == "$(git rev-parse HEAD)" ]]
-        RELEASE_VERSION="$version" RELEASE_DATE="$(git show -s --format=%cs HEAD)" bash "$0" check
+        RELEASE_VERSION="$version" RELEASE_DATE="$(TZ=UTC git show -s --date=format-local:%F --format=%cd HEAD)" bash "$0" check
         ;;
     *) echo 'expected version|preflight|prepare|check|commit-check|publication' >&2; exit 2 ;;
 esac
