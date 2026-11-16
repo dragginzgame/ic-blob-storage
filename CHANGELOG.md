@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.102.0] - Unreleased
+## [0.102.0] - 2026-11-16
 
 ### ⚠️ Platform Types and Runtime migration
 

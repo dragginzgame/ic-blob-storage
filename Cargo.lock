@@ -1186,7 +1186,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage"
-version = "0.101.0"
+version = "0.102.0"
 dependencies = [
  "ic-platform-types 0.21.2",
  "ic-storage",
@@ -1198,7 +1198,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-canister"
-version = "0.101.0"
+version = "0.102.0"
 dependencies = [
  "ic-blob-storage",
  "ic-platform-runtime 0.23.13",
@@ -1210,7 +1210,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-cli"
-version = "0.101.0"
+version = "0.102.0"
 dependencies = [
  "clap",
  "ic-blob-storage",
@@ -1230,7 +1230,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-reference-app"
-version = "0.101.0"
+version = "0.102.0"
 dependencies = [
  "ic-blob-storage",
  "ic-platform-runtime 0.23.13",
