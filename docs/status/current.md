@@ -2,24 +2,23 @@
 
 ## Delivery and scope
 
-Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.10 is pushed** at
-[`905bed6`](https://github.com/dragginzgame/ic-blob-storage/commit/905bed6c31ccda2767adc17450e0314a1d22e356).
-Remote branch and annotated `v0.100.10` peeled tag were verified. Four product
-packages/locks select 0.100.10; qualification versions stay independent and
-publication stays disabled. The delivery-only handoff belongs to this checkpoint.
-This checkpoint adds browser proof/custody/transport and qualifies Wire 0.24.1.
+Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.11 is pushed** at
+[`f61c414`](https://github.com/dragginzgame/ic-blob-storage/commit/f61c414d06e8ea522590a3cc8df2ebac72457452).
+Remote branch and annotated `v0.100.11` peeled tag were verified. Four product
+packages/locks select 0.100.11; qualification versions stay independent and
+publication stays disabled.
 
 Rust 1.100.0, Tooling 0.44.4 (52-file snapshot), Platform 0.33.7, Runtime 0.22.5,
 Types 0.20.4, Testkit 0.106.0/PocketIC 16.1.0 remain selected.
 Both graphs use Wire 0.24.1 root codecs and explicit frames; release gates pass.
 Registry review on 2026-11-16 found direct suppliers current; Testkit retains older internal Host edges.
-The 0.100.11 candidate versions are prepared; `make blob` installs the selected CLI on PATH.
+`blob 0.100.11` is installed on PATH; `make blob` updates it from the selected source.
 [Storage inspection](../operations/storage-inspection.md) owns CLI usage and limits.
 Service owns one 64 KiB store and 64 historical uploads/references; release retains exposure. Supported [maintenance](../operations/standalone-maintenance.md)
 drains calls and retains original identities; unknown execution is not safe retry.
 No unrestricted-controller rollback/snapshot continuity guarantee exists.
 
-The **0.100.11** candidate adopts Host FS/Artifacts 0.80.1 for direct callers, preserving
+The **0.100.11** release adopts Host FS/Artifacts 0.80.1 for direct callers, preserving
 records and failed `.NAME.pending` stages. Testkit 0.106.0 retains private Host 0.79
 edges; Process 0.80.2 needs its adoption. Prior Host checks remain recorded in the changelog.
 CLI help shows its version and groups provider, certificate, transfer and maintenance operations;
@@ -27,9 +26,9 @@ old flat spellings are removed. Ten CLI tests and scoped Clippy pass. Five insta
 issuance/catalog tests and the maintenance journey pass in
 `target/010011-cli-groups-{callbacks,management}.log`, including 0.100.10 custody.
 [Hosted CI](../operations/continuous-integration.md) now wires Linux/native macOS,
-Wasm and one history secret scan. Local workflow/format/admission/scan checks pass;
-[issue #2](https://github.com/dragginzgame/ic-blob-storage/issues/2) stays open for
-the first successful hosted run after delivery. These changes are unpushed.
+Wasm and one history secret scan. [Release CI passed all three jobs](https://github.com/dragginzgame/ic-blob-storage/actions/runs/43859650612)
+on `f61c414`, including native macOS. [Issue #2 — Complete hosted CI wiring](https://github.com/dragginzgame/ic-blob-storage/issues/2)
+is closed. This delivery-only handoff belongs to the same 0.100.11 checkpoint.
 
 ## Current provider work and next action
 
@@ -121,7 +120,7 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Qualification and integration
 
-Candidate 0.100.11 `make ci` and all eight installed suites pass on Linux
+Final-version 0.100.11 `make ci` and all eight installed suites pass on Linux
 (`target/010011-release-{ci,installed}.log`), including ten catalog scenarios and
 24 Node tests. Three Chromium scenarios pass in `target/010011-release-browser.log`. Browser proof,
 strict IndexedDB claims, interruption, cancellation and replay refusal are exercised.
@@ -129,7 +128,7 @@ Node 24+ and explicit `make install-browser-tools` select npm Platform 0.2.0
 and esbuild 0.28.2. Earlier Wire 0.22.4 reopening evidence remains in
 `target/01009-wire-installed.log`; it is not arbitrary format compatibility.
 No release gate changes the live probe or qualifies its upgrade.
-No profile rollback, eviction, multi-device or native macOS qualification is claimed.
+Hosted macOS native tests pass; profile rollback, eviction and multi-device custody remain unqualified.
 No provider acceptance or settlement claim is made. The [enrollment probe](../design/caffeine-contract-review.md#single-use-enrollment-probe--local-qualification-for-01008)
 remains 0.100.8; its live consumed attempt and custody are unchanged.
 Live-probe inputs remain in installation custody's `source-before-release-01008/`.
@@ -143,7 +142,9 @@ not its multi-operation journals, refund engine or substitute-service graph.
 
 ## Latest delivery review
 
-The delivered `c78dbcd..905bed6` and direct browser caller were reviewed with no
-actionable sediment found in that scope. The review is retained in Git at
-`a7b0805`; it does not qualify live Caffeine acceptance, browser profile continuity
-or native macOS. No live custody or recovery artifact is retired by this summary.
+Reviewed delivered `a7b0805..f61c414`: Host custody, grouped help, direct CLI/test
+callers, docs and CI. No actionable sediment found in that scope. One Blob custody
+policy uses the published Host API; old adapters and flat commands are removed.
+Retained predecessor handling is test-only; Testkit's private older Host graph is
+an explicit supplier boundary. Core service/host/provider ownership and all live
+custody remain unchanged. This does not qualify live Caffeine acceptance.

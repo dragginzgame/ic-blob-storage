@@ -26,6 +26,6 @@ live-provider qualification, funding and deployment remain separate operations.
 Build/formatting failure logs are retained for seven days. Missing or failed
 hosted evidence is not a pass.
 
-The initial workflow addresses [issue #2](https://github.com/dragginzgame/ic-blob-storage/issues/2).
-Local workflow validation can precede delivery; the issue's hosted acceptance
-remains pending until the first pushed revision runs successfully on GitHub.
+The initial workflow resolves [#2 — Complete hosted CI wiring](https://github.com/dragginzgame/ic-blob-storage/issues/2).
+[Release 0.100.11's first hosted run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/43859650612)
+passed all three jobs on `f61c414`, including native macOS and production Wasm.
