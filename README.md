@@ -76,14 +76,20 @@ view command inputs with:
 
 ```sh
 make blob
-blob inspect --help
+blob --help
+blob overview --help
+blob maintenance inspect --help
 ```
+
+The [CI workflow](docs/operations/continuous-integration.md) runs local checks on
+Linux, native behavior on macOS, production Wasm builds and one history secret scan.
+Installed simulator and live-provider work remain separate.
 
 The previous implementation, Git history and provider/recovery custody are in
 `../ic-blob-storage-legacy` (see its `LEGACY.md`) and the private
 [legacy GitHub repository](https://github.com/dragginzgame/ic-blob-storage-legacy).
 Existing crates.io releases remain the legacy line. The rewrite's first GitHub
-checkpoint is `0.100.0`; the delivered checkpoint is `0.100.8`, inherited from the root
+checkpoint is `0.100.0`; this checkpoint is `0.100.11`, inherited from the root
 workspace version. Publication remains disabled. This is a new breaking release
 line, not a registry version reset or a migration for existing installations.
 
@@ -155,7 +161,7 @@ restricts deletion listing/acknowledgment to one configured gateway, and retains
 acknowledgments across upgrades without reducing exposure. The standalone product
 host exports no provider callbacks. The qualification probe also exercises the
 root-only certificate-reply endpoint and authenticated original-request recovery
-against the local replica, including fresh `blob recover-certificate` processes
+against the local replica, including fresh `blob certificate recover` processes
 using retained request files. CLI preparation and guarded dispatch now supply that
 custody, including concurrent-dispatch refusal. With Node 24+, the installed check
 also connects recovered proof to offline CLI transfer custody, actual loopback

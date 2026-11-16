@@ -18,7 +18,8 @@ clap = { version = "4.6.7", features = ["derive"] }
 ic-blob-storage = { path = "../crates/ic-blob-storage" }
 ic-blob-storage-enrollment-probe = { path = "ic-blob-storage-enrollment-probe" }
 ic-blob-storage-reference-app = { path = "../crates/ic-blob-storage-reference-app" }
-ic-host-fs = { version = "0.79.0", default-features = false }
+ic-host-artifacts = { version = "0.80.1", default-features = false }
+ic-host-fs = { version = "0.80.1", default-features = false }
 ic-platform = { version = "0.33.3", default-features = false }
 ic-platform-runtime = { version = "0.22.3", default-features = false }
 ic-platform-types = { version = "0.20.3", default-features = false }

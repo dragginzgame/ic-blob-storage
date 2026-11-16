@@ -1,5 +1,71 @@
 # Changelog
 
+## [0.100.11] - 2026-11-16
+
+GitHub development checkpoint; registry publication remains disabled.
+
+### ⚠️ CLI command paths
+
+Replace flat command names in scripts with the grouped paths below. Stored request
+records and service formats are unchanged. This explicitly selected 0.100.11
+development checkpoint remains in the rewrite’s unfrozen 0.100 line.
+
+### ▶️ Try it
+
+From the repository root, prepare the tools once with `make install-tools`. Then:
+
+```sh
+make blob
+blob --help
+blob certificate --help
+blob maintenance inspect --help
+```
+
+Help shows `Blob 0.100.11 : <description>` and the available command groups.
+These help commands need no credentials and make no network or paid calls.
+
+### 🧭 CLI navigation and hosted checks
+
+- Reduce `blob --help` to `overview` and four command groups: `provider`,
+  `certificate`, `transfer` and advanced `maintenance`. Group help shows the
+  available operations and certificate/maintenance ordering. All help pages show
+  `Blob <version> : <description>`, matching Canic's banner. Update scripts to
+  the grouped paths; old flat spellings are removed. Custody and effect rules
+  are unchanged, including recovery of records prepared by 0.100.10.
+- Add GitHub Actions wiring for the existing Linux aggregate, native macOS tests,
+  production Wasm builds and one full-history secret scan, addressing
+  [#2 — Complete hosted CI wiring](https://github.com/dragginzgame/ic-blob-storage/issues/2).
+  Reuse Toko 0.44.4's authenticated CI installers and compiler setup; no simulator,
+  live-provider calls or deployment in routine CI. The only secret-scan exceptions
+  identify five reviewed historical public test fixtures by exact fingerprint.
+  Hosted acceptance remains pending the first pushed workflow run.
+
+### 🔧 Native custody and dependencies
+
+- Adopt published Host FS and Artifacts 0.80.1 for the CLI and direct qualification
+  callers. Bounded reads use Artifacts; filesystem custody uses held directories,
+  explicit create-only publication and nonblocking sidecar locks.
+- Preserve request/intent formats and permanent claim names. Retain failed
+  publication stages as `.NAME.pending`; never clean them up or retry implicitly.
+  Known occupied outputs refuse before staging. Only confirmed publication permits
+  subsequent dispatch. Ordinary operator input paths keep their prior semantics;
+  custody paths still refuse traversal and symlinks.
+- Testkit 0.106.0 remains the latest published release and internally requires
+  Host FS/Artifacts/Process 0.79.0. Keep those private qualification edges; no
+  public Host types cross into Blob's 0.80.1 callers. Process 0.80.2 adoption there
+  requires a Testkit release. No unused Host packages or supplier patches added.
+
+### 🧪 Testing
+
+- Check held-directory replacement, bounded/no-follow custody reads, preserved
+  ordinary input paths, duplicate claims and retained partial publication.
+- Exercise grouped help without loading identities, and retain dispatch admission
+  requirements. Installed certificate, transfer, catalog and maintenance journeys
+  use the grouped commands, including custody prepared by the released 0.100.10 CLI.
+- CI workflow validation and the history scan run locally; GitHub/macOS acceptance
+  remains pending the first pushed workflow run. Release evidence belongs to the
+  [current handoff](docs/status/current.md).
+
 ## [0.100.10] - 2026-11-15
 
 GitHub development checkpoint on branch `0.100`; registry publication stays disabled.

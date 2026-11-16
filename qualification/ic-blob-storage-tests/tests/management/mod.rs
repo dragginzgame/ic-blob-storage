@@ -68,6 +68,7 @@ fn command(
         std::env::var_os("BLOB_CLI").expect("set BLOB_CLI to the built native artifact"),
     );
     command
+        .arg("maintenance")
         .arg(operation)
         .arg("--url")
         .arg(url)
@@ -252,8 +253,9 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .output()
             .await
             .unwrap(),
-        "cannot read bounded regular file",
+        "missing file",
     );
+    assert!(std::fs::read_dir(&partial).unwrap().next().is_none());
     refused(
         &command(&directory, url.as_str(), canister, "1", "observe-drain")
             .arg("--record")
@@ -341,12 +343,20 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         .map(|byte| format!("{byte:02x}"))
         .collect();
     let target_directory = custody.join(&network).join(canister.to_text());
-    ic_host_fs::durable::prepare_private_parents(&target_directory).unwrap();
-    let lock = ic_host_fs::durable::ExclusiveFileLock::try_acquire(
-        ic_host_fs::durable::open_private_regular_lock_file(&target_directory.join("manager.lock"))
-            .unwrap(),
-    )
-    .unwrap();
+    std::fs::create_dir_all(&target_directory).unwrap();
+    let held = ic_host_fs::Directory::open(&target_directory, 0)
+        .unwrap()
+        .unwrap();
+    let lock = held
+        .lock(
+            "manager.lock".as_ref(),
+            0o600,
+            ic_host_fs::FilePolicy {
+                forbidden: 0o077,
+                single_link: true,
+            },
+        )
+        .unwrap();
     refused(
         &command(&directory, url.as_str(), canister, "1", "dispatch-drain")
             .arg("--record")
@@ -474,7 +484,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         .unwrap();
     assert!(output.status.success(), "{output:?}");
     let stranded_target = custody.join(&network).join(stranded.to_text());
-    ic_host_fs::durable::prepare_private_parents(&stranded_target).unwrap();
+    std::fs::create_dir_all(&stranded_target).unwrap();
     std::fs::write(stranded_target.join("attempt-1.claim"), []).unwrap();
     let retry_claim = directory.join("stranded-new-request");
     let output = command(&directory, url.as_str(), stranded, "1", "prepare-drain")

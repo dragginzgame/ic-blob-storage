@@ -4,7 +4,8 @@ mod publication;
 
 use super::*;
 use ic_blob_storage::local::{ReferenceStatus, UploadState};
-use ic_host_fs::durable::{self, PublicationMode, WriteOptions};
+use ic_host_artifacts::Length;
+use ic_host_fs::{Commit, Destination, Directory, Policy, Retention};
 use ic_platform::agent::{
     Agent, AgentError, BasicIdentity, Identity, RequestStatusResponse, lookup_value,
     signed_update_inspect, to_request_id,
@@ -230,16 +231,25 @@ fn certificate_command(
     root: Root,
     uploader: Principal,
 ) -> tokio::process::Command {
-    // A retained predecessor may prepare custody; current code must dispatch/recover it.
+    // A flat-command predecessor (through 0.100.10) may prepare original custody.
+    // Current grouped commands must dispatch/recover it without rewriting it.
     let previous = (operation == "prepare-certificate")
         .then(|| std::env::var_os("BLOB_PREVIOUS_CLI"))
         .flatten();
+    let legacy_cli = previous.is_some();
     let mut command = tokio::process::Command::new(previous.unwrap_or_else(|| {
         std::env::var_os("BLOB_CLI").expect("set BLOB_CLI to the built native artifact")
     }));
+    if legacy_cli {
+        command.arg(operation);
+    } else {
+        command.args([
+            "certificate",
+            operation.strip_suffix("-certificate").unwrap(),
+        ]);
+    }
     command
         .args([
-            operation,
             "--url",
             url,
             "--canister",
@@ -358,14 +368,14 @@ fn certificate_directory(name: &str, trust_root: &[u8]) -> PathBuf {
         .join(name)
         .join(std::process::id().to_string());
     std::fs::create_dir_all(directory.parent().unwrap()).unwrap();
-    durable::create_private_directory(&directory).unwrap();
+    Directory::open(directory.parent().unwrap(), 0)
+        .unwrap()
+        .unwrap()
+        .create_directory(directory.file_name().unwrap(), 0o700, 0o077)
+        .unwrap();
     let directory = directory.canonicalize().unwrap();
-    let options = WriteOptions {
-        mode: PublicationMode::CreateNew,
-        permissions: 0o600,
-    };
-    durable::write_bytes(&directory.join("uploader.pem"), options, PEM.as_bytes()).unwrap();
-    durable::write_bytes(&directory.join("root.der"), options, trust_root).unwrap();
+    publish_fixture(&directory.join("uploader.pem"), PEM.as_bytes()).unwrap();
+    publish_fixture(&directory.join("root.der"), trust_root).unwrap();
     directory
 }
 
@@ -530,10 +540,6 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
     request.uploader = signer(2);
     signed_command(&application, owner, authorize).await;
     let directory = certificate_directory("certificate-recovery-test", &trust_root);
-    let options = WriteOptions {
-        mode: PublicationMode::CreateNew,
-        permissions: 0o600,
-    };
     let custody = directory.join("custody");
     let mut prepare = certificate_command(
         "prepare-certificate",
@@ -567,7 +573,7 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
     assert!(!claim.join("dispatch.claim").exists());
     // Recovery also accepts an independently retained exact copy. The canonical
     // preparation directory remains the only source for dispatch.
-    durable::write_bytes(&directory.join("request.cbor"), options, &packet).unwrap();
+    publish_fixture(&directory.join("request.cbor"), &packet).unwrap();
     let output = recovery_command(&directory, url.as_str(), owner, root, signer(2))
         .output()
         .await
@@ -937,11 +943,7 @@ async fn retain_proof(
     let packet = std::fs::read(claim.join("request.cbor")).unwrap();
     let id = to_request_id(&decode_call_content_strict(&packet, 8192).unwrap()).unwrap();
     drop(uploader.wait(&id, owner).await.unwrap());
-    let options = WriteOptions {
-        mode: PublicationMode::CreateNew,
-        permissions: 0o600,
-    };
-    durable::write_bytes(&directory.join("request.cbor"), options, &packet).unwrap();
+    publish_fixture(&directory.join("request.cbor"), &packet).unwrap();
     let output = recovery_command(directory, url, owner, root, signer(2))
         .output()
         .await
@@ -954,9 +956,8 @@ async fn retain_proof(
     let proof = std::fs::read(directory.join("certificate.cbor")).unwrap();
     let mut corrupted = decode_certificate(&proof, 128 * 1024).unwrap();
     corrupted.signature[0] ^= 1;
-    durable::write_bytes(
+    publish_fixture(
         &directory.join("bad-certificate.cbor"),
-        options,
         &encode_certificate(&corrupted, 128 * 1024).unwrap(),
     )
     .unwrap();
@@ -1024,4 +1025,33 @@ async fn owned_transfer_authenticates_proof_verifies_read_and_refuses_process_re
         Observation::Usage(u) if u.live_bytes == 0 && u.unresolved_bytes == 3)
     );
     owned.close().await;
+}
+
+// Fixture setup uses the same published Host primitives, without exposing CLI internals.
+fn publish_fixture(path: &Path, bytes: &[u8]) -> Result<(), String> {
+    let parent = Directory::open(path.parent().unwrap(), 0)
+        .map_err(|e| e.to_string())?
+        .unwrap();
+    let name = path.file_name().unwrap();
+    let mut staging = name.to_os_string();
+    staging.push(".pending");
+    let stage = parent
+        .stage(
+            &staging,
+            name,
+            Policy {
+                destination: Destination::CreateNew,
+                permissions: 0o600,
+                retention: Retention::Retain,
+            },
+        )
+        .map_err(|e| e.to_string())?;
+    let sealed = stage
+        .write_from(bytes, Length::Exactly(bytes.len() as u64))
+        .and_then(ic_host_fs::Written::seal)
+        .map_err(|e| e.to_string())?;
+    match sealed.commit() {
+        Commit::Committed(_) => Ok(()),
+        other => Err(format!("{other:?}")),
+    }
 }

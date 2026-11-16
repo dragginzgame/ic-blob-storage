@@ -136,27 +136,11 @@ LOC is `toko-cloc`. An exact tooling-pin change still requires the authenticated
   including changed consumer or recovery obligations. Keep the legacy research
   read-only under the scope rules above.
 
-## Architecture check after every push
+## Post-push review focus
 
-- After every successful push to this repository, review the pushed changes and
-  their affected owners for architectural sediment before completing the delivery
-  handoff. Use the revision-bound [complexity review](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/audits/complexity-and-technical-debt.md)
-  within that scope; this is not a full-repository audit or broad test gate.
-- Check that Blob's library, standalone host, Canic adapter, client and provider
-  boundary still have the responsibilities in the design. Look for duplicated
-  policy/state, unused abstractions, speculative modes, obsolete compatibility
-  paths and old mechanisms left alongside their replacements. Confirm that legacy
-  carryovers have a current consumer reason and were requalified here.
-- For code pushes, inspect product, test and tooling growth separately using
-  existing LOC/dependency reports where useful. Explain material growth and trace
-  the real callers; fewer lines alone do not establish a simpler or safer design.
-  State when a comparable prior baseline is unavailable. For documentation-only
-  pushes, check scope and architectural consistency without rerunning code suites.
-- Report the pushed commit(s), reviewed scope, findings, justified retention and
-  next actions concisely in the delivery summary and current handoff. Track any
-  deferred actionable work in owning GitHub issues, not a new local debt ledger.
-  Do not declare the architecture clean when required evidence is missing.
-- This check does not authorize another push, unrelated repairs or a new audit
-  framework. Preserve necessary authorization, persistence and recovery guarantees
-  when proposing simplification. The aim is a codebase the maintainer can understand
-  and change, without returning to an unmaintainable accumulation of mechanisms.
+Apply the baseline's [post-push review](TOKO-TOOLING.md#post-push-review).
+For Blob, check library/host/Canic/client/provider ownership, retained live custody
+and any legacy carryover's current consumer need. Explain material growth using
+comparable product/test/tooling evidence where useful; fewer lines alone prove
+neither simplicity nor safety. Keep current handoff updates to changed next
+actions, blockers and evidence links, not another copy of the delivery report.

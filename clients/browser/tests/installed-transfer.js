@@ -98,7 +98,7 @@ function options(file, proof, path) {
       assert.equal(plan.declaration, file.declaration);
       // The real CLI verifies proof/bindings and synchronizes create-new custody.
       // Process success is admitted before the client invokes its first PUT.
-      await execute(process.env.BLOB_CLI, ["claim-transfer", "--url", url,
+      await execute(process.env.BLOB_CLI, ["transfer", "claim", "--url", url,
         "--canister", issuer, "--uploader", uploader, "--root", plan.declaration.root,
         "--identity", join(directory, "uploader.pem"), "--root-key", join(directory, "root.der"),
         "--custody", join(directory, "custody"), "--certificate", path,

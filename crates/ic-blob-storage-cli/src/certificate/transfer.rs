@@ -1,8 +1,8 @@
 //! Offline proof authentication and permanent custody for one provider transfer.
 
 use super::{CERTIFICATE_LIMIT, admit_reply, custody, root};
+use crate::files;
 use clap::Args;
-use ic_host_fs::durable::{self, PublicationMode, WriteOptions};
 use ic_platform::{agent::lookup_value, certification::cbor::decode_certificate};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -58,9 +58,8 @@ struct Claim<'a> {
 pub(crate) fn claim(input: &Input) -> Result<String, String> {
     let target = &input.original.target;
     let agent = target.agent()?;
-    let (_, id) = custody::load(&input.original, &agent)?;
-    let directory = input.original.directory(&agent);
-    if crate::read(&directory.join("dispatch.claim"), 32)? != id.to_vec() {
+    let (held, _, id) = custody::load(&input.original, &agent)?;
+    if files::read_at(&held, "dispatch.claim".as_ref(), 32)? != id.to_vec() {
         return Err("original dispatch custody is incomplete; preserve it".into());
     }
     let bytes = crate::read(&input.certificate, CERTIFICATE_LIMIT)?;
@@ -101,20 +100,16 @@ pub(crate) fn claim(input: &Input) -> Result<String, String> {
         },
     )
     .map_err(|_| "cannot encode bounded transfer claim")?;
-    let transfer = directory.join("transfer");
     // The directory is the irreversible claim. A partial publication still bars
     // another certificate, gateway or process from creating a second attempt.
-    let _claim = durable::create_private_directory(&transfer)
+    let claim = held
+        .create_directory("transfer".as_ref(), 0o700, 0o077)
         .map_err(|_| "transfer already claimed or custody unavailable; preserve it, never retry")?;
-    let options = WriteOptions {
-        mode: PublicationMode::CreateNew,
-        permissions: 0o600,
-    };
     for (name, data) in [
         ("intent.wire", intent.as_slice()),
         ("certificate.cbor", bytes.as_slice()),
     ] {
-        durable::write_bytes(&transfer.join(name), options, data).map_err(|error| {
+        files::publish(&claim, name.as_ref(), data).map_err(|error| {
             format!("transfer custody publication failed; preserve claim: {error}")
         })?;
     }

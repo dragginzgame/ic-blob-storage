@@ -1,0 +1,9 @@
+# Reviewed fixture-only findings; no path-wide or rule-wide exclusions.
+# PocketIC's public BLS trust root, used only to verify the retained test certificate.
+905bed6c31ccda2767adc17450e0314a1d22e356:clients/browser/tests/fixtures/certificate.json:generic-api-key:13
+# Public deterministic Ed25519 seed [2; 32], shared by offline/local uploader tests.
+c78dbcd3e6d3f20de51e0e4167a270d2e54b47fa:crates/ic-blob-storage-cli/src/certificate/tests.rs:private-key:22
+c78dbcd3e6d3f20de51e0e4167a270d2e54b47fa:qualification/ic-blob-storage-tests/tests/callbacks/issuance/mod.rs:private-key:355
+# Public deterministic Ed25519 seed [7; 32], local manager fixture at historical paths.
+2051ec2409c5c0f5ac1e2cc7d98efa97eded80c7:qualification/crates/ic-blob-storage-tests/tests/management.rs:private-key:24
+102edcd5d00c5e34dc76bdf66acc2d228962bb6e:qualification/crates/ic-blob-storage-tests/tests/management/mod.rs:private-key:26

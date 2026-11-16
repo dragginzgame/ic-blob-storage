@@ -6,11 +6,12 @@ mod stop;
 mod upgrade;
 
 use super::{Context, read};
+use crate::files;
 use ic_blob_storage::{
     local::Error,
     protocol::{Command, Installation, Outcome, RPC_LIMITS},
 };
-use ic_host_fs::durable::{self, PublicationMode, WriteOptions};
+use ic_host_fs::{Directory, FilePolicy};
 use ic_platform::{
     Principal,
     agent::{CallResponse, EffectiveId, RequestId, RequestStatusResponse, to_request_id},
@@ -190,12 +191,18 @@ impl<'a> Operation<'a> {
         }
     }
 
-    fn admit_custody(self, context: &Context, attempt: u64, target: &Path) -> Result<(), String> {
+    fn admit_custody(
+        self,
+        context: &Context,
+        attempt: u64,
+        target: &Directory,
+    ) -> Result<(), String> {
         // The closed operation set bounds this chain: activate -> start -> upgrade -> stop.
         if let Some((operation, record)) = self.parent() {
             let previous = load(context, record, operation)?;
             if previous.attempt != attempt
-                || read(&target.join(operation.marker(attempt)), 32)? != previous.id.to_vec()
+                || files::read_at(target, operation.marker(attempt).as_ref(), 32)?
+                    != previous.id.to_vec()
             {
                 return Err(format!(
                     "{} dispatch claim does not match predecessor",
@@ -280,30 +287,17 @@ pub(super) async fn prepare(
     }
     // A partial directory remains claimed. No automatic cleanup or repair on any
     // failure, including a sync failure after publication. Parent custody is caller-owned.
-    let _directory = durable::create_private_directory(directory).map_err(|error| {
+    let held = files::claim(directory).map_err(|error| {
         format!("cannot claim management directory; preserve any existing claim: {error}")
     })?;
-    let options = WriteOptions {
-        mode: PublicationMode::CreateNew,
-        permissions: 0o600,
-    };
-    durable::write_bytes(&directory.join("intent.wire"), options, &bytes).map_err(|error| {
+    files::publish(&held, "intent.wire".as_ref(), &bytes).map_err(|error| {
         format!("management intent publication failed; preserve claim: {error}")
     })?;
     if let Some(previous) = operation.predecessor(context, attempt)? {
-        durable::write_bytes(
-            &directory.join("predecessor.id"),
-            options,
-            &previous.id.to_vec(),
-        )
-        .map_err(|_| "predecessor publication failed; preserve claim")?;
+        files::publish(&held, "predecessor.id".as_ref(), &previous.id.to_vec())
+            .map_err(|_| "predecessor publication failed; preserve claim")?;
     }
-    durable::write_bytes(
-        &directory.join("request.cbor"),
-        options,
-        &signed.signed_update,
-    )
-    .map_err(|error| {
+    files::publish(&held, "request.cbor".as_ref(), &signed.signed_update).map_err(|error| {
         format!("signed management request publication failed; preserve claim: {error}")
     })?;
     Ok(format!(
@@ -321,13 +315,14 @@ struct Original {
 }
 
 fn load(context: &Context, directory: &Path, operation: Operation<'_>) -> Result<Original, String> {
+    let held = files::directory(directory, false)?;
     let intent: Intent = ic_wire::decode(
-        &read(&directory.join("intent.wire"), LIMITS.bytes)?,
+        &files::read_at(&held, "intent.wire".as_ref(), LIMITS.bytes)?,
         ic_wire::Encoding::Payload,
         LIMITS,
     )
     .map_err(|_| "invalid management intent")?;
-    let packet = read(&directory.join("request.cbor"), operation.packet_limit())?;
+    let packet = files::read_at(&held, "request.cbor".as_ref(), operation.packet_limit())?;
     let hash: [u8; 32] = Sha256::digest(&packet).into();
     if intent.version != 1
         || intent.url != context.url
@@ -344,7 +339,7 @@ fn load(context: &Context, directory: &Path, operation: Operation<'_>) -> Result
     // Strictly inspect correspondence, not signature authenticity. The authenticated
     // read_state result below establishes the original request's observed outcome.
     if let Some(previous) = operation.predecessor(context, intent.attempt)?
-        && read(&directory.join("predecessor.id"), 32)? != previous.id.to_vec()
+        && files::read_at(&held, "predecessor.id".as_ref(), 32)? != previous.id.to_vec()
     {
         return Err("predecessor identity mismatch".into());
     }
@@ -514,37 +509,42 @@ pub(super) async fn dispatch(
         .map(|byte| format!("{byte:02x}"))
         .collect();
     let target_directory = custody.join(network).join(context.canister.to_text());
-    durable::prepare_private_parents(&target_directory)
-        .map_err(|_| "cannot admit target custody")?;
-    let file = durable::open_private_regular_lock_file(&target_directory.join("manager.lock"))
-        .map_err(|_| "cannot open management lock")?;
-    let _lock = durable::ExclusiveFileLock::try_acquire(file)
-        .map_err(|_| "target management is already locked")?;
-    let marker = target_directory.join(operation.marker(original.attempt));
+    let held =
+        files::directory(&target_directory, true).map_err(|_| "cannot admit target custody")?;
+    let _lock = held
+        .lock(
+            "manager.lock".as_ref(),
+            0o600,
+            FilePolicy {
+                forbidden: 0o077,
+                single_link: true,
+            },
+        )
+        .map_err(|_| "target management is already locked or lock custody invalid")?;
+    let marker = operation.marker(original.attempt);
     // Presence of any entry (even partial or corrupt) conservatively bars dispatch.
-    match std::fs::symlink_metadata(&marker) {
-        Ok(_) => {
-            return Err(
-                "dispatch already claimed; observe the original request, never resubmit".into(),
-            );
-        }
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
-        Err(_) => return Err("cannot inspect dispatch claim".into()),
+    if held
+        .open_file(
+            marker.as_ref(),
+            ic_host_fs::Access::Read,
+            FilePolicy {
+                forbidden: 0,
+                single_link: false,
+            },
+        )
+        .map_err(|_| "cannot inspect dispatch claim")?
+        .is_some()
+    {
+        return Err(
+            "dispatch already claimed; observe the original request, never resubmit".into(),
+        );
     }
-    operation.admit_custody(context, original.attempt, &target_directory)?;
+    operation.admit_custody(context, original.attempt, &held)?;
     operation.admit(context, original.attempt).await?;
     unexpired(original.expires_at)?;
     // This is an irreversible local exposure boundary, not proof of transmission.
     // A crash or sync failure may strand a safe unsent request; never delete/retry it.
-    durable::write_bytes(
-        &marker,
-        WriteOptions {
-            mode: PublicationMode::CreateNew,
-            permissions: 0o600,
-        },
-        &original.id.to_vec(),
-    )
-    .map_err(|error| {
+    files::publish(&held, marker.as_ref(), &original.id.to_vec()).map_err(|error| {
         format!("dispatch claim failed; preserve custody and do not resubmit: {error}")
     })?;
     let target = EffectiveId::Canister(

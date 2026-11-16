@@ -3,9 +3,9 @@
 pub(crate) mod custody;
 pub(crate) mod transfer;
 
+use crate::files;
 use crate::overview::{Network, principal};
 use clap::Args;
-use ic_host_fs::durable::{self, PublicationMode, WriteOptions};
 use ic_platform::{
     Principal,
     agent::{Agent, EffectiveId, RequestId, RequestStatusResponse, to_request_id},
@@ -165,15 +165,8 @@ pub(crate) async fn run(input: Input) -> Result<String, String> {
     admit_reply(&reply.arg, &input.target.root)?;
     let bytes = encode_certificate(&certificate, CERTIFICATE_LIMIT)
         .map_err(|_| "authenticated certificate exceeds output encoding budget")?;
-    durable::write_bytes(
-        &input.output,
-        WriteOptions {
-            mode: PublicationMode::CreateNew,
-            permissions: 0o600,
-        },
-        &bytes,
-    )
-    .map_err(|error| {
+    let (parent, name) = files::parent(&input.output)?;
+    files::publish(&parent, name, &bytes).map_err(|error| {
         format!("certificate publication failed; preserve original request and any output: {error}")
     })?;
     Ok(format!(

@@ -627,7 +627,7 @@ recovery state was imported. D0/D1 and live provider guarantees remain open.
 
 ### Selected initial policy: trusted management path, no rollback
 
-The native path starts with `blob inspect` (build with `make blob`).
+The native path starts with `blob maintenance inspect` (build with `make blob`).
 The operator supplies a target/API URL, Ed25519 manager PEM, independently trusted
 network root DER, exact expected Wire `blob_init` payload, reviewed uncompressed
 Wasm and expected record format. Platform Agent authenticates module-hash reads

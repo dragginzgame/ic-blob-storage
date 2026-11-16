@@ -1,19 +1,20 @@
 //! One permanent claim per network/issuer/root in caller-owned trusted custody.
 
 use super::{METHOD, PACKET_LIMIT, Target, original};
+use crate::files;
 use crate::overview::hex;
 use clap::Args;
-use ic_host_fs::durable::{self, PublicationMode, WriteOptions};
+use ic_host_fs::Directory;
 use ic_platform::{
     Principal,
-    agent::Agent,
+    agent::{Agent, RequestId},
     candid_codec::arguments::encode_args,
     ic_protocol::{EnvelopeContent, decode_call_content_strict},
 };
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
-    path::{Path, PathBuf},
+    path::PathBuf,
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 
@@ -22,10 +23,6 @@ const LIMITS: ic_wire::Limits = ic_wire::Limits {
     allocation: 32_768,
     nodes: 1024,
     depth: 16,
-};
-const OPTIONS: WriteOptions = WriteOptions {
-    mode: PublicationMode::CreateNew,
-    permissions: 0o600,
 };
 
 #[derive(Args)]
@@ -66,11 +63,6 @@ impl Input {
     }
 }
 
-fn publish(path: &Path, bytes: &[u8]) -> Result<(), String> {
-    durable::write_bytes(path, OPTIONS, bytes)
-        .map_err(|error| format!("publication failed; preserve certificate custody: {error}"))
-}
-
 pub(crate) fn prepare(input: &Input) -> Result<String, String> {
     let agent = input.target.agent()?;
     let signed = agent
@@ -96,13 +88,13 @@ pub(crate) fn prepare(input: &Input) -> Result<String, String> {
     let bytes = ic_wire::encode(&intent, ic_wire::Encoding::Payload, LIMITS)
         .map_err(|_| "cannot encode certificate intent")?;
     let directory = input.directory(&agent);
-    durable::prepare_private_parents(directory.parent().ok_or("missing custody parent")?)
+    let parent = files::directory(directory.parent().ok_or("missing custody parent")?, true)
         .map_err(|_| "cannot admit certificate custody")?;
     // Any existing claim, including a partial preparation, permanently refuses.
-    let _claim = durable::create_private_directory(&directory)
+    let claim = parent.create_directory(directory.file_name().ok_or("missing root name")?, 0o700, 0o077)
         .map_err(|_| "certificate root already claimed or custody unavailable; preserve it, do not reprepare")?;
-    publish(&directory.join("intent.wire"), &bytes)?;
-    publish(&directory.join("request.cbor"), &signed.signed_update)?;
+    files::publish(&claim, "intent.wire".as_ref(), &bytes)?;
+    files::publish(&claim, "request.cbor".as_ref(), &signed.signed_update)?;
     Ok(format!(
         "Prepared original request={} without submission.\nRetain request at {:?}; expires in 120 seconds, never renew it.",
         signed.request_id,
@@ -113,16 +105,17 @@ pub(crate) fn prepare(input: &Input) -> Result<String, String> {
 pub(super) fn load(
     input: &Input,
     agent: &Agent,
-) -> Result<(Vec<u8>, ic_platform::agent::RequestId), String> {
+) -> Result<(Directory, Vec<u8>, RequestId), String> {
     let target = &input.target;
     let directory = input.directory(agent);
+    let held = files::directory(&directory, false)?;
     let intent: Intent = ic_wire::decode(
-        &crate::read(&directory.join("intent.wire"), LIMITS.bytes)?,
+        &files::read_at(&held, "intent.wire".as_ref(), LIMITS.bytes)?,
         ic_wire::Encoding::Payload,
         LIMITS,
     )
     .map_err(|_| "invalid retained certificate intent")?;
-    let packet = crate::read(&directory.join("request.cbor"), PACKET_LIMIT)?;
+    let packet = files::read_at(&held, "request.cbor".as_ref(), PACKET_LIMIT)?;
     if intent.version != 1
         || intent.url != target.network.url.as_str()
         || intent.canister != target.canister
@@ -134,14 +127,13 @@ pub(super) fn load(
         return Err("certificate custody does not match original bindings and packet".into());
     }
     let id = original(&packet, target.uploader, target.canister, &target.root)?;
-    Ok((packet, id))
+    Ok((held, packet, id))
 }
 
 pub(crate) async fn dispatch(input: Dispatch) -> Result<String, String> {
     let agent = input.input.target.agent()?;
     let target = &input.input.target;
-    let directory = input.input.directory(&agent);
-    let (packet, id) = load(&input.input, &agent)?;
+    let (held, packet, id) = load(&input.input, &agent)?;
     let EnvelopeContent::Call { ingress_expiry, .. } =
         decode_call_content_strict(&packet, PACKET_LIMIT)
             .map_err(|_| "invalid retained request")?
@@ -158,12 +150,12 @@ pub(crate) async fn dispatch(input: Dispatch) -> Result<String, String> {
     }
     // CreateNew is the cross-process arbitration point. Even an empty/partial
     // marker bars another invocation; no outcome can remove this claim.
-    publish(&directory.join("dispatch.claim"), &id.to_vec())?;
+    files::publish(&held, "dispatch.claim".as_ref(), &id.to_vec())?;
     // The Agent may internally retry HTTP 429/503 with identical signed bytes.
     // This is one application dispatch, not a promise of one HTTP attempt.
     agent.update_signed(target.effective()?, packet).await
         .map_err(|_| "certificate dispatch outcome uncertain; preserve custody and recover the original request, never resubmit")?;
     Ok(format!(
-        "Original request={id} dispatched; preserve custody and use recover-certificate.\nNo provider acceptance or availability is established."
+        "Original request={id} dispatched; preserve custody and use blob certificate recover.\nNo provider acceptance or availability is established."
     ))
 }

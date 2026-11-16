@@ -15,6 +15,31 @@ selected bin directory is missing from PATH. For the default location, add
 `make build-cli` remains build-only and produces the local artifact for qualification;
 tests and CI do not install into your user bin directory.
 
+## Find a command
+
+Start with `blob --help`, then use a group's help for its operations:
+
+| Command | Purpose |
+| --- | --- |
+| `blob overview` | Inspect one uploader in a Blob installation |
+| `blob provider inspect` | Inspect one Caffeine account |
+| `blob provider prepare-enrollment` | Prepare an offline enrollment proposal |
+| `blob certificate --help` | Prepare, dispatch once, then recover the original certificate request |
+| `blob transfer claim` | Authenticate proof and claim one transfer offline |
+| `blob maintenance --help` | Advanced host inspection and upgrade operations |
+
+Use `--help` after any operation for its required inputs. Since development
+0.100.11, the former flat commands use these groups: for example,
+`recover-certificate` becomes `certificate recover`, and `prepare-drain` becomes
+`maintenance prepare-drain`. Update scripts when updating the CLI; old command
+spellings are not aliases. Existing custody records and request identities remain
+unchanged. Maintenance's prepare/dispatch/observe stages remain explicit.
+
+The grouping reviewed the predecessor's argument routing at
+[`25bed135`](https://github.com/dragginzgame/ic-blob-storage-legacy/tree/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/arguments).
+It retains explicit operation selection before execution. No legacy command
+implementation or provider/recovery state was imported.
+
 ## One uploader in a Blob installation
 
 ```sh
@@ -51,7 +76,7 @@ the CLI does not guess an inventory. No durable format change or migration is ne
 ## One Caffeine account or owner
 
 ```sh
-blob provider-inspect \
+blob provider inspect \
   --url https://icp-api.io --cashier 72ch2-fiaaa-aaaar-qbsvq-cai \
   --principal "$ACCOUNT_PRINCIPAL" --identity "$AUTHORIZED_PEM"
 ```
@@ -89,11 +114,11 @@ exact root through the application first; preparation itself makes no network ca
 and establishes no grant, enrollment or provider acceptance.
 
 ```sh
-blob prepare-certificate --url "$IC_API" --canister "$ORIGINAL_ISSUER" \
+blob certificate prepare --url "$IC_API" --canister "$ORIGINAL_ISSUER" \
   --uploader "$UPLOADER" --identity "$UPLOADER_PEM" --root "$ORIGINAL_SHA256_ROOT" \
   --custody "$CERTIFICATE_CUSTODY"
 
-blob dispatch-certificate --url "$IC_API" --canister "$ORIGINAL_ISSUER" \
+blob certificate dispatch --url "$IC_API" --canister "$ORIGINAL_ISSUER" \
   --uploader "$UPLOADER" --identity "$UPLOADER_PEM" --root "$ORIGINAL_SHA256_ROOT" \
   --custody "$CERTIFICATE_CUSTODY" --checkout "$BLOB_CHECKOUT"
 ```
@@ -108,6 +133,19 @@ Preparation signs a 120-second ingress and durably retains a bounded Wire intent
 and exact CBOR packet before dispatch is possible. It prints the request path for
 recovery. Any existing claim, including partial preparation, refuses replacement.
 There is no reset, expiry renewal or automatic cleanup. Preserve stranded custody.
+
+The native CLI uses Host FS/Artifacts 0.80.1. Request records and dispatch markers
+are published through a held parent directory with mode `0600`, create-only
+visibility and confirmed synchronization. A stopped publication may retain
+`.NAME.pending` beside its destination; preserve it, including if no destination
+is visible. Existing stages refuse reuse. A known occupied destination refuses
+before staging; a concurrent destination is still protected by create-only commit.
+Visible-but-unconfirmed publication reports failure and never permits dispatch.
+The same policy applies to maintenance and recovered-proof files. Existing record
+names and Wire formats are unchanged. Ordinary operator input paths are resolved
+once before bounded regular-file reads; custody reads instead use their held
+directory without following child symlinks. These handles do not fence hostile
+writers: operators must exclude concurrent namespace/content replacement.
 
 Dispatch admits the checkout's tooling, original bindings/packet and remaining
 ingress lifetime, then durably creates a private `dispatch.claim` before invoking
@@ -128,7 +166,7 @@ authority, not something this command can revoke.
 ## Recover an original upload certificate
 
 ```sh
-blob recover-certificate \
+blob certificate recover \
   --url "$IC_API" --canister "$ORIGINAL_ISSUER" --uploader "$UPLOADER" \
   --identity "$UPLOADER_PEM" --root "$ORIGINAL_SHA256_ROOT" \
   --request original-request.cbor --output recovered-certificate.cbor
@@ -176,7 +214,7 @@ promise; see the [lifetime witness](../design/caffeine-contract-review.md#author
 After the original CLI preparation, dispatch and proof recovery:
 
 ```sh
-blob claim-transfer --url "$IC_API" --canister "$ORIGINAL_ISSUER" \
+blob transfer claim --url "$IC_API" --canister "$ORIGINAL_ISSUER" \
   --uploader "$UPLOADER" --identity "$UPLOADER_PEM" --root "$ORIGINAL_SHA256_ROOT" \
   --custody "$CERTIFICATE_CUSTODY" --certificate recovered-certificate.cbor \
   --certificate-sha256 "$FROZEN_PLAN_CERTIFICATE_SHA256" \
@@ -209,7 +247,7 @@ automatic certificate issuance. Browser-only callers need their own durable stor
 ## Offline enrollment proposal
 
 ```sh
-blob prepare-enrollment \
+blob provider prepare-enrollment \
   --url https://icp-api.io --cashier "$CASHIER" --ledger "$CYCLES_LEDGER" \
   --payer "$PAYER" --owner "$FRESH_EXISTING_OWNER" \
   --deposit-subaccount "$CASHIER_RETURNED_SUBACCOUNT_HEX" \
@@ -246,14 +284,15 @@ they do not qualify Caffeine's accounting semantics or a live successful account
 final release: recover from durable original-request bytes, refuse unavailable or
 mismatched outcomes and an untrusted key, preserve partial/existing output, and
 independently authenticate the saved certificate. With Node 24+, it also connects
-the recovered proof to the actual `claim-transfer` command and owned loopback PUTs:
+the recovered proof to the actual `transfer claim` command and owned loopback PUTs:
 corrupted proofs refuse, a complete read verifies against the original declaration,
 and a fresh process cannot replay the transfer. Final release retains exposure.
 This does not simulate power loss, browser deployment or provider acceptance.
-`BLOB_PREVIOUS_CLI` can select a retained predecessor only for certificate
-preparation in that fixture; dispatch, recovery and transfer claims still use
-`BLOB_CLI`. The Wire 0.24 adoption uses this to check existing 0.22 custody without
-adding a runtime fallback reader or changing live custody.
+`BLOB_PREVIOUS_CLI` can select a retained flat-command predecessor (through
+0.100.10) only for certificate preparation in that fixture; dispatch, recovery and transfer claims still use
+`BLOB_CLI`. Wire 0.24 was checked against earlier 0.22 custody, and Host 0.80.1
+against the released Blob 0.100.10 CLI using Host 0.79.0. Neither introduces a
+runtime fallback reader or changes live custody.
 
 Targeted legacy review at
 [`25bed135`](https://github.com/dragginzgame/ic-blob-storage-legacy/tree/25bed1352f3d2b9659f0d2583f50fa9af859ea84)

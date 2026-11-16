@@ -40,6 +40,7 @@ fn provider_reply_checks_required_storage_identity_and_errors() {
 fn enrollment(maximum: &str) -> crate::Cli {
     crate::Cli::try_parse_from([
         "blob",
+        "provider",
         "prepare-enrollment",
         "--url",
         "https://icp-api.io",
@@ -69,15 +70,21 @@ fn enrollment(maximum: &str) -> crate::Cli {
 
 #[test]
 fn offline_proposal_checks_total_debit_and_never_loads_an_identity() {
-    let crate::Command::PrepareEnrollment(input) = enrollment("110").command else {
+    let crate::Command::Provider(crate::ProviderCommand::PrepareEnrollment(input)) =
+        enrollment("110").command
+    else {
         panic!()
     };
     assert!(prepare(&input).unwrap().contains("source debit: 110"));
-    let crate::Command::PrepareEnrollment(input) = enrollment("109").command else {
+    let crate::Command::Provider(crate::ProviderCommand::PrepareEnrollment(input)) =
+        enrollment("109").command
+    else {
         panic!()
     };
     assert!(prepare(&input).is_err());
-    let crate::Command::PrepareEnrollment(mut input) = enrollment("110").command else {
+    let crate::Command::Provider(crate::ProviderCommand::PrepareEnrollment(mut input)) =
+        enrollment("110").command
+    else {
         panic!()
     };
     input.deposit_cycles = NonZeroU64::MAX;

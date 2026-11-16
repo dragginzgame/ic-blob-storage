@@ -1,4 +1,4 @@
-# Current status — 2026-11-15
+# Current status — 2026-11-16
 
 ## Delivery and scope
 
@@ -9,15 +9,27 @@ packages/locks select 0.100.10; qualification versions stay independent and
 publication stays disabled. The delivery-only handoff belongs to this checkpoint.
 This checkpoint adds browser proof/custody/transport and qualifies Wire 0.24.1.
 
-Rust 1.100.0, Tooling 0.44.4 (49-file snapshot), Platform 0.33.7, Runtime 0.22.5,
+Rust 1.100.0, Tooling 0.44.4 (52-file snapshot), Platform 0.33.7, Runtime 0.22.5,
 Types 0.20.4, Testkit 0.106.0/PocketIC 16.1.0 remain selected.
 Both graphs use Wire 0.24.1 root codecs and explicit frames; release gates pass.
-The registry review found all selected first-party suppliers current on 2026-11-15.
-`blob 0.100.10` is installed on PATH; `make blob` updates it through Cargo.
+Registry review on 2026-11-16 found direct suppliers current; Testkit retains older internal Host edges.
+The 0.100.11 candidate versions are prepared; `make blob` installs the selected CLI on PATH.
 [Storage inspection](../operations/storage-inspection.md) owns CLI usage and limits.
 Service owns one 64 KiB store and 64 historical uploads/references; release retains exposure. Supported [maintenance](../operations/standalone-maintenance.md)
 drains calls and retains original identities; unknown execution is not safe retry.
 No unrestricted-controller rollback/snapshot continuity guarantee exists.
+
+The **0.100.11** candidate adopts Host FS/Artifacts 0.80.1 for direct callers, preserving
+records and failed `.NAME.pending` stages. Testkit 0.106.0 retains private Host 0.79
+edges; Process 0.80.2 needs its adoption. Prior Host checks remain recorded in the changelog.
+CLI help shows its version and groups provider, certificate, transfer and maintenance operations;
+old flat spellings are removed. Ten CLI tests and scoped Clippy pass. Five installed
+issuance/catalog tests and the maintenance journey pass in
+`target/010011-cli-groups-{callbacks,management}.log`, including 0.100.10 custody.
+[Hosted CI](../operations/continuous-integration.md) now wires Linux/native macOS,
+Wasm and one history secret scan. Local workflow/format/admission/scan checks pass;
+[issue #2](https://github.com/dragginzgame/ic-blob-storage/issues/2) stays open for
+the first successful hosted run after delivery. These changes are unpushed.
 
 ## Current provider work and next action
 
@@ -38,7 +50,7 @@ but no importer for this retained image. Its dirty supplier edits were excluded;
 The maintainer-approved [browser client](../../clients/browser/README.md) prepares
 immutable bytes, accepts existing proof, claims before serial PUTs and verifies
 reads; no automatic retry or Storage dependency.
-Installed journeys join authenticated `claim-transfer`, real loopback PUT/read
+Installed journeys join authenticated `transfer claim`, real loopback PUT/read
 and the reference catalog. Failures retain unpublished drafts; restarts refuse
 upload replay. Explicit read-only reconciliation cannot override cancellation. Chromium checks PUT/read and reload replay refusal after
 success, a lost reply or cancellation. Optional browser custody now authenticates
@@ -109,9 +121,9 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Qualification and integration
 
-Final-version `make ci` and all eight installed suites pass on Linux, with Wire
-0.24.1 (`target/010010-release-{ci,installed}.log`). They include the ten catalog
-scenarios, 24 Node tests and three Chromium 156.0.8078.4 scenarios. Browser proof,
+Candidate 0.100.11 `make ci` and all eight installed suites pass on Linux
+(`target/010011-release-{ci,installed}.log`), including ten catalog scenarios and
+24 Node tests. Three Chromium scenarios pass in `target/010011-release-browser.log`. Browser proof,
 strict IndexedDB claims, interruption, cancellation and replay refusal are exercised.
 Node 24+ and explicit `make install-browser-tools` select npm Platform 0.2.0
 and esbuild 0.28.2. Earlier Wire 0.22.4 reopening evidence remains in
@@ -129,22 +141,9 @@ to Canic. No Canic source changed. Legacy stays read-only at
 `25bed1352f3d2b9659f0d2583f50fa9af859ea84`; reuse lessons for current consumers,
 not its multi-operation journals, refund engine or substitute-service graph.
 
-## Post-push architecture review — 0.100.10
+## Latest delivery review
 
-Reviewed delivered `c78dbcd..905bed6` and the direct browser caller using the
-[complexity method](https://github.com/dragginzgame/toko-tooling/blob/626da7cd9626cc2e152594862a2d82ea82ef51da/audits/complexity-and-technical-debt.md)
-and this repository's AGENTS overlay. No actionable sediment found in that scope.
-Platform owns cryptographic verification; certificate.js binds the original reply;
-custody.js owns fresh provisioning and permanent root claims; index.js owns transfer
-and read integrity. The application still owns current permission/publication.
-Native CLI custody stays separate because browsers cannot use its filesystem owner.
-The selected state space is one fixed binding and absent/consumed root claims;
-missing, changed or exhausted custody refuses. No reset, retry or resume mode grew.
-Certificate-profile changes stay in verification; capacity/continuity stays in
-custody. Historical proof and permanent claims remain justified, without legacy
-journal, funding or restoration mechanisms.
-Rust code LOC is unchanged: 4,299 product, 9,091 tests, 396 examples, zero tooling.
-JS product is 380 (+136); JS tests are 908 (+377) versus 0.100.9, measured with the
-same cloc 2.10. The 635-line npm lock is generated dependency data, not product code.
-Linux release checks pass; live Caffeine acceptance, browser profile continuity and
-native macOS remain unqualified. This review does not claim those guarantees.
+The delivered `c78dbcd..905bed6` and direct browser caller were reviewed with no
+actionable sediment found in that scope. The review is retained in Git at
+`a7b0805`; it does not qualify live Caffeine acceptance, browser profile continuity
+or native macOS. No live custody or recovery artifact is retired by this summary.

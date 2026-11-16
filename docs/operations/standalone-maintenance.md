@@ -32,7 +32,9 @@ Preserve both artifacts, installation inputs, all operation records and the shar
 custody root. The root binds dispatch claims to network, canister, operation and
 attempt. Changing paths or deleting a claim is not recovery. Even a partial or
 empty claim bars redispatch. Native inputs must be bounded regular files; keep
-identity material private. Legacy recovery records never enter this checkout.
+identity material private. Retain any `.NAME.pending` publication stage; it is
+not disposable output. [Native custody rules](storage-inspection.md) also apply
+to these records. Legacy recovery records never enter this checkout.
 
 Build and install the CLI with `make blob` after the normal `make install-tools`
 preparation; `blob` is then available through Cargo's bin directory on PATH.
@@ -56,7 +58,7 @@ blob_target=(
   --state-version 1
 )
 blob_dispatch=(--custody "$blob_custody" --checkout "$blob_checkout")
-"$blob_cli" inspect "${blob_target[@]}"
+"$blob_cli" maintenance inspect "${blob_target[@]}"
 ```
 
 Inspection authenticates the module hash before and after a replicated management
@@ -81,9 +83,12 @@ and original `--wasm` unchanged throughout the attempt, including after upgrade.
 ### Drain admission
 
 ```bash
-"$blob_cli" prepare-drain "${blob_target[@]}" --attempt "$blob_attempt" --record "$blob_records/drain"
-"$blob_cli" dispatch-drain "${blob_target[@]}" --record "$blob_records/drain" "${blob_dispatch[@]}"
-"$blob_cli" observe-drain "${blob_target[@]}" --record "$blob_records/drain"
+"$blob_cli" maintenance prepare-drain "${blob_target[@]}" \
+  --attempt "$blob_attempt" --record "$blob_records/drain"
+"$blob_cli" maintenance dispatch-drain "${blob_target[@]}" \
+  --record "$blob_records/drain" "${blob_dispatch[@]}"
+"$blob_cli" maintenance observe-drain "${blob_target[@]}" \
+  --record "$blob_records/drain"
 ```
 
 Require the original drain acknowledgment. Historical acknowledgment alone does
@@ -94,9 +99,12 @@ replay remain available. It does not delete objects or settle provider exposure.
 ### Stop runtime execution
 
 ```bash
-"$blob_cli" prepare-stop "${blob_target[@]}" --attempt "$blob_attempt" --record "$blob_records/stop"
-"$blob_cli" dispatch-stop "${blob_target[@]}" --record "$blob_records/stop" "${blob_dispatch[@]}"
-"$blob_cli" observe-stop "${blob_target[@]}" --record "$blob_records/stop"
+"$blob_cli" maintenance prepare-stop "${blob_target[@]}" \
+  --attempt "$blob_attempt" --record "$blob_records/stop"
+"$blob_cli" maintenance dispatch-stop "${blob_target[@]}" \
+  --record "$blob_records/stop" "${blob_dispatch[@]}"
+"$blob_cli" maintenance observe-stop "${blob_target[@]}" \
+  --record "$blob_records/stop"
 ```
 
 Require **both** `original=acknowledged` and `platform=Stopped`. `observe-stop`
@@ -109,9 +117,12 @@ to make a timeout disappear. Ordinary Blob inspection cannot run while stopped.
 
 ```bash
 blob_upgrade=(--stop-record "$blob_records/stop" --next-wasm "$blob_inputs/next.wasm")
-"$blob_cli" prepare-upgrade "${blob_target[@]}" "${blob_upgrade[@]}" --attempt "$blob_attempt" --record "$blob_records/upgrade"
-"$blob_cli" dispatch-upgrade "${blob_target[@]}" "${blob_upgrade[@]}" --record "$blob_records/upgrade" "${blob_dispatch[@]}"
-"$blob_cli" observe-upgrade "${blob_target[@]}" "${blob_upgrade[@]}" --record "$blob_records/upgrade"
+"$blob_cli" maintenance prepare-upgrade "${blob_target[@]}" \
+  "${blob_upgrade[@]}" --attempt "$blob_attempt" --record "$blob_records/upgrade"
+"$blob_cli" maintenance dispatch-upgrade "${blob_target[@]}" \
+  "${blob_upgrade[@]}" --record "$blob_records/upgrade" "${blob_dispatch[@]}"
+"$blob_cli" maintenance observe-upgrade "${blob_target[@]}" \
+  "${blob_upgrade[@]}" --record "$blob_records/upgrade"
 ```
 
 Require the original upgrade acknowledgment and matching replacement artifact on
@@ -124,9 +135,12 @@ snapshot restore or automatic downgrade option.
 
 ```bash
 blob_start=("${blob_upgrade[@]}" --upgrade-record "$blob_records/upgrade")
-"$blob_cli" prepare-start "${blob_target[@]}" "${blob_start[@]}" --attempt "$blob_attempt" --record "$blob_records/start"
-"$blob_cli" dispatch-start "${blob_target[@]}" "${blob_start[@]}" --record "$blob_records/start" "${blob_dispatch[@]}"
-"$blob_cli" observe-start "${blob_target[@]}" "${blob_start[@]}" --record "$blob_records/start"
+"$blob_cli" maintenance prepare-start "${blob_target[@]}" \
+  "${blob_start[@]}" --attempt "$blob_attempt" --record "$blob_records/start"
+"$blob_cli" maintenance dispatch-start "${blob_target[@]}" \
+  "${blob_start[@]}" --record "$blob_records/start" "${blob_dispatch[@]}"
+"$blob_cli" maintenance observe-start "${blob_target[@]}" \
+  "${blob_start[@]}" --record "$blob_records/start"
 ```
 
 Require `Start observed` with the exact attempt and `active=false`. This checks the
@@ -138,9 +152,12 @@ the procedure at this stage; running state alone cannot replace the acknowledgme
 
 ```bash
 blob_activate=("${blob_start[@]}" --start-record "$blob_records/start")
-"$blob_cli" prepare-activate "${blob_target[@]}" "${blob_activate[@]}" --attempt "$blob_attempt" --record "$blob_records/activate"
-"$blob_cli" dispatch-activate "${blob_target[@]}" "${blob_activate[@]}" --record "$blob_records/activate" "${blob_dispatch[@]}"
-"$blob_cli" observe-activate "${blob_target[@]}" "${blob_activate[@]}" --record "$blob_records/activate"
+"$blob_cli" maintenance prepare-activate "${blob_target[@]}" \
+  "${blob_activate[@]}" --attempt "$blob_attempt" --record "$blob_records/activate"
+"$blob_cli" maintenance dispatch-activate "${blob_target[@]}" \
+  "${blob_activate[@]}" --record "$blob_records/activate" "${blob_dispatch[@]}"
+"$blob_cli" maintenance observe-activate "${blob_target[@]}" \
+  "${blob_activate[@]}" --record "$blob_records/activate"
 ```
 
 Require `Activation observed` with the same attempt and `active=true`. Dispatch

@@ -102,7 +102,7 @@ ephemeral handle. Do not use an in-memory set or a no-op returning true as durab
 custody. Cancellation may interrupt waiting for a claim that later commits; that
 claim stays consumed and no late network dispatch follows.
 
-For native/Node consumers, [`blob claim-transfer`](../../docs/operations/storage-inspection.md#claim-one-transfer-offline)
+For native/Node consumers, [`blob transfer claim`](../../docs/operations/storage-inspection.md#claim-one-transfer-offline)
 supplies this custody using the original CLI request directory. Pass the frozen
 plan's certificate digest and provider selectors, the exact proof file, and the
 original issuer/uploader/root/trust inputs. Return true only after process success.

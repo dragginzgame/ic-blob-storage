@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: ["0.100", main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+
+jobs:
+  workflow-and-secrets:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Admit the installed tooling bytes
+        run: bash vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh --consumer "$PWD"
+      - name: Check workflow and scan full repository history once
+        run: |
+          installer=vendor/toko-tooling/scripts/ci/install-ci-tool.sh
+          tool_dir="$RUNNER_TEMP/blob-ci-tools"
+          actionlint_bin="$(bash "$installer" actionlint --install-dir "$tool_dir")"
+          shellcheck_bin="$(bash "$installer" shellcheck --install-dir "$tool_dir")"
+          gitleaks_bin="$(bash "$installer" gitleaks --install-dir "$tool_dir")"
+          "$actionlint_bin" -shellcheck "$shellcheck_bin" .github/workflows/ci.yml
+          "$gitleaks_bin" git --redact=100 --no-banner --no-color --log-level error
+
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24.21.0"
+      - name: Prepare pinned compiler and tools
+        run: |
+          bash vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh --consumer "$PWD"
+          make install-host-tools host-tools-check
+          export PATH="$PWD/.tools/host/bin:$PATH"
+          bash vendor/toko-tooling/scripts/dev/prepare-rust-toolchain.sh --toolchain-file rust-toolchain.toml
+          make deps
+          make qualification-tooling-check
+          make install-rust-tools rust-tools-check
+          make install-browser-tools
+      - name: Check product, qualification sources and Wasm hosts
+        run: |
+          mkdir -p target
+          make ci build-host build-reference-app 2>&1 | tee target/hosted-ci.log
+      - name: Retain failure logs
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: linux-failure-logs
+          path: |
+            target/hosted-ci.log
+            ${{ runner.temp }}/formatting.*
+          if-no-files-found: ignore
+          retention-days: 7
+
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Prepare pinned compiler and native dependencies
+        run: |
+          bash vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh --consumer "$PWD"
+          make install-host-tools host-tools-check
+          export PATH="$PWD/.tools/host/bin:$PATH"
+          bash vendor/toko-tooling/scripts/dev/prepare-rust-toolchain.sh --toolchain-file rust-toolchain.toml
+          make deps qualification-tooling-check
+      - name: Check native storage and CLI behavior
+        run: |
+          mkdir -p target
+          make test-references test-caffeine test-local test-cli test-example-local 2>&1 | tee target/hosted-ci.log
+      - name: Retain failure logs
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: macos-failure-logs
+          path: target/hosted-ci.log
+          if-no-files-found: ignore
+          retention-days: 7

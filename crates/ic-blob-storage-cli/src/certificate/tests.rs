@@ -28,7 +28,8 @@ fn offline_preparation_keeps_one_root_claim() {
     let uploader = agent.get_principal().unwrap().to_text();
     let args = [
         "blob",
-        "prepare-certificate",
+        "certificate",
+        "prepare",
         "--url",
         "https://invalid.example",
         "--canister",
@@ -42,7 +43,7 @@ fn offline_preparation_keeps_one_root_claim() {
         "--custody",
         directory.to_str().unwrap(),
     ];
-    let crate::Command::PrepareCertificate(input) =
+    let crate::Command::Certificate(crate::CertificateCommand::Prepare(input)) =
         crate::Cli::try_parse_from(args).unwrap().command
     else {
         unreachable!()

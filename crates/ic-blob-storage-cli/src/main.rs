@@ -1,11 +1,14 @@
 //! Native storage inspection, offline enrollment proposals and maintenance custody.
 
 mod certificate;
+mod files;
 mod management;
 mod overview;
 mod provider;
+#[cfg(test)]
+mod tests;
 
-use clap::{Args, Parser, Subcommand};
+use clap::{Args, CommandFactory, FromArgMatches, Parser, Subcommand};
 use ic_blob_storage::{
     local::Error,
     protocol::{Installation, ManagementView, RPC_LIMITS},
@@ -26,29 +29,77 @@ use url::Url;
 #[command(
     name = "blob",
     version,
-    about = "Inspect Blob and Caffeine storage, prepare enrollment, and manage guarded maintenance"
+    about = "Inspect storage and manage Blob uploads",
+    after_help = "Start here: blob overview --help\nExplore a group: blob <group> --help"
 )]
 struct Cli {
     #[command(subcommand)]
     command: Command,
 }
 
+fn help_command() -> clap::Command {
+    fn banner(command: clap::Command) -> clap::Command {
+        command
+            .help_template(concat!(
+                "Blob ",
+                env!("CARGO_PKG_VERSION"),
+                " : {about-with-newline}\n{usage-heading} {usage}\n\n{all-args}{after-help}"
+            ))
+            .mut_subcommands(banner)
+    }
+    banner(Cli::command())
+}
+
 #[derive(Subcommand)]
 enum Command {
     /// List one uploader's local grants, distinct roots and application references.
     Overview(overview::Input),
-    /// Query Caffeine's reported storage and balance for one exact account principal.
-    ProviderInspect(provider::Inspect),
+    /// Inspect Caffeine accounts and prepare enrollment proposals.
+    #[command(subcommand)]
+    Provider(ProviderCommand),
+    /// Prepare, dispatch or recover an upload certificate request.
+    #[command(subcommand)]
+    Certificate(CertificateCommand),
+    /// Claim a transfer using an existing certificate.
+    #[command(subcommand)]
+    Transfer(TransferCommand),
+    /// Advanced: inspect a host and manage its upgrade lifecycle.
+    #[command(subcommand)]
+    Maintenance(MaintenanceCommand),
+}
+
+#[derive(Subcommand)]
+enum ProviderCommand {
+    /// Query storage and balance for one exact Caffeine account principal.
+    Inspect(provider::Inspect),
     /// Print an offline enrollment proposal; does not sign, submit or spend.
     PrepareEnrollment(provider::Enrollment),
-    /// Recover a retained request's certified upload reply; never issue or resend.
-    RecoverCertificate(certificate::Input),
-    /// Retain an original signed certificate request offline; never replace a claim.
-    PrepareCertificate(certificate::custody::Input),
-    /// Dispatch the retained certificate request once; recover its original status.
-    DispatchCertificate(certificate::custody::Dispatch),
-    /// Authenticate saved proof and durably claim one transfer; no network call.
-    ClaimTransfer(certificate::transfer::Input),
+}
+
+#[derive(Subcommand)]
+#[command(
+    after_help = "Workflow: prepare -> dispatch -> recover. Recover observes the original request; it never resends it."
+)]
+enum CertificateCommand {
+    /// Retain an original signed request offline in permanent custody.
+    Prepare(certificate::custody::Input),
+    /// Dispatch the retained request once.
+    Dispatch(certificate::custody::Dispatch),
+    /// Recover the original certified reply without issuing or resending.
+    Recover(certificate::Input),
+}
+
+#[derive(Subcommand)]
+enum TransferCommand {
+    /// Authenticate saved proof and permanently claim one transfer offline.
+    Claim(certificate::transfer::Input),
+}
+
+#[derive(Subcommand)]
+#[command(
+    after_help = "Lifecycle: drain -> stop -> upgrade -> start -> activate.\nFor each stage: prepare, dispatch once, then observe the original request."
+)]
+enum MaintenanceCommand {
     /// Authenticate and compare installed configuration and Wasm with admitted inputs.
     Inspect(Target),
     /// Retain a signed drain request in a new private directory, WITHOUT submitting it.
@@ -262,12 +313,15 @@ fn endpoint(value: &str) -> Result<Url, String> {
 }
 
 fn read(path: &Path, limit: usize) -> Result<Vec<u8>, String> {
-    let bytes = ic_host_fs::read::read_file(path, limit)
-        .map_err(|_| format!("cannot read bounded regular file: {}", path.display()))?;
-    if bytes.is_empty() {
-        return Err(format!("empty input: {}", path.display()));
-    }
-    Ok(bytes)
+    // Ordinary operator inputs historically follow links and accept relative
+    // paths. Resolve once, then read a held regular file. Custody records instead
+    // use files::read_at on their already admitted directory without this step.
+    let resolved = path
+        .canonicalize()
+        .map_err(|_| format!("cannot resolve input file: {}", path.display()))?;
+    let (parent, name) = files::parent(&resolved)?;
+    files::read_at(&parent, name, limit)
+        .map_err(|e| format!("cannot read bounded regular file {}: {e}", path.display()))
 }
 
 impl Context {
@@ -388,13 +442,23 @@ impl Context {
 async fn run(command: Command) -> Result<String, String> {
     match command {
         Command::Overview(input) => overview::run(input).await,
-        Command::ProviderInspect(input) => provider::inspect(input).await,
-        Command::PrepareEnrollment(input) => provider::prepare(&input),
-        Command::RecoverCertificate(input) => certificate::run(input).await,
-        Command::PrepareCertificate(input) => certificate::custody::prepare(&input),
-        Command::DispatchCertificate(input) => certificate::custody::dispatch(input).await,
-        Command::ClaimTransfer(input) => certificate::transfer::claim(&input),
-        Command::Inspect(target) => {
+        Command::Provider(ProviderCommand::Inspect(input)) => provider::inspect(input).await,
+        Command::Provider(ProviderCommand::PrepareEnrollment(input)) => provider::prepare(&input),
+        Command::Certificate(CertificateCommand::Recover(input)) => certificate::run(input).await,
+        Command::Certificate(CertificateCommand::Prepare(input)) => {
+            certificate::custody::prepare(&input)
+        }
+        Command::Certificate(CertificateCommand::Dispatch(input)) => {
+            certificate::custody::dispatch(input).await
+        }
+        Command::Transfer(TransferCommand::Claim(input)) => certificate::transfer::claim(&input),
+        Command::Maintenance(command) => run_maintenance(command).await,
+    }
+}
+
+async fn run_maintenance(command: MaintenanceCommand) -> Result<String, String> {
+    match command {
+        MaintenanceCommand::Inspect(target) => {
             let view = Context::new(target)?.inspect().await?;
             Ok(format!(
                 "Inspection matched: installation={} state_version={} attempt={} active={}\nAuthenticated observations only; no continuity or activation approval.",
@@ -404,7 +468,7 @@ async fn run(command: Command) -> Result<String, String> {
                 view.maintenance.active
             ))
         }
-        Command::PrepareDrain {
+        MaintenanceCommand::PrepareDrain {
             target,
             record,
             attempt,
@@ -417,7 +481,7 @@ async fn run(command: Command) -> Result<String, String> {
             )
             .await
         }
-        Command::ObserveDrain { target, record } => {
+        MaintenanceCommand::ObserveDrain { target, record } => {
             management::observe(
                 &Context::new(target)?,
                 &record,
@@ -425,7 +489,7 @@ async fn run(command: Command) -> Result<String, String> {
             )
             .await
         }
-        Command::DispatchDrain {
+        MaintenanceCommand::DispatchDrain {
             target,
             record,
             custody,
@@ -440,7 +504,7 @@ async fn run(command: Command) -> Result<String, String> {
             )
             .await
         }
-        Command::PrepareStop {
+        MaintenanceCommand::PrepareStop {
             target,
             record,
             attempt,
@@ -453,7 +517,7 @@ async fn run(command: Command) -> Result<String, String> {
             )
             .await
         }
-        Command::DispatchStop {
+        MaintenanceCommand::DispatchStop {
             target,
             record,
             custody,
@@ -468,10 +532,10 @@ async fn run(command: Command) -> Result<String, String> {
             )
             .await
         }
-        Command::ObserveStop { target, record } => {
+        MaintenanceCommand::ObserveStop { target, record } => {
             management::observe(&Context::new(target)?, &record, management::Operation::Stop).await
         }
-        Command::PrepareUpgrade { input, attempt } => {
+        MaintenanceCommand::PrepareUpgrade { input, attempt } => {
             let wasm = read(&input.next_wasm, 1024 * 1024)?;
             management::prepare(
                 &Context::new(input.target)?,
@@ -484,7 +548,7 @@ async fn run(command: Command) -> Result<String, String> {
             )
             .await
         }
-        Command::DispatchUpgrade {
+        MaintenanceCommand::DispatchUpgrade {
             input,
             custody,
             checkout,
@@ -502,7 +566,7 @@ async fn run(command: Command) -> Result<String, String> {
             )
             .await
         }
-        Command::ObserveUpgrade(input) => {
+        MaintenanceCommand::ObserveUpgrade(input) => {
             let wasm = read(&input.next_wasm, 1024 * 1024)?;
             management::observe(
                 &Context::new(input.target)?,
@@ -514,7 +578,7 @@ async fn run(command: Command) -> Result<String, String> {
             )
             .await
         }
-        Command::PrepareStart { input, attempt } => {
+        MaintenanceCommand::PrepareStart { input, attempt } => {
             let wasm = read(&input.upgrade.next_wasm, 1024 * 1024)?;
             management::prepare(
                 &Context::new(input.upgrade.target)?,
@@ -528,7 +592,7 @@ async fn run(command: Command) -> Result<String, String> {
             )
             .await
         }
-        Command::DispatchStart {
+        MaintenanceCommand::DispatchStart {
             input,
             custody,
             checkout,
@@ -547,7 +611,7 @@ async fn run(command: Command) -> Result<String, String> {
             )
             .await
         }
-        Command::ObserveStart(input) => {
+        MaintenanceCommand::ObserveStart(input) => {
             let wasm = read(&input.upgrade.next_wasm, 1024 * 1024)?;
             management::observe(
                 &Context::new(input.upgrade.target)?,
@@ -560,7 +624,7 @@ async fn run(command: Command) -> Result<String, String> {
             )
             .await
         }
-        Command::PrepareActivate { input, attempt } => {
+        MaintenanceCommand::PrepareActivate { input, attempt } => {
             let wasm = read(&input.start.upgrade.next_wasm, 1024 * 1024)?;
             management::prepare(
                 &Context::new(input.start.upgrade.target)?,
@@ -575,7 +639,7 @@ async fn run(command: Command) -> Result<String, String> {
             )
             .await
         }
-        Command::DispatchActivate {
+        MaintenanceCommand::DispatchActivate {
             input,
             custody,
             checkout,
@@ -595,7 +659,7 @@ async fn run(command: Command) -> Result<String, String> {
             )
             .await
         }
-        Command::ObserveActivate(input) => {
+        MaintenanceCommand::ObserveActivate(input) => {
             let wasm = read(&input.start.upgrade.next_wasm, 1024 * 1024)?;
             management::observe(
                 &Context::new(input.start.upgrade.target)?,
@@ -614,15 +678,15 @@ async fn run(command: Command) -> Result<String, String> {
 
 #[tokio::main]
 async fn main() -> ExitCode {
-    let command = Cli::parse().command;
+    let command = Cli::from_arg_matches(&help_command().get_matches())
+        .unwrap_or_else(|error| error.exit())
+        .command;
     let read_only = matches!(
         command,
         Command::Overview(_)
-            | Command::ProviderInspect(_)
-            | Command::PrepareEnrollment(_)
-            | Command::RecoverCertificate(_)
-            | Command::PrepareCertificate(_)
-            | Command::ClaimTransfer(_)
+            | Command::Provider(_)
+            | Command::Certificate(CertificateCommand::Recover(_) | CertificateCommand::Prepare(_))
+            | Command::Transfer(_)
     );
     match tokio::time::timeout(Duration::from_secs(45), run(command)).await {
         Ok(Ok(message)) => {
