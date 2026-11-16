@@ -3,10 +3,8 @@ use ic_blob_storage::{
     local::{Error, UploadRequest},
     protocol::{Command, Outcome, RPC_LIMITS},
 };
-use ic_platform::{
-    Principal,
-    agent::{BasicIdentity, Identity},
-};
+use ic_platform_legacy::agent::{BasicIdentity, Identity};
+use ic_platform_types::Principal;
 use ic_testkit::{
     pic::PocketIcStartupConfig,
     pocket_ic::{CanisterId, PocketIcBuilder, nonblocking::PocketIc},

@@ -2,7 +2,7 @@
 
 use super::{Context, Operation, load, request_status, stop};
 use ic_blob_storage::protocol::RPC_LIMITS;
-use ic_platform::{
+use ic_platform_legacy::{
     agent::{RequestId, RequestStatusResponse},
     candid_codec::arguments::encode_args,
     management_canister_types::{CanisterInstallMode, CanisterStatusType, InstallCodeArgs},

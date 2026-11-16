@@ -1,5 +1,7 @@
 //! Native storage inspection, offline enrollment proposals and maintenance custody.
 
+#![forbid(unsafe_code)]
+
 mod application;
 mod certificate;
 mod files;
@@ -14,7 +16,7 @@ use ic_blob_storage::{
     local::Error,
     protocol::{Installation, ManagementView, RPC_LIMITS},
 };
-use ic_platform::{
+use ic_platform_legacy::{
     Principal,
     agent::{Agent, BasicIdentity, Identity},
 };
@@ -424,7 +426,7 @@ impl Context {
         )
         .map_err(|_| "invalid management reply")?;
         let view = result.map_err(|_| "host refused management inspection")?;
-        if view.installation != self.canister
+        if view.installation.as_slice() != self.canister.as_slice()
             || view.configuration != self.configuration
             || view.state_version != self.state_version
         {

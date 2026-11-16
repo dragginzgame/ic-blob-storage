@@ -1,15 +1,15 @@
 //! Signed application/uploader calls to the real host through an owned local gateway.
 //! Registration remains a local transition, never a provider certificate.
 
+#![forbid(unsafe_code)]
+
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error, Limits, ReferenceStatus, UploadRequest, UploadState, UploadView},
     protocol::{Command, Inspection, Installation, Observation, Outcome, RPC_LIMITS},
 };
-use ic_platform::{
-    Principal,
-    agent::{Agent, AgentError, BasicIdentity, Identity},
-};
+use ic_platform_legacy::agent::{Agent, AgentError, BasicIdentity, Identity};
+use ic_platform_types::Principal;
 use ic_testkit::{pic::PocketIcStartupConfig, pocket_ic::PocketIcBuilder};
 use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};

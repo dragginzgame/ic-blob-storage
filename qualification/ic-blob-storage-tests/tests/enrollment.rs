@@ -1,9 +1,11 @@
 //! Installed single-use enrollment custody against explicitly synthetic Cashier replies.
 
+#![forbid(unsafe_code)]
+
 use ic_blob_storage_enrollment_probe::protocol::{
     Error, Installation, LIMITS, Outcome, REPLY_BYTES, View,
 };
-use ic_platform::candid_codec::{
+use ic_platform_legacy::candid_codec::{
     Nat,
     decoder::{Arity, Limits, decode_args},
 };
@@ -135,8 +137,8 @@ fn server() -> PocketIcStartupConfig {
     }
 }
 
-ic_platform::candid_record! {
-    struct TopUp { 2504008430 => target_balance: Option<Nat>, 2707029165 => account: Option<Principal> }
+ic_platform_legacy::candid_record! {
+    struct TopUp { 2504008430 => target_balance: Option<Nat>, 2707029165 => account: Option<ic_platform_legacy::Principal> }
 }
 
 #[tokio::test]
@@ -187,7 +189,10 @@ async fn one_attempt_survives_concurrency_revocation_lost_reply_and_upgrade() {
     )
     .unwrap();
     let args = args.unwrap();
-    assert_eq!(args.account, Some(ready.owner));
+    assert_eq!(
+        args.account.map(|principal| principal.as_slice().to_vec()),
+        Some(ready.owner.as_slice().to_vec())
+    );
     assert_eq!(args.target_balance, Some(Nat::from(1_000_000_000u64)));
     upgrade(pic, owner).await;
     assert_eq!(inspect(pic, owner).await, ready);

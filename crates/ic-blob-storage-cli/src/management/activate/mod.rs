@@ -1,7 +1,7 @@
 //! Explicit admission reopening after an acknowledged start; no retry or state repair.
 
 use super::{Context, start};
-use ic_platform::agent::{RequestId, RequestStatusResponse};
+use ic_platform_legacy::agent::{RequestId, RequestStatusResponse};
 
 pub(super) async fn acknowledge(
     context: &Context,

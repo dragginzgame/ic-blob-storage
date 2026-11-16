@@ -1,6 +1,8 @@
 //! Experimental standalone host. All domain and admission rules live in the library.
 //! Exports only owned Wire methods; no Caffeine certificate, callback or network call.
 
+#![cfg(target_arch = "wasm32")]
+
 mod codec;
 
 use codec::{INIT, MANAGEMENT, QUERY, UPDATE, UPGRADE};
@@ -13,7 +15,7 @@ use ic_blob_storage::{
     },
     protocol::{Command, Inspection, Installation, ManagementView, Observation, Outcome},
 };
-use ic_platform_runtime::cdk::{self, api};
+use ic_platform_runtime::system as api;
 use ic_storage::{
     AllocationGrants, DefaultMemoryImpl, GenericAllocationPolicy, Memory, MemoryAuthority,
     MemoryRequest, MemoryRuntime, RuntimeMemory, SealedDeclarationSnapshot, StableKey,
@@ -24,15 +26,27 @@ thread_local! {
     static SERVICE: RefCell<Option<Service<DefaultMemoryImpl>>> = const { RefCell::new(None) };
 }
 
-#[cdk::init(decode_with = "codec::decode::<Installation, INIT>")]
+#[ic_platform_runtime::init(
+    runtime = ic_platform_runtime,
+    guard = codec::unguarded,
+    decode = codec::decode::<Installation, INIT>,
+    max_bytes = 65536,
+    on_error = codec::fail
+)]
 fn init(input: Installation) {
     let service = Service::create(memory(true), api::canister_self(), input)
         .expect("Blob fresh installation");
     SERVICE.with_borrow_mut(|state| *state = Some(service));
 }
 
-#[cdk::pre_upgrade]
-fn pre_upgrade() {
+#[ic_platform_runtime::pre_upgrade(
+    runtime = ic_platform_runtime,
+    guard = codec::unguarded,
+    decode = codec::empty,
+    max_bytes = 0,
+    on_error = codec::fail
+)]
+fn pre_upgrade(_: ()) {
     SERVICE.with_borrow(|state| {
         assert!(
             state.as_ref().expect("initialized Blob").is_drained(),
@@ -41,53 +55,71 @@ fn pre_upgrade() {
     });
 }
 
-#[cdk::post_upgrade(decode_with = "codec::decode::<(), UPGRADE>")]
-fn post_upgrade() {
+#[ic_platform_runtime::post_upgrade(
+    runtime = ic_platform_runtime,
+    guard = codec::unguarded,
+    decode = codec::decode::<(), UPGRADE>,
+    max_bytes = 65536,
+    on_error = codec::fail
+)]
+fn post_upgrade(_: ()) {
     let service = Service::open(memory(false), api::canister_self()).expect("Blob existing state");
     assert!(service.is_drained(), "upgrade must retain closed admission");
     SERVICE.with_borrow_mut(|state| *state = Some(service));
 }
 
-#[cdk::update(
-    guard = "codec::admit::<UPDATE>",
-    decode_with = "codec::decode::<Command, UPDATE>",
-    encode_with = "codec::encode::<Result<Outcome, Error>, UPDATE>"
+#[ic_platform_runtime::update(
+    runtime = ic_platform_runtime,
+    name = "blob_update",
+    guard = codec::admit::<UPDATE>,
+    decode = codec::decode::<Command, UPDATE>,
+    encode = codec::encode::<Result<Outcome, Error>, UPDATE>,
+    max_bytes = 65536,
+    on_error = codec::fail
 )]
 fn blob_update(command: Command) -> Result<Outcome, Error> {
     SERVICE.with_borrow_mut(|state| {
         state
             .as_mut()
             .expect("initialized Blob")
-            .execute(api::msg_caller(), command, api::time())
+            .execute(api::caller(), command, api::time())
     })
 }
 
-#[cdk::query(
-    guard = "codec::admit::<QUERY>",
-    decode_with = "codec::decode::<Inspection, QUERY>",
-    encode_with = "codec::encode::<Result<Observation, Error>, QUERY>"
+#[ic_platform_runtime::query(
+    runtime = ic_platform_runtime,
+    name = "blob_query",
+    guard = codec::admit::<QUERY>,
+    decode = codec::decode::<Inspection, QUERY>,
+    encode = codec::encode::<Result<Observation, Error>, QUERY>,
+    max_bytes = 65536,
+    on_error = codec::fail
 )]
 fn blob_query(request: Inspection) -> Result<Observation, Error> {
     SERVICE.with_borrow(|state| {
         state
             .as_ref()
             .expect("initialized Blob")
-            .inspect(api::msg_caller(), request)
+            .inspect(api::caller(), request)
     })
 }
 
 // Read-only, but replicated: management callers must authenticate the update outcome.
-#[cdk::update(
-    guard = "codec::admit::<MANAGEMENT>",
-    decode_with = "codec::decode::<(), MANAGEMENT>",
-    encode_with = "codec::encode::<Result<ManagementView, Error>, MANAGEMENT>"
+#[ic_platform_runtime::update(
+    runtime = ic_platform_runtime,
+    name = "blob_management",
+    guard = codec::admit::<MANAGEMENT>,
+    decode = codec::decode::<(), MANAGEMENT>,
+    encode = codec::encode::<Result<ManagementView, Error>, MANAGEMENT>,
+    max_bytes = 65536,
+    on_error = codec::fail
 )]
-fn blob_management() -> Result<ManagementView, Error> {
+fn blob_management(_: ()) -> Result<ManagementView, Error> {
     SERVICE.with_borrow(|state| {
         state
             .as_ref()
             .expect("initialized Blob")
-            .inspect_management(api::msg_caller())
+            .inspect_management(api::caller())
     })
 }
 

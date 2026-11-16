@@ -1,7 +1,7 @@
 //! Private standalone-host hooks; Platform owns exports/copy/dispatch/reply, Wire owns frames.
 
 use ic_blob_storage::protocol::RPC_LIMITS;
-use ic_platform_runtime::{cdk::api, ic0};
+use ic_platform_runtime::{raw as ic0, system as api};
 use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
 
@@ -30,23 +30,18 @@ pub(super) fn admit<const ID: u64>() -> Result<(), String> {
     Ok(())
 }
 
-#[expect(
-    clippy::needless_pass_by_value,
-    reason = "Runtime transfers its argument buffer to the codec hook"
-)]
-pub(super) fn decode<T: DeserializeOwned, const ID: u64>(bytes: Vec<u8>) -> T {
+pub(super) fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result<T, wire::Error> {
     wire::decode(
-        &bytes,
+        bytes,
         wire::Encoding::Frame {
             method: ID,
             direction: wire::Direction::Request,
         },
         RPC_LIMITS,
     )
-    .unwrap_or_else(|error| trap(error))
 }
 
-pub(super) fn encode<T: Serialize, const ID: u64>(value: T) -> Vec<u8> {
+pub(super) fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, wire::Error> {
     // Trapping here rolls back the synchronous handler's mutation. Returning an
     // error frame/rejection instead would commit it. These endpoints never await.
     wire::encode(
@@ -57,10 +52,29 @@ pub(super) fn encode<T: Serialize, const ID: u64>(value: T) -> Vec<u8> {
         },
         RPC_LIMITS,
     )
-    .unwrap_or_else(|error| trap(error))
 }
 
 #[cold]
 fn trap(error: ic_wire::Error) -> ! {
-    api::trap(error.to_string())
+    api::trap(&error.to_string())
+}
+
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "Runtime guard signature; authorization belongs to the handler"
+)]
+pub(super) fn unguarded() -> Result<(), std::convert::Infallible> {
+    Ok(())
+}
+
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "Runtime lifecycle decoder signature; pre-upgrade has no arguments"
+)]
+pub(super) fn empty(_: &[u8]) -> Result<(), std::convert::Infallible> {
+    Ok(())
+}
+
+pub(super) fn fail(error: impl std::fmt::Debug) -> ! {
+    api::trap(&format!("entrypoint failed: {error:?}"))
 }

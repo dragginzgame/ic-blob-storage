@@ -15,7 +15,9 @@ its reported evidence; never restart uncertain Git or registry effects blindly.
 
 Preflight admits the pending version before preparing tools and fetching both
 locked Cargo graphs. Validation runs the metadata projection fixture, tooling,
-`make ci` (strict Clippy before compiled tests) and all eight installed suites.
+local `make ci` (strict Clippy before compiled tests) and all eight installed suites.
+These are local release checks, not a requirement to wait for hosted CI; report
+hosted status separately. Pending hosted results alone do not delay publication.
 Chromium qualification remains separately opt-in. Metadata preparation uses the
 pinned IC Build editor and Toko transaction to update the root manifest, both
 locks and changelog together. Private package versions and external selections

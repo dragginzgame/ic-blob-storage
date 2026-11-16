@@ -1,11 +1,12 @@
 //! Reference-application observations and offline installation inputs; no remote mutations.
 
 mod prepare;
+mod targets;
 
 use clap::{Args, Subcommand};
 use ic_blob_storage::protocol::RPC_LIMITS;
 use ic_blob_storage_reference_app::protocol::{DraftView, Error, Phase};
-use ic_platform::{Principal, agent::Agent};
+use ic_platform_legacy::{Principal, agent::Agent};
 use serde::{Serialize, de::DeserializeOwned};
 use std::{fmt::Write, num::NonZeroU128};
 
@@ -23,11 +24,13 @@ pub(crate) struct Target {
 
 #[derive(Subcommand)]
 #[command(
-    after_help = "Catalog/draft queries require the owning user's --identity. Prepare-installation writes local inputs without credentials or network access."
+    after_help = "Catalog/draft queries require the owning user's --identity. Check-targets requires the controller's --identity. Prepare-installation writes local inputs without credentials or network access."
 )]
 pub(crate) enum Command {
     /// Prepare paired fresh-install arguments offline; does not create or install canisters.
     PrepareInstallation(prepare::Input),
+    /// Check two proposed targets have no module and the signer as sole controller.
+    CheckTargets(targets::Input),
     /// List published drafts in your reference-application catalog.
     Catalog(Target),
     /// Inspect one original draft, including cancelled or cleaned records.
@@ -80,6 +83,7 @@ async fn query<T: Serialize, R: DeserializeOwned>(
 pub(crate) async fn run(command: Command) -> Result<String, String> {
     let (target, id) = match command {
         Command::PrepareInstallation(input) => return prepare::run(input),
+        Command::CheckTargets(input) => return targets::run(input).await,
         Command::Catalog(target) => (target, None),
         Command::Draft { target, id } => (target, Some(id)),
     };

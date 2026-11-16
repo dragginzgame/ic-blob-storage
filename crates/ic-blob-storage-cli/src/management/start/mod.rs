@@ -2,7 +2,7 @@
 
 use super::{Context, Operation, load, request_status, stop, upgrade};
 use ic_blob_storage::protocol::ManagementView;
-use ic_platform::{
+use ic_platform_legacy::{
     agent::{RequestId, RequestStatusResponse},
     management_canister_types::CanisterStatusType,
 };

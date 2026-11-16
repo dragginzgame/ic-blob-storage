@@ -1,5 +1,7 @@
 //! Installed candidate callbacks and owned loopback transfer; no Caffeine peer or live upload.
 
+#![forbid(unsafe_code)]
+
 mod issuance;
 
 use ic_blob_storage::{
@@ -7,7 +9,7 @@ use ic_blob_storage::{
     local::{Error, Limits, Root, UploadRequest},
     protocol::{Command, Inspection, Installation, Observation, Outcome, RPC_LIMITS},
 };
-use ic_platform::candid_codec::{
+use ic_platform_legacy::candid_codec::{
     arguments::encode_args,
     decoder::{Arity, Limits as CandidLimits, decode_args},
 };

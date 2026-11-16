@@ -5,7 +5,7 @@ use ic_blob_storage::{
     local::Error,
     protocol::{Inspection, Observation, RPC_LIMITS},
 };
-use ic_platform::{
+use ic_platform_legacy::{
     Principal,
     agent::{Agent, BasicIdentity},
 };
@@ -72,7 +72,9 @@ pub(crate) struct Input {
 
 pub(crate) async fn run(input: Input) -> Result<String, String> {
     let request = ic_wire::encode(
-        &Inspection::Overview(input.principal),
+        &Inspection::Overview(ic_platform_types::Principal::from_slice(
+            input.principal.as_slice(),
+        )),
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id("blob_query"),
             direction: ic_wire::Direction::Request,
@@ -111,7 +113,7 @@ pub(crate) async fn run(input: Input) -> Result<String, String> {
     else {
         return Err("unexpected Blob observation".into());
     };
-    if view.uploader != input.principal {
+    if view.uploader.as_slice() != input.principal.as_slice() {
         return Err("overview principal mismatch".into());
     }
     let mut output = format!(

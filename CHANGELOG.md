@@ -1,5 +1,56 @@
 # Changelog
 
+## [0.102.0] - Unreleased
+
+### ⚠️ Platform Types and Runtime migration
+
+- Adopt published `ic-platform-types` 0.21.2 in both workspaces. Public Rust
+  records and domain state now use that identity; this dependency-type change
+  selects a minor release. No intentional Wire or stable-record format change.
+- Adopt Runtime/Macros/Guard 0.23.13 for the standalone host, reference app and
+  qualification probes. Explicit bounded lifecycle/query/update entrypoints keep
+  Wire encoding failures as traps; consuming calls preserve timeout uncertainty.
+  Remove the temporary host Principal copies and scope host code to Wasm.
+- Adopt Platform 0.34.6 ingress admission in the CLI and installed qualification:
+  strict original envelope decoding and request IDs preserve signed custody,
+  reject malformed authentication fields and never renew an expired request.
+  Remove the old direct `ic-protocol` feature. Remaining 0.33.7 uses are explicitly
+  named `ic-platform-legacy`: signed transport, certificate DTOs and external codecs.
+- Storage retains its IC0-only transitive Runtime 0.22.5; the host has one new
+  executor/guard generation. Full Platform adoption remains partial: 0.34.6 has
+  no signed transport and Protocol 0.2.5 lacks Blob's management/Cashier codecs.
+  No live effect or stable-record format change is introduced.
+
+### ➕ Application target observations
+
+- Add `blob app check-targets` for two proposed canisters: authenticated replicated
+  status, absent modules and the signer as sole controller. Refuse equal targets,
+  installed modules, additional controllers and stopping targets. No installation,
+  creation, funding or controller changes are dispatched.
+- Reuse the maintenance status transport and bounded decoder. Observations are
+  separate and can become stale; an absent module does not prove fresh creation
+  or absence of historical provider obligations.
+
+### 🛠️ Tooling
+
+- Adopt Toko Tooling 0.44.9 in both Cargo workspaces and its authenticated
+  84-file snapshot; refresh the CLI's embedded tooling fingerprint.
+- Apply repository-wide named-supplier adoption scope, including qualification
+  and native callers; continue to report the unfinished Platform migration as partial.
+- Record the remaining native signed transport/protocol requirements separately
+  from the completed host migration in the application boundary.
+- Release freshness review keeps the qualified Testkit 0.106.0 and release-editor
+  IC Build 0.73.0 selections. Optional upgrades to Testkit 0.107.2 and IC Build
+  0.87.3 are deferred to the next dependency-maintenance batch; other direct
+  first-party selections are current apart from the documented legacy Platform use.
+
+### ▶️ Try it
+
+```sh
+make blob
+blob app check-targets --help
+```
+
 ## [0.101.0] - 2026-11-16
 
 ### ⚠️ Breaking

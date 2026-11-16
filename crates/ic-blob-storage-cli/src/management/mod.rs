@@ -2,6 +2,7 @@
 
 mod activate;
 mod start;
+pub(crate) mod status;
 mod stop;
 mod upgrade;
 
@@ -12,10 +13,10 @@ use ic_blob_storage::{
     protocol::{Command, Installation, Outcome, RPC_LIMITS},
 };
 use ic_host_fs::{Directory, FilePolicy};
-use ic_platform::{
+use ic_platform::ingress::{Content, decode_envelope};
+use ic_platform_legacy::{
     Principal,
-    agent::{CallResponse, EffectiveId, RequestId, RequestStatusResponse, to_request_id},
-    ic_protocol::{EnvelopeContent, decode_call_content_strict},
+    agent::{CallResponse, EffectiveId, RequestId, RequestStatusResponse},
 };
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -343,9 +344,11 @@ fn load(context: &Context, directory: &Path, operation: Operation<'_>) -> Result
     {
         return Err("predecessor identity mismatch".into());
     }
-    let content = decode_call_content_strict(&packet, operation.packet_limit())
-        .map_err(|_| "invalid signed management content")?;
-    let EnvelopeContent::Call {
+    let content = decode_envelope(&packet, operation.packet_limit())
+        .map_err(|_| "invalid signed management content")?
+        .value
+        .content;
+    let Content::Call {
         sender,
         canister_id,
         method_name,
@@ -367,7 +370,11 @@ fn load(context: &Context, directory: &Path, operation: Operation<'_>) -> Result
     }
     // Derive the request ID from original content; never regenerate a fresh signed call.
     // Expired requests remain inspectable until the network forgets their outcomes.
-    let id = to_request_id(&content).map_err(|_| "cannot derive original request ID")?;
+    let id = RequestId::new(
+        &content
+            .request_id()
+            .map_err(|_| "cannot derive original request ID")?,
+    );
     Ok(Original {
         attempt: intent.attempt,
         packet,

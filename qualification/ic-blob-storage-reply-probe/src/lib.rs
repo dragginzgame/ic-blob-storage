@@ -1,7 +1,10 @@
 //! Installed synchronous reply-failure probe for the selected Platform/Wire hooks.
 //! Owns one raw stable page solely to observe IC rollback; never deployed as Blob.
 
-use ic_platform_runtime::{cdk, cdk::api, ic0};
+#![cfg(target_arch = "wasm32")]
+
+use ic_platform_runtime::system as api;
+use ic_storage::{DefaultMemoryImpl, Memory};
 use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
 
@@ -14,46 +17,60 @@ const LIMITS: ic_wire::Limits = ic_wire::Limits {
     depth: 8,
 };
 
-#[cdk::init]
-fn init() {
-    assert_eq!(ic0::stable64_grow(1), 0);
+#[ic_platform_runtime::init(
+    runtime = ic_platform_runtime,
+    guard = unguarded,
+    decode = empty,
+    max_bytes = 32,
+    on_error = fail
+)]
+fn init(_: ()) {
+    assert_eq!(DefaultMemoryImpl::default().grow(1), 0);
 }
 
-#[cdk::update(
-    decode_with = "decode::<bool, WRITE>",
-    encode_with = "encode::<_, WRITE>"
+#[ic_platform_runtime::update(
+    runtime = ic_platform_runtime,
+    name = "probe_write",
+    guard = unguarded,
+    decode = decode::<bool, WRITE>,
+    encode = encode::<_, WRITE>,
+    max_bytes = 32,
+    on_error = fail
 )]
 fn probe_write(fail_reply: bool) -> Vec<u8> {
-    let value = probe_read() + 1;
-    ic0::stable64_write(&[value], 0);
+    let value = probe_read(()) + 1;
+    DefaultMemoryImpl::default().write(0, &[value]);
     // No manual reply or simulated error: the actual encoder must trap after this write.
     vec![value; if fail_reply { LIMITS.bytes } else { 1 }]
 }
 
-#[cdk::query(decode_with = "decode::<(), READ>", encode_with = "encode::<_, READ>")]
-fn probe_read() -> u8 {
+#[ic_platform_runtime::query(
+    runtime = ic_platform_runtime,
+    name = "probe_read",
+    guard = unguarded,
+    decode = decode::<(), READ>,
+    encode = encode::<_, READ>,
+    max_bytes = 32,
+    on_error = fail
+)]
+fn probe_read(_: ()) -> u8 {
     let mut value = [0];
-    ic0::stable64_read(&mut value, 0);
+    DefaultMemoryImpl::default().read(0, &mut value);
     value[0]
 }
 
-#[expect(
-    clippy::needless_pass_by_value,
-    reason = "Runtime codec hook owns ingress"
-)]
-fn decode<T: DeserializeOwned, const ID: u64>(bytes: Vec<u8>) -> T {
+fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result<T, wire::Error> {
     wire::decode(
-        &bytes,
+        bytes,
         wire::Encoding::Frame {
             method: ID,
             direction: wire::Direction::Request,
         },
         LIMITS,
     )
-    .unwrap_or_else(|error| api::trap(error.to_string()))
 }
 
-fn encode<T: Serialize, const ID: u64>(value: T) -> Vec<u8> {
+fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, wire::Error> {
     wire::encode(
         &value,
         wire::Encoding::Frame {
@@ -62,5 +79,24 @@ fn encode<T: Serialize, const ID: u64>(value: T) -> Vec<u8> {
         },
         LIMITS,
     )
-    .unwrap_or_else(|error| api::trap(error.to_string()))
+}
+
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "Runtime guard signature; authorization belongs to the handler"
+)]
+fn unguarded() -> Result<(), std::convert::Infallible> {
+    Ok(())
+}
+
+#[expect(
+    clippy::unnecessary_wraps,
+    reason = "Runtime lifecycle decoder signature; pre-upgrade has no arguments"
+)]
+fn empty(_: &[u8]) -> Result<(), std::convert::Infallible> {
+    Ok(())
+}
+
+fn fail(error: impl std::fmt::Debug) -> ! {
+    api::trap(&format!("entrypoint failed: {error:?}"))
 }

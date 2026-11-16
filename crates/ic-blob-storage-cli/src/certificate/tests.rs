@@ -1,6 +1,6 @@
 use super::*;
 use clap::Parser;
-use ic_platform::agent::{Agent, BasicIdentity};
+use ic_platform_legacy::agent::{Agent, BasicIdentity};
 use sha2::Digest;
 
 #[test]
@@ -82,6 +82,28 @@ fn original_request_binding_and_expired_history() {
         .expire_at(std::time::SystemTime::UNIX_EPOCH)
         .sign()
         .unwrap();
+    assert_eq!(
+        original(&signed.signed_update, sender, target, &root).unwrap(),
+        signed.request_id
+    );
+    // Admission covers the original authentication envelope too. Never repair
+    // malformed custody merely because its content still has the expected ID.
+    let mut unknown_authentication = signed.signed_update.clone();
+    let key = b"sender_sig";
+    let offset = unknown_authentication
+        .windows(key.len())
+        .position(|bytes| bytes == key)
+        .unwrap();
+    unknown_authentication[offset] = b'x';
+    let mut trailing = signed.signed_update.clone();
+    trailing.push(0);
+    for packet in [
+        unknown_authentication,
+        trailing,
+        signed.signed_update[..signed.signed_update.len() - 1].to_vec(),
+    ] {
+        assert!(original(&packet, sender, target, &root).is_err());
+    }
     assert_eq!(
         original(&signed.signed_update, sender, target, &root).unwrap(),
         signed.request_id

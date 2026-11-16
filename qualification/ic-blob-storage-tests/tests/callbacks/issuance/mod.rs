@@ -6,22 +6,22 @@ use super::*;
 use ic_blob_storage::local::{ReferenceStatus, UploadState};
 use ic_host_artifacts::Length;
 use ic_host_fs::{Commit, Destination, Directory, Policy, Retention};
-use ic_platform::agent::{
-    Agent, AgentError, BasicIdentity, Identity, RequestStatusResponse, lookup_value,
-    signed_update_inspect, to_request_id,
+use ic_platform::ingress::{Content, decode_envelope};
+use ic_platform_legacy::agent::{
+    Agent, AgentError, BasicIdentity, Identity, RequestId, RequestStatusResponse, lookup_value,
+    signed_update_inspect,
 };
-use ic_platform::certification::cbor::{decode_certificate, encode_certificate};
-use ic_platform::certification::historical::{
+use ic_platform_legacy::certification::cbor::{decode_certificate, encode_certificate};
+use ic_platform_legacy::certification::historical::{
     Limits as CertificateLimits, TimePolicy, TimeWindow, authenticate_certificate_at,
 };
-use ic_platform::ic_protocol::{EnvelopeContent, decode_call_content_strict};
 use ic_testkit::pic::PocketIcInstance;
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 
 const ISSUE: &str = "_immutableObjectStorageCreateCertificate";
 
-ic_platform::candid_record! {
+ic_platform_legacy::candid_record! {
     struct ProviderReply {
         156956385 => method: String,
         278101296 => blob_hash: String,
@@ -290,7 +290,7 @@ fn certificate_time(bytes: &[u8], key: &[u8], owner: CanisterId, start: u64, end
     authenticate_certificate_at(
         bytes,
         key,
-        Principal::from_slice(owner.as_slice()),
+        ic_platform_legacy::Principal::from_slice(owner.as_slice()),
         TimePolicy {
             certificate: TimeWindow {
                 reference_ns: start,
@@ -422,7 +422,14 @@ async fn cancelled_authority_and_transport_failure_never_release_dispatch_custod
         );
         let claim = certificate_claim(&custody, &trust_root, owner, root);
         let packet = std::fs::read(claim.join("request.cbor")).unwrap();
-        let id = to_request_id(&decode_call_content_strict(&packet, 8192).unwrap()).unwrap();
+        let id = RequestId::new(
+            &decode_envelope(&packet, 8192)
+                .unwrap()
+                .value
+                .content
+                .request_id()
+                .unwrap(),
+        );
         if number == 1 {
             // Cancellation occurs after the signature exists, before it is sent.
             signed_command(
@@ -558,9 +565,9 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
     );
     let claim = certificate_claim(&custody, &trust_root, owner, root);
     let packet = std::fs::read(claim.join("request.cbor")).unwrap();
-    let content = decode_call_content_strict(&packet, 8192).unwrap();
-    let id = to_request_id(&content).unwrap();
-    let EnvelopeContent::Call {
+    let content = decode_envelope(&packet, 8192).unwrap().value.content;
+    let id = RequestId::new(&content.request_id().unwrap());
+    let Content::Call {
         sender,
         ingress_expiry: expiry,
         ..
@@ -582,7 +589,7 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
     assert!(String::from_utf8_lossy(&output.stderr).contains("no recoverable reply"));
     assert!(!directory.join("certificate.cbor").exists());
     signed_update_inspect(
-        sender,
+        sender.as_slice().try_into().unwrap(),
         owner,
         ISSUE,
         &issue_args(root),
@@ -592,7 +599,7 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
     .unwrap();
     assert!(
         signed_update_inspect(
-            sender,
+            sender.as_slice().try_into().unwrap(),
             owner,
             ISSUE,
             &issue_args([8; 32]),
@@ -790,7 +797,7 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
     // A new request identity cannot obtain fresh authority for the already consumed root.
     match recovered.update_signed(owner, another.signed_update).await {
         Err(AgentError::CertifiedReject { .. }) => {}
-        Ok(ic_platform::agent::CallResponse::Poll(id)) => {
+        Ok(ic_platform_legacy::agent::CallResponse::Poll(id)) => {
             assert!(matches!(
                 recovered.wait(&id, owner).await,
                 Err(AgentError::CertifiedReject { .. })
@@ -941,7 +948,14 @@ async fn retain_proof(
     }
     let claim = certificate_claim(&custody, trust_root, owner, root);
     let packet = std::fs::read(claim.join("request.cbor")).unwrap();
-    let id = to_request_id(&decode_call_content_strict(&packet, 8192).unwrap()).unwrap();
+    let id = RequestId::new(
+        &decode_envelope(&packet, 8192)
+            .unwrap()
+            .value
+            .content
+            .request_id()
+            .unwrap(),
+    );
     drop(uploader.wait(&id, owner).await.unwrap());
     publish_fixture(&directory.join("request.cbor"), &packet).unwrap();
     let output = recovery_command(directory, url, owner, root, signer(2))

@@ -74,6 +74,38 @@ identity framework, provider configuration or reinstall workflow is copied. The
 current host's init contract lacks the legacy explicit own-target field; this
 preparation does not claim its wrong-target refusal guarantee.
 
+### Check proposed targets
+
+Before preparing signed installation custody, observe the two selected canisters:
+
+```sh
+blob app check-targets \
+  --url https://icp-api.io \
+  --canister "$APPLICATION_CANISTER" --blob-canister "$BLOB_CANISTER" \
+  --identity "$CONTROLLER_PEM"
+```
+
+The signer must currently be the sole controller of both targets. This controller
+is distinct from the maintenance-manager role named in the init arguments, though
+an operator may deliberately choose the same principal. Local gateways require an
+independently trusted `--root-key`; no root is fetched from the selected endpoint.
+
+The command uses replicated management status, the existing bounded decoder and
+a 30-second overall deadline. It refuses equal/special targets, installed modules,
+additional controllers and stopping targets. It prints a report only when both
+observations pass; no partial success report, install, reinstall, creation, funding
+or controller change is emitted. The installed management fixture covers correct
+and incorrect roots, controller changes and pre-existing modules, and confirms
+that target configuration and stable bytes remain unchanged by inspection.
+
+These are two separate observations, not an atomic reservation or authorization
+for a later install. A canister without a module may have been used and uninstalled;
+require the original fresh-creation custody and recheck before any future effect.
+The check does not bind Wasm, init arguments or a signed install request. That
+custody and final readback remain the next implementation step. It retains the
+legacy distinction between proposed identity and actual platform observation,
+without copying its deployment/recovery framework.
+
 For Canic's embedded catalog, use the
 [Canic integration handoff](application-boundary.md#fleet-integration-handoff--2026-11-16).
 That application owns a different combined init type; these paired files do not

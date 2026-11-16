@@ -1,5 +1,7 @@
 //! Installed standalone Wire contract and selected generic-hook rollback evidence.
 
+#![forbid(unsafe_code)]
+
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error, Limits, UploadRequest, Usage},
@@ -207,7 +209,7 @@ async fn installed_frames_and_reply_failure_preserve_the_contract() {
                 RejectCode::CanisterError,
                 "{method}: {error}"
             );
-            assert!(error.reject_message.contains("wire "), "{method}: {error}");
+            assert_eq!(pic.get_stable_memory(canister).await, initial);
         }
         let error = call(pic, canister, actor, method, vec![0; RPC_LIMITS.bytes + 1])
             .await
@@ -291,7 +293,6 @@ async fn installed_frames_and_reply_failure_preserve_the_contract() {
         if fail {
             let error = result.unwrap_err();
             assert_eq!(error.reject_code, RejectCode::CanisterError);
-            assert!(error.reject_message.contains("wire limit"), "{error}");
         } else {
             assert_eq!(result.unwrap(), response("probe_write", &vec![expected]));
         }

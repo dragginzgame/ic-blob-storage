@@ -5,11 +5,11 @@ use crate::files;
 use crate::overview::hex;
 use clap::Args;
 use ic_host_fs::Directory;
-use ic_platform::{
+use ic_platform::ingress::{Content, decode_envelope};
+use ic_platform_legacy::{
     Principal,
     agent::{Agent, RequestId},
     candid_codec::arguments::encode_args,
-    ic_protocol::{EnvelopeContent, decode_call_content_strict},
 };
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -134,9 +134,10 @@ pub(crate) async fn dispatch(input: Dispatch) -> Result<String, String> {
     let agent = input.input.target.agent()?;
     let target = &input.input.target;
     let (held, packet, id) = load(&input.input, &agent)?;
-    let EnvelopeContent::Call { ingress_expiry, .. } =
-        decode_call_content_strict(&packet, PACKET_LIMIT)
-            .map_err(|_| "invalid retained request")?
+    let Content::Call { ingress_expiry, .. } = decode_envelope(&packet, PACKET_LIMIT)
+        .map_err(|_| "invalid retained request")?
+        .value
+        .content
     else {
         return Err("retained request is not a call".into());
     };

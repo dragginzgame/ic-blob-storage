@@ -1,64 +1,30 @@
 //! IC stop semantics: controller admission and status observation while Blob cannot answer.
 
-use super::Context;
-use ic_platform::{
-    Principal,
-    agent::{RequestId, RequestStatusResponse},
-    candid_codec::{
-        arguments::encode_args,
-        decoder::{Arity, Limits, decode_args, decode_one},
-    },
-    management_canister_types::{CanisterIdRecord, CanisterStatusResult, CanisterStatusType},
+use super::{
+    Context,
+    status::{self, LIMITS},
 };
-
-const LIMITS: Limits = Limits {
-    bytes: 64 * 1024,
-    header: 8 * 1024,
-    types: 128,
-    work: 512 * 1024,
-    allocation: 256 * 1024,
+use ic_platform_legacy::{
+    agent::{RequestId, RequestStatusResponse},
+    candid_codec::decoder::{Arity, decode_args},
+    management_canister_types::CanisterStatusType,
 };
 
 pub(super) fn argument(context: &Context) -> Result<Vec<u8>, String> {
-    encode_args(
-        &(CanisterIdRecord {
-            canister_id: context.canister,
-        },),
-        1024,
-    )
-    .map_err(|_| "cannot encode canister management target".into())
+    status::argument(context.canister)
 }
 
 pub(super) async fn status(
     context: &Context,
     wasm_hash: &[u8; 32],
 ) -> Result<CanisterStatusType, String> {
-    let target = context
-        .canister
-        .as_slice()
-        .try_into()
-        .map_err(|_| "invalid target")?;
-    let management = Principal::management_canister()
-        .as_slice()
-        .try_into()
-        .map_err(|_| "invalid management recipient")?;
-    // Management status is a replicated call, routed to the target's subnet. It
-    // remains usable while the Blob canister is stopping or stopped.
-    let bytes = context
-        .agent
-        .update(&management, "canister_status")
-        .with_effective_canister_id(target)
-        .with_arg(argument(context)?)
-        .call_and_wait()
-        .await
-        .map_err(|_| "platform status authentication failed")?;
-    let result: CanisterStatusResult =
-        decode_one(&bytes, LIMITS).map_err(|_| "invalid platform status reply")?;
+    let result = status::read(&context.agent, context.canister).await?;
     if result.module_hash.as_deref() != Some(wasm_hash.as_slice())
         || !result
             .settings
             .controllers
-            .contains(&context.configuration.manager)
+            .iter()
+            .any(|controller| controller.as_slice() == context.configuration.manager.as_slice())
     {
         return Err("platform artifact or manager/controller mismatch".into());
     }

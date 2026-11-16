@@ -66,7 +66,7 @@ these local tests do not establish D0/D1 completion or provider closure.
 
 The native [CLI](crates/ic-blob-storage-cli/src/main.rs) supports
 [principal storage overviews](docs/operations/storage-inspection.md), owner-only
-reference-application draft/catalog queries and offline paired installation inputs,
+reference-application draft/catalog queries, proposed-target checks and offline paired installation inputs,
 Caffeine account inspection, offline
 enrollment proposals and guarded drain/stop/upgrade/start/activation. The
 [standalone maintenance runbook](docs/operations/standalone-maintenance.md) gives
@@ -100,8 +100,13 @@ Install the published CLI with `cargo install ic-blob-storage-cli --locked`; the
 executable is `blob`. Rust 1.100.0 or newer and Cargo’s bin directory on PATH are
 required. Guarded maintenance still needs the matching source checkout and tools.
 
+Blob’s pending public Rust records use Platform Types 0.21.2, with Runtime 0.23.13
+in the hosts and Platform 0.34.6 for original ingress admission. Candid/Agent paths
+still require `ic-platform-legacy` 0.33.7 and explicit Principal byte conversions.
+See the [integration boundary](docs/design/application-boundary.md#pending-types-0212-adoption).
+
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.44.5. Both workspaces select IC Wire 0.24.1's root-level
+and published Toko Tooling 0.44.9. Both workspaces select IC Wire 0.24.2's root-level
 `Encoding` API; no old `native` API adapter is retained. GitHub development uses the `main` branch of
 `dragginzgame/ic-blob-storage`. Releases use the shared Toko workflow; there is no production deployment configuration.
 

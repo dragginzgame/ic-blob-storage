@@ -1,5 +1,7 @@
 //! The real reference application owns publication and cleanup across Blob calls.
 
+#![forbid(unsafe_code)]
+
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error as BlobError, Limits},

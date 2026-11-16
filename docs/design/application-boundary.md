@@ -369,3 +369,183 @@ nonadmission meaning of `Authorize::Expired` is established by this rewrite's ow
 lookup order, not inferred from legacy errors. The installed journey reproduces
 the previously stuck cancellation and proves cleanup without Blob mutation,
 renewal refusal and explicit release of a grant admitted before its deadline.
+
+### Pending Types 0.21.2 adoption
+
+Blob’s pending 0.102.0 public records and Service arguments select registry Types
+0.21.2. Canic must use that same Rust type at direct Service crossings. Blob’s
+standalone host now uses canonical caller/canister identities directly from Runtime
+0.23.13; the temporary host byte conversions have been removed. The library does
+not depend on Runtime. The native CLI keeps old Platform/Candid DTOs at its
+transport boundary and copies significant identity bytes into Blob records.
+
+### Platform replacement prerequisites — 2026-11-16
+
+The latest refresh checked published, non-yanked Platform 0.34.6,
+Runtime/Macros/Guard 0.23.13, Protocol 0.2.5 and Types 0.21.2. Both workspaces
+adopt Types and the new Runtime for authored hosts/probes, plus Platform's
+`ingress-packets` capability for CLI and qualification custody inspection. The initial 0.23.9
+resolution failures remain historical evidence in `target/platform-0343-adoption/`;
+the new Runtime supplies the missing host APIs under explicit entrypoints rather than
+the previous `cdk` facade. Native Agent/management migration remains incomplete.
+
+| Consumer boundary | Required replacement capability and acceptance |
+| --- | --- |
+| CLI signed transport and certificate custody | Original envelope admission and request-ID derivation now use Platform 0.34.6. Signing, dispatch and authenticated request-status recovery still use 0.33.7; qualify existing callback and management journeys without generating replacement requests after uncertainty. |
+| External management and Cashier protocols | Typed, bounded encoding/decoding for the exact existing requests and responses. Protocol 0.2.5 adds selected management chunk and raw-random codecs, but not Blob's status/start/stop/install or Cashier/callback formats. No unused Protocol dependency or general application Candid facade was added. |
+| Standalone and reference-app hosts | Migrated to Runtime 0.23.13's explicit lifecycle/query/update entrypoints, caller/self/time, pre-copy input bounds and consuming calls with a 30-second bounded wait. Domain and record formats remain unchanged. |
+| Stable allocation backing | Storage 0.74.1 still selects Runtime 0.22.5 with only `ic0`: no old executor, macros, guard or Types. The actual host graph has one new executor/guard generation and canonical Types 0.21.2. Keep Storage-issued handles; no forced transitive upgrade. |
+| Upgrade and callback safety | Re-run the affected installed suites with populated predecessor artifacts, stop/drain behavior, delayed replies, encoding traps and retained uncertainty. Matching method names or successful compilation alone cannot qualify replacement. |
+
+The published [Runtime contract](https://docs.rs/crate/ic-platform-runtime/0.23.13)
+and [Protocol contract](https://docs.rs/crate/ic-platform-protocol/0.2.5)
+explicitly limit their scope; [Platform 0.34.6](https://docs.rs/crate/ic-platform/0.34.6)
+adds strict original ingress admission to its authenticated anonymous reads.
+It does not sign or dispatch retained authenticated updates. The CLI now selects
+the new ingress API and wraps only its 32-byte request ID for the old transport.
+Remaining uses of 0.33.7 are explicitly named `ic-platform-legacy` in both
+workspaces: signing, transport, certificate DTO/authentication integration and
+external codecs, including private Caffeine probes. This is an unfinished migration,
+not a frozen comparison exemption. The old direct `ic-protocol` feature is removed.
+No local codec, executor or external SDK implementation was added. The
+maintainer chose **pause provisioning and focus on migration requirements**,
+rather than approving continued provisioning on a compatibility hold, then requested
+adoption of the newly published Runtime. Provisioning remains paused; the native
+Platform migration still needs the named capabilities.
+
+Supplier work is tracked in Platform [#17 — signed transport and original-request
+recovery](https://github.com/dragginzgame/ic-platform/issues/17),
+[#18 — bounded Caffeine codecs](https://github.com/dragginzgame/ic-platform/issues/18),
+and the existing [#11 — management codecs, with Blob's lifecycle requirements](https://github.com/dragginzgame/ic-platform/issues/11#issuecomment-6927085084).
+These issues own supplier implementation; Blob's adoption still requires the
+consumer checks below across product and qualification.
+
+Strict envelope admission rejects unknown or malformed authentication metadata as
+well as malformed content. Inspection does not verify a signature or authorize
+dispatch. Original bytes, expiry and request identity remain unchanged; a refused
+packet is never repaired or re-signed. Qualification checks malformed envelopes,
+existing Agent-produced packets and historical request recovery. npm Platform
+0.2.0 remains the latest published browser release and is unchanged.
+
+#### Concrete host contract
+
+The standalone [codec hooks](../../crates/ic-blob-storage-canister/src/codec.rs)
+check input size and the fixed 11-byte Wire method/direction header before copying
+the full argument. Runtime must support that ordering, either through bounded raw
+inspection or equivalent guard composition. Blob retains Wire decoding and its
+limits. A synchronous output-encoding failure must trap in the same execution,
+rolling back the handler's stable mutation; converting it into an ordinary error
+reply would change the transaction contract.
+
+The [standalone host](../../crates/ic-blob-storage-canister/src/lib.rs) needs init,
+pre-upgrade, post-upgrade, query and update exports. The
+[reference application](../../crates/ic-blob-storage-reference-app/src/host.rs)
+also needs a 30-second bounded awaited call with owned arguments. It records
+intent before dispatch and classifies failure as uncertain; Runtime must not
+retry, resume durable business operations or turn timeout into proof of no effect.
+Its in-flight guard must be released on normal completion and callback cleanup;
+stop/drain still precedes upgrade. Capture authenticated caller/self before any
+await and use IC system time for grant deadlines. The private enrollment probe
+also needs controller membership checks. The protocol does not permit a delayed
+reply to reopen a cancelled draft.
+
+These requirements overlap the supplier's
+[next Runtime priority for Auth](https://github.com/dragginzgame/ic-platform/blob/c12cb56e78e9aaeb982201d0bde597480aaf2816/docs/requirements.md#next-runtime-release-priority-auth-execution-requirements).
+Use that single system/export/executor owner. Blob adds the specific Wire
+pre-copy and rollback witnesses, not another entrypoint generator.
+
+The authored Wasm modules and their Runtime dependencies are target-scoped; native
+DTOs and the enrollment record-capacity test remain available. Workspace unsafe
+code is denied, permitting only Runtime's narrowly expected generated export
+attribute. The core, CLI and native qualification roots retain explicit
+`forbid(unsafe_code)`. No unsafe body was added. The rollback probe uses Storage's
+existing memory backing for its one raw qualification page; production storage
+continues to use allocation grants.
+
+Read-only legacy research revisited its [host ownership contract](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/lib.rs)
+and [installed host regression](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/standalone_installation_cli/mod.rs).
+Retain actual-host identity checks, exact method/mode boundaries and host-owned
+lifecycle composition. No old runner, recovery framework or custody was copied.
+
+#### Concrete native protocol contract
+
+The current CLI selects `BasicIdentity` from PEM and an explicit network trust
+root. The replacement must sign an exact ingress envelope offline, expose its
+request ID and expiry, inspect its content strictly, dispatch the retained bytes,
+and authenticate the original request status without re-signing or renewing it.
+Keep effective routing separate from the signed recipient: management requests
+target the management principal but route through the operated canister.
+Document any HTTP-level retries; the current Agent may repeat identical signed
+bytes for 429/503, so application-level single dispatch is not a one-HTTP-request
+guarantee. Retain those distinctions in the replacement's tests and documentation.
+
+The required external codecs are bounded projections, not application Candid:
+
+| Protocol | Existing inputs and admitted outputs |
+| --- | --- |
+| Management status/start/stop | `CanisterIdRecord`; status/controller/module-hash fields consumed by admission, and exact empty acknowledgement for start/stop |
+| Management `install_code` | Ordinary `Upgrade(None)`, exact target/Wasm/Wire upgrade args, absent sender version; no reinstall fallback or skip-pre-upgrade override. Current Wasm allowance is 1 MiB and encoded request allowance 2 MiB. |
+| Upload certificate method | One root string; exact one-result `{ method, blob_hash }` matching `upload` and the original root. Preserve original CBOR request/certificate bytes and request-status proof. |
+| Cashier `account_info_get_v1` | Account principal; bounded result with matching owner, signed integer cycle balance, four usage gauges and last-charge timestamp. Preserve known error variants and refusal of malformed/unknown results. This remains a query observation, not settlement evidence. |
+| Qualification enrollment | Exact `account_top_up_v1` request bytes already stored by the private probe, zero attached cycles, bounded raw reply retention and controller check. No new live experiment is needed for migration. |
+
+The new Platform already supplies bounded certificate decoding and direct-root
+or delegated authentication with explicit time and authority inputs. Reuse it
+when the native transport migration is possible; do not list BLS verification as
+missing or reimplement it. Admission of an old retained certificate must select
+an explicit historical-evidence time policy, separately from current network
+freshness; authentication alone neither proves provider acceptance nor permits
+another transfer. Test wrong root, wrong effective canister, mismatched original
+request/reply, expired ingress recovery, missing status and malformed evidence.
+
+#### Migration order and completion evidence
+
+1. **Completed:** Types 0.21.2, significant-byte host crossings, local and installed
+   predecessor-state checks. Keep the independent library usable without Canic.
+2. **Runtime implemented:** 0.23.13 supplies system/lifecycle composition through
+   its existing owner. Qualify standalone `test-endpoints` and
+   `test-standalone`, then the reference application's `test-application` and
+   affected callback/enrollment paths. Recheck Storage's actual Wasm backing
+   edge; an old IC0-only dependency is not itself a second executor. Initial migration
+   logs are under `target/runtime-02311-adoption/`. The endpoint fixture now checks each
+   malformed call's rejection and unchanged stable bytes, not old decoder prose.
+3. **Native migration:** adopt the available signed transport and exact protocol
+   codecs together, then qualify `test-signed`, `test-management` and certificate
+   callback/recovery cases. Read previously generated synthetic custody without
+   rewriting it. Do not use live `.operations/` custody as a migration fixture.
+4. Remove each obsolete host byte conversion or old dependency when its actual
+   boundary has migrated. Admit both locked graphs and public Principal exchanges;
+   no blanket same-version requirement for independent native test suppliers.
+   Provisioning resumes only after the required migration is qualified or the
+   maintainer selects a different course. The supplier issues above own the missing APIs.
+
+Runtime 0.23.11 acceptance passed: both native Clippy graphs, all five Wasm roots,
+and the standalone, endpoint, application, enrollment, callback, capacity and
+signed maintenance installed suites. Standalone/application upgrades use the
+retained pre-migration Wasm artifacts. Capacity remains within existing limits;
+no budgets were raised. Browser/Chromium and live-provider acceptance are not
+claimed. These results qualify the authored Runtime migration, not the missing
+native Agent/codec replacement.
+
+Runtime 0.23.12 requalification passed all five authored Wasm roots under strict
+Clippy and the standalone, endpoint, application, enrollment and callback suites,
+including populated pre-migration host/app upgrades. Its executor now distinguishes
+method-reply roots from global-timer roots; Blob adds no timer use. Existing
+reply rollback, delayed completion and signed-request recovery witnesses pass.
+Both lockfiles already selected the new cohort when this refresh began; both
+manifest minimums now match. Locked metadata, dependency pins, tooling binding,
+formatting and local documentation links pass. Evidence is under
+`target/runtime-02312-adoption/`; the successful installed run required local
+loopback access for PocketIC. No native replacement, Chromium run or live-provider
+qualification is claimed by this patch refresh.
+
+Platform 0.34.6 / Runtime 0.23.13 / Types 0.21.2 acceptance is recorded under
+`target/platform-0346-adoption/`. Strict CLI and native qualification Clippy,
+all five Wasm roots, 13 CLI tests and installed standalone, callback and management
+suites pass. The new envelope checks preserve IDs from Agent-produced historical
+requests and refuse unknown authentication fields, trailing data and truncation.
+Populated pre-migration host state reopens; signed maintenance preserves its
+original claims and request recovery. Both locked graphs, dependency pins,
+tooling binding, formatting and documentation links pass. The updated CLI is on
+PATH. Chromium and live effects were not run; remaining legacy transport/codec
+uses keep overall Platform adoption partial.

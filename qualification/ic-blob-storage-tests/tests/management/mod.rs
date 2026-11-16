@@ -1,17 +1,18 @@
 //! Exercise the actual native command through signed ingress and a local IC HTTP gateway.
 
+#![forbid(unsafe_code)]
+
 mod lifecycle;
 mod overview;
+mod targets;
 
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::Limits,
     protocol::{Command, Installation, RPC_LIMITS},
 };
-use ic_platform::{
-    Principal,
-    agent::{BasicIdentity, Identity},
-};
+use ic_platform_legacy::agent::{BasicIdentity, Identity};
+use ic_platform_types::Principal;
 use ic_testkit::{
     pic::PocketIcStartupConfig,
     pocket_ic::{CanisterId, PocketIcBuilder},
@@ -404,8 +405,11 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         reason.contains("already locked") || reason.contains("already claimed"),
         "{reason}"
     );
-    let content = ic_platform::ic_protocol::decode_call_content_strict(&packet, 16 * 1024).unwrap();
-    let original_id = ic_platform::agent::to_request_id(&content).unwrap();
+    let content = ic_platform::ingress::decode_envelope(&packet, 16 * 1024)
+        .unwrap()
+        .value
+        .content;
+    let original_id = ic_platform_legacy::agent::RequestId::new(&content.request_id().unwrap());
     let marker = std::fs::read(target_directory.join("attempt-1.claim")).unwrap();
     assert_eq!(marker, original_id.to_vec());
     refused(

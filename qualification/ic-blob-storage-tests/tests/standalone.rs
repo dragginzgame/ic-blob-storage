@@ -1,6 +1,8 @@
 //! Installed production-host checks. The simulator substitutes for IC execution,
 //! not for the Caffeine contract; no provider methods or HTTP requests are involved.
 
+#![forbid(unsafe_code)]
+
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error, Limits, ReferenceStatus, UploadRequest, UploadState},

@@ -2,7 +2,7 @@
 
 use crate::overview::{Network, hex, principal};
 use clap::Args;
-use ic_platform::{
+use ic_platform_legacy::{
     Principal,
     candid_codec::{
         Int, Reserved,
@@ -26,8 +26,8 @@ pub(crate) struct Inspect {
 
 // Required projections of the reviewed Cashier account_info_get_v1 interface.
 // Candid labels are protocol field IDs, not owned Blob endpoint DTOs.
-ic_platform::candid_record! { struct AccountRequest { 2707029165 => account: Principal } }
-ic_platform::candid_record! {
+ic_platform_legacy::candid_record! { struct AccountRequest { 2707029165 => account: Principal } }
+ic_platform_legacy::candid_record! {
     struct Gauges {
         390851327 => chunk_size_bytes: u64,
         2550751805 => chunk_count: u64,
@@ -35,7 +35,7 @@ ic_platform::candid_record! {
         2947807759 => blob_size_bytes: u64,
     }
 }
-ic_platform::candid_record! {
+ic_platform_legacy::candid_record! {
     struct Account {
         52836537 => account_owner_id: Principal,
         2564671811 => cycle_balance: Int,
@@ -43,7 +43,7 @@ ic_platform::candid_record! {
         3475686851 => last_charge_ts_ns: u64,
     }
 }
-ic_platform::candid_variant! {
+ic_platform_legacy::candid_variant! {
     #[derive(Debug)]
     enum AccountError {
         566069724 => AccountNotFound,
@@ -56,7 +56,7 @@ ic_platform::candid_variant! {
         4052296485 => TopUpWithoutCycles,
     }
 }
-ic_platform::candid_variant! {
+ic_platform_legacy::candid_variant! {
     enum AccountResult { 17724 => Ok(Account), 3456837 => Err(AccountError) }
 }
 

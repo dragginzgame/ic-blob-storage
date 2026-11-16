@@ -11,6 +11,7 @@ fn help_navigates_groups_without_loading_inputs() {
         vec!["app", "catalog"],
         vec!["app", "draft"],
         vec!["app", "prepare-installation"],
+        vec!["app", "check-targets"],
         vec!["certificate"],
         vec!["transfer"],
         vec!["maintenance"],

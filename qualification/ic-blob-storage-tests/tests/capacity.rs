@@ -1,12 +1,14 @@
 //! Capacity and resource observations of the unmodified standalone Wasm.
 //! Execution charges are cycles, not raw instruction counts or provider costs.
 
+#![forbid(unsafe_code)]
+
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error, Limits, ReferenceStatus, UploadRequest, Usage, persistence::MAX_RECORDS},
     protocol::{Command, Inspection, Installation, Observation, Outcome, RPC_LIMITS},
 };
-use ic_platform::{
+use ic_platform_legacy::{
     candid_codec::{self, Nat, decoder},
     management_canister_types::CanisterIdRecord,
 };
@@ -22,10 +24,10 @@ use serde::{Serialize, de::DeserializeOwned};
 use std::{num::NonZeroU128, path::Path, time::Duration};
 
 // External management protocol projection: retain the required counter, skip other use cases.
-ic_platform::candid_record! {
+ic_platform_legacy::candid_record! {
     struct ExecutionCharges { 1832883877 => instructions: Nat }
 }
-ic_platform::candid_record! {
+ic_platform_legacy::candid_record! {
     struct Metrics { 2122851290 => cycles_consumed: ExecutionCharges }
 }
 
@@ -79,7 +81,7 @@ async fn resources(pic: &PocketIc, canister: CanisterId) -> Resources {
             "canister_metrics",
             candid_codec::encode_one(
                 &CanisterIdRecord {
-                    canister_id: Principal::from_slice(canister.as_slice()),
+                    canister_id: ic_platform_legacy::Principal::from_slice(canister.as_slice()),
                 },
                 1024,
             )

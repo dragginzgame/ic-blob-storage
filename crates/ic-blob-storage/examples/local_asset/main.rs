@@ -5,6 +5,8 @@
 //! no certificate, accesses no network and supplies no persistence/rollback proof.
 //! Run with `make example-local`; see docs/design/ic-blob-storage-design.md.
 
+#![forbid(unsafe_code)]
+
 mod catalog;
 mod fixture;
 

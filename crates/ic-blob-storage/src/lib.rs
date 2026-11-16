@@ -7,6 +7,8 @@
 //! lease. Hosts capture callers and compose memory/lifecycle hooks. The standalone
 //! host exports experimental Wire methods, without provider authority or transfers.
 
+#![forbid(unsafe_code)]
+
 pub mod caffeine;
 pub mod local;
 pub mod protocol;

@@ -1,8 +1,9 @@
 //! One bounded durable intent/result using the existing Storage and Wire owners.
 
 use crate::protocol::{Installation, LIMITS, Outcome, View};
-use ic_platform::candid_codec::{Nat, arguments::encode_args};
+use ic_platform_legacy::candid_codec::{Nat, arguments::encode_args};
 use ic_platform_types::Principal;
+#[cfg(target_arch = "wasm32")]
 use ic_storage::{
     AllocationGrants, DefaultMemoryImpl, GenericAllocationPolicy, Memory, MemoryAuthority,
     MemoryRequest, MemoryRuntime, RuntimeMemory, SealedDeclarationSnapshot, StableKey,
@@ -11,8 +12,8 @@ use ic_storage::{
 use ic_wire as wire;
 use serde::{Deserialize, Serialize};
 
-ic_platform::candid_record! {
-    struct TopUp { 2504008430 => target_balance: Option<Nat>, 2707029165 => account: Option<Principal> }
+ic_platform_legacy::candid_record! {
+    struct TopUp { 2504008430 => target_balance: Option<Nat>, 2707029165 => account: Option<ic_platform_legacy::Principal> }
 }
 
 #[derive(Deserialize, Serialize)]
@@ -21,11 +22,13 @@ struct Record {
     view: View,
 }
 
+#[cfg(target_arch = "wasm32")]
 pub(crate) struct State {
     record: Record,
     cell: StableCell<Vec<u8>, DefaultMemoryImpl>,
 }
 
+#[cfg(target_arch = "wasm32")]
 impl State {
     pub fn create(owner: Principal, configuration: Installation) -> Self {
         validate(&configuration, owner);
@@ -92,7 +95,7 @@ fn arguments(owner: Principal, target: u64) -> ic_wire::Bytes<1024> {
         encode_args(
             &(Some(TopUp {
                 target_balance: Some(Nat::from(target)),
-                account: Some(owner),
+                account: Some(ic_platform_legacy::Principal::from_slice(owner.as_slice())),
             }),),
             1024,
         )
@@ -101,6 +104,7 @@ fn arguments(owner: Principal, target: u64) -> ic_wire::Bytes<1024> {
     .unwrap()
 }
 
+#[cfg(target_arch = "wasm32")]
 fn validate(config: &Installation, owner: Principal) {
     for principal in [config.operator, config.cashier, owner] {
         assert!(
@@ -111,6 +115,7 @@ fn validate(config: &Installation, owner: Principal) {
     assert!((1..=9_900_000_000).contains(&config.target_balance));
 }
 
+#[cfg(target_arch = "wasm32")]
 fn memory(fresh: bool) -> RuntimeMemory<DefaultMemoryImpl> {
     let backing = DefaultMemoryImpl::default();
     assert_eq!(

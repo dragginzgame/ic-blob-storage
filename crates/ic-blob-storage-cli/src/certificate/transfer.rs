@@ -3,7 +3,7 @@
 use super::{CERTIFICATE_LIMIT, admit_reply, custody, root};
 use crate::files;
 use clap::Args;
-use ic_platform::{agent::lookup_value, certification::cbor::decode_certificate};
+use ic_platform_legacy::{agent::lookup_value, certification::cbor::decode_certificate};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;

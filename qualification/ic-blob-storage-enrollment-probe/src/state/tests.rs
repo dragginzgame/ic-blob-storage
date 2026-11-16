@@ -28,7 +28,7 @@ fn maximum_reply_fits_persistence_and_inspection_budgets() {
     let bytes = wire::encode(
         &reply,
         wire::Encoding::Frame {
-            method: crate::INSPECT,
+            method: ic_wire::method_id("enrollment_inspect"),
             direction: wire::Direction::Response,
         },
         LIMITS,
@@ -37,7 +37,7 @@ fn maximum_reply_fits_persistence_and_inspection_budgets() {
     let decoded: Result<View, crate::protocol::Error> = wire::decode(
         &bytes,
         wire::Encoding::Frame {
-            method: crate::INSPECT,
+            method: ic_wire::method_id("enrollment_inspect"),
             direction: wire::Direction::Response,
         },
         LIMITS,

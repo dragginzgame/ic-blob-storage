@@ -2,15 +2,15 @@
 //! Keep the complete raw reply; even an Ok tag does not establish enrollment or credit.
 
 use ic_blob_storage_enrollment_probe::protocol::REPLY_BYTES;
-use ic_platform::candid_codec::{
+use ic_platform_legacy::Principal;
+use ic_platform_legacy::candid_codec::{
     Reserved,
     decoder::{Arity, Limits, decode_args},
 };
-use ic_platform_types::Principal;
 use serde::Serialize;
 use serde_json::{Value, json};
 
-ic_platform::candid_variant! {
+ic_platform_legacy::candid_variant! {
     #[derive(Serialize)]
     enum TopUpError {
         2102411630 => NotAuthorized(Principal),
@@ -19,7 +19,7 @@ ic_platform::candid_variant! {
         4052296485 => TopUpWithoutCycles,
     }
 }
-ic_platform::candid_variant! {
+ic_platform_legacy::candid_variant! {
     enum TopUpResult { 17724 => Ok(Reserved), 3456837 => Err(TopUpError) }
 }
 

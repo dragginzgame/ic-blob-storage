@@ -6,15 +6,15 @@ pub(crate) mod transfer;
 use crate::files;
 use crate::overview::{Network, principal};
 use clap::Args;
-use ic_platform::{
+use ic_platform::ingress::{Content, decode_envelope};
+use ic_platform_legacy::{
     Principal,
-    agent::{Agent, EffectiveId, RequestId, RequestStatusResponse, to_request_id},
+    agent::{Agent, EffectiveId, RequestId, RequestStatusResponse},
     candid_codec::{
         arguments::encode_args,
         decoder::{Arity, Limits, decode_args},
     },
     certification::cbor::encode_certificate,
-    ic_protocol::{EnvelopeContent, decode_call_content_strict},
 };
 use std::path::PathBuf;
 
@@ -100,9 +100,11 @@ fn original(
     canister: Principal,
     root: &str,
 ) -> Result<RequestId, String> {
-    let content = decode_call_content_strict(packet, PACKET_LIMIT)
-        .map_err(|_| "invalid retained ingress content")?;
-    let EnvelopeContent::Call {
+    let content = decode_envelope(packet, PACKET_LIMIT)
+        .map_err(|_| "invalid retained ingress content")?
+        .value
+        .content;
+    let Content::Call {
         sender,
         canister_id,
         method_name,
@@ -125,10 +127,13 @@ fn original(
     }
     // Content inspection is not signature verification. Certified request_status
     // establishes the outcome. Expired original ingress remains inspectable.
-    to_request_id(&content).map_err(|_| "cannot derive original request ID".into())
+    content
+        .request_id()
+        .map(|id| RequestId::new(&id))
+        .map_err(|_| "cannot derive original request ID".into())
 }
 
-ic_platform::candid_record! {
+ic_platform_legacy::candid_record! {
     struct Reply {
         156956385 => method: String,
         278101296 => blob_hash: String,
