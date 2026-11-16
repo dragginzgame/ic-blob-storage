@@ -6,10 +6,10 @@ one version; the separate qualification workspace stays unpublished. This does
 not freeze API/persistence, migrate legacy installations or qualify Caffeine.
 
 Commit the intended development batch, including its numbered pending changelog.
-From a clean checkout on `0.100`, use `make release-patch`, `make release-minor` or
+From a clean checkout on `main`, use `make release-patch`, `make release-minor` or
 `make release-major`. A breaking pre-1.0 command/API change selects minor. Toko's
 shared runner owns source admission, intent, metadata staging, commit, annotated
-tag and atomic push to `origin/0.100`. No sibling release is implied. Recover an
+tag and atomic push to `origin/main`. No sibling release is implied. Recover an
 interrupted saved attempt with `make release-resume VERSION=X.Y.Z`, after inspecting
 its reported evidence; never restart uncertain Git or registry effects blindly.
 

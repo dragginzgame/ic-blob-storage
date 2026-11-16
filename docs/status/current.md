@@ -2,7 +2,10 @@
 
 ## Delivery and active work
 
-Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.101.0 is pushed and
+The maintainer selected `main` for ongoing development and releases. The former
+`0.100` branch is renamed with its history intact; releases use version tags.
+
+Private `dragginzgame/ic-blob-storage`, branch `main`; **0.101.0 is pushed and
 published to crates.io** for all four product packages at
 [`7a9f723`](https://github.com/dragginzgame/ic-blob-storage/commit/7a9f723421b4b0a2f2a6fc64cbcdf2b8643bd4d4),
 with verified annotated tag `v0.101.0`. Both locks select the product version;

@@ -21,6 +21,8 @@ Read [the current handoff](docs/status/current.md) first.
   checkpoint. The maintainer authorized crates.io delivery on 2026-11-16;
   `0.101.0` is the selected first registry release of the rewrite.
   Existing crates.io versions are not reset by this rewrite.
+- Work and release directly on `main`. Use version tags for release checkpoints;
+  do not create version branches unless the maintainer explicitly requests one.
 - In this repository, a maintainer request to "push" means a new GitHub version
   checkpoint: increment the current patch version unless an exact version is
   specified, finalize its changelog and push the coordinated product version and

@@ -6,7 +6,7 @@ LOCAL_TOOL_CHECK_TARGETS += test-server-check browser-tools-check
 FORMAT_RUST_ARGS := --extra-workspace qualification
 
 TOKO_TOOLING_RELEASE := 1
-RELEASE_BRANCH := 0.100
+RELEASE_BRANCH := main
 RELEASE_REMOTE := origin
 RELEASE_DELIVERY_POLICY := scripts/release/direct.txt
 CARGO_PUBLISH_PACKAGES := ic-blob-storage ic-blob-storage-reference-app ic-blob-storage-canister ic-blob-storage-cli

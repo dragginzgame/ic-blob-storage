@@ -102,7 +102,7 @@ required. Guarded maintenance still needs the matching source checkout and tools
 
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
 and published Toko Tooling 0.44.5. Both workspaces select IC Wire 0.24.1's root-level
-`Encoding` API; no old `native` API adapter is retained. GitHub development uses the `0.100` branch of
+`Encoding` API; no old `native` API adapter is retained. GitHub development uses the `main` branch of
 `dragginzgame/ic-blob-storage`. Releases use the shared Toko workflow; there is no production deployment configuration.
 
 The [selected crate layout](docs/design/ic-blob-storage-design.md#selected-crate-layout)
