@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.103.1] - Unreleased
+## [0.103.1] - 2026-11-16
 
 ### ▶️ Try it
 
