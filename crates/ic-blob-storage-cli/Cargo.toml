@@ -2,6 +2,9 @@
 name = "ic-blob-storage-cli"
 autobins = false
 version.workspace = true
+description = "Blob storage inspection, offline preparation and guarded maintenance CLI for the Internet Computer"
+repository.workspace = true
+readme = "README.md"
 edition.workspace = true
 rust-version.workspace = true
 license-file.workspace = true

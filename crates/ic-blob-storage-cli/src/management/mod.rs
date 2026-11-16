@@ -456,11 +456,8 @@ fn acknowledge(id: &RequestId, attempt: u64, bytes: &[u8], active: bool) -> Resu
 
 pub(super) async fn admit_tooling(checkout: &Path) -> Result<(), String> {
     let snapshot = read(&checkout.join(".toko-tooling.snapshot"), 64 * 1024)?;
-    if snapshot
-        != include_bytes!(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/../../.toko-tooling.snapshot"
-        ))
+    if format!("{:x}", Sha256::digest(&snapshot))
+        != include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tooling.sha256")).trim()
     {
         return Err("checkout tooling snapshot differs from this binary".into());
     }

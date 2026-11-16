@@ -15,6 +15,8 @@ Cargo artifact paths are recorded in `target/blob-reference-app-artifacts.jsonl`
 Set `BLOB_PREVIOUS_REFERENCE_APP` to a retained predecessor Wasm to install that
 artifact first and exercise catalog reopening with the current build during upgrade.
 There is no public deployment command, browser UI or live provider upload in this slice.
+`blob app prepare-installation` prepares the paired init arguments offline;
+the installed test consumes those exact files, rather than reconstructing them.
 `make test-callbacks` additionally needs Node 24+ and connects this application's
 actual Wasm to the local issuer, transfer client and owned loopback HTTP peer.
 
@@ -24,6 +26,58 @@ must be the reference application's canister ID. Install the application with
 Keep the selected Blob manager separate from the application's uploaders.
 Only the configured users can operate their own drafts/catalog; allowlist changes
 are unsupported in this first version. Controllers are trusted for lifecycle only.
+
+### Prepare fresh installation inputs
+
+After `make blob`, supply independently selected canister IDs and principals. Run
+from the repository root; the output's parent directory must already exist:
+
+```sh
+blob app prepare-installation \
+  --canister "$APPLICATION_CANISTER" --blob-canister "$BLOB_CANISTER" \
+  --manager "$MANAGER_PRINCIPAL" --user "$USER_PRINCIPAL" \
+  --max-content-bytes 8388608 --max-chunks 8 \
+  --max-headers 8 --max-header-bytes 512 \
+  --uploads 64 --references 64 \
+  --logical-bytes 16777216 --exposure-bytes 16777216 \
+  --output ./application-inputs
+```
+
+These example limits are local declared-byte admission policy, not provider storage
+or spending bounds. Every limit is explicit and immutable after installation. The
+application retains its own eight-user/sixteen-draft limits and 2 KiB input bound;
+a larger Blob limit does not expand them. Repeat `--user` for additional users.
+The preparer requires distinct application, Blob, manager and user principals,
+with one to eight unique users; special principals and invalid bounds reject
+before creating output. Historical upload/reference limits cannot exceed 64.
+
+The new directory contains `blob-init.wire`, `app-init.wire` and a human-readable
+`inputs.txt` with the selected principals, limits and both SHA-256 hashes. The CLI
+encodes the existing `blob_init` and `app_init` request types. It generates no
+new installation schema, state ledger, signed request or deployment capability.
+No credentials, network access or cycles are needed. Existing or partially written
+directories refuse replacement; preserve partial output for inspection. Success
+is reported only after all three files have been published.
+
+The principal arguments describe the intended pairing, not authenticated target
+identity or proof that either canister is empty. The init frames bind the peer and
+authorities; they do not encode their own destination or a Wasm hash. Installation
+still requires independently admitted artifacts, actual target/controller checks,
+durable signed-request custody and readback. Never reinstall an existing canister
+with these files or use them to bypass the consumed live enrollment probe.
+
+Targeted review of the legacy [offline installation checker](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage-cli/src/native/installation_check/mod.rs)
+and [installed CLI-carrier regression](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/standalone_installation_cli/mod.rs)
+retains their distinction between a local proposal and authenticated installation,
+and their test of installing exact CLI output. No legacy code, project/release
+identity framework, provider configuration or reinstall workflow is copied. The
+current host's init contract lacks the legacy explicit own-target field; this
+preparation does not claim its wrong-target refusal guarantee.
+
+For Canic's embedded catalog, use the
+[Canic integration handoff](application-boundary.md#fleet-integration-handoff--2026-11-16).
+That application owns a different combined init type; these paired files do not
+configure it. The shared `app` CLI spelling does not unify application schemas.
 
 The [public protocol](../../crates/ic-blob-storage-reference-app/src/protocol.rs)
 contains the actual request/result types. These are experimental Wire endpoints,
@@ -37,7 +91,7 @@ not Candid methods or a frozen client contract:
 | `app_draft` query | Draft ID | Return current durable disposition to its owning user |
 | `app_catalog` query | Unit | Return this user's published drafts |
 
-`blob application catalog` and `blob application draft --id ...` expose these
+`blob app catalog` and `blob app draft --id ...` expose these
 owner-only queries through the native CLI. Select the application canister and
 the user's signing key; the [inspection guide](../operations/storage-inspection.md#your-reference-application-catalog-and-drafts)
 owns command examples and observation limits. The CLI imports the existing protocol
@@ -116,6 +170,9 @@ supported procedure. No app-owned recovery framework is introduced.
 
 The [installed test](../../qualification/ic-blob-storage-tests/tests/application.rs)
 uses both real Wasm modules, with no forwarding/fault-mode application substitute.
+It prepares the two init files with a fresh CLI process, compares them against the
+independently specified configuration and installs their unchanged bytes before
+exercising caller separation, catalog decisions, cleanup and upgrades.
 It checks wrong-method/trailing/oversized frames at all five application endpoints,
 and invalid draft bounds without consuming an ID or changing either canister's state.
 It also covers caller separation, exact retries, name collisions, shared-object uses,

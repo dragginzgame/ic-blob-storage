@@ -1,4 +1,6 @@
-//! Owner-authenticated reference-application observations; no publication or cleanup effects.
+//! Reference-application observations and offline installation inputs; no remote mutations.
+
+mod prepare;
 
 use clap::{Args, Subcommand};
 use ic_blob_storage::protocol::RPC_LIMITS;
@@ -21,9 +23,11 @@ pub(crate) struct Target {
 
 #[derive(Subcommand)]
 #[command(
-    after_help = "Use the owning user's --identity. These queries do not publish, cancel, upload or contact Caffeine."
+    after_help = "Catalog/draft queries require the owning user's --identity. Prepare-installation writes local inputs without credentials or network access."
 )]
 pub(crate) enum Command {
+    /// Prepare paired fresh-install arguments offline; does not create or install canisters.
+    PrepareInstallation(prepare::Input),
     /// List published drafts in your reference-application catalog.
     Catalog(Target),
     /// Inspect one original draft, including cancelled or cleaned records.
@@ -75,6 +79,7 @@ async fn query<T: Serialize, R: DeserializeOwned>(
 
 pub(crate) async fn run(command: Command) -> Result<String, String> {
     let (target, id) = match command {
+        Command::PrepareInstallation(input) => return prepare::run(input),
         Command::Catalog(target) => (target, None),
         Command::Draft { target, id } => (target, Some(id)),
     };

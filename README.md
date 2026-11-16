@@ -66,7 +66,8 @@ these local tests do not establish D0/D1 completion or provider closure.
 
 The native [CLI](crates/ic-blob-storage-cli/src/main.rs) supports
 [principal storage overviews](docs/operations/storage-inspection.md), owner-only
-reference-application draft/catalog queries, Caffeine account inspection, offline
+reference-application draft/catalog queries and offline paired installation inputs,
+Caffeine account inspection, offline
 enrollment proposals and guarded drain/stop/upgrade/start/activation. The
 [standalone maintenance runbook](docs/operations/standalone-maintenance.md) gives
 the exact inputs, command sequence and interruption decisions. It covers the
@@ -79,7 +80,7 @@ view command inputs with:
 make blob
 blob --help
 blob overview --help
-blob application --help
+blob app --help
 blob maintenance inspect --help
 ```
 
@@ -90,10 +91,14 @@ Installed simulator and live-provider work remain separate.
 The previous implementation, Git history and provider/recovery custody are in
 `../ic-blob-storage-legacy` (see its `LEGACY.md`) and the private
 [legacy GitHub repository](https://github.com/dragginzgame/ic-blob-storage-legacy).
-Existing crates.io releases remain the legacy line. The rewrite's first GitHub
-checkpoint is `0.100.0`; this checkpoint is `0.100.12`, inherited from the root
-workspace version. Publication remains disabled. This is a new breaking release
-line, not a registry version reset or a migration for existing installations.
+Crates.io versions through `0.82.1` are the legacy line. The rewrite started with
+GitHub checkpoint `0.100.0`; `0.101.0` is its first selected registry release. All
+four product crates share the root workspace version. This is a breaking rewrite,
+not a migration for existing installations. See the [release procedure](docs/operations/releases.md).
+
+Install the published CLI with `cargo install ic-blob-storage-cli --locked`; the
+executable is `blob`. Rust 1.100.0 or newer and Cargo’s bin directory on PATH are
+required. Guarded maintenance still needs the matching source checkout and tools.
 
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
 and published Toko Tooling 0.44.5. Both workspaces select IC Wire 0.24.1's root-level

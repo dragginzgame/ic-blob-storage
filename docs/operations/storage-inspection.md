@@ -23,7 +23,8 @@ Start with `blob --help`, then use a group's help for its operations:
 | Command | Purpose |
 | --- | --- |
 | `blob overview` | Inspect one uploader in a Blob installation |
-| `blob application catalog` / `draft` | Inspect the signing user's reference-application records |
+| `blob app catalog` / `draft` | Inspect the signing user's reference-application records |
+| `blob app prepare-installation` | Prepare paired fresh-install inputs offline |
 | `blob provider inspect` | Inspect one Caffeine account |
 | `blob provider prepare-enrollment` | Prepare an offline enrollment proposal |
 | `blob certificate --help` | Prepare, dispatch once, then recover the original certificate request |
@@ -77,14 +78,17 @@ the CLI does not guess an inventory. No durable format change or migration is ne
 
 ## Your reference-application catalog and drafts
 
+For a new local application, the [installation-input guide](../design/reference-application.md#prepare-fresh-installation-inputs)
+describes offline preparation. Preparation performs no installation or inspection.
+
 Use the reference application's canister ID and the owning user's key:
 
 ```sh
-blob application catalog \
+blob app catalog \
   --url https://icp-api.io --canister "$APPLICATION_CANISTER" \
   --identity "$USER_PEM"
 
-blob application draft \
+blob app draft \
   --url https://icp-api.io --canister "$APPLICATION_CANISTER" \
   --identity "$USER_PEM" --id "$DRAFT_ID"
 ```

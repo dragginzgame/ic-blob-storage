@@ -1,5 +1,57 @@
 # Changelog
 
+## [0.101.0] - Unreleased
+
+### ⚠️ Breaking
+
+Rename the CLI group from `blob application` to `blob app`, matching Canic.
+Update catalog, draft and preparation commands in scripts; the old spelling is
+removed. Stored records, Wire endpoints and installation formats are unchanged.
+
+### ▶️ Try it
+
+From the repository root, prepare tools once with `make install-tools`, then:
+
+```sh
+make blob
+blob app prepare-installation --help
+```
+
+The command describes the explicit authorities, limits and output directory.
+[The installation guide](docs/design/reference-application.md#prepare-fresh-installation-inputs)
+has a complete example. Preparation writes local files; it needs no signing key,
+network access or cycles and does not create or install canisters.
+
+### 📦 Registry distribution
+
+- Enable coordinated crates.io publication for the library, standalone canister,
+  reference application and CLI; qualification packages remain private.
+- Add package descriptions, READMEs, versioned local dependencies and the CLI’s
+  exact tooling snapshot fingerprint to its archive. Install with
+  `cargo install ic-blob-storage-cli --locked`; the executable remains `blob`.
+- Use Toko’s shared release/publication engines with Blob’s complete local and
+  installed gate, two-lock metadata projection and explicit direct delivery policy.
+  Registry availability does not freeze the API or qualify Caffeine support.
+
+### ➕ Offline application installation inputs
+
+- Add `blob app prepare-installation` to encode the existing Blob and
+  reference-application init frames with explicit pairing, users and limits.
+  Reject invalid roles/bounds before writing; never replace completed or partial
+  output. Include a readable description and hashes for review.
+- The installed application journey now consumes the exact CLI-produced files.
+  Proposed identities remain distinct from authenticated targets; signed install
+  custody and deployment admission are still pending. No service or state format
+  changes, funding, provider operations or legacy custody imports are introduced.
+
+### 📚 Canic integration handoff
+
+- Record Canic's completed immutable supplier pin and separate its existing adapter
+  from remaining [#12 — Fleet installation arguments](https://github.com/dragginzgame/canic/issues/12)
+  and [#13 — Blob fleet maintenance](https://github.com/dragginzgame/canic/issues/13).
+  Clarify that standalone paired init files do not configure Canic's embedded
+  catalog. These issues track Canic implementation; they are not completed here.
+
 ## [0.100.12] - 2026-11-16
 
 GitHub development checkpoint; registry publication remains disabled.

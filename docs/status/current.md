@@ -1,72 +1,54 @@
 # Current status — 2026-11-16
 
-## Delivery and scope
+## Delivery and active work
 
 Private `dragginzgame/ic-blob-storage`, branch `0.100`; **0.100.12 is pushed** at
-[`9d0e343`](https://github.com/dragginzgame/ic-blob-storage/commit/9d0e343cd0d1be1f31dc20c81b67e4112d3c1023).
-Remote branch and annotated `v0.100.12` peeled tag were verified. Four product
-packages and both locks select 0.100.12; qualification versions stay independent
-and publication stays disabled.
+[`9d0e343`](https://github.com/dragginzgame/ic-blob-storage/commit/9d0e343cd0d1be1f31dc20c81b67e4112d3c1023), with verified annotated tag.
+[Hosted CI on delivery handoff `bbb37fc`](https://github.com/dragginzgame/ic-blob-storage/actions/runs/43869174888)
+passed all jobs. Four product packages/both locks select 0.100.12; qualification
+versions remain independent. The maintainer has now authorized crates.io publication;
+`0.101.0` is the selected first registry release.
 
-Rust 1.100.0, Tooling 0.44.5 (61-file snapshot), Platform 0.33.7, Runtime 0.22.5,
-Types 0.20.4, Testkit 0.106.0/PocketIC 16.1.0 remain selected.
-Both graphs use Wire 0.24.1 root codecs and explicit frames; release gates pass.
-Local locks now select Host FS/Artifacts 0.80.2; Testkit retains older internal Host edges.
-`blob` 0.100.12 is installed on PATH.
-[Storage inspection](../operations/storage-inspection.md) owns CLI usage and limits.
-Service owns one 64 KiB store and 64 historical uploads/references; release retains exposure. Supported [maintenance](../operations/standalone-maintenance.md)
-drains calls and retains original identities; unknown execution is not safe retry.
-No unrestricted-controller rollback/snapshot continuity guarantee exists.
+**Pending 0.101.0, local only:** the CLI group is renamed to `blob app`, matching
+Canic; this breaking command-path change selects the next minor release. Offline `blob app prepare-installation`
+encodes paired init arguments with explicit authorities/users/limits. It reuses
+existing Wire types and held-directory publication; occupied/partial outputs refuse
+replacement. No network, signing, creation or installation. The existing installed
+application journey now consumes those exact files. [The guide](../design/reference-application.md#prepare-fresh-installation-inputs)
+owns usage, proposed-target limits and the targeted legacy comparison.
 
-Registry freshness review in `target/010012-release-suppliers.log` confirms current
-first-party direct selections. Testkit's private Host 0.79 edges remain supplier-owned;
-its latest 0.106.0 has no newer supported selection. No optional refresh is pending.
-`make dependency-pins-check` now runs in Linux CI; hosted acceptance is pending.
+Rust 1.100.0, Tooling 0.44.5 (84-file snapshot), Platform 0.33.7, Runtime 0.22.5,
+Types 0.20.4, Wire 0.24.1, direct Host FS/Artifacts 0.80.2 and Testkit 0.106.0 /
+PocketIC 16.1.0 remain selected. Testkit owns its older internal Host edges.
+The registry review in `target/01010-registry-review.json` finds the selected
+first-party versions current; no optional supplier upgrade is included.
 
-**0.100.12:** `blob application catalog` / `draft --id ...`
-inspect the signing user's existing reference-app records without mutation.
-They reuse its protocol types and the CLI query transport; no new endpoints/state.
-[Chromium/catalog composition](../design/reference-application.md#chromium-and-the-installed-catalog--development-010012)
-also holds readback across stopped/drained upgrades, preserving original state/proof
-and cancellation. Browser checks are opt-in; Rust owns signing. No deployment claim.
+## Next action and provider boundary
 
-## Current provider work and next action
+**Now:** qualify and deliver the four product crates to crates.io at 0.101.0.
+Shared Toko owns Git release/publication mechanics; the CLI archive includes its
+exact tooling snapshot fingerprint with a CI binding check. Qualification stays private.
 
-The maintainer permits Caffeine calls and the existing `canic-mainnet` identity
-when exact operations and durable effect custody are ready. Do not ask again
-merely to cross that boundary. No provider issue/email outreach is authorized;
-never export the wallet key, import legacy custody or resume legacy obligations.
+**After release:** qualify target/controller admission and signed install custody for fresh
+application provisioning. Offline arguments and local upgrades do not establish
+those guarantees. Canic's separate fleet work is owned by
+[#12 — Provision embedded Blob applications through approved fleet installation arguments](https://github.com/dragginzgame/canic/issues/12)
+and [#13 — Integrate Blob drain, upgrade and explicit activation into fleet maintenance](https://github.com/dragginzgame/canic/issues/13).
+The [current handoff](../design/application-boundary.md#fleet-integration-handoff--2026-11-16)
+confirms the existing Blob Service API is sufficient; no duplicate adapter here.
+The live owner's one-slot Storage 0.74.1 image also needs the
+Storage-owned retained-image transition in [ic-storage-new #1](https://github.com/dragginzgame/ic-storage-new/issues/1).
+Latest reviewed committed Storage `92af0d1` adds native record-vector qualification,
+not that transition. No sibling edits/execution. Keep the consumed live probe unchanged.
 
-The [local callback/issuer candidate](../design/caffeine-contract-review.md#local-callback-candidate--development-01009)
-uses Service and bounded receipts, retaining exposure after acknowledgment.
-Original certified results remain recoverable after release, without revocation or provider acceptance. CLI retains one root-bound request before
-one guarded Agent invocation; concurrent or partial claims refuse replacement.
-Agent HTTP 429/503 retries retain the same packet; no exactly-one-HTTP-attempt claim.
-Read-only recovery preserves original identities and existing output. The capacity
-requirement is filed as [ic-storage-new #1](https://github.com/dragginzgame/ic-storage-new/issues/1).
-Committed Storage 0.1.13 (`92af0d1`) adds installed native record-vector qualification,
-but still no transition for this retained image; its owning issue remains open.
-Reviewed committed source only; no sibling changes or execution.
-The maintainer-approved [browser client](../../clients/browser/README.md) prepares
-immutable bytes, accepts existing proof, claims before serial PUTs and verifies
-reads; no automatic retry or Storage dependency.
-Installed journeys join authenticated `transfer claim`, loopback PUT/read and the
-reference catalog. Failures retain unpublished drafts; restarts refuse replay.
-Explicit read-only reconciliation cannot override cancellation. Chromium also
-authenticates local IC proof and retains 64 permanent claims under one fixed binding.
-**Next:** qualify fresh application provisioning/deployed custody and the Storage-owned
-retained-image transition before live-owner reuse; local upgrades do not close these gates.
-Keep the live probe unchanged: its one-slot directory cannot host this composition;
-reuse needs a Storage-owned migration and positive lifecycle witness. No retry,
-reset, funding or new link follows from the local callback implementation.
-[The contract review](../design/caffeine-contract-review.md#independent-qualification--2026-11-15)
-and [compact observation](../design/caffeine-observation.json) own detailed evidence.
-
-D0 stays open for enrollment, callback identity/object scope, enforced bounds,
-original-proof recovery/lifetime and charge closure. D1 is partial. D2 now has
-funding, installation, allocation, owner-origin refusal and a missing-tree HTTP
-404 witness, **no positive gateway-admission or upload witness**. Keep declared bytes, unresolved exposure,
-and unfrozen API/persistence. Standalone exports and Service format remain unchanged.
+Caffeine calls and the existing `canic-mainnet` signer are authorized once the exact
+operation and effect custody are ready. No provider outreach, key export, legacy
+custody import, implicit retry/reset, new owner, funding or link is authorized by
+local progress. [The contract review](../design/caffeine-contract-review.md#independent-qualification--2026-11-15)
+and [compact observation](../design/caffeine-observation.json) own provider evidence.
+D0 remains open for enrollment, scope, enforced bounds, proof recovery/lifetime and
+charge closure. D1/D3 are partial; D2 has no positive gateway-admission/upload witness.
+Keep declared bytes, unresolved exposure and unfrozen API/persistence.
 
 ## Live custody — preserve, never repeat funding or creation
 
@@ -120,33 +102,32 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Qualification and integration
 
-Final-version 0.100.12 `make ci` passes (`target/010012-release-ci.log`). All eight
-installed suites, both Chromium/catalog upgrade journeys, three Chromium transport
-cases and PATH installation pass (`target/010012-release-installed.log`). Original
-custody prepared by the flat-command 0.100.10 CLI remains recoverable. The new
-application queries check owner isolation, escaped names and unchanged stable state.
-[Hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/workflows/ci.yml?query=branch%3A0.100)
-is asynchronous; this handoff does not claim a hosted 0.100.12 pass.
-Browser evidence is local Linux only; no live/provider custody changed.
-Node 24+ and explicit `make install-browser-tools` select npm Platform 0.2.0
-and esbuild 0.28.2. Profile rollback, eviction, multi-device custody and live provider
-acceptance/settlement remain unqualified. The consumed enrollment probe remains
-0.100.8; source inputs stay in installation custody's `source-before-release-01008/`.
+Released 0.100.12 passes local `make ci`, eight installed suites and five Chromium
+journeys: `target/010012-release-{ci,installed}.log`. Its application queries preserve
+owner isolation and state; browser readback/cancellation survives stopped/drained
+upgrades. The flat-command 0.100.10 CLI's original custody remains recoverable.
+Pending 0.101.0 passes focused CLI Clippy/refusal tests, exact-input installed
+application qualification, formatting and links (`target/010013-install-input-*.log`).
+The `app` rename passes all 13 CLI tests and strict Clippy (`target/app-command-*.log`);
+installed qualification callers and current command examples use the new spelling.
+The development CLI is installed on PATH; its version remains 0.100.12 until release.
+Node 24+, npm Platform 0.2.0 and esbuild 0.28.2 remain selected. Browser profile
+rollback/eviction, multi-device custody, live acceptance and settlement are unqualified.
 
-Canic adapter/catalog at `b36f6a39a67f487def523c847423fdfdb8d60c50` has five installed
-witnesses naming Blob `50fe84b`; do not relabel them for newer suppliers. D3 remains
-partial: immutable adoption, explicit lifecycle inputs and fleet maintenance belong
-to Canic. No Canic source changed. Legacy stays read-only at
-`25bed1352f3d2b9659f0d2583f50fa9af859ea84`; reuse lessons for current consumers,
-not its multi-operation journals, refund engine or substitute-service graph.
+Service has one 64 KiB record and 64 historical uploads/references; cleanup retains
+exposure. [Maintenance](../operations/standalone-maintenance.md) preserves original
+identities and closed admission; unknown execution is not safe retry. There is no
+unrestricted-controller snapshot/rollback continuity guarantee. The consumed probe
+stays 0.100.8; original source remains in installation custody's
+`source-before-release-01008/`.
+Current committed Canic `0167a30` pins Blob `decde204` (0.100.6) immutably; its older
+composition evidence is not current-supplier qualification. The two Canic issues
+own real fleet initialization and maintenance. No Canic source changed or ran.
 
 ## Latest delivery review
 
-Reviewed delivered `4cf2626..9d0e343`: application CLI and direct callers, Chromium
-composition, dependency selections, managed checker and documentation. No actionable
-sediment found in that scope. The 133-line inspection module reuses existing protocol
-types/transport; no new endpoint, persistence or recovery ledger. Browser additions
-reuse existing fixtures. The 1,086 new managed-tool lines are Toko's declared checker
-closure, not Blob-owned release machinery. Legacy lessons remain test invariants;
-no legacy code/custody was imported. Library, host, Canic and provider ownership,
-retained exposure and live custody remain unchanged.
+Reviewed `4cf2626..9d0e343` and its delivery-only handoff: CLI/application callers,
+browser composition, tooling and docs. No actionable sediment in that scope.
+Protocol/transport and fixtures are reused; no new service state/recovery ledger or
+legacy custody. Toko owns its managed checker closure. Legacy stays read-only at
+`25bed1352f3d2b9659f0d2583f50fa9af859ea84`; retain lessons for actual consumers.

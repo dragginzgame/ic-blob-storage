@@ -1,7 +1,9 @@
 [package]
 name = "ic-blob-storage"
 version.workspace = true
-description = "Clean-start Blob Storage library (unpublished rewrite)"
+description = "Experimental blob authorization, application references and provider-obligation accounting for the Internet Computer"
+repository.workspace = true
+readme = "README.md"
 edition.workspace = true
 rust-version.workspace = true
 license-file.workspace = true

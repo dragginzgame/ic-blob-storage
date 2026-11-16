@@ -17,16 +17,17 @@ Read [the current handoff](docs/status/current.md) first.
   legacy repository. Never resume or import them through this fresh checkout.
 - There is an experimental local standalone host, but no frozen API, migration
   or production deployment runner yet.
-  Product crates use the `0.100` release line, inherited from the root workspace;
-  `0.100.0` is its first GitHub checkpoint. Keep publication disabled until a
-  separately authorized release.
+  Product versions are coordinated at the root; `0.100.0` was the first GitHub
+  checkpoint. The maintainer authorized crates.io delivery on 2026-11-16;
+  `0.101.0` is the selected first registry release of the rewrite.
   Existing crates.io versions are not reset by this rewrite.
 - In this repository, a maintainer request to "push" means a new GitHub version
   checkpoint: increment the current patch version unless an exact version is
   specified, finalize its changelog and push the coordinated product version and
   both lockfile updates. Preserve independent qualification package versions.
   Delivery-only handoff/review commits belong to that same checkpoint and do not
-  trigger another version increment. Registry publication remains separately gated.
+  trigger another version increment. Product releases now include crates.io
+  publication; qualification remains private. Follow the [release procedure](docs/operations/releases.md).
 - Production crates belong under `crates/`. Add qualification packages only for
   real installed behavior; do not create tooling-holder packages or placeholder
   tests. Use Rust 1.100.0 and edition 2024 with the inherited common lint policy.
@@ -99,6 +100,7 @@ a supported live Caffeine host or a production resumable-upload client.
 `make test-signed` checks signed application/uploader calls and authenticated replies
 through the local gateway, including inspection after deliberately discarding a reply.
 `make test-application` exercises the product reference application and Blob host:
+exact CLI-prepared fresh-install inputs,
 durable drafts/catalog, replicated inspection, cancellation during publication,
 interrupted cleanup, bounded history and application upgrades. No provider transfer
 is implemented; publication means the owning user's catalog decision.

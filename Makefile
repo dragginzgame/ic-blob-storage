@@ -5,6 +5,14 @@ LOCAL_TOOL_INSTALL_TARGETS += install-test-server install-browser-tools
 LOCAL_TOOL_CHECK_TARGETS += test-server-check browser-tools-check
 FORMAT_RUST_ARGS := --extra-workspace qualification
 
+TOKO_TOOLING_RELEASE := 1
+RELEASE_BRANCH := 0.100
+RELEASE_REMOTE := origin
+RELEASE_DELIVERY_POLICY := scripts/release/direct.txt
+CARGO_PUBLISH_PACKAGES := ic-blob-storage ic-blob-storage-reference-app ic-blob-storage-canister ic-blob-storage-cli
+CARGO_PUBLISH_REGISTRY := crates-io
+CARGO_PUBLISH_VERIFY_TARGETS := toko-tooling-check tooling-binding-check publication-admission
+
 include vendor/toko-tooling/make/consumer.mk
 include vendor/toko-tooling/make/cargo-dependencies.mk
 
@@ -45,6 +53,8 @@ help:
 	  'make deps-list                   List workspace package versions and groups' \
 	  'make update / deps-update        Update Cargo locks within manifest requirements' \
 	  'make toko-tooling-update          Install the Cargo-selected tooling snapshot' \
+	  'make release-patch/minor/major    Validate, version and deliver to GitHub' \
+	  'make publish-check / publish     Check / publish the tagged product crates' \
 	  'make ci                          Aggregate tooling, format, lint, test and docs gate' \
 	  'toko-cloc                        Categorized source counts (PATH launcher)'
 
@@ -141,16 +151,17 @@ build-reference-app: toko-tooling-check
 	@mkdir -p target
 	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked -p ic-blob-storage-reference-app --target wasm32-unknown-unknown --release --message-format=json > target/blob-reference-app-artifacts.jsonl
 
-test-application: build-host build-reference-app qualification-tooling-check
+test-application: build-host build-reference-app build-cli qualification-tooling-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test application -- -D warnings
 	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
 	  app="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_reference_app") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one application Wasm artifact") end' target/blob-reference-app-artifacts.jsonl)" && \
-	  BLOB_WASM="$$wasm" BLOB_REFERENCE_APP="$$app" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test application
+	  cli="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "blob" and .executable != null) | .executable] | if length == 1 then .[0] else error("expected one Blob CLI artifact") end' target/blob-cli-artifacts.jsonl)" && \
+	  BLOB_WASM="$$wasm" BLOB_REFERENCE_APP="$$app" BLOB_CLI="$$cli" BLOB_TEST_SERVER="$(CURDIR)/.tools/ic-testkit-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test application
 
 blob: build-cli
 	CARGO_BUILD_WARNINGS=deny cargo install --offline --locked --debug --path crates/ic-blob-storage-cli --bin blob
 
-build-cli: toko-tooling-check
+build-cli: toko-tooling-check tooling-binding-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-cli --bin blob -- -D warnings
 	@mkdir -p target
 	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked -p ic-blob-storage-cli --bin blob --message-format=json > target/blob-cli-artifacts.jsonl
@@ -208,4 +219,38 @@ test-example-local:
 documentation-links-check:
 	@find docs clients -name node_modules -prune -o -type f -name '*.md' -print0 | xargs -0 perl vendor/toko-tooling/scripts/ci/check-documentation-links.pl --root . *.md
 
-ci: toko-tooling-check dependency-pins-check fmt-check clippy clippy-qualification test-references test-caffeine test-local test-cli test-browser example-local test-example-local docs-check docs-qualification-check documentation-links-check
+.NOTPARALLEL: ci
+ci: toko-tooling-check tooling-binding-check dependency-pins-check fmt-check clippy clippy-qualification test-references test-caffeine test-local test-cli test-browser example-local test-example-local docs-check docs-qualification-check documentation-links-check
+
+# Shared release/publication engines; these hooks own only Blob's metadata and gate.
+.PHONY: release-editor-setup test-release-metadata publication-admission
+release-editor-setup:
+	bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$(CURDIR)" --package ic-build --version 0.73.0 --bin ic-build-release-metadata --profile debug --features cli
+
+test-release-metadata:
+	bash scripts/release/test-metadata.sh
+
+release-version:
+	@bash scripts/release/adapter.sh version
+release-files:
+	@printf '%s\0' Cargo.toml Cargo.lock CHANGELOG.md qualification/Cargo.lock
+release-preflight:
+	@bash scripts/release/adapter.sh preflight
+release-verify:
+	$(MAKE) --no-print-directory tools-check test-release-metadata
+	$(MAKE) --no-print-directory ci
+	$(MAKE) --no-print-directory test-standalone test-capacity test-endpoints test-signed test-application test-enrollment test-callbacks test-management
+release-prepare-version:
+	@bash scripts/release/adapter.sh prepare
+release-prepared-check release-committed-check release-tagged-check release-push-check:
+	@bash scripts/release/adapter.sh check
+release-commit-check:
+	@bash scripts/release/adapter.sh commit-check
+release-merged-preflight:
+	@printf '%s\n' 'Blob supports direct release delivery only.' >&2; exit 1
+publication-admission:
+	@bash scripts/release/adapter.sh publication
+
+.PHONY: tooling-binding-check
+tooling-binding-check:
+	@bash vendor/toko-tooling/scripts/ci/verify-file-checksum.sh sha256 "$$(cat crates/ic-blob-storage-cli/tooling.sha256)" .toko-tooling.snapshot

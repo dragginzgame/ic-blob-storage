@@ -225,7 +225,9 @@ current Service API to a first embedded catalog witness, including trusted local
 authority, one Storage bootstrap and atomic catalog/reference failures. Its
 [composed witness review](application-boundary.md#composed-witness-reviewed--2026-11-15)
 records Canic's implemented adapter and installed local evidence, separately from
-the still-open fleet management and provider journey.
+the still-open fleet management and provider journey. The
+[current fleet integration handoff](application-boundary.md#fleet-integration-handoff--2026-11-16)
+records its completed immutable source pin and the owning Canic implementation issues.
 
 The [reference application](reference-application.md) owns its bounded drafts,
 publication decisions and cleanup intent in a separate canister. It calls the
@@ -975,7 +977,7 @@ Current progress is by accepted capability, not a percentage of code written:
 | D0 | Open; published Rust recipe/current ABI, funded payer and owner-origin refusal witnessed | Supported account arrangement, callback/object scope, enforced bounds, authority recovery/lifetime and charge closure |
 | D1 | Local policy, durable host/application, maintenance and owned-client upload/read/catalog composition witnessed | Selected D0 contract and qualified production host/client arrangement; local peers do not establish provider semantics |
 | D2 | Payer/owner funding and probe installation retained; one owner call refused, relationship removed, missing-tree GET observed; no positive upload | Storage-owned retained-image transition and qualified host/account admission before any live upload |
-| D3 | Partial: Canic-owned adapter and embedded catalog have installed local composition evidence; standalone independence preserved | Immutable supplier adoption, fleet-managed lifecycle custody and integrated provider journey |
+| D3 | Partial: Canic-owned adapter and embedded catalog have installed local composition evidence; immutable source pin implemented and standalone independence preserved | Requalify current supplier adoption; [fleet initialization/maintenance](application-boundary.md#fleet-integration-handoff--2026-11-16); integrated provider journey |
 | D4 | Not claimed; finite history and small-store limits remain explicit | Representative workload measurements and a qualified retention/compaction and operating policy |
 
 The [standalone capacity measurements](standalone-capacity.md) qualify the existing
@@ -991,7 +993,7 @@ are recorded in the [handoff](../status/current.md).
 The maintainer selected the `0.100` rewrite line, starting with the `0.100.0`
 GitHub checkpoint. Product versions inherit from the root workspace; qualification
 package versions remain independent, with both lockfiles updated for product changes.
-Publication remains separate and disabled until an authorized release; this
+Registry publication was authorized on 2026-11-16, starting at `0.101.0`; this
 selection supplies no migration for legacy installations.
 
 Use owner-local behavioral tests for accounting, authority and state transitions.

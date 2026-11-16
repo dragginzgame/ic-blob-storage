@@ -126,16 +126,40 @@ changed during the subsequent Tooling adoption. This is historical composed
 evidence, not fresh qualification of that newer supplier context. The receipt
 identifies Blob HEAD `50fe84b4ed303bda1802fc7a379105edbb95614e`; Canic's prose still
 names an earlier HEAD. The content hashes, not that stale prose label, identify
-the observed input. The path dependency remains development-only.
+the observed input. At that review the path dependency was development-only;
+the committed follow-up below supersedes that dependency disposition.
+
+### Fleet integration handoff — 2026-11-16
+
+Read-only review of committed Canic
+[`0167a30`](https://github.com/dragginzgame/canic/commit/0167a300451a8e0431f0c6b47a0726e87d613dfe)
+confirms that immutable supplier selection is implemented: its workspace pins
+Blob 0.100.6 at `decde204acb6d7c8362a0003e904beef72ff89b6`, replacing the sibling
+path. The optional adapter and qualification catalog remain in Canic. Concurrent
+uncommitted Auth/qualification edits were excluded; no sibling code was changed
+or executed. This source review does not relabel the older installed evidence.
+
+Canic's [current composition guide](https://github.com/dragginzgame/canic/blob/0167a300451a8e0431f0c6b47a0726e87d613dfe/docs/demos/blob.md)
+documents adapter Wire 0.24.1 alongside the pinned supplier's older persistence
+codec. Adoption of the available [Blob 0.100.12 revision](https://github.com/dragginzgame/ic-blob-storage/tree/9d0e343cd0d1be1f31dc20c81b67e4112d3c1023)
+must qualify the actual consumer graph and retained predecessor state. Matching
+DTO names or unchanged state-version numbers do not prove codec compatibility.
+No registry publication or moving local source is required for that work.
+
+The [Host install path](https://github.com/dragginzgame/canic/blob/0167a300451a8e0431f0c6b47a0726e87d613dfe/crates/canic-host/src/operation/mod.rs#L450)
+and inspected management-engine creation/upgrade paths still supply empty
+application arguments. The existing embedded catalog requires its own explicit
+installation type (two users, manager and Blob limits) and method-bound upgrade
+unit. Blob's `blob app prepare-installation` instead prepares inputs for the
+separate reference application and standalone Blob host. Its files are not the
+embedded Canic catalog's configuration or a signed deployment capability.
 
 The remaining integration belongs to Canic's existing fleet approval/effect owners:
 
 | Boundary | Required next behavior |
 | --- | --- |
-| Immutable supplier input | Replace the moving sibling path with an admitted immutable source and requalify the actual composed graph before release |
-| Fresh installation | Bind explicit catalog users, Blob limits and manager in approved arguments; do not invent defaults to accept empty arguments |
-| Managed maintenance | Bind the exact drain attempt, target and candidate; preserve original request outcomes through stop, upgrade, start and state inspection |
-| Reopening admission | Leave both owners intact and Blob drained; only the configured manager's exact activation may reopen it, never a readiness probe |
+| Supplier adoption and fresh installation | [Canic #12 — Provision embedded Blob applications through approved fleet installation arguments](https://github.com/dragginzgame/canic/issues/12): qualify the selected immutable supplier, carry exact explicit arguments and actual target/controller bindings through existing plan/apply custody |
+| Managed maintenance and reopening | [Canic #13 — Integrate Blob drain, upgrade and explicit activation into fleet maintenance](https://github.com/dragginzgame/canic/issues/13): preserve the original attempt and outcomes through drain/stop/upgrade/start/inspection and separately authorized activation |
 
 The current simulator witness uses a trusted controller and an explicit manager.
 It does not demonstrate Root-owned creation or fleet plan/apply custody. Canic's
@@ -144,6 +168,15 @@ Do not add a second management engine or relax Blob admission to bridge that gap
 D3 is partial: embedded local composition is witnessed, while managed deployment
 and the provider upload/read journey remain unqualified. Standalone use remains
 independent; no Canic dependency or duplicated composition suite is added here.
+
+No additional Blob supplier API is identified for these two tasks. `Service`
+already owns create/open, execute/inspect, manager inspection and drained-state
+admission; Canic owns the actual deployment route and endpoint mounting. A manager
+canister's caller identity must match Blob's configured manager; a host operator's
+control of that manager is not equivalent. Fresh local fleet qualification can
+proceed on the existing Storage contract. It does not depend on resolving the
+consumed live enrollment probe's allocation-growth migration or establishing
+Caffeine acceptance. Those obligations remain with their existing owners.
 
 The [legacy library's host-grant contract](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/lib.rs)
 already separated allocation bootstrap from the complete service owner. Keep that

@@ -1,6 +1,9 @@
 [package]
 name = "ic-blob-storage-reference-app"
 version.workspace = true
+description = "Experimental reference application and Wire protocol for ic-blob-storage"
+repository.workspace = true
+readme = "README.md"
 edition.workspace = true
 rust-version.workspace = true
 license-file.workspace = true

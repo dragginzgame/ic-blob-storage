@@ -127,10 +127,82 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
             exposure_bytes: 100.try_into().unwrap(),
         },
     };
+    let directory = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../target/application-installation-inputs")
+        .join(format!(
+            "{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+    std::fs::create_dir_all(&directory).unwrap();
+    let directory = directory.canonicalize().unwrap();
+    let output = directory.join("inputs");
+    let prepared = tokio::time::timeout(
+        Duration::from_secs(10),
+        tokio::process::Command::new(std::env::var_os("BLOB_CLI").expect("set BLOB_CLI"))
+            .args([
+                "app",
+                "prepare-installation",
+                "--canister",
+                &app.to_text(),
+                "--blob-canister",
+                &blob.to_text(),
+                "--manager",
+                &manager.to_text(),
+                "--user",
+                &alice.to_text(),
+                "--user",
+                &bob.to_text(),
+                "--max-content-bytes",
+                "100",
+                "--max-chunks",
+                "1",
+                "--max-headers",
+                "1",
+                "--max-header-bytes",
+                "100",
+                "--uploads",
+                "64",
+                "--references",
+                "64",
+                "--logical-bytes",
+                "100",
+                "--exposure-bytes",
+                "100",
+                "--output",
+            ])
+            .arg(&output)
+            .kill_on_drop(true)
+            .output(),
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    assert!(
+        prepared.status.success(),
+        "{}",
+        String::from_utf8_lossy(&prepared.stderr)
+    );
+    let blob_init = std::fs::read(output.join("blob-init.wire")).unwrap();
+    let app_init = std::fs::read(output.join("app-init.wire")).unwrap();
+    assert_eq!(blob_init, encode("blob_init", &config));
+    assert_eq!(
+        app_init,
+        encode(
+            "app_init",
+            &Installation {
+                blob: principal(blob),
+                users: vec![principal(alice), principal(bob)],
+            }
+        )
+    );
     pic.install_canister(
         blob,
         std::fs::read(std::env::var_os("BLOB_WASM").unwrap()).unwrap(),
-        encode("blob_init", &config),
+        blob_init,
         None,
     )
     .await;
@@ -139,19 +211,8 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     let installed_app = std::env::var_os("BLOB_PREVIOUS_REFERENCE_APP")
         .map(|path| std::fs::read(path).unwrap())
         .unwrap_or_else(|| wasm.clone());
-    pic.install_canister(
-        app,
-        installed_app,
-        encode(
-            "app_init",
-            &Installation {
-                blob: principal(blob),
-                users: vec![principal(alice), principal(bob)],
-            },
-        ),
-        None,
-    )
-    .await;
+    pic.install_canister(app, installed_app, app_init, None)
+        .await;
 
     let first = input(1, "portrait", 7);
     // Invalid drafts must not consume their lifetime ID or reach Blob admission.

@@ -88,7 +88,7 @@ async fn cli_application(
         tokio::process::Command::new(std::env::var_os("BLOB_CLI").expect("set BLOB_CLI"));
     command
         .args([
-            "application",
+            "app",
             if id.is_some() { "draft" } else { "catalog" },
             "--url",
             url,
