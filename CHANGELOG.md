@@ -25,6 +25,8 @@ admitted checkout, and performs an installation that consumes canister cycles.
 - Select Platform 0.34.9 and Testkit 0.107.4 in qualification; both lockfiles resolve
   Protocol 0.2.8 under compatible 0.2.7 declarations. Testkit's updated requirement
   removes the former exact 0.2.6 constraint. Retain scoped legacy codec fixtures/diagnostics.
+- Retain qualification's Host Process 0.80.3 update, including its macOS libproc
+  0.15 dependency. Product dependency selections are unchanged by this update.
 - Registry freshness review confirms the selected first-party runtime suppliers.
   Defer the optional IC Build editor 0.73.0 → 0.87.3 refresh to the next tooling
   maintenance batch; preserve the tested two-lock release adapter.
