@@ -370,9 +370,9 @@ lookup order, not inferred from legacy errors. The installed journey reproduces
 the previously stuck cancellation and proves cleanup without Blob mutation,
 renewal refusal and explicit release of a grant admitted before its deadline.
 
-### Pending Types 0.21.2 adoption
+### Types 0.21.2 integration
 
-Blob’s pending 0.102.0 public records and Service arguments select registry Types
+Blob’s 0.102.0 public records and Service arguments select registry Types
 0.21.2. Canic must use that same Rust type at direct Service crossings. Blob’s
 standalone host now uses canonical caller/canister identities directly from Runtime
 0.23.13; the temporary host byte conversions have been removed. The library does

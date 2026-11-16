@@ -100,10 +100,10 @@ Install the published CLI with `cargo install ic-blob-storage-cli --locked`; the
 executable is `blob`. Rust 1.100.0 or newer and Cargo’s bin directory on PATH are
 required. Guarded maintenance still needs the matching source checkout and tools.
 
-Blob’s pending public Rust records use Platform Types 0.21.2, with Runtime 0.23.13
+Blob’s public Rust records use Platform Types 0.21.2, with Runtime 0.23.13
 in the hosts and Platform 0.34.6 for original ingress admission. Candid/Agent paths
 still require `ic-platform-legacy` 0.33.7 and explicit Principal byte conversions.
-See the [integration boundary](docs/design/application-boundary.md#pending-types-0212-adoption).
+See the [integration boundary](docs/design/application-boundary.md#types-0212-integration).
 
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
 and published Toko Tooling 0.44.9. Both workspaces select IC Wire 0.24.2's root-level

@@ -2,15 +2,15 @@
 
 ## Delivery and active work
 
-Private `dragginzgame/ic-blob-storage`, branch `main`; **0.101.0 is pushed and
+Private `dragginzgame/ic-blob-storage`, branch `main`; **0.102.0 is pushed and
 published to crates.io** for all four product packages at
-[`7a9f723`](https://github.com/dragginzgame/ic-blob-storage/commit/7a9f723421b4b0a2f2a6fc64cbcdf2b8643bd4d4),
-with verified annotated tag `v0.101.0`. Qualification remains independently
+[`548d9c3`](https://github.com/dragginzgame/ic-blob-storage/commit/548d9c3de7a3a224e66693685634d79cad191406),
+with verified annotated tag `v0.102.0`. Qualification remains independently
 versioned and unpublished. [The release procedure](../operations/releases.md)
 owns Git/registry delivery; the [application guide](../design/reference-application.md)
-owns `blob app` and offline paired installation inputs. Release 0.102.0 is now requested.
+owns `blob app` and offline paired installation inputs. This release is complete.
 
-**Pending 0.102.0, local only:** `blob app check-targets` observes both proposed
+**Delivered in 0.102.0:** `blob app check-targets` observes both proposed
 canisters through authenticated management status, requiring absent modules and
 the signer as sole controller. It shares maintenance transport/decoding and creates
 no install authority. [The guide](../design/reference-application.md#check-proposed-targets)
@@ -22,15 +22,12 @@ frames, trap rollback and lifecycle policy; consuming calls retain 30-second wai
 and uncertainty. Runtime supplies canonical identities directly, removing temporary
 host conversions. Wasm-only host modules/dependencies keep native DTO use independent.
 Storage 0.74.1 retains Runtime 0.22.5's IC0-only edge: no second executor or guard.
-Pending public identity changes select 0.102.0; package versions stay 0.101.0.
+The public identity change is released in 0.102.0; API/persistence remain unfrozen.
 
-Latest evidence: `target/platform-0346-adoption/`. CLI and native qualification
-Clippy, all five Wasm builds/Clippy, 13 CLI tests and installed standalone, callback
-and signed-maintenance suites pass. Original IDs, late recovery and populated
-pre-migration host upgrades survive. Both locked graphs, pins, binding, format and
-links pass; `blob` is installed on PATH. Earlier host migration evidence remains in
+Development evidence remains in `target/platform-0346-adoption/`,
 `target/runtime-02311-adoption/` and `target/runtime-02312-adoption/`.
-Chromium was not rerun. No live effects occurred.
+Original IDs, late recovery and populated pre-migration host upgrades survive.
+Release checks are recorded below; Chromium was not rerun and no live effects occurred.
 
 **Native boundary:** Platform 0.34.6 now owns original ingress admission and request
 IDs in the CLI and qualification; unknown authentication fields refuse without repair.
@@ -127,11 +124,11 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Qualification and integration
 
-Release 0.101.0 passed `make ci`, all eight installed suites and archive/provenance
-checks (`target/01010-release-corrected.log`, `target/01010-publish-check.log`).
-Verified registry readback: `target/01010-registry-verified.json`.
+Release 0.102.0 passed `make ci`, all eight installed suites and archive/provenance
+checks (`target/01020-release/`). All four registry archives match the prepared
+packages; readback: `target/01020-release/registry-verified.json`.
 The opt-in Chromium journeys last passed at 0.100.12; they were not rerun for
-this native CLI/package change. PATH `blob --version` reports 0.101.0.
+this release. PATH `blob --version` reports 0.102.0. Hosted CI is not a delivery wait.
 Node 24+, npm Platform 0.2.0 and esbuild 0.28.2 remain selected. Browser profile
 rollback/eviction, multi-device custody, live acceptance and settlement are unqualified.
 
@@ -145,6 +142,7 @@ Current committed Canic `0167a30` pins Blob `decde204` (0.100.6) immutably; its 
 composition evidence is not current-supplier qualification. The two Canic issues
 own real fleet initialization and maintenance. No Canic source changed or ran.
 
-Latest delivery review (`bbb37fc..7a9f723`) found no remaining actionable sediment
-in that scope. Current target-observation work reviewed the pinned legacy checker
-via GitHub; live/legacy custody remains untouched.
+Delivery review (`6efe329..548d9c3`) covered host ownership, shared status transport,
+ingress custody, tests and dependencies. Stale pending-release prose is corrected
+in this handoff update; no additional code sediment found in the delivered scope.
+Legacy Platform uses remain explicit and issue-linked. Live/legacy custody is untouched.
