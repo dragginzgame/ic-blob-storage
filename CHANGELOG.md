@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.103.0] - Unreleased
+## [0.103.0] - 2026-11-16
 
 ### 🔧 Tooling and CI diagnostics
 
