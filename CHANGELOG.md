@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.103.2] - Unreleased
+## [0.103.2] - 2026-11-17
 
 ### 🔧 Module layout
 
