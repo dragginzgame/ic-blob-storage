@@ -404,6 +404,13 @@ code or recovery records are imported.
 
 ### Chromium and the installed catalog — development 0.100.12
 
+Requalified on 2026-11-17 against the released 0.103.2 code and locked dependencies
+at `6a369f8`: both catalog cases passed with Chrome for Testing 156.0.8078.4 and
+Node 24.21.0. Platform 0.34.13, Protocol 0.3.5, Runtime 0.23.16 and Testkit 0.108.0
+replace the original qualification cohort; browser Platform remains 0.2.0.
+`target/browser-refresh-01032/qualification.log` retains the run, including the
+three separate browser transport scenarios. No implementation change was needed.
+
 `make test-browser-application BROWSER=/absolute/path/to/chrome` reuses the installed
 composition and the real Chromium runtime fixture. Each of its two independent
 installations supplies a newly recovered original proof and its trust root to the

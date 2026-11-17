@@ -421,8 +421,10 @@ seven non-Chromium callback cases pass. This includes authorization refusal,
 unchanged stable memory on malformed input, delayed replies after final release,
 retained original-request recovery after real expiry, serial transfer and
 fresh-process replay refusal. Lock hashes and Cargo metadata confirm the final
-graph. Optional Chromium, native macOS and live-provider qualification are not
-claimed; no full release gate or publication was performed.
+graph. The later 0.103.2 release passed the full gate and was published; both
+Chromium targets subsequently passed on its unchanged code and locked dependencies
+(`target/browser-refresh-01032/qualification.log`). Native macOS and live-provider
+qualification are not claimed by these local runs.
 
 Prior broader release acceptance remains in
 `target/01031-release/release-final.log`; the previous Host/Testkit adoption's

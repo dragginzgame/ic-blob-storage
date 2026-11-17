@@ -3,14 +3,12 @@
 
 #![forbid(unsafe_code)]
 
-#[path = "support/mod.rs"]
-mod support;
-
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error, Limits, ReferenceStatus, UploadRequest, Usage, persistence::MAX_RECORDS},
     protocol::{Command, Inspection, Installation, Observation, Outcome, RPC_LIMITS},
 };
+use ic_blob_storage_tests::support_tests as support;
 use ic_platform_protocol::{
     candid::Limits as CandidLimits, management::decode_canister_metrics,
     management_snapshots::CanisterArgs,

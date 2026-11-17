@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.103.3] - Unreleased
+
+### 🧪 Qualification
+
+- Share simulator setup and cleanup through the existing qualification library,
+  removing all eight test module path overrides without duplicating helpers.
+
+### 🔧 Dependencies
+
+- Retain the concurrent zeroize 1.9.2 lockfile update in both workspaces.
+
 ## [0.103.2] - 2026-11-17
 
 ### 🔧 Module layout

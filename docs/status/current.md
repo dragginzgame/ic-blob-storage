@@ -37,25 +37,26 @@ Qualification selects Host Process 0.80.4, retaining its macOS libproc 0.15 edge
 `blob app` prepares, inspects, dispatches and observes exact
 fresh-install requests; saved outcomes never authorize renewal or resubmission.
 
-**Delivered 0.103.2:** both workspaces adopt Platform 0.34.13, Protocol 0.3.5 and
-Runtime/Macros/Guard 0.23.16, with Testkit 0.108.0 and the Host versions above.
-Aggregate CI and all eight installed suites passed (`target/01032-release/release.log`),
-including four enrollment, seven callback and four management cases. Clap 4.6.8
-is retained; the five CLI module moves preserve implementation bytes.
-Platform #24's codecs are adopted; the legacy alias and local schema DTOs are gone.
-No live effects. Optional Chromium and native macOS were not rerun.
+**Pending 0.103.3:** remove all eight qualification `#[path]` overrides. The existing
+unpublished qualification library now owns the unchanged simulator helper; callers
+use ordinary imports. Only its existing Testkit/Host Process dependencies change
+declaration scope; release preparation also retains zeroize 1.9.2 in both locks.
+This is compatible maintenance with no product API or stored-format change. Clippy and linking
+pass for all eight targets; installed standalone setup/cleanup and upgrade pass
+(`target/path-override-fix/`). Changes remain local; no release or live effects.
 
-Next: Canic-owned fleet integration and outstanding provider qualification below.
+Next: Storage's retained-image transition, Canic-owned fleet integration and
+outstanding provider qualification below. Current local browser checks pass.
 [Platform #24](https://github.com/dragginzgame/ic-platform/issues/24) now has consumer
 adoption evidence. Storage alone retains the old IC0-only Runtime edge; no second
 executor, legacy Platform facade, direct upstream codec or local generic codec exists.
-Five CLI module pairs now use `mod.rs`; hashes, Clippy and 21 tests pass (`target/module-layout/`).
-Release freshness: runtime suppliers are current; IC Build editor 0.73.0 is retained.
-Its optional 0.87.3 upgrade is deferred to the next release-tool maintenance batch.
+Release freshness rechecked for 0.103.3: runtime suppliers are current; the optional
+IC Build editor 0.73.0 → 0.87.3 upgrade stays deferred to release-tool maintenance.
 Canic owns fleet integration in [Canic #12](https://github.com/dragginzgame/canic/issues/12)
 and [Canic #13](https://github.com/dragginzgame/canic/issues/13); the existing Service API
 is sufficient, with no duplicate Blob adapter. The retained live Storage image
-still needs [ic-storage-new #1](https://github.com/dragginzgame/ic-storage-new/issues/1).
+still needs [Storage #1](https://github.com/dragginzgame/ic-storage/issues/1).
+The successor repository was renamed from `ic-storage-new` to `ic-storage`.
 Keep the consumed owner/probe unchanged; no sibling source was changed or executed.
 
 Caffeine calls and the existing `canic-mainnet` signer are authorized once the exact
@@ -123,9 +124,12 @@ Release 0.103.2 passed the complete gate and archive/provenance checks.
 All four downloaded registry archives match the prepared packages; readback:
 `target/01032-release/registry-verified.json`. Source provenance fetched the exact
 GitHub commit independently (`target/publication/provenance-01032/`).
-The opt-in Chromium journeys last passed at 0.100.12; they were not rerun for
-this release. PATH `blob --version` reports 0.103.2. Hosted CI was not awaited.
-Node 24+, npm Platform 0.2.0 and esbuild 0.28.2 remain selected. Browser profile
+After release, both opt-in Chromium targets passed on `6a369f8` with unchanged code
+and locks: three transport cases and two installed catalog/upgrade cases.
+Evidence: `target/browser-refresh-01032/qualification.log`; Chrome for Testing
+156.0.8078.4, Node 24.21.0, npm Platform 0.2.0 and esbuild 0.28.2.
+Transport/replay, verified reads and upgraded-catalog cancellation pass; no fix was needed.
+PATH `blob --version` reports 0.103.2. Hosted CI was not awaited. Browser profile
 rollback/eviction, multi-device custody, live acceptance and settlement are unqualified.
 
 Service has one 64 KiB record and 64 historical uploads/references; cleanup retains

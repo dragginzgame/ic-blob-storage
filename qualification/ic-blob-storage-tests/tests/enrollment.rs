@@ -2,12 +2,10 @@
 
 #![forbid(unsafe_code)]
 
-#[path = "support/mod.rs"]
-mod support;
-
 use ic_blob_storage_enrollment_probe::protocol::{
     Error, Installation, LIMITS, Outcome, REPLY_BYTES, View,
 };
+use ic_blob_storage_tests::support_tests as support;
 use ic_platform_protocol::{
     caffeine::{Nat, decode_top_up},
     candid::Limits,

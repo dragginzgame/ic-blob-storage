@@ -5,6 +5,9 @@ use ic_testkit::{
 };
 use std::{path::Path, time::Duration};
 
+/// Start the prepared local simulator and create one owned test instance.
+/// # Panics
+/// Panics if preparation, startup or instance creation fails within its bounds.
 pub async fn instance(builder: PocketIcBuilder, lifetime_seconds: u64) -> (Server, Instance) {
     let directory =
         std::env::var_os("BLOB_TEST_SERVER").expect("run make install-test-server first");
@@ -26,6 +29,9 @@ pub async fn instance(builder: PocketIcBuilder, lifetime_seconds: u64) -> (Serve
     (server, instance)
 }
 
+/// Delete the instance and assert complete cleanup of the owned simulator.
+/// # Panics
+/// Panics if deletion, process teardown or cleanup assertions fail.
 pub async fn close(mut server: Server, instance: Instance) {
     assert_eq!(
         instance.close(Duration::from_secs(30)).await,

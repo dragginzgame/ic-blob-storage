@@ -2,9 +2,6 @@
 
 #![forbid(unsafe_code)]
 
-#[path = "support/mod.rs"]
-mod support;
-
 mod install;
 
 use ic_blob_storage::{
@@ -13,6 +10,7 @@ use ic_blob_storage::{
     protocol::{Command, Installation as BlobInstallation, Outcome, RPC_LIMITS},
 };
 use ic_blob_storage_reference_app::protocol::{DraftInput, DraftView, Error, Installation, Phase};
+use ic_blob_storage_tests::support_tests as support;
 use ic_platform_types::Principal;
 use ic_testkit::pocket_ic::{
     CanisterId, PocketIcBuilder, RejectCode, common::rest::BlobCompression, nonblocking::PocketIc,

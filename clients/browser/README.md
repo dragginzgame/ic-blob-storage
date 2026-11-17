@@ -57,7 +57,10 @@ not eviction, stale-profile restore, power loss or multi-device coordination.
 The retained public proof and local trust root cannot authorize mainnet. This
 optional target requires Node 24+ and the explicit npm setup above; it installs no
 browser. Native macOS execution remains unqualified.
-Chromium 156.0.8078.4 passed locally for development 0.100.10. This is browser
+Chrome for Testing 156.0.8078.4 passed both targets on the 0.103.2 code and locked
+dependencies (2026-11-17, checkout `6a369f8`, Node 24.21.0). All three transport
+scenarios and both installed catalog/upgrade scenarios passed; evidence is in
+`target/browser-refresh-01032/qualification.log`. This is browser
 execution against a controlled HTTP peer, not a deployed application or evidence
 of Caffeine upload admission or serving behavior. Separate bodyless OPTIONS calls
 to its two public upload routes returned HTTP 200 and advertised PUT, wildcard

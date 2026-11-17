@@ -437,9 +437,10 @@ refund or journal machinery. Its broader recovery workflows remain with legacy.
 #### Existing-owner capacity expansion — proposed owner change
 
 **Maintainer direction:** Storage is being rewritten. Do not implement this proposal
-in the existing `ic-storage` repository. The authorized consumer requirement is now
-filed as [ic-storage-new #1](https://github.com/dragginzgame/ic-storage-new/issues/1).
-The new repository describes an orthogonal-persistence experiment, so the issue
+in the predecessor. The authorized consumer requirement is filed as
+[Storage #1](https://github.com/dragginzgame/ic-storage/issues/1) in the successor,
+renamed from `ic-storage-new` to `ic-storage`. It describes an orthogonal-persistence
+experiment, so the issue
 does not require the old allocation API or assume old-image compatibility.
 
 Read-only review of Storage 0.74.1 and the sibling's
@@ -509,11 +510,11 @@ Dirty sibling work remains excluded, and the existing-owner gate remains open.
 
 Committed follow-up [`92af0d1`](https://github.com/dragginzgame/ic-storage-new/tree/92af0d180676a0cc6dcf7ec09cc7406c14887daa)
 adds installed native record-vector qualification. It still supplies no transition
-for the consumed Blob enrollment image; [the owning issue](https://github.com/dragginzgame/ic-storage-new/issues/1)
+for the consumed Blob enrollment image; [the owning issue](https://github.com/dragginzgame/ic-storage/issues/1)
 remains open. This review did not execute or modify the sibling.
 
 Keep the selected live probe and Storage dependency unchanged. Revisit
-[ic-storage-new #1](https://github.com/dragginzgame/ic-storage-new/issues/1) when its
+[Storage #1](https://github.com/dragginzgame/ic-storage/issues/1) when its
 owner supplies the retained-image path; then qualify the exact consumed image and
 stopped upgrade before proposing a live effect. No parallel memory owner or new
 canister is needed for independent client work.

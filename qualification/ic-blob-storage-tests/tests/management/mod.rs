@@ -2,9 +2,6 @@
 
 #![forbid(unsafe_code)]
 
-#[path = "../support/mod.rs"]
-mod support;
-
 mod lifecycle;
 mod overview;
 mod targets;
@@ -14,6 +11,7 @@ use ic_blob_storage::{
     local::Limits,
     protocol::{Command, Installation, RPC_LIMITS},
 };
+use ic_blob_storage_tests::support_tests as support;
 use ic_platform::native::Ed25519Identity;
 use ic_platform_types::Principal;
 use ic_testkit::pocket_ic::{CanisterId, PocketIcBuilder};
