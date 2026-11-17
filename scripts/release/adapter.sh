@@ -10,7 +10,7 @@ case "$1" in
     preflight)
         bash vendor/toko-tooling/scripts/ci/check-release-source.sh
         bash vendor/toko-tooling/scripts/ci/check-release-changelog.sh "${RELEASE_VERSION:?}" "${RELEASE_PREVIOUS:?}" "${RELEASE_DATE:?}" CHANGELOG.md
-        make --no-print-directory deps install-tools release-editor-setup
+        make --no-print-directory deps install-host-tools install-rust-tools release-editor-setup
         ;;
     prepare)
         CARGO_RELEASE_METADATA_EDITOR="$(bash vendor/toko-tooling/scripts/dev/install-rust-tools.sh --consumer "$PWD" --package ic-build --version 0.73.0 --bin ic-build-release-metadata --profile debug --features cli --check)"

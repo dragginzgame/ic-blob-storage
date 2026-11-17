@@ -148,7 +148,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     )
     .unwrap();
     let url = owned.client_mut().make_live(None).await;
-    let before = owned.client().get_stable_memory(canister).await;
     let output = inspect(&directory, url.as_str(), canister, "1").await;
     assert!(
         output.status.success(),
@@ -156,7 +155,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=0 active=true"));
-    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     refused(
         &inspect(&directory, url.as_str(), canister, "2").await,
         "state format mismatch",
@@ -204,7 +202,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "host refused management inspection",
     );
     let claim = directory.join("drain-1");
-    let before = owned.client().get_stable_memory(canister).await;
     let output = command(&directory, url.as_str(), canister, "1", "prepare-drain")
         .arg("--record")
         .arg(&claim)
@@ -284,7 +281,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "claim binding mismatch",
     );
     std::fs::write(claim.join("request.cbor"), &packet).unwrap();
-    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let checkout = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../..")
         .canonicalize()
@@ -368,7 +364,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "already locked",
     );
     assert!(!target_directory.join("attempt-1.claim").exists());
-    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     drop(lock);
     // Two real processes compete: exactly one may claim dispatch. A separate
     // process then observes the original outcome without relying on its stdout.
@@ -454,7 +449,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         )
         .await
         .unwrap();
-    let before = owned.client().get_stable_memory(canister).await;
     let output = inspect(&directory, url.as_str(), canister, "1").await;
     assert!(
         output.status.success(),
@@ -462,7 +456,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=1 active=false"));
-    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     // A crash after claiming but before transmission is deliberately unrecoverable
     // by dispatch. A new record/request ID cannot bypass that same target attempt.
     let stranded = owned.client().create_canister().await;
@@ -499,7 +492,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         std::fs::read(stranded_claim.join("request.cbor")).unwrap(),
         std::fs::read(retry_claim.join("request.cbor")).unwrap()
     );
-    let before = owned.client().get_stable_memory(stranded).await;
     refused(
         &command(&directory, url.as_str(), stranded, "1", "dispatch-drain")
             .arg("--record")
@@ -522,7 +514,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .unwrap(),
         "outcome unavailable",
     );
-    assert_eq!(owned.client().get_stable_memory(stranded).await, before);
     for transition in [Command::Activate(1), Command::Drain(2)] {
         let bytes = ic_wire::encode(
             &transition,
@@ -544,7 +535,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .await
             .unwrap();
     }
-    let before = owned.client().get_stable_memory(canister).await;
     let output = command(&directory, url.as_str(), canister, "1", "observe-drain")
         .arg("--record")
         .arg(&claim)
@@ -557,7 +547,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert!(String::from_utf8_lossy(&output.stdout).contains("historical outcome only"));
-    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let stop_claim = directory.join("stop");
     refused(
         &command(&directory, url.as_str(), stranded, "1", "prepare-stop")
@@ -669,7 +658,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .unwrap(),
         "platform=Running",
     );
-    let before = owned.client().get_stable_memory(canister).await;
     let unused_stop = directory.join("unused-stop");
     let output = command(&directory, url.as_str(), canister, "1", "prepare-stop")
         .arg("--record")
@@ -759,7 +747,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .unwrap(),
         "already claimed",
     );
-    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let upgrade_claim = directory.join("upgrade");
     let unused_upgrade = directory.join("unused-upgrade");
     let next_wasm = directory.join("next.wasm");
@@ -894,7 +881,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .unwrap(),
         "already claimed",
     );
-    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let start_claim = directory.join("start");
     let unused_start = directory.join("unused-start");
     let start_command = |operation: &str, record: &Path, upgrade: &Path, stop: &Path| {
@@ -1036,7 +1022,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=3 active=false"));
-    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let activation = directory.join("activation");
     let unused_activation = directory.join("unused-activation");
     let activate_command = |operation: &str, record: &Path, start: &Path| {
@@ -1095,7 +1080,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         assert!(!target_directory.join("attempt-3.activate.claim").exists());
         std::fs::write(marker, saved).unwrap();
     }
-    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let output = activate_command("dispatch-activate", &activation, &start_claim)
         .arg("--custody")
         .arg(&custody)
@@ -1110,7 +1094,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=3 active=true"));
-    let active = owned.client().get_stable_memory(canister).await;
     let output = activate_command("observe-activate", &activation, &start_claim)
         .output()
         .await
@@ -1151,7 +1134,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "does not match the current drained attempt",
     );
     assert!(!after_active.exists());
-    assert_eq!(owned.client().get_stable_memory(canister).await, active);
     refused(
         &start_command("observe-start", &start_claim, &upgrade_claim, &current_stop)
             .output()
@@ -1205,7 +1187,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             "does not match the current drained attempt",
         );
     }
-    let drained = owned.client().get_stable_memory(canister).await;
     refused(
         &activate_command("observe-activate", &activation, &start_claim)
             .output()
@@ -1223,7 +1204,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "does not match the current drained attempt",
     );
     assert!(!stale_activation.exists());
-    assert_eq!(owned.client().get_stable_memory(canister).await, drained);
     let output = inspect(&directory, url.as_str(), canister, "1").await;
     assert!(output.status.success());
     assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=4 active=false"));
@@ -1268,7 +1248,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    let before = owned.client().get_stable_memory(canister).await;
     let output = upgrade_command("dispatch-upgrade", &failed_upgrade, &failure_stop)
         .arg("--custody")
         .arg(&custody)
@@ -1311,7 +1290,6 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .unwrap(),
         "already claimed",
     );
-    assert_eq!(owned.client().get_stable_memory(canister).await, before);
     let output = command(&directory, url.as_str(), canister, "1", "observe-stop")
         .arg("--record")
         .arg(&failure_stop)

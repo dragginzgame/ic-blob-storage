@@ -96,7 +96,7 @@ additional controllers and stopping targets. It prints a report only when both
 observations pass; no partial success report, install, reinstall, creation, funding
 or controller change is emitted. The installed management fixture covers correct
 and incorrect roots, controller changes and pre-existing modules, and confirms
-that target configuration and stable bytes remain unchanged by inspection.
+that target configuration and public domain projections remain unchanged by inspection.
 
 These are two separate observations, not an atomic reservation or authorization
 for a later install. A canister without a module may have been used and uninstalled;
@@ -306,7 +306,7 @@ The allowlist is trusted to share this small global capacity; there are no tenan
 quotas. The catalog is derived from Published drafts, with no second catalog index
 or persisted copy of Blob's liveness/accounting.
 
-Supported maintenance is **stop and drain, ordinary upgrade, start** under trusted
+Supported maintenance is **stop and drain, prepared native Keep upgrade, start** under trusted
 controller custody. A runtime call counter refuses upgrades while tracked calls
 are pending; it is not a durable workflow or snapshot-continuity proof. Bounded
 remote waits can leave uncertain domain outcomes, which remain in saved drafts.
@@ -334,7 +334,7 @@ after upgrade, full lifetime capacity
 and cleanup while Blob is drained. It also attempts upgrade while a real Blob call
 is pending: the app's own guard refuses, the original callback completes and stable
 bytes remain unchanged. Replacement installation arguments are rejected after
-draining; the original user's draft remains accessible. Publication leaves Blob stable bytes unchanged.
+draining; the original user's draft remains accessible. Publication leaves Blob’s public domain projections unchanged.
 Disposable recipients also exercise reopening with empty stable memory, a zeroed
 storage page and the original populated application's bytes under another canister
 identity. Each upgrade must trap without rewriting the supplied bytes or changing

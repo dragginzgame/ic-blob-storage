@@ -8,22 +8,16 @@ mod codec;
 use codec::{INIT, MANAGEMENT, QUERY, UPDATE, UPGRADE};
 use std::cell::RefCell;
 
+use ic_blob_storage::local::persistence::{self, access::Access};
 use ic_blob_storage::{
-    local::{
-        Error,
-        persistence::{STORAGE_AUTHORITY, STORAGE_KEY, Service},
-    },
+    local::{Error, persistence::Service},
     protocol::{Command, Inspection, Installation, ManagementView, Observation, Outcome},
 };
 use ic_platform_runtime::system as api;
-use ic_storage::{
-    AllocationGrants, DefaultMemoryImpl, GenericAllocationPolicy, Memory, MemoryAuthority,
-    MemoryRequest, MemoryRuntime, RuntimeMemory, SealedDeclarationSnapshot, StableKey,
-    StorageConfig,
-};
+use ic_storage::retained::{Bank, Canister, Geometry};
 
 thread_local! {
-    static SERVICE: RefCell<Option<Service<DefaultMemoryImpl>>> = const { RefCell::new(None) };
+    static SERVICE: RefCell<Option<Service>> = const { RefCell::new(None) };
 }
 
 #[ic_platform_runtime::init(
@@ -53,6 +47,7 @@ fn pre_upgrade(_: ()) {
             "drain before upgrade"
         )
     });
+    Canister::close().expect("close native Blob roots");
 }
 
 #[ic_platform_runtime::post_upgrade(
@@ -123,34 +118,18 @@ fn blob_management(_: ()) -> Result<ManagementView, Error> {
     })
 }
 
-fn memory(fresh: bool) -> RuntimeMemory<DefaultMemoryImpl> {
-    let backing = DefaultMemoryImpl::default();
-    assert_eq!(
-        backing.size() == 0,
-        fresh,
-        "fresh install and reopen are distinct"
-    );
-    let declarations = SealedDeclarationSnapshot::new(vec![
-        MemoryRequest::new(STORAGE_AUTHORITY, STORAGE_KEY).unwrap(),
-    ])
-    .unwrap();
-    let grants = AllocationGrants::new(vec![
-        MemoryAuthority::new(STORAGE_AUTHORITY, "blob.").unwrap(),
-    ])
-    .unwrap();
-    let mut runtime = MemoryRuntime::new_with_config(
-        backing,
-        StorageConfig {
-            allocations: 1,
-            extents: 1,
-            pages: 16,
-        },
-    )
-    .expect("storage ownership");
-    runtime
-        .bootstrap(&declarations, &grants, &GenericAllocationPolicy)
-        .expect("storage admission");
-    runtime
-        .open_memory(&StableKey::parse(STORAGE_KEY).unwrap())
-        .expect("Blob lease")
+fn memory(fresh: bool) -> Access {
+    let geometry = Geometry {
+        bank: Bank::A,
+        nodes: 512,
+        bytes: 262144,
+    };
+    let roots = [persistence::storage_root(1, 1)];
+    if fresh {
+        Canister::create(geometry, &roots)
+    } else {
+        Canister::reopen(geometry, &roots)
+    }
+    .expect("native Blob admission");
+    Access::canister(Canister::grant(1).unwrap(), 1)
 }

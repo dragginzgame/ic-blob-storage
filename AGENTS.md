@@ -66,8 +66,28 @@ Read [the current handoff](docs/status/current.md) first.
 
 ## Checks
 
+The maintainer selected the registry Storage 0.76 line on 2026-11-17,
+explicitly accepting its incomplete integration; both workspaces now select 0.76.2.
+Keep this selection; do not restore
+0.74.1 through an alias, copied backing code or a local persistence runtime.
+[Storage #6](https://github.com/dragginzgame/ic-storage/issues/6) tracks the contract
+and Blob adoption. Version 0.76.2 publishes records/Platform and retained-runtime
+APIs; Blob now consumes native retained roots through supplier-issued grants.
+Use the [native storage contract](docs/design/native-storage.md): prepared Wasm,
+source close/target reopen and explicit Keep upgrades are mandatory. Do not use
+stable byte injection to qualify native state or add a second allocator/runtime.
+#1 owns the retained live image; no migration, upgrade/reset of that consumed probe
+or unrestricted rollback guarantee is implied. Version 0.104.0 changes the public
+persistence boundary and native layout; 0.103.3 used the old stable backing.
+
 Prepare with `make install-tools`; `make ci` is the aggregate gate for tooling,
 formatting, strict Clippy, local behavior, Rustdoc and documentation links.
+Release validation uses the qualified change mapping in
+[the release procedure](docs/operations/releases.md), with full fallback for shared
+or unknown inputs. After changing that mapping or its callers, run
+`make test-release-validation test-release-metadata`; these consumer wiring checks
+are not unconditional release regressions. Publication still performs fresh
+archive/source/registry admission. Existing local `test-*` targets retain setup.
 `make dependency-pins-check` runs the installed Toko declaration checker across
 both Cargo workspaces and action pins, including workspace inheritance and tracked
 lockfiles. It also runs in `make ci`; runtime and npm checks retain their own owners.

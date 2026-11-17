@@ -266,7 +266,7 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
     );
     // An upgrade without draining traps in pre_upgrade and preserves the current instance.
     assert!(
-        pic.upgrade_canister(
+        pic.upgrade_eop_canister(
             canister,
             wasm.clone(),
             encode("blob_post_upgrade", &()),
@@ -307,7 +307,7 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
         .await
         .unwrap();
     assert!(
-        pic.upgrade_canister(
+        pic.upgrade_eop_canister(
             canister,
             wasm.clone(),
             encode("blob_init", &input()),
@@ -316,7 +316,7 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
         .await
         .is_err()
     );
-    pic.upgrade_canister(
+    pic.upgrade_eop_canister(
         canister,
         wasm.clone(),
         encode("blob_post_upgrade", &()),
@@ -360,7 +360,7 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
     pic.stop_canister(canister, Some(pic_actor(9)))
         .await
         .unwrap();
-    pic.upgrade_canister(
+    pic.upgrade_eop_canister(
         canister,
         wasm,
         encode("blob_post_upgrade", &()),
@@ -396,7 +396,6 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
             .await
             .is_err()
     );
-    assert!(pic.get_stable_memory(canister).await.len() <= 16 * 65_536);
     assert_eq!(
         management(pic, canister, 9).await,
         Ok(ManagementView {

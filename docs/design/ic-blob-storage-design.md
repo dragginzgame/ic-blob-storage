@@ -819,8 +819,8 @@ the stop request ID to its per-attempt dispatch claim. Unknown stop outcome refu
 even if another request has left the platform stopped.
 
 The existing intent/packet format binds the complete `install_code` argument:
-target, exact replacement bytes, ordinary upgrade with omitted flags (run the old
-pre-upgrade hook and replace heap), fixed Wire `blob_post_upgrade(())`, and no sender
+target, exact prepared replacement bytes, native Keep upgrade with the source
+close hook enabled and target reopening, fixed Wire `blob_post_upgrade(())`, and no sender
 version assertion. An immutable `predecessor.id` binds the original stop. There is
 no override for installation mode, hooks or arguments. The first direct-upload
 profile bounds uncompressed replacement Wasm to 1 MiB and signed packets to 2 MiB;

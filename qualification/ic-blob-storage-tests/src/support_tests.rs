@@ -48,3 +48,48 @@ pub async fn close(mut server: Server, instance: Instance) {
         "{stopped:?}"
     );
 }
+
+/// Observe declared accounting and all associations of the supplied fixture uploaders.
+/// This compares domain state, not allocator bytes or unspecified heap contents.
+/// # Panics
+/// Panics if an authorized query or its method-bound response fails.
+pub async fn blob_state(
+    pic: &ic_testkit::pocket_ic::nonblocking::PocketIc,
+    target: ic_testkit::pocket_ic::CanisterId,
+    application: ic_testkit::pocket_ic::CanisterId,
+    uploaders: &[ic_platform_types::Principal],
+) -> Vec<ic_blob_storage::protocol::Observation> {
+    use ic_blob_storage::{
+        local::Error,
+        protocol::{Inspection, Observation, RPC_LIMITS},
+    };
+    let mut state = Vec::new();
+    for inspection in std::iter::once(Inspection::Usage)
+        .chain(uploaders.iter().copied().map(Inspection::Overview))
+    {
+        let request = ic_wire::encode(
+            &inspection,
+            ic_wire::Encoding::Frame {
+                method: ic_wire::method_id("blob_query"),
+                direction: ic_wire::Direction::Request,
+            },
+            RPC_LIMITS,
+        )
+        .unwrap();
+        let reply = pic
+            .query_call(target, application, "blob_query", request)
+            .await
+            .unwrap();
+        let value: Result<Observation, Error> = ic_wire::decode(
+            &reply,
+            ic_wire::Encoding::Frame {
+                method: ic_wire::method_id("blob_query"),
+                direction: ic_wire::Direction::Response,
+            },
+            RPC_LIMITS,
+        )
+        .unwrap();
+        state.push(value.unwrap());
+    }
+    state
+}

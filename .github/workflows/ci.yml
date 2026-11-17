@@ -27,18 +27,31 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Admit the installed tooling bytes
+        id: admit
         run: perl scripts/ci/run-step.pl admit bash vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh --consumer "$PWD"
+      - name: Restore authenticated tool downloads
+        uses: ./vendor/toko-tooling/.github/actions/cache-tool-downloads
+      - name: Prepare pinned workflow tools
+        run: |
+          perl scripts/ci/run-step.pl workflow-setup bash -e -o pipefail <<'BLOB_CI_STEP'
+          installer=vendor/toko-tooling/scripts/ci/install-ci-tool.sh
+          tool_dir="$RUNNER_TEMP/blob-ci-tools"
+          for tool in actionlint shellcheck gitleaks; do
+            bash "$installer" "$tool" --install-dir "$tool_dir"
+          done
+          BLOB_CI_STEP
+
+      - name: Save authenticated tool downloads
+        uses: ./vendor/toko-tooling/.github/actions/cache-tool-downloads
+        with:
+          mode: save
       - name: Check workflow and scan full repository history once
         run: |
           perl scripts/ci/run-step.pl workflow-and-secrets bash -e -o pipefail <<'BLOB_CI_STEP'
           perl scripts/ci/test-run-step.pl
-          installer=vendor/toko-tooling/scripts/ci/install-ci-tool.sh
           tool_dir="$RUNNER_TEMP/blob-ci-tools"
-          actionlint_bin="$(bash "$installer" actionlint --install-dir "$tool_dir")"
-          shellcheck_bin="$(bash "$installer" shellcheck --install-dir "$tool_dir")"
-          gitleaks_bin="$(bash "$installer" gitleaks --install-dir "$tool_dir")"
-          "$actionlint_bin" -shellcheck "$shellcheck_bin" .github/workflows/ci.yml
-          "$gitleaks_bin" git --redact=100 --no-banner --no-color --log-level error
+          "$tool_dir/actionlint" -shellcheck "$tool_dir/shellcheck" .github/workflows/ci.yml
+          "$tool_dir/gitleaks" git --redact=100 --no-banner --no-color --log-level error
           BLOB_CI_STEP
 
       - name: Retain failure diagnostics
@@ -57,21 +70,29 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "24.21.0"
+      - name: Admit the installed tooling bytes
+        id: admit
+        run: perl scripts/ci/run-step.pl admit bash vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh --consumer "$PWD"
+      - name: Restore authenticated tool downloads
+        uses: ./vendor/toko-tooling/.github/actions/cache-tool-downloads
       - name: Prepare pinned compiler and tools
         run: |
           perl scripts/ci/run-step.pl linux-setup bash -e -o pipefail <<'BLOB_CI_STEP'
-          bash vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh --consumer "$PWD"
           make install-host-tools host-tools-check
           export PATH="$PWD/.tools/host/bin:$PATH"
           bash vendor/toko-tooling/scripts/dev/prepare-rust-toolchain.sh --toolchain-file rust-toolchain.toml
           make deps
           make qualification-tooling-check
           make install-rust-tools rust-tools-check
-          make install-browser-tools
           BLOB_CI_STEP
+      - name: Save authenticated tool downloads
+        uses: ./vendor/toko-tooling/.github/actions/cache-tool-downloads
+        with:
+          mode: save
       - name: Check product, qualification sources and Wasm hosts
         run: |
           perl scripts/ci/run-step.pl linux-checks bash -e -o pipefail <<'BLOB_CI_STEP'
+          perl scripts/ci/test-workflow.pl
           make ci build-host build-reference-app
           BLOB_CI_STEP
       - name: Retain failure diagnostics
@@ -87,15 +108,23 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+      - name: Admit the installed tooling bytes
+        id: admit
+        run: perl scripts/ci/run-step.pl admit bash vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh --consumer "$PWD"
+      - name: Restore authenticated tool downloads
+        uses: ./vendor/toko-tooling/.github/actions/cache-tool-downloads
       - name: Prepare pinned compiler and native dependencies
         run: |
           perl scripts/ci/run-step.pl macos-setup bash -e -o pipefail <<'BLOB_CI_STEP'
-          bash vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh --consumer "$PWD"
           make install-host-tools host-tools-check
           export PATH="$PWD/.tools/host/bin:$PATH"
           bash vendor/toko-tooling/scripts/dev/prepare-rust-toolchain.sh --toolchain-file rust-toolchain.toml
           make deps qualification-tooling-check
           BLOB_CI_STEP
+      - name: Save authenticated tool downloads
+        uses: ./vendor/toko-tooling/.github/actions/cache-tool-downloads
+        with:
+          mode: save
       - name: Check native storage and CLI behavior
         run: |
           perl scripts/ci/run-step.pl macos-checks bash -e -o pipefail <<'BLOB_CI_STEP'

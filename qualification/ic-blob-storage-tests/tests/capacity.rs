@@ -1,4 +1,4 @@
-//! Capacity and resource observations of the unmodified standalone Wasm.
+//! Capacity and resource observations of the prepared native standalone Wasm.
 //! Execution charges are cycles, not raw instruction counts or provider costs.
 
 #![forbid(unsafe_code)]
@@ -115,9 +115,10 @@ fn report(label: &str, before: &Resources, after: &Resources) {
         after.stable,
         after.heap
     );
+    assert_eq!(after.stable, 0, "native Blob allocates no stable pages");
     assert!(
-        after.stable <= 16 * 65_536,
-        "host's granted stable-page budget"
+        after.heap <= 128 * 1024 * 1024,
+        "admitted native memory ceiling"
     );
 }
 
@@ -272,7 +273,13 @@ async fn full_history_remains_inspectable_cleanable_and_upgradeable() {
             chunks: vec![[65; 32]],
             headers: vec![],
         };
-        let before = pic.get_stable_memory(canister).await;
+        let before = support::blob_state(
+            pic,
+            canister,
+            CanisterId::from_slice(actor(1).as_slice()),
+            &[actor(2)],
+        )
+        .await;
         let refused: Result<Outcome, Error> = call(
             pic,
             canister,
@@ -283,7 +290,16 @@ async fn full_history_remains_inspectable_cleanable_and_upgradeable() {
         )
         .await;
         assert_eq!(refused, Err(Error::Capacity));
-        assert_eq!(pic.get_stable_memory(canister).await, before);
+        assert_eq!(
+            support::blob_state(
+                pic,
+                canister,
+                CanisterId::from_slice(actor(1).as_slice()),
+                &[actor(2)]
+            )
+            .await,
+            before
+        );
         if shape != "reserved" {
             let refused: Result<Outcome, Error> = call(
                 pic,
@@ -295,7 +311,16 @@ async fn full_history_remains_inspectable_cleanable_and_upgradeable() {
             )
             .await;
             assert_eq!(refused, Err(Error::Capacity));
-            assert_eq!(pic.get_stable_memory(canister).await, before);
+            assert_eq!(
+                support::blob_state(
+                    pic,
+                    canister,
+                    CanisterId::from_slice(actor(1).as_slice()),
+                    &[actor(2)]
+                )
+                .await,
+                before
+            );
         }
         let drained: Result<Outcome, Error> = call(
             pic,
@@ -307,10 +332,16 @@ async fn full_history_remains_inspectable_cleanable_and_upgradeable() {
         )
         .await;
         assert!(matches!(drained, Ok(Outcome::Maintenance(state)) if !state.active));
+        let before_state = support::blob_state(
+            pic,
+            canister,
+            CanisterId::from_slice(actor(1).as_slice()),
+            &[actor(2)],
+        )
+        .await;
         pic.stop_canister(canister, None).await.unwrap();
-        let before_state = pic.get_stable_memory(canister).await;
         let before = resources(pic, canister).await;
-        pic.upgrade_canister(
+        pic.upgrade_eop_canister(
             canister,
             wasm.clone(),
             encode("blob_post_upgrade", &()),
@@ -323,8 +354,17 @@ async fn full_history_remains_inspectable_cleanable_and_upgradeable() {
             &before,
             &resources(pic, canister).await,
         );
-        assert_eq!(pic.get_stable_memory(canister).await, before_state);
         pic.start_canister(canister, None).await.unwrap();
+        assert_eq!(
+            support::blob_state(
+                pic,
+                canister,
+                CanisterId::from_slice(actor(1).as_slice()),
+                &[actor(2)]
+            )
+            .await,
+            before_state
+        );
         assert_eq!(usage(pic, canister, None).await, full);
         for (index, request) in requests.iter().enumerate() {
             let replay: Result<Outcome, Error> =

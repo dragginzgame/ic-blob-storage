@@ -12,9 +12,7 @@ use ic_blob_storage::{
 use ic_blob_storage_reference_app::protocol::{DraftInput, DraftView, Error, Installation, Phase};
 use ic_blob_storage_tests::support_tests as support;
 use ic_platform_types::Principal;
-use ic_testkit::pocket_ic::{
-    CanisterId, PocketIcBuilder, RejectCode, common::rest::BlobCompression, nonblocking::PocketIc,
-};
+use ic_testkit::pocket_ic::{CanisterId, PocketIcBuilder, RejectCode, nonblocking::PocketIc};
 use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
 use std::{path::Path, time::Duration};
@@ -72,6 +70,23 @@ async fn catalog(pic: &PocketIc, app: CanisterId, user: CanisterId) -> Vec<Draft
         .await
         .unwrap();
     decode::<Result<Vec<DraftView>, Error>>("app_catalog", &bytes).unwrap()
+}
+
+// This fixture uses lifetime IDs 1..=17. Include unpublished and released drafts,
+// plus denied/unknown outcomes, rather than observing unused stable memory.
+async fn app_state(pic: &PocketIc, app: CanisterId, users: &[CanisterId]) -> Vec<Vec<u8>> {
+    let mut state = Vec::new();
+    for user in users {
+        for id in 1u128..=17 {
+            let id: ic_blob_storage::local::UploadId = id.try_into().unwrap();
+            state.push(
+                pic.query_call(app, *user, "app_draft", encode("app_draft", &id))
+                    .await
+                    .unwrap(),
+            );
+        }
+    }
+    state
 }
 
 fn input(id: u128, name: &str, root: u8) -> DraftInput {
@@ -208,8 +223,9 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
 
     let first = input(1, "portrait", 7);
     // Invalid drafts must not consume their lifetime ID or reach Blob admission.
-    let initial_app = pic.get_stable_memory(app).await;
-    let initial_blob = pic.get_stable_memory(blob).await;
+    let initial_app = app_state(pic, app, &[alice, bob]).await;
+    let initial_blob =
+        support::blob_state(pic, blob, app, &[principal(alice), principal(bob)]).await;
     for invalid in [
         DraftInput {
             asset: "é".repeat(33), // Asset names are bounded in UTF-8 bytes, not characters.
@@ -226,8 +242,11 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     ] {
         let refused: Result<DraftView, Error> = call(pic, app, alice, "app_create", &invalid).await;
         assert_eq!(refused, Err(Error::Invalid));
-        assert_eq!(pic.get_stable_memory(app).await, initial_app);
-        assert_eq!(pic.get_stable_memory(blob).await, initial_blob);
+        assert_eq!(app_state(pic, app, &[alice, bob]).await, initial_app);
+        assert_eq!(
+            support::blob_state(pic, blob, app, &[principal(alice), principal(bob)]).await,
+            initial_blob
+        );
     }
     let denied: Result<DraftView, Error> =
         call(pic, app, CanisterId::anonymous(), "app_create", &first).await;
@@ -245,9 +264,9 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
         .unwrap();
     pic.tick().await;
     assert!(pic.ingress_status(pending.clone()).await.is_none());
-    let before = pic.get_stable_memory(app).await;
+    let before = app_state(pic, app, &[alice, bob]).await;
     let refused = pic
-        .upgrade_canister(app, wasm.clone(), encode("app_post_upgrade", &()), None)
+        .upgrade_eop_canister(app, wasm.clone(), encode("app_post_upgrade", &()), None)
         .await
         .unwrap_err();
     // Runtime preserves the pre-upgrade trap; panic prose is not an API.
@@ -260,12 +279,12 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     let resumed: Result<DraftView, Error> =
         decode("app_create", &pic.await_call(pending).await.unwrap());
     assert_eq!(resumed, created);
-    assert_eq!(pic.get_stable_memory(app).await, before);
+    assert_eq!(app_state(pic, app, &[alice, bob]).await, before);
 
     // Upgrade arguments cannot replace the immutable target/users or reset saved drafts.
     pic.stop_canister(app, None).await.unwrap();
     assert!(
-        pic.upgrade_canister(
+        pic.upgrade_eop_canister(
             app,
             wasm.clone(),
             encode(
@@ -280,8 +299,8 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
         .await
         .is_err()
     );
-    assert_eq!(pic.get_stable_memory(app).await, before);
     pic.start_canister(app, None).await.unwrap();
+    assert_eq!(app_state(pic, app, &[alice, bob]).await, before);
     assert_eq!(
         draft(pic, app, alice, &first).await,
         created.clone().unwrap()
@@ -318,11 +337,11 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     )
     .await;
     assert_eq!(registered, Ok(Outcome::Done));
-    let before = pic.get_stable_memory(blob).await;
+    let before = support::blob_state(pic, blob, app, &[principal(alice), principal(bob)]).await;
     let published: Result<DraftView, Error> = call(pic, app, alice, "app_publish", &first.id).await;
     assert_eq!(published.as_ref().unwrap().phase, Phase::Published);
     assert_eq!(
-        pic.get_stable_memory(blob).await,
+        support::blob_state(pic, blob, app, &[principal(alice), principal(bob)]).await,
         before,
         "publication only inspects Blob"
     );
@@ -330,8 +349,9 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     assert!(catalog(pic, app, bob).await.is_empty());
 
     // Each application hook admits its own bounded Wire frame before touching live state.
-    let before_app = pic.get_stable_memory(app).await;
-    let before_blob = pic.get_stable_memory(blob).await;
+    let before_app = app_state(pic, app, &[alice, bob]).await;
+    let before_blob =
+        support::blob_state(pic, blob, app, &[principal(alice), principal(bob)]).await;
     for (method, valid) in [
         ("app_create", encode("app_create", &input(2, "new", 7))),
         ("app_publish", encode("app_publish", &first.id)),
@@ -352,8 +372,11 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
                 pic.update_call(app, alice, method, malformed).await
             };
             assert_eq!(result.unwrap_err().reject_code, RejectCode::CanisterError);
-            assert_eq!(pic.get_stable_memory(app).await, before_app);
-            assert_eq!(pic.get_stable_memory(blob).await, before_blob);
+            assert_eq!(app_state(pic, app, &[alice, bob]).await, before_app);
+            assert_eq!(
+                support::blob_state(pic, blob, app, &[principal(alice), principal(bob)]).await,
+                before_blob
+            );
         }
     }
 
@@ -426,7 +449,7 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     );
     assert_eq!(catalog(pic, app, alice).await.len(), 1);
     pic.stop_canister(app, None).await.unwrap();
-    pic.upgrade_canister(app, wasm.clone(), encode("app_post_upgrade", &()), None)
+    pic.upgrade_eop_canister(app, wasm.clone(), encode("app_post_upgrade", &()), None)
         .await
         .unwrap();
     pic.start_canister(app, None).await.unwrap();
@@ -489,10 +512,13 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     };
     let refused: Result<DraftView, Error> = call(pic, app, alice, "app_create", &expired).await;
     assert_eq!(refused, Err(Error::Blob(BlobError::Expired)));
-    let before = pic.get_stable_memory(blob).await;
+    let before = support::blob_state(pic, blob, app, &[principal(alice), principal(bob)]).await;
     let cleaned: Result<DraftView, Error> = call(pic, app, alice, "app_cancel", &expired.id).await;
     assert_eq!(cleaned.unwrap().phase, Phase::Cleaned);
-    assert_eq!(pic.get_stable_memory(blob).await, before);
+    assert_eq!(
+        support::blob_state(pic, blob, app, &[principal(alice), principal(bob)]).await,
+        before
+    );
     let replay: Result<DraftView, Error> = call(pic, app, alice, "app_create", &expired).await;
     assert_eq!(replay.unwrap().phase, Phase::Cleaned);
     let renewed = DraftInput {
@@ -540,7 +566,7 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     assert!(catalog(pic, app, alice).await.is_empty());
     assert_eq!(catalog(pic, app, bob).await[0].input, second);
     pic.stop_canister(app, None).await.unwrap();
-    pic.upgrade_canister(app, wasm.clone(), encode("app_post_upgrade", &()), None)
+    pic.upgrade_eop_canister(app, wasm.clone(), encode("app_post_upgrade", &()), None)
         .await
         .unwrap();
     pic.start_canister(app, None).await.unwrap();
@@ -549,47 +575,37 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
         Phase::Cleaned
     );
 
-    // Inject invalid state only into disposable recipients. This is rejection
-    // qualification, not a supported restore or repair path for the original app.
-    let original_app = pic.get_stable_memory(app).await;
-    let original_blob = pic.get_stable_memory(blob).await;
-    for (case, bytes) in [
-        ("missing", vec![]),
-        ("invalid storage", vec![0; 65_536]),
-        ("foreign installation", original_app.clone()),
-    ] {
-        let recipient = pic.create_canister_on_subnet(None, None, subnets[0]).await;
-        pic.install_canister(
-            recipient,
-            wasm.clone(),
-            encode(
-                "app_init",
-                &Installation {
-                    blob: principal(blob),
-                    users: vec![principal(alice), principal(bob)],
-                },
-            ),
+    // A foreign schema and a module without a native directory must fail to
+    // reopen. These use disposable recipients; no native image is copied/reset.
+    let original_app = app_state(pic, app, &[alice, bob]).await;
+    let original_blob =
+        support::blob_state(pic, blob, app, &[principal(alice), principal(bob)]).await;
+    pic.stop_canister(app, None).await.unwrap();
+    let refused = pic
+        .upgrade_eop_canister(
+            app,
+            std::fs::read(std::env::var_os("BLOB_WASM").unwrap()).unwrap(),
+            encode("blob_post_upgrade", &()),
             None,
         )
+        .await
+        .unwrap_err();
+    assert_eq!(refused.reject_code, RejectCode::CanisterError);
+    pic.start_canister(app, None).await.unwrap();
+    assert_eq!(app_state(pic, app, &[alice, bob]).await, original_app);
+    assert_eq!(
+        support::blob_state(pic, blob, app, &[principal(alice), principal(bob)]).await,
+        original_blob
+    );
+    let recipient = pic.create_canister_on_subnet(None, None, subnets[0]).await;
+    pic.install_canister(recipient, wat::parse_str("(module)").unwrap(), vec![], None)
         .await;
-        pic.stop_canister(recipient, None).await.unwrap();
-        pic.set_stable_memory(recipient, bytes.clone(), BlobCompression::NoCompression)
-            .await;
-        assert_eq!(pic.get_stable_memory(recipient).await, bytes, "{case}");
-        let refused = pic
-            .upgrade_canister(
-                recipient,
-                wasm.clone(),
-                encode("app_post_upgrade", &()),
-                None,
-            )
-            .await
-            .unwrap_err();
-        assert_eq!(refused.reject_code, RejectCode::CanisterError, "{case}");
-        assert_eq!(pic.get_stable_memory(recipient).await, bytes, "{case}");
-        assert_eq!(pic.get_stable_memory(app).await, original_app, "{case}");
-        assert_eq!(pic.get_stable_memory(blob).await, original_blob, "{case}");
-    }
+    pic.stop_canister(recipient, None).await.unwrap();
+    let refused = pic
+        .upgrade_eop_canister(recipient, wasm, encode("app_post_upgrade", &()), None)
+        .await
+        .unwrap_err();
+    assert_eq!(refused.reject_code, RejectCode::CanisterError);
     assert_eq!(catalog(pic, app, bob).await[0].input, second);
     assert_eq!(
         draft(pic, app, alice, &replacement).await.phase,

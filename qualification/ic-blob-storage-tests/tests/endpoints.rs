@@ -139,7 +139,8 @@ async fn installed_frames_and_reply_failure_preserve_the_contract() {
         Some(controller),
     )
     .await;
-    let initial = pic.get_stable_memory(canister).await;
+    let initial =
+        support::blob_state(pic, canister, caller, &[Principal::from_slice(&[2, 1])]).await;
     for (method, actor, valid, expected) in [
         (
             "blob_update",
@@ -198,7 +199,10 @@ async fn installed_frames_and_reply_failure_preserve_the_contract() {
                 RejectCode::CanisterError,
                 "{method}: {error}"
             );
-            assert_eq!(pic.get_stable_memory(canister).await, initial);
+            assert_eq!(
+                support::blob_state(pic, canister, caller, &[Principal::from_slice(&[2, 1])]).await,
+                initial
+            );
         }
         let error = call(pic, canister, actor, method, vec![0; RPC_LIMITS.bytes + 1])
             .await
@@ -209,7 +213,10 @@ async fn installed_frames_and_reply_failure_preserve_the_contract() {
                 .reject_message
                 .contains("Wire request exceeds byte allowance")
         );
-        assert_eq!(pic.get_stable_memory(canister).await, initial);
+        assert_eq!(
+            support::blob_state(pic, canister, caller, &[Principal::from_slice(&[2, 1])]).await,
+            initial
+        );
     }
     // Zero-argument management still decodes its unit frame and remains update-only.
     assert_eq!(
@@ -261,11 +268,14 @@ async fn installed_frames_and_reply_failure_preserve_the_contract() {
             .reject_message
             .contains("Wire request exceeds byte allowance")
     );
-    assert_eq!(pic.get_stable_memory(canister).await, initial);
+    assert_eq!(
+        support::blob_state(pic, canister, caller, &[Principal::from_slice(&[2, 1])]).await,
+        initial
+    );
 
     // Blob's fixed-size replies cannot normally overflow RPC_LIMITS. This separate
     // installed probe forces the selected Platform/Wire encode hook to fail after
-    // a stable write, without adding a fault-injection endpoint to production Blob.
+    // a native write, without adding a fault-injection endpoint to production Blob.
     let probe = pic.create_canister().await;
     pic.add_cycles(probe, 10_000_000_000_000).await;
     pic.install_canister(

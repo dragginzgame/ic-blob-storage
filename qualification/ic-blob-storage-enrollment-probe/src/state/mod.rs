@@ -4,11 +4,7 @@ use crate::protocol::{Installation, LIMITS, Outcome, View};
 use ic_platform_protocol::caffeine::{Nat, TopUpArgs, encode_top_up};
 use ic_platform_types::Principal;
 #[cfg(target_arch = "wasm32")]
-use ic_storage::{
-    AllocationGrants, DefaultMemoryImpl, GenericAllocationPolicy, Memory, MemoryAuthority,
-    MemoryRequest, MemoryRuntime, RuntimeMemory, SealedDeclarationSnapshot, StableKey,
-    StorageConfig, adapter::StableCell,
-};
+use ic_storage::retained::{Bank, Canister, Geometry, Grant, Root};
 use ic_wire as wire;
 use serde::{Deserialize, Serialize};
 
@@ -21,7 +17,7 @@ struct Record {
 #[cfg(target_arch = "wasm32")]
 pub(crate) struct State {
     record: Record,
-    cell: StableCell<Vec<u8>, DefaultMemoryImpl>,
+    grant: Grant,
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -38,18 +34,23 @@ impl State {
                 outcome: None,
             },
         };
-        let cell = StableCell::create(
-            memory(true),
-            wire::encode(&record, wire::Encoding::Payload, LIMITS).unwrap(),
-        )
-        .unwrap();
-        Self { record, cell }
+        let grant = memory(true);
+        let state = Self { record, grant };
+        state.persist();
+        state
     }
 
     pub fn open(owner: Principal) -> Self {
-        let cell = StableCell::<Vec<u8>, _>::load(memory(false), LIMITS.bytes)
-            .expect("existing bounded enrollment record");
-        let record: Record = wire::decode(cell.get(), wire::Encoding::Payload, LIMITS)
+        let grant = memory(false);
+        let bytes = Canister::read(&[&grant], |view| {
+            view.get(1, b"control")
+                .unwrap()
+                .unwrap()
+                .as_slice()
+                .to_vec()
+        })
+        .unwrap();
+        let record: Record = wire::decode(&bytes, wire::Encoding::Payload, LIMITS)
             .expect("enrollment record format");
         assert_eq!(record.version, 1);
         let view = &record.view;
@@ -60,7 +61,7 @@ impl State {
             arguments(owner, view.configuration.target_balance)
         );
         assert!(view.outcome.is_none() || view.attempted_at.is_some());
-        Self { record, cell }
+        Self { record, grant }
     }
 
     pub fn view(&self) -> &View {
@@ -79,10 +80,13 @@ impl State {
         self.persist();
     }
 
-    fn persist(&mut self) {
+    fn persist(&self) {
         // Encoding/storage failure traps this message; never return after partial mutation.
-        self.cell
-            .set(wire::encode(&self.record, wire::Encoding::Payload, LIMITS).unwrap());
+        let bytes = wire::encode(&self.record, wire::Encoding::Payload, LIMITS).unwrap();
+        Canister::update(&[&self.grant], |mut view| {
+            view.insert(1, b"control", &bytes).unwrap()
+        })
+        .unwrap();
     }
 }
 
@@ -112,38 +116,27 @@ fn validate(config: &Installation, owner: Principal) {
 }
 
 #[cfg(target_arch = "wasm32")]
-fn memory(fresh: bool) -> RuntimeMemory<DefaultMemoryImpl> {
-    let backing = DefaultMemoryImpl::default();
-    assert_eq!(
-        backing.size() == 0,
-        fresh,
-        "fresh and existing state are distinct"
-    );
-    let mut runtime = MemoryRuntime::new_with_config(
-        backing,
-        StorageConfig {
-            allocations: 1,
-            extents: 1,
-            pages: 16,
-        },
-    )
-    .unwrap();
-    runtime
-        .bootstrap(
-            &SealedDeclarationSnapshot::new(vec![
-                MemoryRequest::new("enrollment", "enrollment.control.v1").unwrap(),
-            ])
-            .unwrap(),
-            &AllocationGrants::new(vec![
-                MemoryAuthority::new("enrollment", "enrollment.").unwrap(),
-            ])
-            .unwrap(),
-            &GenericAllocationPolicy,
-        )
-        .unwrap();
-    runtime
-        .open_memory(&StableKey::parse("enrollment.control.v1").unwrap())
-        .unwrap()
+fn memory(fresh: bool) -> Grant {
+    let geometry = Geometry {
+        bank: Bank::A,
+        nodes: 16,
+        bytes: 65536,
+    };
+    let roots = [Root {
+        id: 1,
+        participant: 1,
+        schema: 0x454e524f4c4c3031,
+        entries: 1,
+        key_bytes: 7,
+        value_bytes: 16384,
+    }];
+    if fresh {
+        Canister::create(geometry, &roots)
+    } else {
+        Canister::reopen(geometry, &roots)
+    }
+    .expect("native enrollment admission");
+    Canister::grant(1).unwrap()
 }
 
 #[cfg(test)]

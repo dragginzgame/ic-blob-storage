@@ -62,7 +62,7 @@ async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
     let owner = install(pic).await;
     let root = [42; 32];
     update(pic, owner, 1, grant(1, root, 2)).await.unwrap();
-    let before = pic.get_stable_memory(owner).await;
+    let before = support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await;
     for who in [
         CanisterId::anonymous(),
         caller(1),
@@ -75,7 +75,10 @@ async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
                 .await
                 .is_err()
         );
-        assert_eq!(pic.get_stable_memory(owner).await, before);
+        assert_eq!(
+            support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await,
+            before
+        );
     }
     let mut trailing = issue_args(root);
     trailing.push(0);
@@ -100,7 +103,10 @@ async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
                 .await
                 .is_err()
         );
-        assert_eq!(pic.get_stable_memory(owner).await, before);
+        assert_eq!(
+            support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await,
+            before
+        );
     }
     assert!(
         pic.query_call(owner, caller(2), ISSUE, issue_args(root))
@@ -118,14 +124,17 @@ async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
     request.expires_at = pic.get_time().await.as_nanos_since_unix_epoch() + 60_000_000_000;
     update(pic, owner, 1, expired).await.unwrap();
     pic.advance_time(Duration::from_secs(121)).await;
-    let before = pic.get_stable_memory(owner).await;
+    let before = support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await;
     for unavailable in [[2; 32], [3; 32]] {
         assert!(
             pic.update_call(owner, caller(2), ISSUE, issue_args(unavailable))
                 .await
                 .is_err()
         );
-        assert_eq!(pic.get_stable_memory(owner).await, before);
+        assert_eq!(
+            support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await,
+            before
+        );
     }
     // Submit once; delay retrieving the client result until after final release.
     let pending = pic
@@ -163,7 +172,7 @@ async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
     let exposure = usage(pic, owner).await;
     update(pic, owner, 9, Command::Drain(1)).await.unwrap();
     pic.stop_canister(owner, Some(caller(9))).await.unwrap();
-    pic.upgrade_canister(
+    pic.upgrade_eop_canister(
         owner,
         wasm(),
         frame("callback_upgrade", &()),
@@ -456,7 +465,13 @@ async fn cancelled_authority_and_transport_failure_never_release_dispatch_custod
             // the CLI cannot know whether a general transport error means no effect.
             owned.client_mut().stop_live().await;
         }
-        let before = owned.client().get_stable_memory(owner).await;
+        let before = support::blob_state(
+            owned.client(),
+            owner,
+            CanisterId::from_slice(signer(1).as_slice()),
+            &[signer(2), signer(3)],
+        )
+        .await;
         let mut dispatch = certificate_command(
             "dispatch-certificate",
             &directory,
@@ -515,7 +530,16 @@ async fn cancelled_authority_and_transport_failure_never_release_dispatch_custod
             .unwrap();
         assert!(!output.status.success());
         assert!(!proof.exists());
-        assert_eq!(owned.client().get_stable_memory(owner).await, before);
+        assert_eq!(
+            support::blob_state(
+                owned.client(),
+                owner,
+                CanisterId::from_slice(signer(1).as_slice()),
+                &[signer(2), signer(3)]
+            )
+            .await,
+            before
+        );
         if number == 2 {
             // An unused reservation can still be released through its real owner;
             // this does not erase or reset the CLI's uncertain dispatch claim.

@@ -7,6 +7,26 @@ use ic_blob_storage_reference_app::protocol::{
 use std::process::Stdio;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
+async fn application_state(pic: &PocketIc, app: CanisterId) -> Vec<Vec<u8>> {
+    let mut result = Vec::new();
+    for seed in [2, 3] {
+        for id in [1u128, 2] {
+            let id: ic_blob_storage::local::UploadId = id.try_into().unwrap();
+            result.push(
+                pic.query_call(
+                    app,
+                    CanisterId::from_slice(signer(seed).as_slice()),
+                    "app_draft",
+                    frame("app_draft", &id),
+                )
+                .await
+                .unwrap(),
+            );
+        }
+    }
+    result
+}
+
 fn declaration() -> DraftInput {
     // Existing frozen six-chunk vector, independently prepared by Rust and JS.
     const ROOT: &str = "bc608ea2567f6809b872afc8e9ec44fc0addf3fd58a00e7f7aa7757b35927a03";
@@ -229,8 +249,9 @@ async fn publication_cases(browser: bool) {
             app_update(&other, app, "app_publish", &other_draft.id)
                 .await
                 .unwrap();
-            let app_before = owned.client().get_stable_memory(app).await;
-            let blob_before = owned.client().get_stable_memory(owner).await;
+            let app_before = application_state(owned.client(), app).await;
+            let blob_before =
+                support::blob_state(owned.client(), owner, app, &[signer(2), signer(3)]).await;
             let output = cli_application(&directory, url.as_str(), app, None).await;
             assert!(cli_report(&output).contains("Published catalog entries: 0"));
             let output = cli_application(&directory, url.as_str(), app, Some(1)).await;
@@ -248,8 +269,11 @@ async fn publication_cases(browser: bool) {
                         .contains(refusal)
                 );
             }
-            assert_eq!(owned.client().get_stable_memory(app).await, app_before);
-            assert_eq!(owned.client().get_stable_memory(owner).await, blob_before);
+            assert_eq!(application_state(owned.client(), app).await, app_before);
+            assert_eq!(
+                support::blob_state(owned.client(), owner, app, &[signer(2), signer(3)]).await,
+                blob_before
+            );
             app_update(&other, app, "app_cancel", &other_draft.id)
                 .await
                 .unwrap();
@@ -309,7 +333,7 @@ async fn publication_cases(browser: bool) {
                         let saved = wire::decode::<Result<DraftView, AppError>>(&bytes, wire::Encoding::Frame { method: wire::method_id("app_draft"), direction: wire::Direction::Response }, RPC_LIMITS).unwrap().unwrap();
                         assert_eq!(saved.input, draft);
                         assert_eq!(saved.phase, Phase::Draft);
-                        before_read = Some(owned.client().get_stable_memory(owner).await);
+                        before_read = Some(support::blob_state(owned.client(), owner, app, &[signer(2), signer(3)]).await);
                         b'S'
                     }
                     b'U' => {
@@ -317,28 +341,28 @@ async fn publication_cases(browser: bool) {
                         // runtime calls, preserving the draft and issued obligation.
                         let pic = owned.client();
                         assert!(catalog(&user, app).await.is_empty());
+                        let app_before = application_state(pic, app).await;
                         pic.stop_canister(app, None).await.unwrap();
-                        let app_before = pic.get_stable_memory(app).await;
                         let manager = Client::new(url.as_str(), &trust_root, owned.client().topology().await.get_nns().unwrap(), 9);
                         let drained = signed_command(&manager, owner, Command::Drain(1)).await;
                         assert!(matches!(drained, Outcome::Maintenance(m) if m.attempt == 1 && !m.active));
+                        let owner_before = support::blob_state(pic, owner, app, &[signer(2), signer(3)]).await;
                         pic.stop_canister(owner, None).await.unwrap();
-                        let owner_before = pic.get_stable_memory(owner).await;
-                        pic.upgrade_canister(owner, wasm(), frame("callback_upgrade", &()), None)
+                        pic.upgrade_eop_canister(owner, wasm(), frame("callback_upgrade", &()), None)
                             .await.unwrap();
-                        pic.upgrade_canister(app, app_wasm.clone(), frame("app_post_upgrade", &()), None)
+                        pic.upgrade_eop_canister(app, app_wasm.clone(), frame("app_post_upgrade", &()), None)
                             .await.unwrap();
-                        assert_eq!(pic.get_stable_memory(owner).await, owner_before);
-                        assert_eq!(pic.get_stable_memory(app).await, app_before);
                         pic.start_canister(owner, None).await.unwrap();
+                        assert_eq!(support::blob_state(pic, owner, app, &[signer(2), signer(3)]).await, owner_before);
                         // Reopening must not silently activate admission.
                         assert_eq!(signed_command(&manager, owner, Command::Drain(1)).await, drained);
-                        assert_eq!(pic.get_stable_memory(owner).await, owner_before);
+                        assert_eq!(support::blob_state(pic, owner, app, &[signer(2), signer(3)]).await, owner_before);
                         let active = signed_command(&manager, owner, Command::Activate(1)).await;
                         assert!(matches!(active, Outcome::Maintenance(m) if m.attempt == 1 && m.active));
                         pic.start_canister(app, None).await.unwrap();
+                        assert_eq!(application_state(pic, app).await, app_before);
                         assert!(catalog(&user, app).await.is_empty());
-                        before_read = Some(pic.get_stable_memory(owner).await);
+                        before_read = Some(support::blob_state(pic, owner, app, &[signer(2), signer(3)]).await);
                         b'U'
                     }
                     b'P' => {
@@ -372,7 +396,10 @@ async fn publication_cases(browser: bool) {
             && scenario != "reconcile-cancelled"
         {
             // Verified GET and catalog publication do not mutate Blob's state.
-            assert_eq!(owned.client().get_stable_memory(owner).await, before);
+            assert_eq!(
+                support::blob_state(owned.client(), owner, app, &[signer(2), signer(3)]).await,
+                before
+            );
         }
         assert_eq!(
             std::fs::read(claim.join("request.cbor")).unwrap(),
@@ -458,14 +485,18 @@ async fn publication_cases(browser: bool) {
         );
         assert!(catalog(&user, app).await.is_empty());
         if inspect_cli {
-            let app_before = owned.client().get_stable_memory(app).await;
-            let blob_before = owned.client().get_stable_memory(owner).await;
+            let app_before = application_state(owned.client(), app).await;
+            let blob_before =
+                support::blob_state(owned.client(), owner, app, &[signer(2), signer(3)]).await;
             let output = cli_application(&directory, url.as_str(), app, None).await;
             assert!(cli_report(&output).contains("Published catalog entries: 0"));
             let output = cli_application(&directory, url.as_str(), app, Some(1)).await;
             assert!(cli_report(&output).contains("Cleaned (application cleanup finished)"));
-            assert_eq!(owned.client().get_stable_memory(app).await, app_before);
-            assert_eq!(owned.client().get_stable_memory(owner).await, blob_before);
+            assert_eq!(application_state(owned.client(), app).await, app_before);
+            assert_eq!(
+                support::blob_state(owned.client(), owner, app, &[signer(2), signer(3)]).await,
+                blob_before
+            );
         }
         // Simulator inspection as the application authority; application operations
         // above use the real user signature and the application's outgoing calls.

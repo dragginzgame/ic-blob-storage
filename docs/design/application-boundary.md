@@ -58,7 +58,7 @@ The current experimental supplier surface supports that local witness:
 
 | Adapter responsibility | Existing Blob surface | Required composition |
 | --- | --- | --- |
-| Allocate durable control state | `local::persistence::{STORAGE_AUTHORITY, STORAGE_KEY}` | Include `blob.control.v1` under `blob` in the child's one Storage bootstrap, alongside its catalog allocation; pass the granted `RuntimeMemory<M>` lease |
+| Allocate durable control state | `local::persistence::{storage_root, access::Access}` | Declare the host-selected root and participant in one native retained runtime alongside the catalog; pass its supplier grant through `Access` |
 | Fresh installation | `Service::create(lease, installation, Installation)` | Bind the actual child principal; use that principal as application authority for checked local catalog operations, with an explicitly configured manager |
 | Reopen | `Service::open(lease, installation)` | Load the original record under the same child identity; trap on failure, never fall back to `create` or replace configuration |
 | Domain mutation | `Service::execute(caller, Command, now)` | Capture IC time and uploader identity; use the internal application-authority path only after the application's own policy check |
@@ -88,8 +88,8 @@ local transaction and preserve their separate durable obligations when implement
 
 Mount only exports with real callers through Canic's Platform/Wire composition.
 Endpoint generation must not bootstrap storage, install timers, select a manager
-or activate Blob. The child owns one init/pre/post-upgrade sequence. Ordinary
-upgrade reopens both owners and leaves Blob drained until the current attempt is
+or activate Blob. The child owns one init/pre/post-upgrade sequence. A prepared native Keep
+upgrade closes and reopens both owners and leaves Blob drained until the current attempt is
 explicitly activated; Canic readiness cannot substitute for that service decision.
 
 The first installed Canic witness must demonstrate two users sharing an object,
@@ -328,7 +328,7 @@ and bounded-wait calls, with no automatic retry. It exposes catalog operations,
 not arbitrary Blob command forwarding. The installed test qualifies publication
 and cancellation across actual calls, delayed authorization, exact retry after a
 discarded cleanup reply, stopped-host failures, same-format upgrade and capacity
-exhaustion with cleanup still possible. Publication leaves Blob stable bytes unchanged.
+exhaustion with cleanup still possible. Publication leaves Blob’s public domain projections unchanged.
 
 The targeted legacy review rechecked its host caller capture and
 [reference-status regressions](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/crates/ic-blob-storage/src/ops/service/uploads/tests/reference_status_boundary/mod.rs).
@@ -380,6 +380,19 @@ not depend on Runtime. The native CLI uses the canonical identity type; there is
 legacy Platform conversion in product code.
 
 ### Platform replacement prerequisites — 2026-11-16
+
+**Current native adoption — 2026-11-17:** both workspaces select Storage 0.76.2
+from `f9fa03611ebb8641412a2af0f8620b80909c164f`, Runtime/Macros/Guard 0.23.17,
+Host Process 0.81.0 and Testkit 0.110.0. Blob now uses native retained roots,
+public participant grants, domain rows and supplier-prepared Wasm. The public
+persistence types change in 0.104.0. See the
+[native storage contract](native-storage.md) for layouts, host composition,
+mandatory Keep upgrades, qualification and explicit exclusions.
+[Storage #6](https://github.com/dragginzgame/ic-storage/issues/6) owns consumer
+acceptance; [Storage #1](https://github.com/dragginzgame/ic-storage/issues/1) separately
+owns the consumed old image. There is no compatibility backing or migration.
+The following historical evidence describes the **0.103.3 baseline**, not a
+cross-layout upgrade or current native capacity measurement.
 
 Both workspaces select Platform 0.34.13, Protocol 0.3.5, Runtime/Macros/Guard
 0.23.16 and Types 0.21.2. Testkit 0.108.0 shares Protocol 0.3.5 for held replies.
@@ -523,7 +536,7 @@ The required external codecs are bounded projections, not application Candid:
 | Protocol | Existing inputs and admitted outputs |
 | --- | --- |
 | Management status/start/stop | `CanisterIdRecord`; status/controller/module-hash fields consumed by admission, and exact empty acknowledgement for start/stop |
-| Management `install_code` | Ordinary `Upgrade(None)`, exact target/Wasm/Wire upgrade args, absent sender version; no reinstall fallback or skip-pre-upgrade override. Current Wasm allowance is 1 MiB and encoded request allowance 2 MiB. |
+| Management `install_code` | Native `Keep` upgrade, source close hook enabled, exact target/prepared-Wasm/Wire upgrade args, absent sender version; no reinstall fallback or skip-pre-upgrade override. Current Wasm allowance is 1 MiB and encoded request allowance 2 MiB. |
 | Upload certificate method | One root string; exact one-result `{ method, blob_hash }` matching `upload` and the original root. Preserve original CBOR request/certificate bytes and request-status proof. |
 | Cashier `account_info_get_v1` | Account principal; bounded result with matching owner, signed integer cycle balance, four usage gauges and last-charge timestamp. Preserve known error variants and refusal of malformed/unknown results. This remains a query observation, not settlement evidence. |
 | Qualification enrollment | Exact `account_top_up_v1` request bytes already stored by the private probe, zero attached cycles, bounded raw reply retention and controller check. No new live experiment is needed for migration. |

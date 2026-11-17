@@ -11,20 +11,12 @@ use ic_platform_protocol::{
     candid::Limits,
 };
 use ic_platform_types::Principal;
-use ic_storage::{
-    AllocationGrants, DirectoryError, GenericAllocationPolicy, MemoryAuthority, MemoryRequest,
-    MemoryRuntime, RuntimeBootstrapError, SealedDeclarationSnapshot, StorageConfig,
-};
 use ic_testkit::{
     held::{Catalog, Fixture, Limits as HeldLimits, Reply},
-    pocket_ic::{
-        CanisterId, PocketIcBuilder, RejectCode, common::rest::BlobCompression,
-        nonblocking::PocketIc,
-    },
+    pocket_ic::{CanisterId, PocketIcBuilder, RejectCode, nonblocking::PocketIc},
 };
 use ic_wire as wire;
 use serde::Serialize;
-use std::{cell::RefCell, rc::Rc};
 
 fn raw_reply(bytes: &[u8]) -> Vec<u8> {
     assert!(bytes.len() <= REPLY_BYTES + 1);
@@ -126,7 +118,7 @@ async fn attempt(pic: &PocketIc, owner: CanisterId) -> View {
 
 async fn upgrade(pic: &PocketIc, owner: CanisterId) {
     pic.stop_canister(owner, Some(actor())).await.unwrap();
-    pic.upgrade_canister(
+    pic.upgrade_eop_canister(
         owner,
         wasm(),
         request("enrollment_upgrade", &()),
@@ -191,7 +183,7 @@ async fn one_attempt_survives_concurrency_revocation_lost_reply_and_upgrade() {
     assert_eq!(args.target_balance, Some(Nat::from(1_000_000_000u64)));
     upgrade(pic, owner).await;
     assert_eq!(inspect(pic, owner).await, ready);
-    let memory = pic.get_stable_memory(owner).await;
+    let memory = inspect(pic, owner).await;
     for method in ["enrollment_inspect", "enrollment_attempt"] {
         let denied = pic
             .update_call(owner, CanisterId::anonymous(), method, request(method, &()))
@@ -209,7 +201,7 @@ async fn one_attempt_survives_concurrency_revocation_lost_reply_and_upgrade() {
         .await
         .is_err()
     );
-    assert_eq!(pic.get_stable_memory(owner).await, memory);
+    assert_eq!(inspect(pic, owner).await, memory);
     let pending = pic
         .submit_call(
             owner,
@@ -229,11 +221,10 @@ async fn one_attempt_survives_concurrency_revocation_lost_reply_and_upgrade() {
     }
     assert_eq!(held.len(), 1);
     let uncertain = inspect(pic, owner).await;
-    let pending_image = pic.get_stable_memory(owner).await;
     assert!(uncertain.attempted_at.is_some() && uncertain.outcome.is_none());
     assert_eq!(attempt(pic, owner).await, uncertain);
     assert!(
-        pic.upgrade_canister(
+        pic.upgrade_eop_canister(
             owner,
             wasm(),
             request("enrollment_upgrade", &()),
@@ -271,17 +262,6 @@ async fn one_attempt_survives_concurrency_revocation_lost_reply_and_upgrade() {
     upgrade(pic, owner).await;
     assert_eq!(inspect(pic, owner).await, retained);
     assert_eq!(attempt(pic, owner).await, retained);
-    // Inject the same owner's committed pre-callback image after draining. This
-    // models a result write that never committed; it is not snapshot continuity
-    // qualification or permission to restore an earlier Ready image in production.
-    pic.set_stable_memory(owner, pending_image, BlobCompression::NoCompression)
-        .await;
-    upgrade(pic, owner).await;
-    assert_eq!(inspect(pic, owner).await, uncertain);
-    assert_eq!(attempt(pic, owner).await, uncertain);
-    for _ in 0..10 {
-        pic.tick().await;
-    }
     assert!(fixture.pending(pic).await.unwrap().is_empty());
     support::close(server, owned).await;
 }
@@ -325,7 +305,7 @@ async fn malformed_oversized_and_rejected_replies_never_reopen_the_attempt() {
 }
 
 #[tokio::test]
-async fn unavailable_cashier_and_foreign_state_never_reopen_admission() {
+async fn unavailable_cashier_and_missing_native_directory_never_reopen_admission() {
     let (server, owned) =
         support::instance(PocketIcBuilder::new().with_application_subnet(), 180).await;
     let pic = owned.client();
@@ -337,25 +317,17 @@ async fn unavailable_cashier_and_foreign_state_never_reopen_admission() {
     assert!(matches!(retained.outcome, Some(Outcome::Rejected(_))));
     upgrade(pic, owner).await;
     assert_eq!(attempt(pic, owner).await, retained);
-    let foreign = install(pic, cashier).await;
-    let image = pic.get_stable_memory(owner).await;
-    pic.set_stable_memory(foreign, image, BlobCompression::NoCompression)
-        .await;
+    let missing = pic.create_canister_with_settings(Some(actor()), None).await;
+    pic.add_cycles(missing, 10_000_000_000_000).await;
+    pic.install_canister(
+        missing,
+        wat::parse_str("(module)").unwrap(),
+        vec![],
+        Some(actor()),
+    )
+    .await;
     assert!(
-        pic.upgrade_canister(
-            foreign,
-            wasm(),
-            request("enrollment_upgrade", &()),
-            Some(actor())
-        )
-        .await
-        .is_err()
-    );
-    let missing = install(pic, cashier).await;
-    pic.set_stable_memory(missing, vec![], BlobCompression::NoCompression)
-        .await;
-    assert!(
-        pic.upgrade_canister(
+        pic.upgrade_eop_canister(
             missing,
             wasm(),
             request("enrollment_upgrade", &()),
@@ -367,97 +339,7 @@ async fn unavailable_cashier_and_foreign_state_never_reopen_admission() {
     support::close(server, owned).await;
 }
 
-// Inspect an isolated copy of the actual installed image, never live backing.
-// A larger runtime budget is not a migration of the persisted directory tables.
-// Preserve the enrollment owner and both actual Blob keys, not a dummy second key.
-fn refuses_service_composition(image: &[u8]) {
-    let backing = Rc::new(RefCell::new(image.to_vec()));
-    let mut runtime = MemoryRuntime::new_with_config(
-        backing.clone(),
-        StorageConfig {
-            allocations: 3,
-            extents: 3,
-            pages: 32,
-        },
-    )
-    .unwrap();
-    let before = runtime.diagnostics().unwrap();
-    assert_eq!(before.allocations, 1);
-    assert_eq!(before.extents, 1);
-    assert_eq!(before.metadata_pages, 1);
-    assert_eq!(before.physical_pages, 10);
-    assert_eq!(before.live_leases, 0);
-    let allocations = runtime.memory_allocations().unwrap();
-    assert_eq!(allocations.len(), 1);
-    assert_eq!(allocations[0].stable_key.as_str(), "enrollment.control.v1");
-    let error = runtime
-        .bootstrap(
-            &SealedDeclarationSnapshot::new(vec![
-                MemoryRequest::new("enrollment", "enrollment.control.v1").unwrap(),
-                MemoryRequest::new(
-                    ic_blob_storage::local::persistence::STORAGE_AUTHORITY,
-                    ic_blob_storage::local::persistence::STORAGE_KEY,
-                )
-                .unwrap(),
-                MemoryRequest::new(
-                    ic_blob_storage::local::persistence::STORAGE_AUTHORITY,
-                    ic_blob_storage::local::persistence::callbacks::STORAGE_KEY,
-                )
-                .unwrap(),
-            ])
-            .unwrap(),
-            &AllocationGrants::new(vec![
-                MemoryAuthority::new("enrollment", "enrollment.").unwrap(),
-                MemoryAuthority::new("blob", "blob.").unwrap(),
-            ])
-            .unwrap(),
-            &GenericAllocationPolicy,
-        )
-        .unwrap_err();
-    assert!(matches!(
-        error,
-        RuntimeBootstrapError::Directory(DirectoryError::Budget)
-    ));
-    drop(runtime);
-    assert_eq!(backing.borrow().as_slice(), image);
-    // Refused composition must leave the original owner readable through the
-    // existing public APIs, with its allocation identity and lease intact.
-    let mut reopened = MemoryRuntime::new_with_config(
-        backing.clone(),
-        StorageConfig {
-            allocations: 1,
-            extents: 1,
-            pages: 16,
-        },
-    )
-    .unwrap();
-    reopened
-        .bootstrap(
-            &SealedDeclarationSnapshot::new(vec![
-                MemoryRequest::new("enrollment", "enrollment.control.v1").unwrap(),
-            ])
-            .unwrap(),
-            &AllocationGrants::new(vec![
-                MemoryAuthority::new("enrollment", "enrollment.").unwrap(),
-            ])
-            .unwrap(),
-            &GenericAllocationPolicy,
-        )
-        .unwrap();
-    let after = reopened.memory_allocations().unwrap();
-    assert_eq!(after.len(), 1);
-    assert_eq!(after[0].id, allocations[0].id);
-    assert_eq!(after[0].pages, allocations[0].pages);
-    assert_eq!(
-        reopened.diagnostics().unwrap().generation,
-        before.generation
-    );
-    let receipt = reopened.open_memory(&allocations[0].stable_key).unwrap();
-    let _receipt =
-        ic_storage::adapter::StableCell::<Vec<u8>, _>::load(receipt, LIMITS.bytes).unwrap();
-    assert_eq!(backing.borrow().as_slice(), image);
-}
-
+// A consumed native owner must refuse an incompatible service declaration.
 #[tokio::test]
 async fn incompatible_service_upgrade_preserves_consumed_probe() {
     let (server, owned) =
@@ -484,13 +366,11 @@ async fn incompatible_service_upgrade_preserves_consumed_probe() {
     );
     // A stopped peer makes accidental resubmission observable as a changed result.
     pic.stop_canister(cashier, None).await.unwrap();
-    let image = pic.get_stable_memory(owner).await;
-    refuses_service_composition(&image);
     let status = pic.canister_status(owner, Some(actor())).await.unwrap();
     pic.stop_canister(owner, Some(actor())).await.unwrap();
     let host = std::fs::read(std::env::var_os("BLOB_WASM").expect("set BLOB_WASM")).unwrap();
     let error = pic
-        .upgrade_canister(
+        .upgrade_eop_canister(
             owner,
             host,
             request("blob_post_upgrade", &()),
@@ -502,13 +382,11 @@ async fn incompatible_service_upgrade_preserves_consumed_probe() {
     let after = pic.canister_status(owner, Some(actor())).await.unwrap();
     assert_eq!(after.module_hash, status.module_hash);
     assert_eq!(after.settings.controllers, status.settings.controllers);
-    assert_eq!(pic.get_stable_memory(owner).await, image);
     pic.start_canister(owner, Some(actor())).await.unwrap();
     assert_eq!(inspect(pic, owner).await, retained);
     assert_eq!(attempt(pic, owner).await, retained);
     upgrade(pic, owner).await;
     assert_eq!(inspect(pic, owner).await, retained);
     assert_eq!(attempt(pic, owner).await, retained);
-    assert_eq!(pic.get_stable_memory(owner).await, image);
     support::close(server, owned).await;
 }

@@ -1,0 +1,1 @@
+{"groups":["blob"],"schema":1,"stages":["check-common","check-library","check-cli","check-host","check-app","check-qualification","check-browser","test-release-metadata","prepare-installed","installed-standalone","installed-capacity","installed-endpoints","installed-signed","installed-application","installed-enrollment","installed-callbacks","installed-management"]}

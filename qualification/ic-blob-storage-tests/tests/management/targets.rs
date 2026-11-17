@@ -150,7 +150,6 @@ async fn proposed_targets_require_current_controller_and_absent_modules() {
             Some(manager),
         )
         .await;
-    let before = owned.client().get_stable_memory(blob).await;
     refused(
         &check(&directory, url.as_str(), app, blob)
             .output()
@@ -158,7 +157,6 @@ async fn proposed_targets_require_current_controller_and_absent_modules() {
             .unwrap(),
         "Blob target already has an installed module",
     );
-    assert_eq!(owned.client().get_stable_memory(blob).await, before);
     let status = owned
         .client()
         .canister_status(blob, Some(manager))

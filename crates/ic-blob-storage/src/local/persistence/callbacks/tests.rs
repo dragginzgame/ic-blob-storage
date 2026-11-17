@@ -4,10 +4,8 @@ use crate::{
     local::{Limits, UploadRequest},
     protocol::{Inspection, Installation},
 };
-use ic_storage::{
-    AllocationGrants, GenericAllocationPolicy, MemoryAuthority, MemoryRequest, MemoryRuntime,
-    SealedDeclarationSnapshot, StableKey, VectorMemory,
-};
+use ic_storage::retained::{Bank, Geometry, Runtime};
+use std::rc::Rc;
 
 fn actor(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
@@ -31,29 +29,30 @@ fn input() -> Installation {
     }
 }
 
-fn memories(backing: VectorMemory) -> [RuntimeMemory<VectorMemory>; 2] {
-    let mut runtime = MemoryRuntime::new(backing).unwrap();
-    let keys = [super::super::STORAGE_KEY, STORAGE_KEY];
-    runtime
-        .bootstrap(
-            &SealedDeclarationSnapshot::new(
-                keys.iter()
-                    .map(|key| MemoryRequest::new("blob", key).unwrap())
-                    .collect(),
-            )
-            .unwrap(),
-            &AllocationGrants::new(vec![MemoryAuthority::new("blob", "blob.").unwrap()]).unwrap(),
-            &GenericAllocationPolicy,
+fn runtime() -> Rc<Runtime> {
+    Rc::new(
+        Runtime::host(
+            Geometry {
+                bank: Bank::A,
+                nodes: 512,
+                bytes: 524288,
+            },
+            &[super::super::storage_root(1, 1), storage_root(2, 2)],
         )
-        .unwrap();
-    keys.map(|key| {
-        runtime
-            .open_memory(&StableKey::parse(key).unwrap())
+        .unwrap(),
+    )
+}
+fn memories(backing: &Rc<Runtime>) -> [Access; 2] {
+    [1, 2].map(|id| Access::host(backing.clone(), backing.grant(id).unwrap(), id))
+}
+fn snapshot(callbacks: &Callbacks) -> [Vec<u8>; 2] {
+    [&callbacks.service.access, &callbacks.access].map(|access| {
+        access
+            .read(|view, root| view.checkpoint(root, 1).unwrap())
             .unwrap()
     })
 }
-
-fn create(backing: VectorMemory) -> Callbacks<VectorMemory> {
+fn create(backing: &Rc<Runtime>) -> Callbacks {
     let [control, receipts] = memories(backing);
     Callbacks::create(
         Service::create(control, actor(8), input()).unwrap(),
@@ -63,12 +62,16 @@ fn create(backing: VectorMemory) -> Callbacks<VectorMemory> {
     .unwrap()
 }
 
-fn reopen(backing: VectorMemory) -> Result<Callbacks<VectorMemory>, OpenError> {
+fn reopen(backing: &Rc<Runtime>) -> Result<Callbacks, OpenError> {
+    backing.close().unwrap();
+    backing
+        .reopen(&[super::super::storage_root(1, 1), storage_root(2, 2)])
+        .unwrap();
     let [control, receipts] = memories(backing);
     Callbacks::open(Service::open(control, actor(8)).unwrap(), receipts)
 }
 
-fn register(callbacks: &mut Callbacks<VectorMemory>, n: u8) {
+fn register(callbacks: &mut Callbacks, n: u8) {
     let id = u128::from(n + 1).try_into().unwrap();
     callbacks
         .execute(
@@ -95,18 +98,18 @@ fn register(callbacks: &mut Callbacks<VectorMemory>, n: u8) {
 
 #[test]
 fn full_history_cleanup_retains_exposure_and_reopens_receipts() {
-    let backing = VectorMemory::default();
-    let mut callbacks = create(backing.clone());
+    let backing = runtime();
+    let mut callbacks = create(&backing);
     for n in 0..64 {
         register(&mut callbacks, n);
     }
-    let before = backing.borrow().clone();
+    let before = snapshot(&callbacks);
     assert_eq!(
         callbacks.acknowledge(actor(7), &[[0; 32]]),
         Err(CallbackError::NotClosing)
     );
     assert_eq!(callbacks.candidates(actor(9)), Err(CallbackError::Denied));
-    assert_eq!(*backing.borrow(), before);
+    assert_eq!(snapshot(&callbacks), before);
     for n in 0..64u128 {
         callbacks
             .execute(actor(1), Command::Release((n + 1).try_into().unwrap()), 10)
@@ -118,7 +121,7 @@ fn full_history_cleanup_retains_exposure_and_reopens_receipts() {
         .unwrap();
     let roots: Vec<_> = (0..64).map(|n| [n; 32]).collect();
     assert_eq!(callbacks.candidates(actor(7)).unwrap(), roots);
-    let before = backing.borrow().clone();
+    let before = snapshot(&callbacks);
     assert_eq!(
         callbacks.acknowledge(actor(7), &[[0; 32], [255; 32]]),
         Err(CallbackError::NotClosing)
@@ -131,7 +134,7 @@ fn full_history_cleanup_retains_exposure_and_reopens_receipts() {
         callbacks.acknowledge(actor(7), &[[0; 32]; 65]),
         Err(CallbackError::Capacity)
     );
-    assert_eq!(*backing.borrow(), before);
+    assert_eq!(snapshot(&callbacks), before);
     callbacks.execute(actor(9), Command::Drain(1), 10).unwrap();
     callbacks.acknowledge(actor(7), &roots).unwrap();
     callbacks
@@ -145,7 +148,7 @@ fn full_history_cleanup_retains_exposure_and_reopens_receipts() {
         usage
     );
     drop(callbacks);
-    let mut callbacks = reopen(backing).unwrap();
+    let mut callbacks = reopen(&backing).unwrap();
     assert!(callbacks.candidates(actor(7)).unwrap().is_empty());
     assert_eq!(callbacks.liveness(&roots).unwrap(), vec![false; 64]);
     assert_eq!(
@@ -165,8 +168,8 @@ fn full_history_cleanup_retains_exposure_and_reopens_receipts() {
 #[test]
 fn reopen_refuses_foreign_inconsistent_and_unordered_receipts_without_repair() {
     for case in 0..7 {
-        let backing = VectorMemory::default();
-        let mut callbacks = create(backing.clone());
+        let backing = runtime();
+        let mut callbacks = create(&backing);
         register(&mut callbacks, 0);
         register(&mut callbacks, 1);
         callbacks
@@ -192,15 +195,27 @@ fn reopen_refuses_foreign_inconsistent_and_unordered_receipts_without_repair() {
             6 => callbacks.record.version = 0,
             _ => unreachable!(),
         }
+        let bytes = ic_wire::encode(&callbacks.record, ic_wire::Encoding::Payload, LIMITS).unwrap();
         callbacks
-            .cell
-            .set(ic_wire::encode(&callbacks.record, ic_wire::Encoding::Payload, LIMITS).unwrap());
+            .access
+            .update(|mut view, root| view.insert(root, b"control", &bytes).unwrap())
+            .unwrap();
+        let before = snapshot(&callbacks);
         drop(callbacks);
-        let before = backing.borrow().clone();
         assert!(
-            matches!(reopen(backing.clone()), Err(OpenError::Record)),
+            matches!(reopen(&backing), Err(OpenError::Record)),
             "case {case}"
         );
-        assert_eq!(*backing.borrow(), before);
+        backing.close().unwrap();
+        backing
+            .reopen(&[super::super::storage_root(1, 1), storage_root(2, 2)])
+            .unwrap();
+        let [a, b] = memories(&backing);
+        assert_eq!(
+            [a, b].map(|access| access
+                .read(|view, root| view.checkpoint(root, 1).unwrap())
+                .unwrap()),
+            before
+        );
     }
 }

@@ -26,13 +26,13 @@ ic-platform = { version = "0.34.13", default-features = false }
 ic-platform-protocol = { version = "0.3.5", default-features = false }
 ic-platform-runtime = { version = "0.23.16", default-features = false }
 ic-platform-types = { version = "0.21.2", default-features = false }
-ic-storage = "0.74.1"
+ic-storage = { version = "0.76.2", features = ["retained"] }
 ic-wire = { version = "0.24.0", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }
 sha2 = { version = "0.11.1", default-features = false }
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread", "time", "process"] }
 # Source tooling only.
-toko-tooling = "=0.44.11"
+toko-tooling = "=0.45.0"
 url = "2.5.8"
 
 [workspace.lints.cargo]

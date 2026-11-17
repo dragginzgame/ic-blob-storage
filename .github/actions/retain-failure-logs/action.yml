@@ -1,5 +1,5 @@
 name: Retain bounded Blob CI diagnostics
-description: Upload only sanitized command diagnostics and report missing evidence separately.
+description: Select sanitized Blob logs and delegate archive upload to the installed Toko action.
 inputs:
   name:
     description: Job-specific artifact name.
@@ -7,45 +7,62 @@ inputs:
 runs:
   using: composite
   steps:
-    - id: select
+    - id: prepare
+      if: always()
       shell: bash
       run: |
+        directory="$(mktemp -d "$RUNNER_TEMP/blob-ci-upload.XXXXXX")"
+        export BLOB_UPLOAD_DIRECTORY="$directory"
+        printf 'archive=%s/evidence.tar.gz\nlog=%s/collection.log\n' "$directory" "$directory" >> "$GITHUB_OUTPUT"
+        status=0
+        bash -e -o pipefail > "$directory/collection.log" 2>&1 <<'BLOB_EVIDENCE' || status=$?
         evidence="$RUNNER_TEMP/blob-ci-evidence"
         [[ -d "$evidence" && ! -L "$evidence" ]] || {
           echo 'Failure evidence directory is missing or redirected.' >&2
           exit 1
         }
         paths=()
-        for phase in admit workflow-and-secrets linux-setup linux-checks macos-setup macos-checks; do
+        for phase in admit workflow-setup workflow-and-secrets linux-setup linux-checks macos-setup macos-checks; do
           path="$evidence/$phase.txt"
           if [[ -e "$path" || -L "$path" ]]; then
             [[ -f "$path" && ! -L "$path" && "$(wc -c < "$path")" -le 67000 ]] || {
               echo 'Failure evidence is not a bounded regular diagnostic file.' >&2
               exit 1
             }
-            paths+=("$path")
+            paths+=("$evidence" "$phase.txt")
           fi
         done
         [[ ${#paths[@]} -gt 0 ]] || { echo 'Failure evidence is missing.' >&2; exit 1; }
-        { printf 'paths<<BLOB_EVIDENCE\n'; printf '%s\n' "${paths[@]}"; printf 'BLOB_EVIDENCE\n'; } >> "$GITHUB_OUTPUT"
+        bash vendor/toko-tooling/scripts/ci/archive-evidence.sh \
+          "$BLOB_UPLOAD_DIRECTORY/evidence.partial.tar.gz" "${paths[@]}"
+        mv "$BLOB_UPLOAD_DIRECTORY/evidence.partial.tar.gz" "$BLOB_UPLOAD_DIRECTORY/evidence.tar.gz"
+        BLOB_EVIDENCE
+        cat "$directory/collection.log"
+        exit "$status"
     - id: upload
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      if: always()
+      uses: ./vendor/toko-tooling/.github/actions/retain-failure-evidence
       with:
         name: ${{ inputs.name }}
-        path: ${{ steps.select.outputs.paths }}
-        if-no-files-found: error
-        retention-days: 7
-    - if: always()
+        prepared-archive: ${{ steps.prepare.outputs.archive }}
+        collection-log: ${{ steps.prepare.outputs.log }}
+    - id: report
+      if: always()
       shell: bash
       env:
+        PREPARE_OUTCOME: ${{ steps.prepare.outcome }}
         UPLOAD_OUTCOME: ${{ steps.upload.outcome }}
-        ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+        ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
       run: |
-        if [[ "$UPLOAD_OUTCOME" == success && -n "$ARTIFACT_URL" ]]; then
-          printf 'Failure evidence: %s\n' "$ARTIFACT_URL"
-          printf '[Sanitized failure evidence](%s) (7-day retention).\n' "$ARTIFACT_URL" >> "$GITHUB_STEP_SUMMARY"
-        else
-          echo 'Failure evidence upload failed or evidence is missing; inspect the original failed step.' >&2
-          echo 'Failure evidence upload failed or evidence is missing.' >> "$GITHUB_STEP_SUMMARY"
+        linked=false
+        if [[ "$ARTIFACT_ID" =~ ^[0-9]+$ ]]; then
+          url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts/$ARTIFACT_ID"
+          printf 'Failure evidence: %s\n' "$url"
+          printf '[Sanitized failure evidence](%s) (14-day retention).\n' "$url" >> "$GITHUB_STEP_SUMMARY"
+          linked=true
+        fi
+        if [[ "$PREPARE_OUTCOME" != success || "$UPLOAD_OUTCOME" != success || "$linked" != true ]]; then
+          echo 'Failure evidence collection/upload failed or evidence is missing; inspect the original failed step.' >&2
+          echo 'Failure evidence collection/upload failed or evidence is missing.' >> "$GITHUB_STEP_SUMMARY"
           exit 1
         fi

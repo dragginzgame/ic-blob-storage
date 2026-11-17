@@ -118,6 +118,9 @@ test-local:
 
 install-test-server: qualification-tooling-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --example prepare-server -- -D warnings
+	$(MAKE) --no-print-directory prepare-test-server
+
+prepare-test-server:
 	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --example prepare-server
 	@umask 077; tool="$(CURDIR)/qualification/target/debug/examples/prepare-server"; \
 	  directory="$(CURDIR)/.tools/blob-test-server"; \
@@ -134,32 +137,53 @@ test-server-check: qualification-tooling-check
 clippy-host: toko-tooling-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-canister --target wasm32-unknown-unknown --release -- -D warnings
 
-build-host: clippy-host
+build-native-preparer: qualification-tooling-check
+	@mkdir -p target
+	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --example prepare-native -- -D warnings
+	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --example prepare-native --message-format=json > target/blob-native-preparer.jsonl
+
+.PHONY: build-native-preparer
+
+build-host: clippy-host build-native-preparer
 	@mkdir -p target
 	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked -p ic-blob-storage-canister --target wasm32-unknown-unknown --release --message-format=json > target/blob-wasm-artifacts.jsonl
+	bash scripts/prepare-native.sh target/blob-wasm-artifacts.jsonl
 
 test-standalone: build-host qualification-tooling-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test standalone -- -D warnings
+	$(MAKE) --no-print-directory installed-standalone
+
+installed-standalone:
 	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
 	  BLOB_WASM="$$wasm" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test standalone
 
 test-capacity: build-host qualification-tooling-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test capacity -- -D warnings
+	$(MAKE) --no-print-directory installed-capacity
+
+installed-capacity:
 	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
 	  BLOB_WASM="$$wasm" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test capacity -- --nocapture
 
 test-signed: build-host qualification-tooling-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test signed -- -D warnings
+	$(MAKE) --no-print-directory installed-signed
+
+installed-signed:
 	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
 	  BLOB_WASM="$$wasm" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test signed
 
-build-reference-app: toko-tooling-check
+build-reference-app: toko-tooling-check build-native-preparer
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-reference-app --target wasm32-unknown-unknown --release -- -D warnings
 	@mkdir -p target
 	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked -p ic-blob-storage-reference-app --target wasm32-unknown-unknown --release --message-format=json > target/blob-reference-app-artifacts.jsonl
+	bash scripts/prepare-native.sh target/blob-reference-app-artifacts.jsonl
 
 test-application: build-host build-reference-app build-cli qualification-tooling-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test application -- -D warnings
+	$(MAKE) --no-print-directory installed-application
+
+installed-application:
 	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
 	  app="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_reference_app") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one application Wasm artifact") end' target/blob-reference-app-artifacts.jsonl)" && \
 	  cli="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "blob" and .executable != null) | .executable] | if length == 1 then .[0] else error("expected one Blob CLI artifact") end' target/blob-cli-artifacts.jsonl)" && \
@@ -170,49 +194,67 @@ blob: build-cli
 
 build-cli: toko-tooling-check tooling-binding-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage-cli --bin blob -- -D warnings
+	$(MAKE) --no-print-directory artifact-cli
+
+artifact-cli:
 	@mkdir -p target
 	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked -p ic-blob-storage-cli --bin blob --message-format=json > target/blob-cli-artifacts.jsonl
 
-build-reply-probe: qualification-tooling-check
+build-reply-probe: qualification-tooling-check build-native-preparer
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-reply-probe --target wasm32-unknown-unknown --release -- -D warnings
 	@mkdir -p target
 	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-reply-probe --target wasm32-unknown-unknown --release --message-format=json > target/blob-reply-probe-artifacts.jsonl
+	bash scripts/prepare-native.sh target/blob-reply-probe-artifacts.jsonl
 
-build-callback-probe: qualification-tooling-check
+build-callback-probe: qualification-tooling-check build-native-preparer
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-callback-probe --target wasm32-unknown-unknown --release -- -D warnings
 	@mkdir -p target
 	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-callback-probe --target wasm32-unknown-unknown --release --message-format=json > target/blob-callback-probe-artifacts.jsonl
+	bash scripts/prepare-native.sh target/blob-callback-probe-artifacts.jsonl
 
 test-callbacks: build-callback-probe build-cli build-reference-app
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked -p ic-blob-storage --lib --tests -- -D warnings
 	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked -p ic-blob-storage --lib local::persistence::callbacks
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test callbacks -- -D warnings
+	$(MAKE) --no-print-directory installed-callbacks
+
+installed-callbacks:
 	@probe="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_callback_probe") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one callback probe artifact") end' target/blob-callback-probe-artifacts.jsonl)" && \
 	  cli="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "blob" and .executable != null) | .executable] | if length == 1 then .[0] else error("expected one Blob CLI artifact") end' target/blob-cli-artifacts.jsonl)" && \
 	  app="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_reference_app") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one application Wasm artifact") end' target/blob-reference-app-artifacts.jsonl)" && \
 	  BLOB_CALLBACK_PROBE="$$probe" BLOB_CLI="$$cli" BLOB_REFERENCE_APP="$$app" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test callbacks
 
-build-enrollment-probe: qualification-tooling-check
+build-enrollment-probe: qualification-tooling-check build-native-preparer
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-enrollment-probe --target wasm32-unknown-unknown --release -- -D warnings
 	@mkdir -p target
 	CARGO_BUILD_WARNINGS=deny cargo build --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-enrollment-probe --target wasm32-unknown-unknown --release --message-format=json > target/blob-enrollment-probe-artifacts.jsonl
+	bash scripts/prepare-native.sh target/blob-enrollment-probe-artifacts.jsonl
 
 test-enrollment: build-enrollment-probe build-host
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-enrollment-probe --lib --tests --examples -- -D warnings
-	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-enrollment-probe --lib --example enrollment
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test enrollment -- -D warnings
+	$(MAKE) --no-print-directory installed-enrollment
+
+installed-enrollment:
+	CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-enrollment-probe --lib --example enrollment
 	@probe="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_enrollment_probe") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one enrollment probe artifact") end' target/blob-enrollment-probe-artifacts.jsonl)" && \
 	  wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
 	  BLOB_ENROLLMENT_PROBE="$$probe" BLOB_WASM="$$wasm" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test enrollment
 
 test-endpoints: build-host build-reply-probe
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test endpoints -- -D warnings
+	$(MAKE) --no-print-directory installed-endpoints
+
+installed-endpoints:
 	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
 	  probe="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_reply_probe") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one reply probe artifact") end' target/blob-reply-probe-artifacts.jsonl)" && \
 	  BLOB_WASM="$$wasm" BLOB_REPLY_PROBE="$$probe" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test endpoints
 
 test-management: build-host build-cli qualification-tooling-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test management -- -D warnings
+	$(MAKE) --no-print-directory installed-management
+
+installed-management:
 	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
 	  cli="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "blob" and .executable != null) | .executable] | if length == 1 then .[0] else error("expected one Blob CLI artifact") end' target/blob-cli-artifacts.jsonl)" && \
 	  BLOB_WASM="$$wasm" BLOB_CLI="$$cli" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --offline --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test management
@@ -227,7 +269,8 @@ documentation-links-check:
 	@find docs clients -name node_modules -prune -o -type f -name '*.md' -print0 | xargs -0 perl vendor/toko-tooling/scripts/ci/check-documentation-links.pl --root . *.md
 
 .NOTPARALLEL: ci
-ci: toko-tooling-check tooling-binding-check dependency-pins-check fmt-check clippy clippy-qualification test-references test-caffeine test-local test-cli test-browser example-local test-example-local docs-check docs-qualification-check documentation-links-check
+ci:
+	bash scripts/release/validate.sh ci
 
 # Shared release/publication engines; these hooks own only Blob's metadata and gate.
 .PHONY: release-editor-setup test-release-metadata publication-admission
@@ -244,9 +287,7 @@ release-files:
 release-preflight:
 	@bash scripts/release/adapter.sh preflight
 release-verify:
-	$(MAKE) --no-print-directory tools-check test-release-metadata
-	$(MAKE) --no-print-directory ci
-	$(MAKE) --no-print-directory test-standalone test-capacity test-endpoints test-signed test-application test-enrollment test-callbacks test-management
+	bash scripts/release/validate.sh release
 release-prepare-version:
 	@bash scripts/release/adapter.sh prepare
 release-prepared-check release-committed-check release-tagged-check release-push-check:
@@ -261,3 +302,5 @@ publication-admission:
 .PHONY: tooling-binding-check
 tooling-binding-check:
 	@bash vendor/toko-tooling/scripts/ci/verify-file-checksum.sh sha256 "$$(cat crates/ic-blob-storage-cli/tooling.sha256)" .toko-tooling.snapshot
+
+include make/validation.mk

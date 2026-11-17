@@ -1,5 +1,6 @@
 use crate::protocol::{DraftInput, DraftView, Error, Installation, Phase};
 use crate::state::{self, State};
+use ic_blob_storage::local::persistence::access::Access;
 use ic_blob_storage::{
     local::{Error as BlobError, ReferenceStatus, UploadState},
     protocol::{Command, Inspection, Observation, Outcome, RPC_LIMITS},
@@ -8,11 +9,7 @@ use ic_platform_runtime::{
     call::{Call, Outcome as CallOutcome, Wait},
     raw as ic0, system as api,
 };
-use ic_storage::{
-    AllocationGrants, DefaultMemoryImpl, GenericAllocationPolicy, Memory, MemoryAuthority,
-    MemoryRequest, MemoryRuntime, RuntimeMemory, SealedDeclarationSnapshot, StableKey,
-    StorageConfig,
-};
+use ic_storage::retained::{Bank, Canister, Geometry, Root};
 use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
 use std::{
@@ -60,6 +57,7 @@ fn pre_upgrade(_: ()) {
         0,
         "stop and drain application calls before upgrade"
     );
+    Canister::close().expect("close native catalog");
 }
 
 #[ic_platform_runtime::post_upgrade(
@@ -284,36 +282,27 @@ fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, wire::Error>
     )
 }
 
-fn memory(fresh: bool) -> RuntimeMemory<DefaultMemoryImpl> {
-    let backing = DefaultMemoryImpl::default();
-    assert_eq!(
-        backing.size() == 0,
-        fresh,
-        "fresh and existing application are distinct"
-    );
-    let mut runtime = MemoryRuntime::new_with_config(
-        backing,
-        StorageConfig {
-            allocations: 1,
-            extents: 1,
-            pages: 16,
-        },
-    )
-    .unwrap();
-    runtime
-        .bootstrap(
-            &SealedDeclarationSnapshot::new(vec![
-                MemoryRequest::new("catalog", "catalog.control.v1").unwrap(),
-            ])
-            .unwrap(),
-            &AllocationGrants::new(vec![MemoryAuthority::new("catalog", "catalog.").unwrap()])
-                .unwrap(),
-            &GenericAllocationPolicy,
-        )
-        .unwrap();
-    runtime
-        .open_memory(&StableKey::parse("catalog.control.v1").unwrap())
-        .unwrap()
+fn memory(fresh: bool) -> Access {
+    let geometry = Geometry {
+        bank: Bank::A,
+        nodes: 128,
+        bytes: 262144,
+    };
+    let roots = [Root {
+        id: 1,
+        participant: 1,
+        schema: 0x434154414c4f4731,
+        entries: 17,
+        key_bytes: 17,
+        value_bytes: 4096,
+    }];
+    if fresh {
+        Canister::create(geometry, &roots)
+    } else {
+        Canister::reopen(geometry, &roots)
+    }
+    .expect("native catalog admission");
+    Access::canister(Canister::grant(1).unwrap(), 1)
 }
 
 #[expect(

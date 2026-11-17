@@ -1,5 +1,15 @@
 # Standalone capacity measurements
 
+**Native OP requalification — 2026-11-17:** 0.104.0 uses Storage 0.76.2
+and the [prepared native lifecycle](native-storage.md). The same three full-history
+workloads pass with **zero stable bytes and 41,943,040 Wasm bytes (40 MiB)** at
+every reported boundary. Inspection, replay, capacity refusal, cleanup and Keep
+upgrades remain usable. Current results are in
+`target/storage-review/native-installed-final.log` and `native-capacity-final.log`.
+These allocation sizes include the supplier's reserved native windows; they are
+not provider bytes or encoded record sizes. The native memory ceiling is 128 MiB.
+The measurements below retain their original **Storage 0.74.1 baseline** identity.
+
 Measured 2026-11-14 against the unmodified production host Wasm, using
 `make test-capacity`. The current **64 lifetime upload / 64 lifetime reference**
 profile remains usable at full history: inspection, historical replay, cleanup
@@ -13,7 +23,7 @@ Stable memory remained **655,360 bytes (640 KiB)** from empty installation throu
 full history and cleanup. Maximum observed Wasm heap was **1,245,184 bytes
 (1,216 KiB)**, versus 1,179,648 bytes (1,152 KiB) initially. These are allocated
 memory sizes, including runtime/storage overhead, not encoded record size or file
-storage. The host's existing stable-memory ceiling is 16 pages / 1 MiB.
+storage. That baseline host's stable-memory ceiling was 16 pages / 1 MiB.
 
 ## Workload and results
 

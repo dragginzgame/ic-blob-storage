@@ -1,11 +1,11 @@
 //! One bounded application record; no copy of Blob's liveness or accounting state.
 
+use ic_blob_storage::local::persistence::access::Access;
 use ic_blob_storage::{
     local::UploadRequest,
     protocol::{Command, RPC_LIMITS},
 };
 use ic_platform_types::Principal;
-use ic_storage::{DefaultMemoryImpl, RuntimeMemory, adapter::StableCell};
 use serde::{Deserialize, Serialize};
 
 use crate::protocol::{DraftInput, DraftView, Error, Installation, Phase};
@@ -29,15 +29,11 @@ struct Record {
 
 pub(crate) struct State {
     record: Record,
-    cell: StableCell<Vec<u8>, DefaultMemoryImpl>,
+    access: Access,
 }
 
 impl State {
-    pub fn create(
-        memory: RuntimeMemory<DefaultMemoryImpl>,
-        installation: Principal,
-        config: Installation,
-    ) -> Self {
+    pub fn create(access: Access, installation: Principal, config: Installation) -> Self {
         validate_config(&config);
         let record = Record {
             version: 1,
@@ -45,19 +41,18 @@ impl State {
             config,
             drafts: vec![],
         };
-        let cell = StableCell::create(
-            memory,
-            ic_wire::encode(&record, ic_wire::Encoding::Payload, LIMITS).unwrap(),
-        )
-        .unwrap();
-        Self { record, cell }
+        assert!(
+            access
+                .read(|view, root| view.is_empty(root).unwrap())
+                .unwrap()
+        );
+        let state = Self { record, access };
+        state.persist();
+        state
     }
 
-    pub fn open(memory: RuntimeMemory<DefaultMemoryImpl>, installation: Principal) -> Self {
-        let cell = StableCell::<Vec<u8>, _>::load(memory, LIMITS.bytes)
-            .expect("existing application record");
-        let record: Record = ic_wire::decode(cell.get(), ic_wire::Encoding::Payload, LIMITS)
-            .expect("bounded application record");
+    pub fn open(access: Access, installation: Principal) -> Self {
+        let record = Self::load(&access);
         assert_eq!(record.version, 1, "application format");
         assert_eq!(record.installation, installation, "application identity");
         validate_config(&record.config);
@@ -75,7 +70,7 @@ impl State {
                 );
             }
         }
-        Self { record, cell }
+        Self { record, access }
     }
 
     pub fn blob(&self) -> Principal {
@@ -198,12 +193,87 @@ impl State {
         self.persist();
     }
 
-    fn persist(&mut self) {
-        // A failure traps this message; never turn it into an ordinary error after mutation.
-        self.cell.set(
-            ic_wire::encode(&self.record, ic_wire::Encoding::Payload, LIMITS)
-                .expect("bounded application persistence"),
-        );
+    fn persist(&self) {
+        ic_wire::encode(&self.record, ic_wire::Encoding::Payload, LIMITS)
+            .expect("catalog aggregate budget");
+        let mut rows = vec![(
+            vec![0],
+            ic_wire::encode(
+                &(
+                    self.record.version,
+                    self.record.installation,
+                    &self.record.config,
+                ),
+                ic_wire::Encoding::Payload,
+                INPUT_LIMITS,
+            )
+            .unwrap(),
+        )];
+        for draft in &self.record.drafts {
+            let mut key = vec![1];
+            key.extend_from_slice(&draft.input.id.get().to_be_bytes());
+            rows.push((
+                key,
+                ic_wire::encode(
+                    draft,
+                    ic_wire::Encoding::Payload,
+                    ic_wire::Limits {
+                        bytes: 4096,
+                        ..INPUT_LIMITS
+                    },
+                )
+                .unwrap(),
+            ));
+        }
+        self.access
+            .update(|mut view, root| {
+                for (key, bytes) in rows {
+                    if view
+                        .read()
+                        .get(root, &key)
+                        .unwrap()
+                        .is_none_or(|value| value.as_slice() != bytes)
+                    {
+                        view.insert(root, &key, &bytes)
+                            .expect("native catalog write");
+                    }
+                }
+            })
+            .expect("native catalog scope");
+    }
+    fn load(access: &Access) -> Record {
+        access
+            .read(|view, root| {
+                assert!(view.len(root).unwrap() <= 17);
+                let header = view.get(root, &[0]).unwrap().expect("catalog header");
+                let (version, installation, config) =
+                    ic_wire::decode(header.as_slice(), ic_wire::Encoding::Payload, INPUT_LIMITS)
+                        .expect("catalog header format");
+                let mut drafts = vec![];
+                for entry in view.prefix(root, &[1]).unwrap().entries() {
+                    let draft: DraftView = ic_wire::decode(
+                        entry.value().as_slice(),
+                        ic_wire::Encoding::Payload,
+                        ic_wire::Limits {
+                            bytes: 4096,
+                            ..INPUT_LIMITS
+                        },
+                    )
+                    .expect("catalog draft format");
+                    let mut key = vec![1];
+                    key.extend_from_slice(&draft.input.id.get().to_be_bytes());
+                    assert_eq!(entry.key().as_slice(), key);
+                    drafts.push(draft);
+                }
+                assert_eq!(view.len(root).unwrap(), 1 + drafts.len());
+                Record {
+                    version,
+                    installation,
+                    config,
+                    drafts,
+                }
+            })
+            .expect("native catalog read")
     }
 }
 

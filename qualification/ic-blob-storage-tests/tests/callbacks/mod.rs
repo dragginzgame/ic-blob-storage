@@ -214,7 +214,7 @@ async fn callbacks_share_retention_preserve_acknowledgments_and_never_settle() {
         vec![true; 5]
     );
     assert!(candidates(pic, owner).await.is_empty());
-    let before = pic.get_stable_memory(owner).await;
+    let before = support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await;
     for who in [CanisterId::anonymous(), caller(1), caller(2), caller(9)] {
         assert!(
             pic.query_call(owner, who, LIST, provider::encode_empty(32).unwrap())
@@ -228,7 +228,10 @@ async fn callbacks_share_retention_preserve_acknowledgments_and_never_settle() {
             .await
             .is_err()
     );
-    assert_eq!(pic.get_stable_memory(owner).await, before);
+    assert_eq!(
+        support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await,
+        before
+    );
     update(pic, owner, 1, Command::Release(2.try_into().unwrap()))
         .await
         .unwrap();
@@ -237,14 +240,17 @@ async fn callbacks_share_retention_preserve_acknowledgments_and_never_settle() {
         vec![false, true, false, true, true]
     );
     assert_eq!(candidates(pic, owner).await, vec![shared.to_vec()]);
-    let before = pic.get_stable_memory(owner).await;
+    let before = support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await;
     for bad in [unknown, reserved, retired] {
         assert!(
             pic.update_call(owner, caller(7), ACK, roots(&[shared, bad]))
                 .await
                 .is_err()
         );
-        assert_eq!(pic.get_stable_memory(owner).await, before);
+        assert_eq!(
+            support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await,
+            before
+        );
     }
     assert!(
         update(pic, owner, 2, Command::Register(shared))
@@ -261,9 +267,9 @@ async fn callbacks_share_retention_preserve_acknowledgments_and_never_settle() {
     assert!(candidates(pic, owner).await.is_empty());
     assert_eq!(usage(pic, owner).await, outstanding);
     update(pic, owner, 9, Command::Drain(1)).await.unwrap();
-    let saved = pic.get_stable_memory(owner).await;
+    let saved = support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await;
     pic.stop_canister(owner, Some(caller(9))).await.unwrap();
-    pic.upgrade_canister(
+    pic.upgrade_eop_canister(
         owner,
         wasm(),
         frame("callback_upgrade", &()),
@@ -279,7 +285,10 @@ async fn callbacks_share_retention_preserve_acknowledgments_and_never_settle() {
         liveness(pic, owner, &[shared, unknown]).await,
         vec![false, true]
     );
-    assert_eq!(pic.get_stable_memory(owner).await, saved);
+    assert_eq!(
+        support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await,
+        saved
+    );
     assert!(
         pic.query_call(owner, caller(9), LIST, provider::encode_empty(32).unwrap())
             .await
@@ -302,7 +311,7 @@ async fn callback_decoding_refuses_malformed_over_budget_and_wrong_profile_witho
     update(pic, owner, 1, Command::Release(1.try_into().unwrap()))
         .await
         .unwrap();
-    let before = pic.get_stable_memory(owner).await;
+    let before = support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await;
     let mut trailing = roots(&[root]);
     trailing.push(0);
     let malformed = [
@@ -332,7 +341,10 @@ async fn callback_decoding_refuses_malformed_over_budget_and_wrong_profile_witho
             RejectCode::CanisterError | RejectCode::CanisterReject
         ));
         assert!(pic.update_call(owner, caller(7), ACK, bytes).await.is_err());
-        assert_eq!(pic.get_stable_memory(owner).await, before);
+        assert_eq!(
+            support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await,
+            before
+        );
         assert_eq!(candidates(pic, owner).await, vec![root.to_vec()]);
     }
     assert!(

@@ -137,7 +137,7 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
     )
     .unwrap();
     let url = owned.client_mut().make_live(None).await;
-    let before = owned.client().get_stable_memory(canister).await;
+    let before = support::blob_state(owned.client(), canister, application, &[uploader]).await;
     let output = command(&directory, url.as_str(), canister, uploader)
         .arg("--identity")
         .arg(directory.join("application.pem"))
@@ -157,7 +157,10 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
     assert!(text.contains(&(u128::MAX - 1).to_string()));
     assert!(text.contains("Attached"));
     assert!(text.contains("provider storage not observed"));
-    assert_eq!(owned.client().get_stable_memory(canister).await, before);
+    assert_eq!(
+        support::blob_state(owned.client(), canister, application, &[uploader]).await,
+        before
+    );
     let untrusted = directory.join("untrusted");
     std::fs::create_dir_all(&untrusted).unwrap();
     std::fs::write(untrusted.join("root.der"), [0; 32]).unwrap();
@@ -221,7 +224,7 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
     .unwrap();
     owned
         .client()
-        .upgrade_canister(canister, wasm, args, None)
+        .upgrade_eop_canister(canister, wasm, args, None)
         .await
         .unwrap();
     owned.client().start_canister(canister, None).await.unwrap();

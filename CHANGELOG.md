@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.104.0] - Unreleased
+
+### 🔧 Release validation
+
+- Scope release checks to changed components and their installed consumers using
+  Toko's plan runner. Shared/unknown inputs retain full product qualification;
+  unchanged metadata regressions no longer run on every product release.
+  Repository CI retains its native coverage. Qualifies dispatch and recovery for
+  [Blob #3 — Scoped release qualification](https://github.com/dragginzgame/ic-blob-storage/issues/3).
+- Refresh authenticated release helpers to Toko Tooling 0.45.0 and requalify
+  scoped dispatch, recovery and the independent qualification-lock projection.
+- Give browser dependency installation one CI owner, cache authenticated tool
+  downloads through Toko and delegate failure uploads to its prepared-archive
+  action. Preserve bounded sanitized diagnostics and explicit incomplete/upload
+  failures; shared artifact retention is fourteen days.
+
+### 🗄️ Native OP storage
+
+- Adopt Storage 0.76.2 retained roots throughout the library, standalone host,
+  reference catalog and probes. Replace generic stable leases with supplier grants
+  and bounded domain rows; preserve historical IDs, accounting and receipt rules.
+- Prepare/admit Wasm through Storage’s supported transform. Upgrades close/reopen
+  native state and the CLI explicitly signs Keep memory persistence.
+- Adopt Testkit 0.110.0, Runtime/Macros/Guard 0.23.17 and Host Process 0.81.0.
+- **Breaking persistence/API change:** pending 0.104.0 is a fresh native layout,
+  without a 0.74.1 image migration. The consumed live probe stays unchanged;
+  [Storage #1](https://github.com/dragginzgame/ic-storage/issues/1) remains open.
+
+### Try it
+
+- Build prepared local artifacts with `make build-host build-reference-app`.
+  Follow the [native storage contract](docs/design/native-storage.md) and
+  [maintenance procedure](docs/operations/standalone-maintenance.md).
+
 ## [0.103.3] - 2026-11-17
 
 ### 🧪 Qualification

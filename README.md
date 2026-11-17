@@ -1,5 +1,11 @@
 # IC Blob Storage
 
+Development uses **ic-storage 0.76.2 native OP storage**. The library, standalone
+host, reference app and qualification probes use retained roots and prepared Wasm;
+see the [native storage contract](docs/design/native-storage.md) and
+[current checks](docs/status/current.md). This 0.104.0 layout does not
+migrate the last published **0.103.3** stable image or the consumed live probe.
+
 Clean-start rewrite workspace. [Bounded object references](crates/ic-blob-storage/src/references/mod.rs)
 support overlapping application uses, historical replay and irreversible closing.
 [Streaming Caffeine verification](crates/ic-blob-storage/src/caffeine/mod.rs) checks
@@ -45,7 +51,7 @@ The application owns its catalog; Blob owns its grants and references. No servic
 or SDK transfer is installed or contacted by this example.
 
 The [durable service](crates/ic-blob-storage/src/local/persistence/mod.rs) now backs
-the same rules with a bounded, versioned IC Storage record. The experimental
+the same rules with bounded, versioned native Storage rows. The experimental
 [standalone host](crates/ic-blob-storage-canister/src/lib.rs) captures IC callers
 and time, and mounts `blob_update` / `blob_query` using Wire. Its 64 upload and
 64 reference slots include historical identities. Reopening rebuilds indexes and
@@ -100,14 +106,14 @@ Install the published CLI with `cargo install ic-blob-storage-cli --locked`; the
 executable is `blob`. Rust 1.100.0 or newer and Cargo’s bin directory on PATH are
 required. Guarded maintenance still needs the matching source checkout and tools.
 
-Blob’s public Rust records use Platform Types 0.21.2, with Runtime 0.23.14
-in the hosts, Platform 0.34.8 for signed transport/proof custody and Protocol 0.2.7
+Blob’s public Rust records use Platform Types 0.21.2, with Runtime 0.23.17
+in the hosts, Platform 0.34.15 for signed transport/proof custody and Protocol 0.3.5
 for Caffeine and management codecs. No legacy Platform remains in the product.
-Installed tests select Testkit 0.107.3, whose Protocol dependency remains 0.2.6.
+Installed tests select Testkit 0.110.0 and Host Process 0.81.0.
 See the [integration boundary](docs/design/application-boundary.md#types-0212-integration).
 
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.44.11. Both workspaces select IC Wire 0.24.3's root-level
+and published Toko Tooling 0.45.0. Both workspaces select IC Wire 0.24.3's root-level
 `Encoding` API; no old `native` API adapter is retained. GitHub development uses the `main` branch of
 `dragginzgame/ic-blob-storage`. Releases use the shared Toko workflow; there is no production deployment configuration.
 
@@ -150,7 +156,7 @@ upgrade at capacity; see the [results and limits](docs/design/standalone-capacit
 Set `BLOB_PREVIOUS_WASM=/absolute/path/to/previous.wasm` for a predecessor-to-current
 upgrade witness. `make test-endpoints` checks raw frames on the actual host and
 uses a separate, small qualification canister to force reply-encoding failure
-after a stable write. The latter tests rollback without a production fault mode.
+after a native write. The latter tests rollback without a production fault mode.
 `make test-signed` exercises the production host through an owned local HTTP gateway
 with separate application, manager and uploader signing identities. It checks caller
 separation, original-upload inspection after a discarded reply, replay refusal and
