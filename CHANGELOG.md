@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.103.3] - Unreleased
+## [0.103.3] - 2026-11-17
 
 ### 🧪 Qualification
 
