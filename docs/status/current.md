@@ -2,10 +2,10 @@
 
 ## Delivery and active work
 
-Private `dragginzgame/ic-blob-storage`, branch `main`; **0.103.2 is pushed and
+Private `dragginzgame/ic-blob-storage`, branch `main`; **0.103.3 is pushed and
 published** for all four product packages at
-[`ff1aaaf`](https://github.com/dragginzgame/ic-blob-storage/commit/ff1aaafc75d80cd51c12f232dd758d4883a7aa21),
-with annotated tag `v0.103.2`. Qualification is independent and unpublished.
+[`3b5e0b5`](https://github.com/dragginzgame/ic-blob-storage/commit/3b5e0b52e7c72d0ffb44f50a5682566b907a71f5),
+with annotated tag `v0.103.3`. Qualification is independent and unpublished.
 [Release procedure](../operations/releases.md); [application guide](../design/reference-application.md).
 
 **Platform adoption:** Types 0.21.2, Runtime/Macros/Guard 0.23.16 and Platform
@@ -37,13 +37,13 @@ Qualification selects Host Process 0.80.4, retaining its macOS libproc 0.15 edge
 `blob app` prepares, inspects, dispatches and observes exact
 fresh-install requests; saved outcomes never authorize renewal or resubmission.
 
-**Pending 0.103.3:** remove all eight qualification `#[path]` overrides. The existing
+**Delivered 0.103.3:** removed all eight qualification `#[path]` overrides. The existing
 unpublished qualification library now owns the unchanged simulator helper; callers
 use ordinary imports. Only its existing Testkit/Host Process dependencies change
-declaration scope; release preparation also retains zeroize 1.9.2 in both locks.
-This is compatible maintenance with no product API or stored-format change. Clippy and linking
-pass for all eight targets; installed standalone setup/cleanup and upgrade pass
-(`target/path-override-fix/`). Changes remain local; no release or live effects.
+declaration scope; both locks retain the concurrent zeroize 1.9.2 update.
+No product API or stored-format change. Aggregate CI and all eight installed suites
+passed (`target/01033-release/release.log`), including original-request expiry and
+management recovery. No live effects or new provider qualification.
 
 Next: Storage's retained-image transition, Canic-owned fleet integration and
 outstanding provider qualification below. Current local browser checks pass.
@@ -120,16 +120,17 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Qualification and integration
 
-Release 0.103.2 passed the complete gate and archive/provenance checks.
+Release 0.103.3 passed the complete gate and archive/provenance checks.
 All four downloaded registry archives match the prepared packages; readback:
-`target/01032-release/registry-verified.json`. Source provenance fetched the exact
-GitHub commit independently (`target/publication/provenance-01032/`).
-After release, both opt-in Chromium targets passed on `6a369f8` with unchanged code
-and locks: three transport cases and two installed catalog/upgrade cases.
+`target/01033-release/registry-verified.json`. Source provenance fetched the exact
+GitHub commit independently (`target/publication/provenance-01033/`).
+Both opt-in Chromium targets last passed on `6a369f8` with the 0.103.2 code and
+locks: three transport cases and two installed catalog/upgrade cases.
 Evidence: `target/browser-refresh-01032/qualification.log`; Chrome for Testing
 156.0.8078.4, Node 24.21.0, npm Platform 0.2.0 and esbuild 0.28.2.
 Transport/replay, verified reads and upgraded-catalog cancellation pass; no fix was needed.
-PATH `blob --version` reports 0.103.2. Hosted CI was not awaited. Browser profile
+PATH `blob --version` reports 0.103.3. Chromium/macOS were not rerun for this release;
+hosted CI was not awaited. Browser profile
 rollback/eviction, multi-device custody, live acceptance and settlement are unqualified.
 
 Service has one 64 KiB record and 64 historical uploads/references; cleanup retains
@@ -142,9 +143,8 @@ Current committed Canic `0167a30` pins Blob `decde204` (0.100.6) immutably; its 
 composition evidence is not current-supplier qualification. The two Canic issues
 own real fleet initialization and maintenance. No Canic source changed or ran.
 
-Delivery review (`3993d90..ff1aaaf`) covered supplier ownership, bounded codecs,
-malformed-input fixtures, both dependency graphs, unchanged CLI module moves and
-release metadata. No actionable architecture sediment found in that scope.
-Platform owns the codecs; fixed literal test schemas add no generic codec.
-Library/host/client ownership and live custody remain unchanged. Storage's IC0-only
-Runtime edge is a deliberate retained dependency. No tag or upload was retried.
+Delivery review (`6a369f8..3b5e0b5`) covered all eight helper imports, the single
+qualification owner, unchanged setup/cleanup logic, lockfiles and release metadata.
+No actionable architecture sediment found in that scope. Test-only dependencies
+remain in the unpublished harness; no product source or persistence format changed.
+Live custody is unchanged. No tag or upload was retried.
