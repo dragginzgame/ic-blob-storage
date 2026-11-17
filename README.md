@@ -4,7 +4,7 @@ Development uses **ic-storage 0.76.2 native OP storage**. The library, standalon
 host, reference app and qualification probes use retained roots and prepared Wasm;
 see the [native storage contract](docs/design/native-storage.md) and
 [current checks](docs/status/current.md). This 0.104.0 layout does not
-migrate the last published **0.103.3** stable image or the consumed live probe.
+migrate the previous **0.103.3** stable image or the consumed live probe.
 
 Clean-start rewrite workspace. [Bounded object references](crates/ic-blob-storage/src/references/mod.rs)
 support overlapping application uses, historical replay and irreversible closing.

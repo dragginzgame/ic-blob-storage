@@ -2,72 +2,67 @@
 
 ## Delivery and active work
 
-Private `dragginzgame/ic-blob-storage`, branch `main`; **0.103.3 is pushed and
+Private `dragginzgame/ic-blob-storage`, branch `main`; **0.104.0 is pushed and
 published** for all four product packages at
-[`3b5e0b5`](https://github.com/dragginzgame/ic-blob-storage/commit/3b5e0b52e7c72d0ffb44f50a5682566b907a71f5),
-with annotated tag `v0.103.3`. Qualification is independent and unpublished.
-[Release procedure](../operations/releases.md); [application guide](../design/reference-application.md).
+[`98344f1`](https://github.com/dragginzgame/ic-blob-storage/commit/98344f1e8ce697ca37f57a1f81d8b97928afe3f9),
+with annotated tag `v0.104.0`. Qualification remains independent and unpublished.
+[Release procedure](../operations/releases.md); [native contract](../design/native-storage.md).
 
-**Platform adoption:** Types 0.21.2, Runtime/Macros/Guard 0.23.17 and Platform
-0.34.15 are selected in both lockfiles. Protocol 0.3.5 supplies management and
-Caffeine codecs; **no legacy Platform remains in product or qualification**.
-The native API owns signing, one-attempt dispatch, original-request recovery,
-signed queries and exact proof authentication. Custom roots require an explicit
-root-subnet principal. Wire calls and original custody are preserved; native persistence changes below.
+Storage 0.76.2 uses native retained roots, concrete participant grants and bounded
+domain rows. Hosts prepare/admit Wasm, close/reopen roots and explicitly Keep
+memory on upgrade. This is a new layout without a 0.74.1 image migration. The
+consumed live probe and all original custody remain unchanged. Canic must adopt
+the new root/grant and supplier build/lifecycle boundary in its own adapter.
 
-**Tooling 0.45.0:** both pins/locks, authenticated 92-file snapshot and CLI binding
-are updated. CI has one browser install owner, shared authenticated-download cache
-and prepared-archive failure upload (14 days), retaining Blob’s bounded sanitizer.
-Wiring/sanitizer checks pass (69/18 cases; `target/ci-cleanup/`). Hosted cache/
-upload/macOS remain unobserved. [CI ownership](../operations/continuous-integration.md).
-Rust 1.100.0 and Wire 0.24.3 remain selected; Host FS/Artifacts use 0.80.3.
-Qualification selects Host Process 0.81.0 and Testkit 0.110.0; FS/Artifacts 0.80.3
-are still latest. Only the requested supplier selections changed in both locks.
+Both locks select Platform 0.34.15, Protocol 0.3.5, Runtime/Macros/Guard 0.23.17,
+Types 0.21.2, Storage 0.76.2, Wire 0.24.3, Testkit 0.110.0 and Host Process 0.81.0.
+Host FS/Artifacts are 0.80.3. Toko 0.45.0's authenticated 92-file snapshot and CLI
+binding agree. Rust remains 1.100.0. First-party freshness passed; optional
+metadata-editor 0.87.4 adoption is deferred to the next tooling-maintenance pass.
+Its compatible 0.73.0 two-lock interface remains qualified.
+
+**Release gate:** all 17 selected stages passed, including strict product and
+qualification Clippy/Rustdoc, 40 library tests, 21 CLI tests, four example tests,
+Node tests and all eight installed suites (21 tests). Chromium remains opt-in.
+The gate took 337 seconds with prepared tools/warm build outputs; callbacks (129s)
+and maintenance (63s) dominate. Evidence: `target/validation/blob.spya37/` and
+`target/01040-release/release.log`. Capacity stayed at zero stable bytes / 40-MiB
+Wasm allocation. `target/storage-review/` retains earlier native observations.
+
+**Publication:** all four downloaded registry archives match prepared bytes and
+registry checksums: `target/01040-release/registry-verified.json`. Independent
+GitHub retrieval verified packaged source under `target/publication/provenance-01040/`.
+Upload custody: `target/publication/publish.selection.UGdk1j/`. No upload was retried.
+PATH `blob --version` reports **0.104.0**; install log is in the release evidence.
+GitHub push CI was observed in progress at
+[run 44185191660](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44185191660);
+no hosted cache/upload/macOS or Chromium pass is claimed for this release.
+
+CI now gives browser installation one owner and uses shared authenticated-download
+cache and prepared-archive upload, retaining Blob's sanitizer and 14-day artifacts.
+Wiring/sanitizer checks passed (69/18 cases; `target/ci-cleanup/`).
+[CI ownership](../operations/continuous-integration.md). The scoped release fixture
+passed 38 cases plus both-lock metadata projection (`target/dependency-refresh-20261117/`).
+[Blob #3](https://github.com/dragginzgame/ic-blob-storage/issues/3) is delivered.
 
 ## Next action and provider boundary
 
-**Pending 0.104.0 — native OP adoption:** both workspaces select Storage 0.76.2,
-source `f9fa03611ebb8641412a2af0f8620b80909c164f`. No old backing alias/runtime
-remains. Service/Callbacks take supplier grants through concrete Access; the
-standalone host, reference app and probes use bounded domain rows, source close/
-target reopen and prepared native Wasm. The CLI signs explicit Keep upgrades.
-[Native contract](../design/native-storage.md) owns layouts, composition, build
-admission and the hard cut from 0.74.1. Packages stay 0.103.3 until release.
-Testkit 0.110.0, Runtime/Macros/Guard 0.23.17 and Host Process 0.81.0 are adopted.
+[Storage #6](https://github.com/dragginzgame/ic-storage/issues/6) tracks native
+consumer acceptance; [Storage #1](https://github.com/dragginzgame/ic-storage/issues/1)
+separately owns the old consumed image. Canic owns fleet integration in
+[#12](https://github.com/dragginzgame/canic/issues/12) and
+[#13](https://github.com/dragginzgame/canic/issues/13); no sibling source changed.
+Its older `0167a30` witness pins Blob `decde204` (0.100.6) and does not qualify
+this native boundary. Do not add another Blob adapter here.
 
-**Native OP baseline (before this dependency refresh):** all eight installed suites
-passed (21 tests), plus 40 library tests, strict Clippy/Rustdoc and examples.
-Capacity passed at zero stable bytes / 40-MiB Wasm allocation; five artifact
-identities remain in `target/storage-review/`. Native root/projection checks replace
-old stable-memory assertions. No runtime Wasm dependency changed in this refresh.
-**Current refresh:** both locked metadata graphs, all harness tests/examples under
-strict Clippy, host/Rust/simulator tool admission and 21 CLI tests pass.
-Installed endpoints (native trap rollback) and enrollment (held replies/receipts)
-and the signed CLI lifecycle pass (six installed tests). All 38 release fixtures
-and both-lock metadata projection pass. Evidence: `target/dependency-refresh-20261117/`.
-Full CI/other installed suites, Chromium, macOS and Canic were not rerun.
-[Storage #6](https://github.com/dragginzgame/ic-storage/issues/6) owns consumer
-acceptance. [Storage #1](https://github.com/dragginzgame/ic-storage/issues/1)
-separately owns the old consumed image: no live target/custody was changed.
-
-**Local release-flow fix ([Blob #3](https://github.com/dragginzgame/ic-blob-storage/issues/3)):**
-One roster drives CI and scoped releases; shared/unknown inputs select full.
-The native preparer is compiled once per Make invocation and artifacts select
-admitted prepared bytes. All 38 disposable real-Make dispatch/recovery checks
-and two-lock metadata projection pass (`tooling-consumers.log` in the refresh). No release
-or product speedup is claimed. Next: run the 0.104.0 gate and publish on main.
-Canic owns integration in [#12](https://github.com/dragginzgame/canic/issues/12)
-and [#13](https://github.com/dragginzgame/canic/issues/13); its adapter must adopt
-Blob’s native grant/root boundary and the supplier build/lifecycle contract.
-No duplicate Blob adapter or sibling source change is needed here.
-Caffeine calls and the existing `canic-mainnet` signer are authorized once the exact
-operation and effect custody are ready. No outreach, key export, custody import,
-implicit retry/reset, new owner, funding or link is implied by local progress.
-[Contract review](../design/caffeine-contract-review.md#independent-qualification--2026-11-15)
+D0 remains open for supported enrollment, namespace/scope, enforced bounds, proof
+recovery/lifetime and charge closure. D1/D3 remain partial; D2 has no positive live
+gateway/upload witness. Preserve declared-byte accounting, unresolved exposure
+and unfrozen API/persistence. [Contract review](../design/caffeine-contract-review.md#independent-qualification--2026-11-15)
 and [compact observation](../design/caffeine-observation.json) own provider evidence.
-D0 remains open for enrollment, scope, enforced bounds, proof recovery/lifetime and
-charge closure. D1/D3 are partial; D2 has no positive gateway-admission/upload witness.
-Keep declared bytes, unresolved exposure and unfrozen API/persistence.
+Caffeine calls and `canic-mainnet` remain authorized only with concrete bounded
+operations and original effect custody. No outreach, key export, implicit retry,
+reset, new owner, funding or link is implied by release or local qualification.
 
 ## Live custody — preserve, never repeat funding or creation
 
@@ -119,32 +114,16 @@ The probe is now consumed; its installation bullet describes the initial state.
 A requested target balance is not an enforced liability cap. Mainnet/root-key
 selection is explicit; the existing named signer was used without exporting keys.
 
-## Qualification and integration
+## Review and limitations
 
-Release 0.103.3 passed the complete gate and archive/provenance checks.
-All four downloaded registry archives match the prepared packages; readback:
-`target/01033-release/registry-verified.json`. Source provenance fetched the exact
-GitHub commit independently (`target/publication/provenance-01033/`).
-Both opt-in Chromium targets last passed on `6a369f8` with the 0.103.2 code and
-locks: three transport cases and two installed catalog/upgrade cases.
-Evidence: `target/browser-refresh-01032/qualification.log`; Chrome for Testing
-156.0.8078.4, Node 24.21.0, npm Platform 0.2.0 and esbuild 0.28.2.
-Transport/replay, verified reads and upgraded-catalog cancellation pass; no fix was needed.
-PATH `blob --version` reports 0.103.3. Chromium/macOS were not rerun for this release;
-hosted CI was not awaited. Browser profile
-rollback/eviction, multi-device custody, live acceptance and settlement are unqualified.
+Post-push review of `v0.103.3..v0.104.0` covered native root ownership and bounds,
+host lifecycle, retained replay/receipts, local release policy and shared CI wiring.
+No actionable architecture sediment was found in that scope: no copied allocator,
+compatibility backing, generic chunk store, duplicate policy ledger or recovery
+framework. Published archives contain no qualification Wasm or private custody.
+Live custody is unchanged; no live target, funding, relationship or tag was replayed.
 
-Service keeps a 64-KiB logical budget and 64 historical uploads/references; cleanup retains
-exposure. [Maintenance](../operations/standalone-maintenance.md) preserves original
-identities and closed admission; unknown execution is not safe retry. There is no
-unrestricted-controller snapshot/rollback continuity guarantee. The consumed probe
-stays 0.100.8; original source remains in installation custody's
-`source-before-release-01008/`.
-Current committed Canic `0167a30` pins Blob `decde204` (0.100.6) immutably; its older
-composition evidence is not current-supplier qualification. The two Canic issues
-own real fleet initialization and maintenance. No Canic source changed or ran.
-
-Release freshness: selected first-party libraries/tools are current. The compatible
-metadata editor stays 0.73.0; optional 0.87.4 adoption is deferred to the next tooling
-maintenance boundary. Its existing two-lock interface remains qualified.
-Live custody is byte-identical to HEAD. No sibling, tag, push or live effect changed.
+Finite lifetime slots still bound sustained use. Provider acceptance/settlement,
+Canic composition and unrestricted-controller snapshot continuity remain unqualified.
+The last Chromium witness remains `6a369f8` with the 0.103.2 cohort; local Node
+and installed tests do not establish browser profile rollback or multi-device custody.
