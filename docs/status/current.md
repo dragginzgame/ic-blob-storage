@@ -2,63 +2,28 @@
 
 ## Delivery and active work
 
-Private `dragginzgame/ic-blob-storage`, branch `main`; **0.104.0 is pushed and
-published** for all four product packages at
-[`98344f1`](https://github.com/dragginzgame/ic-blob-storage/commit/98344f1e8ce697ca37f57a1f81d8b97928afe3f9),
-with annotated tag `v0.104.0`. Qualification remains independent and unpublished.
-[Release procedure](../operations/releases.md); [native contract](../design/native-storage.md).
+**0.105.0 is published** on crates.io for the library, standalone canister, reference
+application and CLI. The annotated [GitHub tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.105.0)
+points to `7bc9db55dfbeb1f91a874435b8a800af8edf00f1`. Qualification stays private.
+Both workspaces use registry Storage 0.78.0. The installed CLI reports `blob 0.105.0`.
+See the [stable storage contract](../design/stable-storage.md) and [release procedure](../operations/releases.md).
 
-The published 0.104.0 uses OP storage. Current development uses Storage 0.78.0
-and ordinary Wasm. Embedded hosts grant named allocations through the
-[stable storage contract](../design/stable-storage.md).
+All 17 release stages passed on the committed development batch, including 21 installed
+tests across eight suites. See `target/validation/blob.UXPiiL/proof.json` and
+`target/01050-release/release.log`. Separate populated upgrade tests preserved state
+after refusal from both older Blob tags and the interim Storage 0.77 layout.
+Full-history same-layout upgrades used 256 KiB of stable memory. See `target/storage-078/`.
 
-The released locks select Platform 0.34.15, Protocol 0.3.5, Runtime/Macros/Guard 0.23.17,
-Types 0.21.2, Storage 0.76.2, Wire 0.24.3, Testkit 0.110.0 and Host Process 0.81.0.
-Host FS/Artifacts are 0.80.3. Toko 0.45.0's authenticated 92-file snapshot and CLI
-binding agree. Rust remains 1.100.0. First-party freshness passed; optional
-metadata-editor 0.87.4 adoption is deferred to the next tooling-maintenance pass.
-Its compatible 0.73.0 two-lock interface remains qualified.
-
-**Release gate:** all 17 selected stages passed, including strict product and
-qualification Clippy/Rustdoc, 40 library tests, 21 CLI tests, four example tests,
-Node tests and all eight installed suites (21 tests). Chromium remains opt-in.
-The gate took 337 seconds with prepared tools/warm build outputs; callbacks (129s)
-and maintenance (63s) dominate. Evidence: `target/validation/blob.spya37/` and
-`target/01040-release/release.log`. Capacity stayed at zero stable bytes / 40-MiB
-Wasm allocation. `target/storage-review/` retains earlier native observations.
-
-**Publication:** all four downloaded registry archives match prepared bytes and
-registry checksums: `target/01040-release/registry-verified.json`. Independent
-GitHub retrieval verified packaged source under `target/publication/provenance-01040/`.
-Upload custody: `target/publication/publish.selection.UGdk1j/`. No upload was retried.
-PATH `blob --version` reports **0.104.0**; install log is in the release evidence.
-GitHub push CI was observed in progress at
-[run 44185191660](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44185191660);
-no hosted cache/upload/macOS or Chromium pass is claimed for this release.
-
-CI now gives browser installation one owner and uses shared authenticated-download
-cache and prepared-archive upload, retaining Blob's sanitizer and 14-day artifacts.
-Wiring/sanitizer checks passed (69/18 cases; `target/ci-cleanup/`).
-[CI ownership](../operations/continuous-integration.md). The scoped release fixture
-passed 38 cases plus both-lock metadata projection (`target/dependency-refresh-20261117/`).
-[Blob #3](https://github.com/dragginzgame/ic-blob-storage/issues/3) is delivered.
+Published archive bytes matched all four prepared packages and registry checksums.
+Independent source verification is under `target/publication/provenance-01050/`, upload
+custody under `target/publication/publish.selection.kZTBdA/` and the checksum record in
+`target/01050-release/registry-verified.json`. The release commit’s [hosted CI run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44199800600)
+was in progress at publication. Optional metadata-editor refresh remains deferred.
 
 ## Next action and provider boundary
 
-The working tree now selects published Storage **0.78.0** in both locks
-(`9777121`). Ordinary Cargo Wasm uses named stable cells. The [storage
-contract](../design/stable-storage.md) covers host integration and upgrade
-refusal. This public persistence and layout change targets the next minor
-checkpoint (0.105.0). 0.104.0 remains the delivered version.
-
-Local qualification passed on 0.78.0 across all eight installed suites (21
-default tests), 39 library tests, 21 CLI tests, four example tests and 24 Node
-tests. Additional installed runs populated hosts built from Blob tags 0.103.3
-and 0.104.0 and the interim 0.77.0 worktree. Every incompatible upgrade
-preserved the original module, stable bytes, drained attempt and unresolved
-exposure. Same-layout upgrades passed at full history with 256 KiB of stable
-memory. Build and test evidence is under `target/storage-078/`. Chromium and
-live-provider execution were outside this run.
+Canic can integrate the released named-lease API and qualify its own composed catalog.
+Populated 0.103.3 or 0.104.0 installations still require separate disposition.
 
 [Storage #6](https://github.com/dragginzgame/ic-storage/issues/6) tracks native
 consumer acceptance; [Storage #1](https://github.com/dragginzgame/ic-storage/issues/1)
@@ -129,12 +94,12 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Review and limitations
 
-Post-push review of `v0.103.3..v0.104.0` covered native root ownership and bounds,
-host lifecycle, retained replay/receipts, local release policy and shared CI wiring.
-No actionable architecture sediment was found in that scope: no copied allocator,
-compatibility backing, generic chunk store, duplicate policy ledger or recovery
-framework. Published archives contain no qualification Wasm or private custody.
-Live custody is unchanged; no live target, funding, relationship or tag was replayed.
+Post-push review of `v0.104.0..v0.105.0` confirmed the library owns the service rules,
+the host grants named allocations and the CLI signs ordinary upgrades. The OP transform,
+linker layout and grant wrapper have been removed. Searches of executable paths found
+no remaining Keep-only upgrade or alternate OP persistence implementation. The product
+Rust diff removed 268 net lines excluding test files. Archive inspection found no
+qualification Wasm or private custody.
 
 Finite lifetime slots still bound sustained use. Provider acceptance/settlement,
 Canic composition and unrestricted-controller snapshot continuity remain unqualified.
