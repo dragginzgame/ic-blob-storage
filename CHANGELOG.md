@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.104.0] - Unreleased
+## [0.104.0] - 2026-11-17
 
 ### 🔧 Release validation
 
