@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.105.0] - Unreleased
+## [0.105.0] - 2026-11-17
 
 ### ⚠️ Breaking changes
 
