@@ -2,10 +2,10 @@
 
 ## Delivery and active work
 
-Private `dragginzgame/ic-blob-storage`, branch `main`; **0.103.1 is pushed and
+Private `dragginzgame/ic-blob-storage`, branch `main`; **0.103.2 is pushed and
 published** for all four product packages at
-[`3b2d7d2`](https://github.com/dragginzgame/ic-blob-storage/commit/3b2d7d20a0a2bc649c7791f870a7ac17277bd6d3),
-with annotated tag `v0.103.1`. Qualification is independent and unpublished.
+[`ff1aaaf`](https://github.com/dragginzgame/ic-blob-storage/commit/ff1aaafc75d80cd51c12f232dd758d4883a7aa21),
+with annotated tag `v0.103.2`. Qualification is independent and unpublished.
 [Release procedure](../operations/releases.md); [application guide](../design/reference-application.md).
 
 **Platform adoption:** Types 0.21.2, Runtime/Macros/Guard 0.23.16 and Platform
@@ -34,18 +34,16 @@ Qualification selects Host Process 0.80.4, retaining its macOS libproc 0.15 edge
 
 ## Next action and provider boundary
 
-**Delivered 0.103.1:** `blob app` prepares, inspects, dispatches and observes exact
+`blob app` prepares, inspects, dispatches and observes exact
 fresh-install requests; saved outcomes never authorize renewal or resubmission.
-Its full release gate passed with Platform 0.34.9 / Protocol 0.2.8 / Testkit 0.107.4
-and qualification Host Process 0.80.3 (`target/01031-release/release-final.log`).
 
-**Pending 0.103.2:** both workspaces adopt Platform 0.34.13, Protocol 0.3.5 and
+**Delivered 0.103.2:** both workspaces adopt Platform 0.34.13, Protocol 0.3.5 and
 Runtime/Macros/Guard 0.23.16, with Testkit 0.108.0 and the Host versions above.
-CI, capacity, four enrollment and seven callback cases pass with stable lock hashes
-(`target/platform-full-adoption/`). Preserve Clap 4.6.8. Prior Host/Testkit
-application and server evidence remains under `target/supplier-refresh/`.
+Aggregate CI and all eight installed suites passed (`target/01032-release/release.log`),
+including four enrollment, seven callback and four management cases. Clap 4.6.8
+is retained; the five CLI module moves preserve implementation bytes.
 Platform #24's codecs are adopted; the legacy alias and local schema DTOs are gone.
-No release/live effects; full release gate, Chromium and native macOS were not rerun.
+No live effects. Optional Chromium and native macOS were not rerun.
 
 Next: Canic-owned fleet integration and outstanding provider qualification below.
 [Platform #24](https://github.com/dragginzgame/ic-platform/issues/24) now has consumer
@@ -121,12 +119,12 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Qualification and integration
 
-Release 0.103.1 passed the complete gate and archive/provenance checks.
+Release 0.103.2 passed the complete gate and archive/provenance checks.
 All four downloaded registry archives match the prepared packages; readback:
-`target/01031-release/registry-verified.json`. Source provenance fetched the exact
-GitHub commit independently (`target/publication/provenance-01031/`).
+`target/01032-release/registry-verified.json`. Source provenance fetched the exact
+GitHub commit independently (`target/publication/provenance-01032/`).
 The opt-in Chromium journeys last passed at 0.100.12; they were not rerun for
-this release. PATH `blob --version` reports 0.103.1. Hosted CI was not awaited.
+this release. PATH `blob --version` reports 0.103.2. Hosted CI was not awaited.
 Node 24+, npm Platform 0.2.0 and esbuild 0.28.2 remain selected. Browser profile
 rollback/eviction, multi-device custody, live acceptance and settlement are unqualified.
 
@@ -140,11 +138,9 @@ Current committed Canic `0167a30` pins Blob `decde204` (0.100.6) immutably; its 
 composition evidence is not current-supplier qualification. The two Canic issues
 own real fleet initialization and maintenance. No Canic source changed or ran.
 
-Delivery review (`9c26943..3b2d7d2`) covered installation policy, caller bindings,
-original-request custody, relay cleanup and metadata-only release projection.
-No additional product architecture sediment found in that scope. Publication
-exposed a local-date/UTC mismatch across midnight: the shared runner completed
-with all admission checks using the UTC commit date, preserving the tagged source.
-The delivery follow-up corrects the adapter's date selection; its full admission
-passed on the actual cross-midnight tag under another host timezone. Evidence:
-`target/01031-release/utc-fix-check.log`. No tag was replaced or upload retried.
+Delivery review (`3993d90..ff1aaaf`) covered supplier ownership, bounded codecs,
+malformed-input fixtures, both dependency graphs, unchanged CLI module moves and
+release metadata. No actionable architecture sediment found in that scope.
+Platform owns the codecs; fixed literal test schemas add no generic codec.
+Library/host/client ownership and live custody remain unchanged. Storage's IC0-only
+Runtime edge is a deliberate retained dependency. No tag or upload was retried.
