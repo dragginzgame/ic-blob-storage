@@ -12,10 +12,6 @@ use ic_blob_storage::{
     local::{Error, Limits, Root, UploadRequest},
     protocol::{Command, Inspection, Installation, Observation, Outcome, RPC_LIMITS},
 };
-use ic_platform_legacy::candid_codec::{
-    arguments::encode_args,
-    decoder::{Arity, Limits as CandidLimits, decode_args},
-};
 use ic_platform_protocol::{caffeine as provider, candid::Limits as ProviderLimits};
 use ic_platform_types::Principal;
 use ic_testkit::pocket_ic::{CanisterId, PocketIcBuilder, RejectCode, nonblocking::PocketIc};
@@ -26,13 +22,9 @@ use std::{path::Path, time::Duration};
 const LIVE: &str = "_immutableObjectStorageBlobsAreLive";
 const LIST: &str = "_immutableObjectStorageBlobsToDelete";
 const ACK: &str = "_immutableObjectStorageConfirmBlobDeletion";
-const CANDID: CandidLimits = CandidLimits {
-    bytes: 4096,
-    header: 512,
-    types: 8,
-    work: 65_536,
-    allocation: 65_536,
-};
+// Independent wire schema: type 0 = vec type 1, type 1 = vec nat8;
+// exactly one argument of type 0. Kept literal, outside the supplier encoder.
+const ROOTS_HEADER: &[u8] = b"DIDL\x02\x6d\x01\x6d\x7b\x01\x00";
 
 const PROVIDER_LIMITS: ProviderLimits = ProviderLimits {
     bytes: 4096,
@@ -144,7 +136,15 @@ async fn usage(pic: &PocketIc, owner: CanisterId) -> Observation {
     .unwrap()
 }
 fn roots(values: &[Root]) -> Vec<u8> {
-    provider::encode_roots(&values.iter().map(|r| r.to_vec()).collect::<Vec<_>>(), 8192).unwrap()
+    // These fixtures include the 65-root refusal; all counts fit one LEB byte.
+    assert!(values.len() < 128);
+    let mut bytes = ROOTS_HEADER.to_vec();
+    bytes.push(u8::try_from(values.len()).unwrap());
+    for root in values {
+        bytes.push(32);
+        bytes.extend_from_slice(root);
+    }
+    bytes
 }
 async fn liveness(pic: &PocketIc, owner: CanisterId, values: &[Root]) -> Vec<bool> {
     let bytes = pic
@@ -159,12 +159,11 @@ async fn candidates(pic: &PocketIc, owner: CanisterId) -> Vec<Vec<u8>> {
         .await
         .unwrap();
     let result = provider::decode_roots(&bytes, PROVIDER_LIMITS).unwrap();
-    if !result.is_empty() {
-        assert!(
-            decode_args::<(Vec<String>,)>(&bytes, CANDID, Arity::Exact).is_err(),
-            "nonempty blob profile must not become text"
-        );
-    }
+    let expected: Vec<Root> = result
+        .iter()
+        .map(|root| root.as_slice().try_into().unwrap())
+        .collect();
+    assert_eq!(bytes, roots(&expected), "exact vec blob wire profile");
     result
 }
 async fn ack(pic: &PocketIc, owner: CanisterId, values: &[Root]) {
@@ -220,7 +219,7 @@ async fn callbacks_share_retention_preserve_acknowledgments_and_never_settle() {
     let before = pic.get_stable_memory(owner).await;
     for who in [CanisterId::anonymous(), caller(1), caller(2), caller(9)] {
         assert!(
-            pic.query_call(owner, who, LIST, encode_args(&(), 32).unwrap())
+            pic.query_call(owner, who, LIST, provider::encode_empty(32).unwrap())
                 .await
                 .is_err()
         );
@@ -284,7 +283,7 @@ async fn callbacks_share_retention_preserve_acknowledgments_and_never_settle() {
     );
     assert_eq!(pic.get_stable_memory(owner).await, saved);
     assert!(
-        pic.query_call(owner, caller(9), LIST, encode_args(&(), 32).unwrap())
+        pic.query_call(owner, caller(9), LIST, provider::encode_empty(32).unwrap())
             .await
             .is_err()
     );
@@ -313,10 +312,17 @@ async fn callback_decoding_refuses_malformed_over_budget_and_wrong_profile_witho
         vec![0; 4097],
         roots(&[root; 65]),
         trailing,
-        encode_args(&(vec![vec![1u8; 31]],), 4096).unwrap(),
-        encode_args(&(vec![vec![1u8; 33]],), 4096).unwrap(),
-        encode_args(&(vec!["not a root".to_string()],), 4096).unwrap(),
-        encode_args(&(vec![root.to_vec()], true), 4096).unwrap(),
+        [ROOTS_HEADER, &[1, 31], &[1; 31]].concat(),
+        [ROOTS_HEADER, &[1, 33], &[1; 33]].concat(),
+        // One vec text argument with one ten-byte string.
+        b"DIDL\x01\x6d\x71\x01\x00\x01\x0anot a root".to_vec(),
+        // Same two vector types, but two arguments: vec blob and bool (0x7e).
+        [
+            b"DIDL\x02\x6d\x01\x6d\x7b\x02\x00\x7e\x01\x20".as_slice(),
+            &root,
+            &[1],
+        ]
+        .concat(),
     ];
     for bytes in malformed {
         let error = pic

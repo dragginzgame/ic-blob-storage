@@ -27,7 +27,6 @@ serde.workspace = true
 
 [dev-dependencies]
 clap.workspace = true
-ic-platform-legacy = { workspace = true, features = ["candid-codec"] }
 ic-platform-protocol = { workspace = true, features = ["caffeine"] }
 serde_json.workspace = true
 toko-tooling.workspace = true

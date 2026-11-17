@@ -7,53 +7,53 @@ published** for all four product packages at
 [`3b2d7d2`](https://github.com/dragginzgame/ic-blob-storage/commit/3b2d7d20a0a2bc649c7791f870a7ac17277bd6d3),
 with annotated tag `v0.103.1`. Qualification is independent and unpublished.
 [Release procedure](../operations/releases.md); [application guide](../design/reference-application.md).
-This patch adds guarded fresh-install preparation, dispatch and observation.
-No live canister changed; the release tag and registry source remain identical.
 
-**Platform adoption:** Types 0.21.2, Runtime/Macros/Guard 0.23.14 and Platform
-0.34.9 are selected in both lockfiles. Protocol 0.2.8 supplies management and
-Caffeine codecs in both workspaces; **no legacy Platform remains in the product**.
+**Platform adoption:** Types 0.21.2, Runtime/Macros/Guard 0.23.16 and Platform
+0.34.13 are selected in both lockfiles. Protocol 0.3.5 supplies management and
+Caffeine codecs; **no legacy Platform remains in product or qualification**.
 The native API owns signing, one-attempt dispatch, original-request recovery,
 signed queries and exact proof authentication. Custom roots require an explicit
 root-subnet principal. Wire/stable formats and original custody are preserved.
 Storage 0.74.1 retains Runtime 0.22.5's IC0-only edge, not another executor/guard.
 
-**Testkit 0.107.4:** managed server preparation, owned instance deletion/process
-teardown and bounded held replies replace the old helpers. Its compatible Protocol
-0.2.7 requirement removes the former exact 0.2.6 constraint. Legacy Platform 0.33.7
-remains only for independent malformed-input fixtures, enrollment decoding, metrics
-and opaque top-up outcome inspection. Callback/certificate and management-target
-codecs now use Protocol; legacy management types and the local reply DTO are removed.
-Evidence: `target/platform-testkit-adoption/`; aggregate CI and all installed
-migration cases pass, including old CLI custody and populated predecessor upgrades.
+**Testkit 0.108.0:** owns managed server preparation, instance deletion/process
+teardown and bounded held replies. It shares Protocol 0.3.5 with Blob;
+Protocol 0.2.8, legacy Platform 0.33.7 and Types 0.20.4 are removed. Qualification
+uses bounded Protocol metrics/top-up decoders and independent literal refusal
+fixtures, retaining exact provider-reply bytes and declared-outcome semantics.
+CI, installed capacity/enrollment and all seven non-Chromium callback cases pass
+(`target/platform-full-adoption/`), including original-request expiry/recovery.
+Both graph snapshots contain one Platform, Protocol and Types identity.
 [Migration contract](../design/application-boundary.md#platform-replacement-prerequisites--2026-11-16).
 
 **Tooling 0.44.11:** both pins/locks, authenticated 84-file snapshot and CLI binding
 are updated. CI retains bounded sanitized failure output, preserves original status
 and reports upload failures. Hosted upload/macOS remains for CI.
-Rust 1.100.0, Wire 0.24.3 and Host FS/Artifacts 0.80.2 remain selected.
-Qualification selects Host Process 0.80.3, including its macOS libproc 0.15 edge.
+Rust 1.100.0 and Wire 0.24.3 remain selected; Host FS/Artifacts use 0.80.3.
+Qualification selects Host Process 0.80.4, retaining its macOS libproc 0.15 edge.
 
 ## Next action and provider boundary
 
 **Delivered 0.103.1:** `blob app` prepares, inspects, dispatches and observes exact
-fresh-install requests. Dispatch admits tooling and current target/controller,
-requires fresh-creation custody confirmation and permanently claims before sending
-once. Observation retains the original certified outcome before checking current
-module/controller; it never reinstalls, renews or resubmits. Configuration bytes
-are bound by the acknowledgment, not independently read from application state.
-Evidence: `target/install-review/` covers actual dropped HTTP replies and competing
-CLI dispatchers: one submission, then recovery of its original certified result.
-The final release gate passed aggregate CI (including 21 CLI tests) and all eight
-installed suites: Platform 0.34.9 / Protocol 0.2.8 / Testkit 0.107.4 and qualification
-Host Process 0.80.3. Evidence: `target/01031-release/release-final.log`.
-Optional Chromium was not rerun. Original live and legacy custody is untouched.
+fresh-install requests; saved outcomes never authorize renewal or resubmission.
+Its full release gate passed with Platform 0.34.9 / Protocol 0.2.8 / Testkit 0.107.4
+and qualification Host Process 0.80.3 (`target/01031-release/release-final.log`).
 
-No pending product increment. Next: review private codec replacements when their
-supplier surfaces exist, and the Canic-owned fleet integration. Supplier
-tracking: [Platform #17](https://github.com/dragginzgame/ic-platform/issues/17),
-[Platform #18](https://github.com/dragginzgame/ic-platform/issues/18),
-[Platform #11](https://github.com/dragginzgame/ic-platform/issues/11).
+**Pending 0.103.2:** both workspaces adopt Platform 0.34.13, Protocol 0.3.5 and
+Runtime/Macros/Guard 0.23.16, with Testkit 0.108.0 and the Host versions above.
+CI, capacity, four enrollment and seven callback cases pass with stable lock hashes
+(`target/platform-full-adoption/`). Preserve Clap 4.6.8. Prior Host/Testkit
+application and server evidence remains under `target/supplier-refresh/`.
+Platform #24's codecs are adopted; the legacy alias and local schema DTOs are gone.
+No release/live effects; full release gate, Chromium and native macOS were not rerun.
+
+Next: Canic-owned fleet integration and outstanding provider qualification below.
+[Platform #24](https://github.com/dragginzgame/ic-platform/issues/24) now has consumer
+adoption evidence. Storage alone retains the old IC0-only Runtime edge; no second
+executor, legacy Platform facade, direct upstream codec or local generic codec exists.
+Five CLI module pairs now use `mod.rs`; hashes, Clippy and 21 tests pass (`target/module-layout/`).
+Release freshness: runtime suppliers are current; IC Build editor 0.73.0 is retained.
+Its optional 0.87.3 upgrade is deferred to the next release-tool maintenance batch.
 Canic owns fleet integration in [Canic #12](https://github.com/dragginzgame/canic/issues/12)
 and [Canic #13](https://github.com/dragginzgame/canic/issues/13); the existing Service API
 is sufficient, with no duplicate Blob adapter. The retained live Storage image

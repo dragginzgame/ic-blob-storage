@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.103.2] - Unreleased
+
+### 🔧 Module layout
+
+- Move five CLI modules with child directories into `mod.rs`, including nested
+  application/install modules. Module paths and implementation bytes are unchanged.
+
+### 🔧 Platform dependencies
+
+- Adopt Platform 0.34.13, Protocol 0.3.5 and Runtime/Macros/Guard 0.23.16 in both
+  workspaces. Management status decoding now requires the platform's canister version;
+  Blob's application interfaces, saved requests and durable state are unchanged.
+- Remove qualification's legacy Platform alias and Types 0.20.4. Protocol now
+  decodes execution-cycle metrics, optional top-up arguments and opaque-success /
+  typed-error top-up replies, preserving bounds and the retained provider refusal.
+  Adopts [Platform #24 — Final Blob qualification codecs](https://github.com/dragginzgame/ic-platform/issues/24).
+- Replace legacy-generated malformed inputs with independent literal wire fixtures;
+  callback responses must match the exact `vec blob` profile. No generic codec added.
+- Adopt Testkit 0.108.0 and unify its held-reply codecs with Protocol 0.3.5,
+  removing qualification's duplicate Protocol 0.2.8.
+- Adopt Host Artifacts/FS 0.80.3 in both workspaces and Host Process 0.80.4 in
+  qualification. Filesystem custody and simulator teardown behavior are unchanged.
+- Declare both workspaces' Platform minimum explicitly and use Protocol's
+  empty-argument encoder for ordinary callback requests. Storage's separate
+  IC0-only Runtime 0.22.5 dependency remains unchanged.
+- Retain the concurrent Clap 4.6.8 / derive 4.6.8 / lex 1.1.2 lockfile refresh;
+  aggregate CI and installed management qualification pass on the resulting graph.
+
 ## [0.103.1] - 2026-11-16
 
 ### ▶️ Try it

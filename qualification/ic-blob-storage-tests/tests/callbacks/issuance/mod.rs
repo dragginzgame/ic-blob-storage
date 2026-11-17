@@ -84,9 +84,15 @@ async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
         vec![0; 4097],
         trailing,
         roots(&[root]),
-        encode_args(&(root_text(root), true), 4096).unwrap(),
-        encode_args(&("sha256:00".to_string(),), 4096).unwrap(),
-        encode_args(&(root_text(root).to_uppercase(),), 4096).unwrap(),
+        // No type table; text and bool arguments, with a 71-byte root string.
+        [
+            b"DIDL\x00\x02\x71\x7e\x47".as_slice(),
+            root_text(root).as_bytes(),
+            &[1],
+        ]
+        .concat(),
+        provider::encode_root(&"sha256:00".to_string(), 4096).unwrap(),
+        provider::encode_root(&root_text(root).to_uppercase(), 4096).unwrap(),
         issue_args([99; 32]),
     ] {
         assert!(

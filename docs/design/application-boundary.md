@@ -381,39 +381,63 @@ legacy Platform conversion in product code.
 
 ### Platform replacement prerequisites — 2026-11-16
 
-The refresh selects published Platform 0.34.9, Runtime/Macros/Guard 0.23.14,
-Types 0.21.2 in both workspaces, Protocol 0.2.8 in the product and Testkit
-0.107.4 / Protocol 0.2.8 in qualification. Testkit 0.107.4 replaces its former exact
-Protocol 0.2.6 constraint with compatible 0.2.7. API and persistence remain unfrozen.
+Both workspaces select Platform 0.34.13, Protocol 0.3.5, Runtime/Macros/Guard
+0.23.16 and Types 0.21.2. Testkit 0.108.0 shares Protocol 0.3.5 for held replies.
+Host Artifacts/FS 0.80.3 and Process 0.80.4 retain the existing custody and teardown
+APIs. API and persistence remain unfrozen.
 
-| Consumer boundary | Selected owner and remaining work |
+| Consumer boundary | Selected owner and retained contract |
 | --- | --- |
-| CLI signed transport and certificate custody | Platform owns PEM signing, exact packet admission, one-attempt dispatch, original-request observation, signed queries and proof authentication. Blob owns custody, deadlines and admission decisions. No legacy Agent or certificate adapter remains. |
-| External Caffeine protocols | Protocol owns root/certificate, liveness/deletion, account-info and top-up request codecs. Existing bounds and independent vectors remain. Provider support and settlement are still unqualified. |
-| External management protocols | Protocol 0.2.7 owns status/start/stop and ordinary `install_code` upgrades, preserving absent upgrade flags and exact module/argument bytes. No legacy Platform remains in the product. |
-| Standalone and reference-app hosts | Runtime 0.23.14 owns explicit entrypoints, caller/self/time, pre-copy input bounds and consuming calls with a 30-second bounded wait. Domain and record formats are unchanged. |
+| CLI signed transport and certificate custody | Platform owns PEM signing, exact packet admission, one-attempt dispatch, original-request observation, signed queries and proof authentication. Blob owns custody, deadlines and admission. No legacy Agent or certificate adapter remains; the new anonymous APIs do not broaden Blob's caller policy. |
+| External Caffeine protocols | Protocol owns root/certificate, liveness/deletion, account-info and top-up codecs. Blob retains root/owner checks and provider uncertainty. |
+| External management protocols | Protocol owns status/start/stop and ordinary install/upgrade arguments, preserving absent upgrade flags and exact module/argument bytes. Status decoding requires the canister version. |
+| Standalone and reference-app hosts | Runtime owns explicit entrypoints, caller/self/time, pre-copy input bounds and consuming calls with a 30-second bounded wait. Domain and record formats are unchanged. |
 | Stable allocation backing | Storage 0.74.1 retains Runtime 0.22.5's IC0-only edge; no second executor or guard. Keep Storage-issued handles. |
-| Installed qualification | Testkit owns prepared-server admission, bounded process lifetime, explicit instance deletion/process teardown and held replies. Blob selects deadlines and asserts cleanup. A tiny synthetic WAT peer supplies raw enrollment replies because the old helper was removed. |
-| Remaining qualification codecs | Legacy Candid remains for independent malformed-input/enrollment fixtures, the metrics projection and opaque Cashier top-up outcome inspection. Callback/certificate and management-target codecs use Protocol; legacy management types and the local reply DTO are removed. It supplies no native transport or certificate authentication. |
+| Installed qualification | Testkit owns prepared-server admission, bounded process lifetime, explicit instance deletion/process teardown and held replies. Blob selects deadlines and asserts cleanup. A tiny synthetic WAT peer supplies raw enrollment replies. |
 
-The supplier APIs are documented in [Platform 0.34.9](https://docs.rs/crate/ic-platform/0.34.9),
-[Protocol 0.2.7](https://docs.rs/crate/ic-platform-protocol/0.2.7) and
-[Testkit 0.107.4](https://docs.rs/crate/ic-testkit/0.107.4). Supplier tracking remains
-[Platform #17 — signed transport/recovery](https://github.com/dragginzgame/ic-platform/issues/17),
-[Platform #18 — Caffeine codecs](https://github.com/dragginzgame/ic-platform/issues/18),
-and [Platform #11 — management codecs](https://github.com/dragginzgame/ic-platform/issues/11).
-Both workspaces now resolve Protocol 0.2.8. Legacy codecs remain only in private
-fixtures and diagnostics; this dependency refresh does not supply their missing decoders.
-The native migration is qualified. Offline installation preparation/readback now
-retains exact signed requests under `blob app`; see the
-[installation guide](reference-application.md#prepare-and-inspect-one-signed-install).
-Guarded `dispatch-install` and `observe-install` now admit current target/controller,
-claim before one submission and retain original certified outcomes before current
-module/controller readback. They require operator-owned fresh-creation custody and
-do not supply an independent application-configuration read or continuity proof.
-Existing live owner/probe custody remains unchanged.
-The 0.34.9 / 0.2.8 / 0.107.4 qualification graph passes aggregate CI and all eight
-installed suites in `target/qualification-platform-adoption/`; Chromium remains opt-in.
+[Protocol 0.3.5](https://docs.rs/crate/ic-platform-protocol/0.3.5), published from
+[`379789a`](https://github.com/dragginzgame/ic-platform/tree/379789a1b9db1e9348a5673ed847896e5011f81c),
+supplies the final qualification codecs requested in
+[Platform #24](https://github.com/dragginzgame/ic-platform/issues/24). They are now
+adopted; `ic-platform-legacy`, Platform 0.33.7 and Types 0.20.4 are absent from both
+graphs. No generic Candid implementation or direct upstream dependency was added.
+
+| Qualification consumer | Adopted boundary |
+| --- | --- |
+| `tests/capacity.rs` | `decode_canister_metrics` retains arbitrary execution-cycle charges until checked u128 conversion. Balance differences remain a separate observation. |
+| Enrollment example's `cashier.rs` | `decode_top_up_result` preserves an opaque, validated `Ok` payload or typed refusal. The JSON still makes no credit, acceptance or settlement claim; the retained actual TopUpWithoutCycles reply remains the regression vector. |
+| `tests/enrollment.rs` | `decode_top_up` checks the actual dynamic owner and target, preserving the outer option, field options and canonical Principal identity. |
+| Callback/enrollment refusal fixtures | Literal Candid schemas exercise short/long roots, wrong profiles, extra arguments and wrong result types independently of the supplier encoder. Candidate replies must match the exact `vec blob` profile, including root lengths. |
+
+Existing byte/header/type/work/allocation caps remain explicit. Vector and
+skipped-value caps are supplied to the new decoders. Callback fixtures contain
+only their fixed test schemas and one-byte counts, not a general wire codec.
+The legacy sibling is unavailable locally; migration preserves the rewrite's
+existing regression contracts and retained vectors rather than importing a runner.
+
+Current evidence is under `target/platform-full-adoption/`: aggregate CI,
+installed capacity, four enrollment cases, the offline enrollment example and all
+seven non-Chromium callback cases pass. This includes authorization refusal,
+unchanged stable memory on malformed input, delayed replies after final release,
+retained original-request recovery after real expiry, serial transfer and
+fresh-process replay refusal. Lock hashes and Cargo metadata confirm the final
+graph. Optional Chromium, native macOS and live-provider qualification are not
+claimed; no full release gate or publication was performed.
+
+Prior broader release acceptance remains in
+`target/01031-release/release-final.log`; the previous Host/Testkit adoption's
+application and server qualification remains in `target/supplier-refresh/`.
+Those observations retain their original supplier versions, not the current
+cohort. Older migration evidence, including populated predecessor upgrades and
+released-CLI custody, remains in `target/platform-testkit-adoption/`.
+
+Offline installation preparation/readback retains exact signed requests under
+`blob app`; see the [installation guide](reference-application.md#prepare-and-inspect-one-signed-install).
+Guarded dispatch/observation admits current target/controllers, claims before one
+submission and retains original certified outcomes before current module/controller
+readback. It still requires operator-owned fresh-creation custody and supplies no
+independent application-configuration read or continuity proof. Live owner/probe
+custody remains unchanged.
 
 Custom networks now require both an independently trusted `--root-key` and
 `--root-subnet`. The simulator's root subnet comes from its owned topology, never

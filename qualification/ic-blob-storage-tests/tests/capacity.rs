@@ -11,8 +11,10 @@ use ic_blob_storage::{
     local::{Error, Limits, ReferenceStatus, UploadRequest, Usage, persistence::MAX_RECORDS},
     protocol::{Command, Inspection, Installation, Observation, Outcome, RPC_LIMITS},
 };
-use ic_platform_legacy::candid_codec::{Nat, decoder};
-use ic_platform_protocol::management_snapshots::CanisterArgs;
+use ic_platform_protocol::{
+    candid::Limits as CandidLimits, management::decode_canister_metrics,
+    management_snapshots::CanisterArgs,
+};
 use ic_platform_types::Principal;
 use ic_testkit::pocket_ic::{
     CanisterId, PocketIcBuilder, common::rest::RawEffectivePrincipal, nonblocking::PocketIc,
@@ -20,14 +22,6 @@ use ic_testkit::pocket_ic::{
 use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
 use std::num::NonZeroU128;
-
-// External management protocol projection: retain the required counter, skip other use cases.
-ic_platform_legacy::candid_record! {
-    struct ExecutionCharges { 1832883877 => instructions: Nat }
-}
-ic_platform_legacy::candid_record! {
-    struct Metrics { 2122851290 => cycles_consumed: ExecutionCharges }
-}
 
 const OBJECT_BYTES: u64 = 1_048_576;
 
@@ -85,14 +79,16 @@ async fn resources(pic: &PocketIc, canister: CanisterId) -> Resources {
         )
         .await
         .unwrap();
-    let metrics: Metrics = decoder::decode_one(
+    let metrics = decode_canister_metrics(
         &bytes,
-        decoder::Limits {
+        CandidLimits {
             bytes: 4096,
             header: 1024,
             types: 32,
             work: 16_384,
             allocation: 16_384,
+            vector: 4096,
+            skipping: 16_384,
         },
     )
     .unwrap();

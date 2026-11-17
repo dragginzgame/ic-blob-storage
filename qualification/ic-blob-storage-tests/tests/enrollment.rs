@@ -8,9 +8,9 @@ mod support;
 use ic_blob_storage_enrollment_probe::protocol::{
     Error, Installation, LIMITS, Outcome, REPLY_BYTES, View,
 };
-use ic_platform_legacy::candid_codec::{
-    Nat,
-    decoder::{Arity, Limits, decode_args},
+use ic_platform_protocol::{
+    caffeine::{Nat, decode_top_up},
+    candid::Limits,
 };
 use ic_platform_types::Principal;
 use ic_storage::{
@@ -139,10 +139,6 @@ async fn upgrade(pic: &PocketIc, owner: CanisterId) {
     pic.start_canister(owner, Some(actor())).await.unwrap();
 }
 
-ic_platform_legacy::candid_record! {
-    struct TopUp { 2504008430 => target_balance: Option<Nat>, 2707029165 => account: Option<ic_platform_legacy::Principal> }
-}
-
 #[tokio::test]
 async fn one_attempt_survives_concurrency_revocation_lost_reply_and_upgrade() {
     let (server, owned) =
@@ -179,7 +175,7 @@ async fn one_attempt_survives_concurrency_revocation_lost_reply_and_upgrade() {
     let ready = inspect(pic, owner).await;
     assert_eq!(ready.owner.as_slice(), owner.as_slice());
     assert_eq!((ready.attempted_at, &ready.outcome), (None, &None));
-    let (args,): (Option<TopUp>,) = decode_args(
+    let args = decode_top_up(
         ready.arguments.as_slice(),
         Limits {
             bytes: 1024,
@@ -187,15 +183,13 @@ async fn one_attempt_survives_concurrency_revocation_lost_reply_and_upgrade() {
             types: 16,
             work: 4096,
             allocation: 4096,
+            vector: 1024,
+            skipping: 4096,
         },
-        Arity::Exact,
     )
     .unwrap();
     let args = args.unwrap();
-    assert_eq!(
-        args.account.map(|principal| principal.as_slice().to_vec()),
-        Some(ready.owner.as_slice().to_vec())
-    );
+    assert_eq!(args.account, Some(ready.owner));
     assert_eq!(args.target_balance, Some(Nat::from(1_000_000_000u64)));
     upgrade(pic, owner).await;
     assert_eq!(inspect(pic, owner).await, ready);

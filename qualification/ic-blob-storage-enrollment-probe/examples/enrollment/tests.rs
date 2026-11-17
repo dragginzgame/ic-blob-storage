@@ -121,7 +121,7 @@ fn retained_cashier_refusal_is_distinct_from_transport_success() {
     assert!(cashier::classify(&vec![0; 8193]).is_err());
     assert!(cashier::classify(b"DIDL\0\0").is_err());
     // A valid Candid value with another method's result shape must not be success.
-    let wrong_type =
-        ic_platform_legacy::candid_codec::arguments::encode_args(&(42_u64,), 1024).unwrap();
-    assert!(cashier::classify(&wrong_type).is_err());
+    // No type table, one nat64 argument (0x78), little-endian 42.
+    let wrong_type = b"DIDL\x00\x01\x78\x2a\x00\x00\x00\x00\x00\x00\x00";
+    assert!(cashier::classify(wrong_type).is_err());
 }
