@@ -5,7 +5,6 @@
 
 mod external;
 
-use ic_blob_storage::local::persistence::access::Access;
 use ic_blob_storage::{
     local::{
         Error,
@@ -18,7 +17,10 @@ use ic_blob_storage::{
 };
 use ic_platform_runtime::{raw as ic0, system as api};
 use ic_platform_types::Principal;
-use ic_storage::retained::{Bank, Canister, Geometry};
+use ic_storage::{
+    AllocationGrants, DefaultMemoryImpl, GenericAllocationPolicy, Memory, MemoryAuthority,
+    MemoryRequest, MemoryRuntime, SealedDeclarationSnapshot, StableKey, StorageConfig,
+};
 use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
 use std::cell::RefCell;
@@ -29,7 +31,7 @@ const UPDATE: u64 = wire::method_id("blob_update");
 const QUERY: u64 = wire::method_id("blob_query");
 
 thread_local! {
-    static STATE: RefCell<Option<Callbacks>> = const { RefCell::new(None) };
+    static STATE: RefCell<Option<Callbacks<DefaultMemoryImpl>>> = const { RefCell::new(None) };
 }
 
 #[ic_platform_runtime::init(
@@ -40,16 +42,20 @@ thread_local! {
     on_error = fail
 )]
 fn init((input, gateway): (Installation, Principal)) {
-    memory(true);
+    let runtime = memory(true);
     let service = Service::create(
-        Access::canister(Canister::grant(1).unwrap(), 1),
+        runtime
+            .open_memory(&StableKey::parse(persistence::STORAGE_KEY).unwrap())
+            .unwrap(),
         api::canister_self(),
         input,
     )
     .unwrap();
     let callbacks = Callbacks::create(
         service,
-        Access::canister(Canister::grant(2).unwrap(), 2),
+        runtime
+            .open_memory(&StableKey::parse(callbacks::STORAGE_KEY).unwrap())
+            .unwrap(),
         gateway,
     )
     .unwrap();
@@ -70,7 +76,6 @@ fn pre_upgrade(_: ()) {
             "drain before upgrade"
         )
     });
-    Canister::close().unwrap();
 }
 
 #[ic_platform_runtime::post_upgrade(
@@ -81,15 +86,22 @@ fn pre_upgrade(_: ()) {
     on_error = fail
 )]
 fn post_upgrade(_: ()) {
-    memory(false);
+    let runtime = memory(false);
     let service = Service::open(
-        Access::canister(Canister::grant(1).unwrap(), 1),
+        runtime
+            .open_memory(&StableKey::parse(persistence::STORAGE_KEY).unwrap())
+            .unwrap(),
         api::canister_self(),
     )
     .unwrap();
     assert!(service.is_drained(), "retain closed admission");
-    let callbacks =
-        Callbacks::open(service, Access::canister(Canister::grant(2).unwrap(), 2)).unwrap();
+    let callbacks = Callbacks::open(
+        service,
+        runtime
+            .open_memory(&StableKey::parse(callbacks::STORAGE_KEY).unwrap())
+            .unwrap(),
+    )
+    .unwrap();
     STATE.with_borrow_mut(|state| *state = Some(callbacks));
 }
 
@@ -206,22 +218,31 @@ fn acknowledge(roots: Vec<[u8; 32]>) {
     });
 }
 
-fn memory(fresh: bool) {
-    let geometry = Geometry {
-        bank: Bank::A,
-        nodes: 1024,
-        bytes: 524288,
-    };
-    let roots = [
-        persistence::storage_root(1, 1),
-        callbacks::storage_root(2, 2),
-    ];
-    if fresh {
-        Canister::create(geometry, &roots)
-    } else {
-        Canister::reopen(geometry, &roots)
-    }
-    .expect("native callback admission");
+fn memory(fresh: bool) -> MemoryRuntime<DefaultMemoryImpl> {
+    let backing = DefaultMemoryImpl::default();
+    assert_eq!(backing.size() == 0, fresh);
+    let mut runtime = MemoryRuntime::new_with_config(
+        backing,
+        StorageConfig {
+            allocations: 2,
+            extents: 2,
+            pages: 32,
+            directory_bytes: 4096,
+        },
+    )
+    .unwrap();
+    runtime
+        .bootstrap(
+            &SealedDeclarationSnapshot::new(vec![
+                MemoryRequest::new("blob", persistence::STORAGE_KEY).unwrap(),
+                MemoryRequest::new("blob", callbacks::STORAGE_KEY).unwrap(),
+            ])
+            .unwrap(),
+            &AllocationGrants::new(vec![MemoryAuthority::new("blob", "blob.").unwrap()]).unwrap(),
+            &GenericAllocationPolicy,
+        )
+        .unwrap();
+    runtime
 }
 
 fn admit() -> Result<(), String> {

@@ -73,7 +73,7 @@ async fn catalog(pic: &PocketIc, app: CanisterId, user: CanisterId) -> Vec<Draft
 }
 
 // This fixture uses lifetime IDs 1..=17. Include unpublished and released drafts,
-// plus denied/unknown outcomes, rather than observing unused stable memory.
+// plus denied/unknown outcomes in the observed application state.
 async fn app_state(pic: &PocketIc, app: CanisterId, users: &[CanisterId]) -> Vec<Vec<u8>> {
     let mut state = Vec::new();
     for user in users {
@@ -266,7 +266,7 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     assert!(pic.ingress_status(pending.clone()).await.is_none());
     let before = app_state(pic, app, &[alice, bob]).await;
     let refused = pic
-        .upgrade_eop_canister(app, wasm.clone(), encode("app_post_upgrade", &()), None)
+        .upgrade_canister(app, wasm.clone(), encode("app_post_upgrade", &()), None)
         .await
         .unwrap_err();
     // Runtime preserves the pre-upgrade trap; panic prose is not an API.
@@ -284,7 +284,7 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     // Upgrade arguments cannot replace the immutable target/users or reset saved drafts.
     pic.stop_canister(app, None).await.unwrap();
     assert!(
-        pic.upgrade_eop_canister(
+        pic.upgrade_canister(
             app,
             wasm.clone(),
             encode(
@@ -449,7 +449,7 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     );
     assert_eq!(catalog(pic, app, alice).await.len(), 1);
     pic.stop_canister(app, None).await.unwrap();
-    pic.upgrade_eop_canister(app, wasm.clone(), encode("app_post_upgrade", &()), None)
+    pic.upgrade_canister(app, wasm.clone(), encode("app_post_upgrade", &()), None)
         .await
         .unwrap();
     pic.start_canister(app, None).await.unwrap();
@@ -566,7 +566,7 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     assert!(catalog(pic, app, alice).await.is_empty());
     assert_eq!(catalog(pic, app, bob).await[0].input, second);
     pic.stop_canister(app, None).await.unwrap();
-    pic.upgrade_eop_canister(app, wasm.clone(), encode("app_post_upgrade", &()), None)
+    pic.upgrade_canister(app, wasm.clone(), encode("app_post_upgrade", &()), None)
         .await
         .unwrap();
     pic.start_canister(app, None).await.unwrap();
@@ -575,14 +575,14 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
         Phase::Cleaned
     );
 
-    // A foreign schema and a module without a native directory must fail to
-    // reopen. These use disposable recipients; no native image is copied/reset.
+    // A foreign schema and a module without stable memory must fail to
+    // reopen. These use disposable recipients with separate state.
     let original_app = app_state(pic, app, &[alice, bob]).await;
     let original_blob =
         support::blob_state(pic, blob, app, &[principal(alice), principal(bob)]).await;
     pic.stop_canister(app, None).await.unwrap();
     let refused = pic
-        .upgrade_eop_canister(
+        .upgrade_canister(
             app,
             std::fs::read(std::env::var_os("BLOB_WASM").unwrap()).unwrap(),
             encode("blob_post_upgrade", &()),
@@ -602,7 +602,7 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
         .await;
     pic.stop_canister(recipient, None).await.unwrap();
     let refused = pic
-        .upgrade_eop_canister(recipient, wasm, encode("app_post_upgrade", &()), None)
+        .upgrade_canister(recipient, wasm, encode("app_post_upgrade", &()), None)
         .await
         .unwrap_err();
     assert_eq!(refused.reject_code, RejectCode::CanisterError);

@@ -224,7 +224,7 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
     .unwrap();
     owned
         .client()
-        .upgrade_eop_canister(canister, wasm, args, None)
+        .upgrade_canister(canister, wasm, args, None)
         .await
         .unwrap();
     owned.client().start_canister(canister, None).await.unwrap();

@@ -1,4 +1,4 @@
-//! Capacity and resource observations of the prepared native standalone Wasm.
+//! Capacity and resource observations of the standalone Wasm.
 //! Execution charges are cycles, not raw instruction counts or provider costs.
 
 #![forbid(unsafe_code)]
@@ -115,10 +115,9 @@ fn report(label: &str, before: &Resources, after: &Resources) {
         after.stable,
         after.heap
     );
-    assert_eq!(after.stable, 0, "native Blob allocates no stable pages");
     assert!(
-        after.heap <= 128 * 1024 * 1024,
-        "admitted native memory ceiling"
+        (1..=16 * 65_536).contains(&after.stable),
+        "host stable-page budget"
     );
 }
 
@@ -341,7 +340,7 @@ async fn full_history_remains_inspectable_cleanable_and_upgradeable() {
         .await;
         pic.stop_canister(canister, None).await.unwrap();
         let before = resources(pic, canister).await;
-        pic.upgrade_eop_canister(
+        pic.upgrade_canister(
             canister,
             wasm.clone(),
             encode("blob_post_upgrade", &()),

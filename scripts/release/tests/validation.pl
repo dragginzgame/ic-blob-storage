@@ -23,7 +23,7 @@ sub write_file {
 }
 sub read_json { open my $in, '<', $_[0] or die $!; return $json->decode(do {local $/; <$in>}); }
 # Copy just the maintained caller and installed engine into isolated validation scratch.
-for my $file ('Makefile', 'ci/release-validation.json', 'scripts/prepare-native.sh') { make_path("$work/ci", "$work/scripts"); copy($file,"$work/$file") or die $!; }
+for my $file ('Makefile', 'ci/release-validation.json') { make_path("$work/ci", "$work/scripts"); copy($file,"$work/$file") or die $!; }
 for my $dir (qw(make scripts/release vendor/toko-tooling)) {
     find({no_chdir=>1,wanted=>sub {
         return if -d $_;
@@ -88,16 +88,10 @@ if [[ "$verb" == build && " $* " == *' --message-format=json '* ]]; then
     ic-blob-storage-enrollment-probe) name=ic_blob_storage_enrollment_probe ;;
     ic-blob-storage-reply-probe) name=ic_blob_storage_reply_probe ;;
     ic-blob-storage-cli) name=blob ;;
-    ic-blob-storage-tests) name=prepare-native ;;
     *) exit 2 ;;
   esac
   mkdir -p target/artifacts
   path="$PWD/target/artifacts/$name.wasm"; printf 'fixture' > "$path"
-  if [[ "$name" == prepare-native ]]; then
-    path="$PWD/target/bin/prepare-native"
-    printf '#!/usr/bin/env bash\nset -euo pipefail\n[[ "${FAIL_NATIVE_PREPARE:-}" != 1 ]] || exit 24\ncp "$1" "$2"\n' > "$path"
-    chmod 755 "$path"
-  fi
   jq -cn --arg name "$name" --arg path "$path" '{reason:"compiler-artifact",target:{name:$name},filenames:[$path],executable:$path}'
 fi
 SH
@@ -170,9 +164,9 @@ if ($status == 0) {
     is($status,0,'excluded library failure cannot block CLI selection') or diag $log;
 }
 {
-    local $ENV{FAIL_NATIVE_PREPARE} = 1;
+    local $ENV{FAIL_PACKAGE} = 'ic-blob-storage-canister';
     ($status,undef,undef,$log) = execute();
-    isnt($status,0,'native preparation refusal blocks installed consumers');
+    isnt($status,0,'required Wasm build failure blocks installed consumers');
 }
 {
     local $ENV{FAIL_PACKAGE} = 'ic-blob-storage-cli';
@@ -231,8 +225,6 @@ if ($status == 0) {
     }
     my @cli_lint = $commands =~ /^(cargo\tclippy[^\n]*-p\tic-blob-storage-cli[^\n]*)$/mg;
     is(scalar(@cli_lint),1,'full plan lints native CLI once before artifact build');
-    my @native_preparers = $commands =~ /^(cargo\tbuild[^\n]*--example\tprepare-native[^\n]*)$/mg;
-    is(scalar(@native_preparers),1,'five native Wasm targets share one preparer build');
 }
 diag sprintf('Disposable simulated-workload timings: selected %.3fs; full %.3fs. No product speedup claim.', $selected_seconds,$full_seconds);
 diag "Evidence retained: $work";

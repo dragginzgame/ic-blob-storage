@@ -172,7 +172,7 @@ async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
     let exposure = usage(pic, owner).await;
     update(pic, owner, 9, Command::Drain(1)).await.unwrap();
     pic.stop_canister(owner, Some(caller(9))).await.unwrap();
-    pic.upgrade_eop_canister(
+    pic.upgrade_canister(
         owner,
         wasm(),
         frame("callback_upgrade", &()),

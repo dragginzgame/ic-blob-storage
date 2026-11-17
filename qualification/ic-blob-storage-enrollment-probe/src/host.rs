@@ -48,7 +48,6 @@ fn pre_upgrade(_: ()) {
         !IN_FLIGHT.get(),
         "stop and drain runtime calls before upgrade"
     );
-    ic_storage::retained::Canister::close().expect("close native enrollment");
 }
 
 #[ic_platform_runtime::post_upgrade(

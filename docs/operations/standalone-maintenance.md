@@ -128,11 +128,9 @@ blob_upgrade=(--stop-record "$blob_records/stop" --next-wasm "$blob_inputs/next.
 ```
 
 Require the original upgrade acknowledgment and matching replacement artifact on
-the stopped target, even for a same-Wasm upgrade. The command explicitly selects
-native memory persistence (`Keep`), runs the source close hook and requires the
-target reopen hook. Use supplier-prepared Wasm under the
-[native storage contract](../design/native-storage.md); this procedure does not
-migrate a 0.74.1 stable image. Upgrade arguments are fixed to
+the stopped target, even for a same-Wasm upgrade. The command signs an ordinary upgrade, runs the source hook and loads the
+existing stable cells. Both modules must support the same layout. See the
+[stable storage contract](../design/stable-storage.md). Upgrade arguments are fixed to
 the unit Wire `blob_post_upgrade` request. There is no reinstall, skipped-hook,
 snapshot restore or automatic downgrade option.
 

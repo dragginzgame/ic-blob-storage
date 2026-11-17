@@ -275,7 +275,7 @@ async fn installed_frames_and_reply_failure_preserve_the_contract() {
 
     // Blob's fixed-size replies cannot normally overflow RPC_LIMITS. This separate
     // installed probe forces the selected Platform/Wire encode hook to fail after
-    // a native write, without adding a fault-injection endpoint to production Blob.
+    // a stable write, without adding a fault-injection endpoint to production Blob.
     let probe = pic.create_canister().await;
     pic.add_cycles(probe, 10_000_000_000_000).await;
     pic.install_canister(

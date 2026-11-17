@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.105.0] - Unreleased
+
+### ⚠️ Breaking changes
+
+- Adopt registry Storage 0.78.0 in both workspaces. Embedded hosts grant named
+  leases for bounded Wire records. The standalone host and CLI support ordinary
+  Wasm builds and upgrades. Remove the OP transform, linker layout and root rows.
+- **Existing installations.** Blob 0.103.3 and 0.104.0 each use an incompatible
+  layout. Keep populated installations on their original version until their
+  data and outstanding obligations have a migration path.
+  [Storage contract](docs/design/stable-storage.md).
+
 ## [0.104.0] - 2026-11-17
 
 ### 🔧 Release validation

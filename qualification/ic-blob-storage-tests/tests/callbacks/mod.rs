@@ -269,7 +269,7 @@ async fn callbacks_share_retention_preserve_acknowledgments_and_never_settle() {
     update(pic, owner, 9, Command::Drain(1)).await.unwrap();
     let saved = support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await;
     pic.stop_canister(owner, Some(caller(9))).await.unwrap();
-    pic.upgrade_eop_canister(
+    pic.upgrade_canister(
         owner,
         wasm(),
         frame("callback_upgrade", &()),

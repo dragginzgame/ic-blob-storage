@@ -9,11 +9,7 @@ or charge closure.
 
 The example catalog is a separate canister paired with a standalone Blob host.
 Its public protocol types are also used by the CLI. Canic applications own their
-embedded catalog and initialization contract. Build prepared Wasm with
-`make build-reference-app` in the matching source checkout; a plain Cargo Wasm
-output is insufficient. The
-[native storage contract](https://github.com/dragginzgame/ic-blob-storage/blob/v0.104.0/docs/design/native-storage.md)
-owns required preparation and Keep upgrade hooks.
+embedded catalog and initialization contract.
 
 See the [repository](https://github.com/dragginzgame/ic-blob-storage) for the
 design, limits and qualification. Licensed under the Toko Studios Network Licence

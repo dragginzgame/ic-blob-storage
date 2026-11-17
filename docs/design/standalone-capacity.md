@@ -1,6 +1,12 @@
 # Standalone capacity measurements
 
-**Native OP requalification — 2026-11-17:** 0.104.0 uses Storage 0.76.2
+**Storage 0.78.0 — 2026-11-18.** All three full-history workloads passed with
+262,144 stable bytes (256 KiB). Wasm allocation ranged from 1,179,648 to
+1,245,184 bytes. The host admitted cleanup and reopened its drained state after
+ordinary upgrades. Evidence is in `target/storage-078/installed.log`.
+[Stable storage contract](stable-storage.md).
+
+**Historical native OP requalification — 2026-11-17:** 0.104.0 uses Storage 0.76.2
 and the [prepared native lifecycle](native-storage.md). The same three full-history
 workloads pass with **zero stable bytes and 41,943,040 Wasm bytes (40 MiB)** at
 every reported boundary. Inspection, replay, capacity refusal, cleanup and Keep

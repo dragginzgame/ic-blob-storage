@@ -1,4 +1,4 @@
-# Current status — 2026-11-17
+# Current status — 2026-11-18
 
 ## Delivery and active work
 
@@ -8,13 +8,11 @@ published** for all four product packages at
 with annotated tag `v0.104.0`. Qualification remains independent and unpublished.
 [Release procedure](../operations/releases.md); [native contract](../design/native-storage.md).
 
-Storage 0.76.2 uses native retained roots, concrete participant grants and bounded
-domain rows. Hosts prepare/admit Wasm, close/reopen roots and explicitly Keep
-memory on upgrade. This is a new layout without a 0.74.1 image migration. The
-consumed live probe and all original custody remain unchanged. Canic must adopt
-the new root/grant and supplier build/lifecycle boundary in its own adapter.
+The published 0.104.0 uses OP storage. Current development uses Storage 0.78.0
+and ordinary Wasm. Embedded hosts grant named allocations through the
+[stable storage contract](../design/stable-storage.md).
 
-Both locks select Platform 0.34.15, Protocol 0.3.5, Runtime/Macros/Guard 0.23.17,
+The released locks select Platform 0.34.15, Protocol 0.3.5, Runtime/Macros/Guard 0.23.17,
 Types 0.21.2, Storage 0.76.2, Wire 0.24.3, Testkit 0.110.0 and Host Process 0.81.0.
 Host FS/Artifacts are 0.80.3. Toko 0.45.0's authenticated 92-file snapshot and CLI
 binding agree. Rust remains 1.100.0. First-party freshness passed; optional
@@ -47,13 +45,28 @@ passed 38 cases plus both-lock metadata projection (`target/dependency-refresh-2
 
 ## Next action and provider boundary
 
+The working tree now selects published Storage **0.78.0** in both locks
+(`9777121`). Ordinary Cargo Wasm uses named stable cells. The [storage
+contract](../design/stable-storage.md) covers host integration and upgrade
+refusal. This public persistence and layout change targets the next minor
+checkpoint (0.105.0). 0.104.0 remains the delivered version.
+
+Local qualification passed on 0.78.0 across all eight installed suites (21
+default tests), 39 library tests, 21 CLI tests, four example tests and 24 Node
+tests. Additional installed runs populated hosts built from Blob tags 0.103.3
+and 0.104.0 and the interim 0.77.0 worktree. Every incompatible upgrade
+preserved the original module, stable bytes, drained attempt and unresolved
+exposure. Same-layout upgrades passed at full history with 256 KiB of stable
+memory. Build and test evidence is under `target/storage-078/`. Chromium and
+live-provider execution were outside this run.
+
 [Storage #6](https://github.com/dragginzgame/ic-storage/issues/6) tracks native
 consumer acceptance; [Storage #1](https://github.com/dragginzgame/ic-storage/issues/1)
 separately owns the old consumed image. Canic owns fleet integration in
 [#12](https://github.com/dragginzgame/canic/issues/12) and
 [#13](https://github.com/dragginzgame/canic/issues/13); no sibling source changed.
 Its older `0167a30` witness pins Blob `decde204` (0.100.6) and does not qualify
-this native boundary. Do not add another Blob adapter here.
+this stable-memory boundary. Do not add another Blob adapter here.
 
 D0 remains open for supported enrollment, namespace/scope, enforced bounds, proof
 recovery/lifetime and charge closure. D1/D3 remain partial; D2 has no positive live

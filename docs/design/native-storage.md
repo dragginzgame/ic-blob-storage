@@ -1,6 +1,8 @@
 # Native OP storage — 0.104.0
 
-Blob now consumes `ic-storage` 0.76.2's **retained** runtime. It does not use the
+Historical contract for release 0.104.0. Current development uses [stable storage](stable-storage.md).
+
+Blob 0.104.0 consumes `ic-storage` 0.76.2's **retained** runtime. It does not use the
 separate stable-backed `records` path. The supplier revision is
 [`f9fa036`](https://github.com/dragginzgame/ic-storage/blob/f9fa03611ebb8641412a2af0f8620b80909c164f/docs/design/retained-runtime.md).
 This is a fresh native layout, not a migration from Storage 0.74.1.

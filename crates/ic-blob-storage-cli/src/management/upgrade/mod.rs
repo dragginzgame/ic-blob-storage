@@ -1,13 +1,11 @@
-//! One native-memory-preserving upgrade of a stopped host, chained to an acknowledged original stop.
+//! One ordinary upgrade of a stopped host, chained to an acknowledged original stop.
 
 use ic_platform::native::RequestStatus;
 use ic_platform_protocol::management_snapshots::Status as CanisterStatusType;
 
 use super::{Context, Operation, load, request_status, stop};
 use ic_blob_storage::protocol::RPC_LIMITS;
-use ic_platform_protocol::management::{
-    InstallCodeArgs, InstallMode, MemoryPersistence, UpgradeFlags,
-};
+use ic_platform_protocol::management::{InstallCodeArgs, InstallMode};
 use sha2::{Digest, Sha256};
 use std::path::Path;
 
@@ -25,11 +23,9 @@ pub(super) fn argument(context: &Context, wasm: &[u8]) -> Result<Vec<u8>, String
     )
     .map_err(|_| "cannot encode fixed upgrade arguments")?;
     InstallCodeArgs {
-        // Keep native OP memory and require the source close hook.
-        mode: InstallMode::Upgrade(Some(UpgradeFlags {
-            skip_pre_upgrade: None,
-            wasm_memory_persistence: Some(MemoryPersistence::Keep),
-        })),
+        // Omitted flags select ordinary upgrade: run pre_upgrade, replace heap.
+        // There are deliberately no CLI overrides or fresh-install fallback.
+        mode: InstallMode::Upgrade(None),
         canister_id: context.canister,
         wasm_module: wasm.to_vec(),
         arg,

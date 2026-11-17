@@ -18,8 +18,8 @@ Read [the current handoff](docs/status/current.md) first.
 - There is an experimental local standalone host, but no frozen API, migration
   or production deployment runner yet.
   Product versions are coordinated at the root; `0.100.0` was the first GitHub
-  checkpoint. The maintainer authorized crates.io delivery on 2026-11-16;
-  `0.101.0` is the selected first registry release of the rewrite.
+  checkpoint. The maintainer authorized crates.io delivery on 2026-11-16.
+  The changelog and release records own delivered versions.
   Existing crates.io versions are not reset by this rewrite.
 - Work and release directly on `main`. Use version tags for release checkpoints;
   do not create version branches unless the maintainer explicitly requests one.
@@ -66,19 +66,11 @@ Read [the current handoff](docs/status/current.md) first.
 
 ## Checks
 
-The maintainer selected the registry Storage 0.76 line on 2026-11-17,
-explicitly accepting its incomplete integration; both workspaces now select 0.76.2.
-Keep this selection; do not restore
-0.74.1 through an alias, copied backing code or a local persistence runtime.
-[Storage #6](https://github.com/dragginzgame/ic-storage/issues/6) tracks the contract
-and Blob adoption. Version 0.76.2 publishes records/Platform and retained-runtime
-APIs; Blob now consumes native retained roots through supplier-issued grants.
-Use the [native storage contract](docs/design/native-storage.md): prepared Wasm,
-source close/target reopen and explicit Keep upgrades are mandatory. Do not use
-stable byte injection to qualify native state or add a second allocator/runtime.
-#1 owns the retained live image; no migration, upgrade/reset of that consumed probe
-or unrestricted rollback guarantee is implied. Version 0.104.0 changes the public
-persistence boundary and native layout; 0.103.3 used the old stable backing.
+Use registry Storage 0.78 named allocations and governed stable cells in both
+workspaces. Hosts distinguish fresh installation from reopening before constructing
+Storage and use ordinary upgrades. Follow the [storage contract](docs/design/stable-storage.md).
+The 0.104.0 OP heap and the consumed 0.74.1 probe require separate disposition.
+Preserve original provider obligations and custody.
 
 Prepare with `make install-tools`; `make ci` is the aggregate gate for tooling,
 formatting, strict Clippy, local behavior, Rustdoc and documentation links.
@@ -91,60 +83,26 @@ archive/source/registry admission. Existing local `test-*` targets retain setup.
 `make dependency-pins-check` runs the installed Toko declaration checker across
 both Cargo workspaces and action pins, including workspace inheritance and tracked
 lockfiles. It also runs in `make ci`; runtime and npm checks retain their own owners.
-Use `make test-references` for the in-memory reference tests and `make test-caffeine`
-for streaming and manifest integrity tests. `make test-local` checks the composed
-grant/reference/accounting model and bounded durable reopening. `make example-local`
-runs the offline application walkthrough; `make test-example-local` checks its catalog
-and read-completion boundaries. `make install-test-server` explicitly prepares the
-local simulator (also included in `make install-tools`); `make test-standalone` tests
-the actual production Wasm's callers and upgrades, independently of the native
-aggregate. Set `BLOB_PREVIOUS_WASM` to install an explicitly selected predecessor
-before upgrading to the current artifact. `make test-capacity` separately measures
-the real host at full history, checking cleanup/reopen with platform execution-cycle
-charges and allocated memory; these are not raw instruction counts or provider costs.
-`make test-endpoints` checks raw frames
-on the production host and encoding-failure rollback in a qualification-only probe.
-These checks do not qualify Caffeine or a production management runner.
-`make test-enrollment` checks the private single-use owner enrollment probe's
-native capacity bound and installed authorization, reply custody and upgrades
-against synthetic Cashier peers. It also checks incompatible upgrade refusal using
-the actual standalone Wasm and preservation of the consumed receipt. It does not
-deploy or contact Caffeine.
-`make test-callbacks` checks the local candidate `vec blob` profile over the actual
-Service, including gateway authorization, bounded decoding, acknowledgment custody
-and installed upgrades. It also qualifies local certificate-reply ordering and
-authenticated recovery of the original ingress request, including fresh CLI
-processes reading durable request custody and preserving existing output. Node 24+
-is required for the proof/CLI-claim/loopback-transfer/readback composition,
-fresh-process replay refusal and the real reference-app catalog/cancellation cases.
-Its separate probe is not
-a supported live Caffeine host or a production resumable-upload client.
-`make test-signed` checks signed application/uploader calls and authenticated replies
-through the local gateway, including inspection after deliberately discarding a reply.
-`make test-application` exercises the product reference application and Blob host:
-exact CLI-prepared fresh-install inputs,
-durable drafts/catalog, replicated inspection, cancellation during publication,
-interrupted cleanup, bounded history and application upgrades. No provider transfer
-is implemented; publication means the owning user's catalog decision.
-`make test-management` tests native inspection, guarded maintenance and explicit
-activation through signed requests and certificate verification against an owned
-local HTTP gateway/root. It covers custody, interruption boundaries and reopened
-admission, not the live IC or provider effects.
-`make test-browser-runtime BROWSER=/absolute/path/to/chrome` qualifies the ES module
-in isolated Chromium: authenticate retained local IC proof, exercise the bounded
-browser custody adapter and local cross-origin reads/PUTs. Reload refuses replay
-after success, a lost reply or in-flight cancellation. This does not qualify
-provider acceptance, profile rollback or multi-device custody.
-It installs no browser and stays separate from Node CI and provider qualification.
-`make test-browser-application BROWSER=/absolute/path/to/chrome` joins that browser
-flow to the installed reference catalog, checking publication after verification
-and refusal after cancellation during readback, including stopped/drained
-same-format upgrades of both canisters. Rust owns signed application calls;
-this opt-in local check does not qualify a deployed UI or live provider.
-Package inventory is `make deps-list`;
-`make update` delegates to the shared `deps-update` target for Cargo lock updates.
-LOC is `toko-cloc`. An exact tooling-pin change still requires the authenticated
-`make toko-tooling-update` installation after updating both workspace pins and lockfiles.
+Use the [release procedure](docs/operations/releases.md), current handoff and
+[product design](docs/design/ic-blob-storage-design.md) to select affected checks.
+The Makefile owns exact `test-*` command dispatch: local/reference/Caffeine checks,
+installed standalone/capacity/endpoints, enrollment, callbacks, signed operations,
+application composition, management and opt-in browser qualification. Do not
+interpret native or synthetic-peer passes as live-provider support or production
+deployment evidence.
+
+Prepare the simulator explicitly with `make install-test-server` (also selected
+by `make install-tools`). `BLOB_PREVIOUS_WASM` selects an exact predecessor for
+upgrade qualification; preserve its artifact identity and retained state. Browser
+checks require an explicit prepared `BROWSER` executable and install no browser.
+Node is required for the client composition checks. Keep charges, capacity and
+raw instructions distinct, and preserve original request/proof/custody evidence.
+Current commands, fixture coverage and limitations belong with their owning
+implementation and handoff, not duplicated in this overlay.
+
+Use `make deps-list` for package inventory, `make update`/`make deps-update` for
+lock updates and `toko-cloc` for requested source counts. Tooling changes use
+`make toko-tooling-update` after coherent changes to both workspace selections.
 
 ## Learn from the predecessor before subsystem work
 

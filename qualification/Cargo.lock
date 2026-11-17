@@ -1059,7 +1059,6 @@ dependencies = [
  "ic-platform",
  "ic-platform-protocol",
  "ic-platform-types",
- "ic-storage",
  "ic-testkit",
  "ic-wire",
  "serde",
@@ -1198,14 +1197,24 @@ dependencies = [
 ]
 
 [[package]]
-name = "ic-storage"
-version = "0.76.2"
+name = "ic-stable-structures"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cafc3922583e49960ca711b639778839a5607f27407df2b9a4f7165ff9ff340f"
+checksum = "8ee3372ddc0cf2a747fc26ce2d075a240ed6bfab151e63bc70109e8967f7ce6f"
 dependencies = [
- "sha2 0.11.1",
- "wasm-encoder",
- "wasmparser",
+ "ic_principal",
+]
+
+[[package]]
+name = "ic-storage"
+version = "0.78.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b588819cc6cbcca64656d97863d4cd86285285e08ed58d7353013a435d4fda0a"
+dependencies = [
+ "ic-platform-runtime",
+ "ic-stable-structures",
+ "serde",
+ "thiserror 2.0.18",
 ]
 
 [[package]]
@@ -1259,9 +1268,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire"
-version = "0.24.3"
+version = "0.24.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bb811860c129acbf0de96b16f44cad6b554c0e12e3cc3b67f0e5ad0109292e2"
+checksum = "19fe83abbcb187c5bdc1f534728c3403b67ba02effda1ddb1e09e0284c833b2b"
 dependencies = [
  "bytemuck",
  "postcard",

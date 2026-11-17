@@ -306,7 +306,7 @@ The allowlist is trusted to share this small global capacity; there are no tenan
 quotas. The catalog is derived from Published drafts, with no second catalog index
 or persisted copy of Blob's liveness/accounting.
 
-Supported maintenance is **stop and drain, prepared native Keep upgrade, start** under trusted
+Supported maintenance is **stop and drain, ordinary upgrade, start** under trusted
 controller custody. A runtime call counter refuses upgrades while tracked calls
 are pending; it is not a durable workflow or snapshot-continuity proof. Bounded
 remote waits can leave uncertain domain outcomes, which remain in saved drafts.

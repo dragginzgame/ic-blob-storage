@@ -13,7 +13,10 @@ use ic_platform_protocol::{
 use ic_platform_types::Principal;
 use ic_testkit::{
     held::{Catalog, Fixture, Limits as HeldLimits, Reply},
-    pocket_ic::{CanisterId, PocketIcBuilder, RejectCode, nonblocking::PocketIc},
+    pocket_ic::{
+        CanisterId, PocketIcBuilder, RejectCode, common::rest::BlobCompression,
+        nonblocking::PocketIc,
+    },
 };
 use ic_wire as wire;
 use serde::Serialize;
@@ -118,7 +121,7 @@ async fn attempt(pic: &PocketIc, owner: CanisterId) -> View {
 
 async fn upgrade(pic: &PocketIc, owner: CanisterId) {
     pic.stop_canister(owner, Some(actor())).await.unwrap();
-    pic.upgrade_eop_canister(
+    pic.upgrade_canister(
         owner,
         wasm(),
         request("enrollment_upgrade", &()),
@@ -221,10 +224,11 @@ async fn one_attempt_survives_concurrency_revocation_lost_reply_and_upgrade() {
     }
     assert_eq!(held.len(), 1);
     let uncertain = inspect(pic, owner).await;
+    let pending_image = pic.get_stable_memory(owner).await;
     assert!(uncertain.attempted_at.is_some() && uncertain.outcome.is_none());
     assert_eq!(attempt(pic, owner).await, uncertain);
     assert!(
-        pic.upgrade_eop_canister(
+        pic.upgrade_canister(
             owner,
             wasm(),
             request("enrollment_upgrade", &()),
@@ -262,6 +266,16 @@ async fn one_attempt_survives_concurrency_revocation_lost_reply_and_upgrade() {
     upgrade(pic, owner).await;
     assert_eq!(inspect(pic, owner).await, retained);
     assert_eq!(attempt(pic, owner).await, retained);
+    // Reopen the durable state observed before delivery of the callback to this
+    // disposable owner. A missing outcome must keep the original attempt spent.
+    pic.set_stable_memory(owner, pending_image, BlobCompression::NoCompression)
+        .await;
+    upgrade(pic, owner).await;
+    assert_eq!(inspect(pic, owner).await, uncertain);
+    assert_eq!(attempt(pic, owner).await, uncertain);
+    for _ in 0..10 {
+        pic.tick().await;
+    }
     assert!(fixture.pending(pic).await.unwrap().is_empty());
     support::close(server, owned).await;
 }
@@ -305,7 +319,7 @@ async fn malformed_oversized_and_rejected_replies_never_reopen_the_attempt() {
 }
 
 #[tokio::test]
-async fn unavailable_cashier_and_missing_native_directory_never_reopen_admission() {
+async fn unavailable_cashier_and_missing_stable_directory_never_reopen_admission() {
     let (server, owned) =
         support::instance(PocketIcBuilder::new().with_application_subnet(), 180).await;
     let pic = owned.client();
@@ -327,7 +341,7 @@ async fn unavailable_cashier_and_missing_native_directory_never_reopen_admission
     )
     .await;
     assert!(
-        pic.upgrade_eop_canister(
+        pic.upgrade_canister(
             missing,
             wasm(),
             request("enrollment_upgrade", &()),
@@ -339,7 +353,7 @@ async fn unavailable_cashier_and_missing_native_directory_never_reopen_admission
     support::close(server, owned).await;
 }
 
-// A consumed native owner must refuse an incompatible service declaration.
+// A consumed enrollment owner must refuse an incompatible service declaration.
 #[tokio::test]
 async fn incompatible_service_upgrade_preserves_consumed_probe() {
     let (server, owned) =
@@ -370,7 +384,7 @@ async fn incompatible_service_upgrade_preserves_consumed_probe() {
     pic.stop_canister(owner, Some(actor())).await.unwrap();
     let host = std::fs::read(std::env::var_os("BLOB_WASM").expect("set BLOB_WASM")).unwrap();
     let error = pic
-        .upgrade_eop_canister(
+        .upgrade_canister(
             owner,
             host,
             request("blob_post_upgrade", &()),

@@ -78,9 +78,8 @@ substitutes, exercising scope, artifacts, failures, drift and recovery admission
 Generic parser/schema regressions stay with Toko. This comparison is deliberately
 not an unconditional release or CI prerequisite. Its timings describe orchestration
 with simulated product work; real product/host qualification and release latency
-must be measured separately. Native Storage journeys now pass locally;
-[the handoff](../status/current.md) distinguishes the full native baseline from
-subsequent focused dependency qualification.
+must be measured separately. [The handoff](../status/current.md) records the storage layout and installed
+qualification for the current worktree.
 
 At the exact release commit, run `make publish-check`, inspect the four prepared
 archives, then check their provenance before `make publish`:

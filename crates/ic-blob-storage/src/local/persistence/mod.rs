@@ -1,26 +1,28 @@
-//! Bounded durable control state over host-granted native Storage roots.
+//! Bounded durable control state over a host-granted Storage lease.
 //!
-//! Configuration, uploads and references have separate bounded Wire values. Changed
-//! values are published synchronously; history remains finite at 64 uploads/references.
+//! One Wire record is rewritten per successful mutation (at most 64 uploads and
+//! 64 references). This is an experimental finite profile, not a large-store design.
 //! IC execution provides rollback: persistence/encoding failures must trap, never
 //! be caught and converted into an ordinary reply after a mutation. Native callers
 //! must discard this owner after a panic. No provider authority is implemented.
 
-pub mod access;
 pub mod callbacks;
-use access::Access;
 mod record;
 
 use ic_platform_types::Principal;
-use ic_storage::retained;
+use ic_storage::{Memory, RuntimeMemory, adapter::StableCell};
 
 use super::{Error, LocalModel, valid_principal};
 use crate::caffeine::Header;
 use crate::protocol::{
     Command, Inspection, Installation, Maintenance, ManagementView, Observation, Outcome,
 };
-use record::{Record, STATE_VERSION};
+use record::{Record, STATE_LIMITS, STATE_VERSION};
 
+/// Permanent allocation key contributed to the host's single Storage bootstrap.
+pub const STORAGE_KEY: &str = "blob.control.v1";
+/// Authority label for this library's allocation requirement.
+pub const STORAGE_AUTHORITY: &str = "blob";
 /// Hard pilot limit; released/cancelled identities continue occupying these slots.
 pub const MAX_RECORDS: usize = 64;
 
@@ -30,7 +32,9 @@ pub enum OpenError {
     /// Invalid authority or unsupported resource limits.
     Configuration,
     /// Collection admission failed before the state was published.
-    Storage(retained::Error),
+    Storage(ic_storage::StableCellPayloadError),
+    /// Fresh creation was requested for an existing allocation.
+    Occupied,
     /// Bounded record decoding failed.
     Codec(ic_wire::Error),
     /// Wrong format, installation binding, or inconsistent domain records.
@@ -38,23 +42,23 @@ pub enum OpenError {
 }
 
 /// The sole library policy model and its durable backing; hosts own neither a second
-/// ledger nor admission flags. The host owns the runtime and its lifecycle.
-pub struct Service {
+/// ledger nor admission flags. A lease may outlive the host's bootstrap runtime.
+pub struct Service<M: Memory> {
     model: LocalModel,
     manager: Principal,
     installation: Principal,
     attempt: u64,
-    access: Access,
+    cell: StableCell<Vec<u8>, M>,
 }
 
-impl Service {
+impl<M: Memory> Service<M> {
     /// Create only in an empty granted allocation, after checking the configuration.
     /// # Errors
-    /// Refuses invalid configuration, nonempty storage or initial growth refusal.
+    /// Refuses invalid configuration or an occupied allocation.
     /// # Panics
     /// Traps on backing IO failure. The IC must roll back the entire message.
     pub fn create(
-        access: Access,
+        memory: RuntimeMemory<M>,
         installation: Principal,
         input: Installation,
     ) -> Result<Self, OpenError> {
@@ -62,14 +66,14 @@ impl Service {
         valid_principal(installation).map_err(|_| OpenError::Configuration)?;
         let model = LocalModel::new(input.application, input.limits)
             .map_err(|_| OpenError::Configuration)?;
-        let record = Record::capture(&model, input.manager, installation, 0);
-        record.save(&access, true)?;
+        let bytes = Record::capture(&model, input.manager, installation, 0).encode()?;
+        let cell = create_cell(memory, bytes)?;
         Ok(Self {
             model,
             manager: input.manager,
             installation,
             attempt: 0,
-            access,
+            cell,
         })
     }
 
@@ -79,8 +83,10 @@ impl Service {
     /// Refuses missing, malformed, oversized, inconsistent or foreign state.
     /// # Panics
     /// Traps on backing IO failure; callers must not substitute empty state.
-    pub fn open(access: Access, installation: Principal) -> Result<Self, OpenError> {
-        let record = Record::load(&access)?;
+    pub fn open(memory: RuntimeMemory<M>, installation: Principal) -> Result<Self, OpenError> {
+        let cell = load_cell(memory, STATE_LIMITS.bytes)?;
+        let record: Record = ic_wire::decode(cell.get(), ic_wire::Encoding::Payload, STATE_LIMITS)
+            .map_err(OpenError::Codec)?;
         let manager = record.input.manager;
         let attempt = record.maintenance.attempt;
         let model = record.restore(installation)?;
@@ -89,7 +95,7 @@ impl Service {
             manager,
             installation,
             attempt,
-            access,
+            cell,
         })
     }
 
@@ -160,9 +166,10 @@ impl Service {
                 Outcome::Maintenance(self.maintenance())
             }
         };
-        Record::capture(&self.model, self.manager, self.installation, self.attempt)
-            .save(&self.access, false)
-            .expect("native Blob state publication");
+        let bytes = Record::capture(&self.model, self.manager, self.installation, self.attempt)
+            .encode()
+            .expect("bounded Blob state encoding");
+        self.cell.set(bytes);
         Ok(outcome)
     }
 
@@ -235,6 +242,24 @@ impl Service {
     }
 }
 
+fn create_cell<M: Memory>(
+    memory: RuntimeMemory<M>,
+    bytes: Vec<u8>,
+) -> Result<StableCell<Vec<u8>, M>, OpenError> {
+    if memory.size() != 0 {
+        return Err(OpenError::Occupied);
+    }
+    Ok(StableCell::create(memory, bytes))
+}
+
+fn load_cell<M: Memory>(
+    memory: RuntimeMemory<M>,
+    maximum: usize,
+) -> Result<StableCell<Vec<u8>, M>, OpenError> {
+    ic_storage::stable_cell_payload_length(&memory, maximum).map_err(OpenError::Storage)?;
+    StableCell::load(memory).map_err(OpenError::Storage)
+}
+
 fn validate(input: Installation) -> Result<(), OpenError> {
     valid_principal(input.application).map_err(|_| OpenError::Configuration)?;
     valid_principal(input.manager).map_err(|_| OpenError::Configuration)?;
@@ -246,16 +271,3 @@ fn validate(input: Installation) -> Result<(), OpenError> {
 
 #[cfg(test)]
 mod tests;
-
-/// Declare Blob's control root in the host's single native Storage runtime.
-#[must_use]
-pub const fn storage_root(id: u64, participant: u64) -> retained::Root {
-    retained::Root {
-        id,
-        participant,
-        schema: 0x424c4f424f503031,
-        entries: 1 + 2 * MAX_RECORDS,
-        key_bytes: 17,
-        value_bytes: 16_384,
-    }
-}

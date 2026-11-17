@@ -348,9 +348,9 @@ async fn publication_cases(browser: bool) {
                         assert!(matches!(drained, Outcome::Maintenance(m) if m.attempt == 1 && !m.active));
                         let owner_before = support::blob_state(pic, owner, app, &[signer(2), signer(3)]).await;
                         pic.stop_canister(owner, None).await.unwrap();
-                        pic.upgrade_eop_canister(owner, wasm(), frame("callback_upgrade", &()), None)
+                        pic.upgrade_canister(owner, wasm(), frame("callback_upgrade", &()), None)
                             .await.unwrap();
-                        pic.upgrade_eop_canister(app, app_wasm.clone(), frame("app_post_upgrade", &()), None)
+                        pic.upgrade_canister(app, app_wasm.clone(), frame("app_post_upgrade", &()), None)
                             .await.unwrap();
                         pic.start_canister(owner, None).await.unwrap();
                         assert_eq!(support::blob_state(pic, owner, app, &[signer(2), signer(3)]).await, owner_before);

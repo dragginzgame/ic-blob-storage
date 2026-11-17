@@ -266,7 +266,7 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
     );
     // An upgrade without draining traps in pre_upgrade and preserves the current instance.
     assert!(
-        pic.upgrade_eop_canister(
+        pic.upgrade_canister(
             canister,
             wasm.clone(),
             encode("blob_post_upgrade", &()),
@@ -307,7 +307,7 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
         .await
         .unwrap();
     assert!(
-        pic.upgrade_eop_canister(
+        pic.upgrade_canister(
             canister,
             wasm.clone(),
             encode("blob_init", &input()),
@@ -316,7 +316,7 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
         .await
         .is_err()
     );
-    pic.upgrade_eop_canister(
+    pic.upgrade_canister(
         canister,
         wasm.clone(),
         encode("blob_post_upgrade", &()),
@@ -360,7 +360,7 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
     pic.stop_canister(canister, Some(pic_actor(9)))
         .await
         .unwrap();
-    pic.upgrade_eop_canister(
+    pic.upgrade_canister(
         canister,
         wasm,
         encode("blob_post_upgrade", &()),
@@ -406,5 +406,74 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
             ..initial
         })
     );
+    support::close(server, owned).await;
+}
+
+/// Exercise the OP layout using a prepared standalone module from tag v0.104.0.
+#[tokio::test]
+#[ignore = "requires the retained 0.104.0 OP artifact in BLOB_OP_WASM"]
+async fn populated_op_source_survives_refused_stable_upgrade() {
+    incompatible_upgrade("BLOB_OP_WASM", true).await;
+}
+
+/// A stable-memory predecessor can also have an incompatible directory format.
+#[tokio::test]
+#[ignore = "requires a previous stable-layout host in BLOB_INCOMPATIBLE_STABLE_WASM"]
+async fn populated_stable_source_survives_refused_directory_upgrade() {
+    incompatible_upgrade("BLOB_INCOMPATIBLE_STABLE_WASM", false).await;
+}
+
+async fn incompatible_upgrade(source: &str, expect_empty_stable: bool) {
+    use sha2::{Digest, Sha256};
+
+    let old = std::fs::read(std::env::var_os(source).expect(source)).unwrap();
+    let expected_hash = Sha256::digest(&old).to_vec();
+    let replacement = std::fs::read(std::env::var_os("BLOB_WASM").unwrap()).unwrap();
+    let (server, owned) =
+        support::instance(PocketIcBuilder::new().with_application_subnet(), 120).await;
+    let pic = owned.client();
+    let owner = Some(pic_actor(9));
+    let canister = pic.create_canister_with_settings(owner, None).await;
+    pic.add_cycles(canister, 10_000_000_000_000).await;
+    pic.install_canister(canister, old, encode("blob_init", &input()), owner)
+        .await;
+    let request = UploadRequest {
+        id: id(1),
+        first_reference: id(1),
+        uploader: actor(2),
+        root: root(),
+        bytes: 3,
+        expires_at: u64::MAX,
+    };
+    update(pic, canister, 1, authorize(request)).await.unwrap();
+    update(pic, canister, 2, Command::Register(root()))
+        .await
+        .unwrap();
+    update(pic, canister, 9, Command::Drain(1)).await.unwrap();
+    let usage = query(pic, canister, 1, Inspection::Usage).await.unwrap();
+    assert!(matches!(usage, Observation::Usage(ref u) if u.unresolved_bytes == 3));
+    let maintenance = management(pic, canister, 9).await.unwrap();
+    let stable = pic.get_stable_memory(canister).await;
+    assert_eq!(stable.is_empty(), expect_empty_stable);
+    pic.stop_canister(canister, owner).await.unwrap();
+    pic.upgrade_canister(
+        canister,
+        replacement,
+        encode("blob_post_upgrade", &()),
+        owner,
+    )
+    .await
+    .expect_err("ordinary upgrade cannot adopt an incompatible layout");
+    assert_eq!(
+        pic.canister_status(canister, owner)
+            .await
+            .unwrap()
+            .module_hash,
+        Some(expected_hash)
+    );
+    assert_eq!(pic.get_stable_memory(canister).await, stable);
+    pic.start_canister(canister, owner).await.unwrap();
+    assert_eq!(management(pic, canister, 9).await, Ok(maintenance));
+    assert_eq!(query(pic, canister, 1, Inspection::Usage).await, Ok(usage));
     support::close(server, owned).await;
 }

@@ -1,10 +1,9 @@
 # IC Blob Storage
 
-Development uses **ic-storage 0.76.2 native OP storage**. The library, standalone
-host, reference app and qualification probes use retained roots and prepared Wasm;
-see the [native storage contract](docs/design/native-storage.md) and
-[current checks](docs/status/current.md). This 0.104.0 layout does not
-migrate the previous **0.103.3** stable image or the consumed live probe.
+Development uses **ic-storage 0.78.0**. Hosts install ordinary Cargo Wasm and
+grant Blob a named stable-memory allocation. This layout supports fresh installs
+and upgrades from the same stable layout. [Storage contract](docs/design/stable-storage.md)
+and [current checks](docs/status/current.md).
 
 Clean-start rewrite workspace. [Bounded object references](crates/ic-blob-storage/src/references/mod.rs)
 support overlapping application uses, historical replay and irreversible closing.
@@ -51,7 +50,7 @@ The application owns its catalog; Blob owns its grants and references. No servic
 or SDK transfer is installed or contacted by this example.
 
 The [durable service](crates/ic-blob-storage/src/local/persistence/mod.rs) now backs
-the same rules with bounded, versioned native Storage rows. The experimental
+the same rules with a bounded, versioned stable cell. The experimental
 [standalone host](crates/ic-blob-storage-canister/src/lib.rs) captures IC callers
 and time, and mounts `blob_update` / `blob_query` using Wire. Its 64 upload and
 64 reference slots include historical identities. Reopening rebuilds indexes and
@@ -156,7 +155,7 @@ upgrade at capacity; see the [results and limits](docs/design/standalone-capacit
 Set `BLOB_PREVIOUS_WASM=/absolute/path/to/previous.wasm` for a predecessor-to-current
 upgrade witness. `make test-endpoints` checks raw frames on the actual host and
 uses a separate, small qualification canister to force reply-encoding failure
-after a native write. The latter tests rollback without a production fault mode.
+after a stable write. The latter tests rollback without a production fault mode.
 `make test-signed` exercises the production host through an owned local HTTP gateway
 with separate application, manager and uploader signing identities. It checks caller
 separation, original-upload inspection after a discarded reply, replay refusal and
