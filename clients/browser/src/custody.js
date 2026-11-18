@@ -1,4 +1,5 @@
 // One installation per trusted browser origin/profile. Never evict or auto-reset.
+import { providerBinding } from "./binding.js";
 import { authenticateCertificate, sha256 } from "./certificate.js";
 import { parseCanonicalPrincipal } from "@tokostudios/ic-platform/principal";
 
@@ -9,18 +10,13 @@ async function configuration(input) {
   const owner = parseCanonicalPrincipal(input.issuer);
   const issuer = owner.toText();
   if (owner.isAnonymous() || issuer === "aaaaa-aa") throw new TypeError("Invalid issuer");
-  const gateway = new URL(input.gateway);
-  if (gateway.pathname !== "/" || gateway.search || gateway.hash || gateway.username || gateway.password
-      || gateway.href.length > 4096 || (gateway.protocol !== "https:" && !(gateway.protocol === "http:"
-        && ["localhost", "127.0.0.1", "[::1]"].includes(gateway.hostname)))) throw new TypeError("Invalid provider origin");
-  const { project, bucket } = input;
-  for (const value of [project, bucket]) {
-    if (typeof value !== "string" || !/^[\x21-\x7e]{1,128}$/.test(value)) throw new TypeError("Invalid provider selector");
-  }
+  const { gateway, project, bucket } = providerBinding({
+    gateway: input.gateway, owner: issuer, project: input.project, bucket: input.bucket,
+  });
   if (!(input.rootKey instanceof Uint8Array) || !(input.rootKey.buffer instanceof ArrayBuffer)
       || input.rootKey.length < 1 || input.rootKey.length > 1024) throw new TypeError("Invalid trust root");
   const rootKey = new Uint8Array(input.rootKey);
-  return { version: 1, issuer, gateway: gateway.origin, project, bucket,
+  return { version: 1, issuer, gateway, project, bucket,
     trustRootSha256: await sha256(rootKey) };
 }
 

@@ -1,5 +1,8 @@
 //! Private Caffeine query adapter and offline enrollment proposal. No paid effects.
 
+#[cfg(test)]
+mod tests;
+
 use crate::overview::{Network, hex, principal};
 use clap::Args;
 use ic_platform_protocol::{
@@ -157,6 +160,3 @@ pub(crate) fn prepare(input: &Enrollment) -> Result<String, String> {
         input.expires_at_ns
     ))
 }
-
-#[cfg(test)]
-mod tests;

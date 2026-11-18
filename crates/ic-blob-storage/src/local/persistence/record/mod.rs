@@ -1,14 +1,19 @@
 //! Canonical records only: indexes, reference counts and byte counters are rebuilt.
 
+#[cfg(test)]
+mod tests;
+
 use std::collections::{BTreeMap, BTreeSet};
 
 use ic_platform_types::Principal;
 use serde::{Deserialize, Serialize};
 
 use super::{OpenError, validate};
-use crate::local::{LocalModel, Object, ReferenceStatus, Root, Upload, UploadState, UploadView};
-use crate::protocol::{Installation, Maintenance};
-use crate::references::{ObjectReferences, ReferenceId, ReferenceState, RetentionState};
+use crate::{
+    local::{LocalModel, Object, ReferenceStatus, Root, Upload, UploadState, UploadView},
+    protocol::{Installation, Maintenance},
+    references::{ObjectReferences, ReferenceId, ReferenceState, RetentionState},
+};
 
 pub(super) const STATE_VERSION: u32 = 1;
 
@@ -185,6 +190,3 @@ impl Record {
         Ok(model)
     }
 }
-
-#[cfg(test)]
-mod tests;

@@ -4,8 +4,10 @@ use std::num::{NonZeroU64, NonZeroU128, NonZeroUsize};
 
 use ic_platform_types::Principal;
 
-use crate::caffeine::{ManifestLimits, VerificationError};
-use crate::references::{ReferenceError, ReferenceId, RetentionState};
+use crate::{
+    caffeine::{ManifestLimits, VerificationError},
+    references::{ReferenceError, ReferenceId, RetentionState},
+};
 
 /// Application-assigned upload identity with one retained lifetime.
 pub type UploadId = NonZeroU128;

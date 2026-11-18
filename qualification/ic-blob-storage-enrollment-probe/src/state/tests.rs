@@ -1,5 +1,6 @@
 use super::*;
-use crate::protocol::REPLY_BYTES;
+use crate::protocol::{Installation, LIMITS, Outcome, REPLY_BYTES};
+use ic_wire as wire;
 
 #[test]
 fn maximum_reply_fits_persistence_and_inspection_budgets() {

@@ -3,7 +3,16 @@ use ic_testkit::{
     pocket_ic::PocketIcBuilder,
     server::{Deletion, Instance, Limits, PreparedServer, Server},
 };
-use std::{path::Path, time::Duration};
+use std::{path::Path, process::Output, time::Duration};
+
+/// Read the complete text emitted by a fixture command.
+///
+/// # Panics
+/// Panics if stdout contains invalid UTF-8.
+#[must_use]
+pub fn stdout(output: &Output) -> &str {
+    std::str::from_utf8(&output.stdout).expect("UTF-8 command output")
+}
 
 /// Start the prepared local simulator and create one owned test instance.
 /// # Panics

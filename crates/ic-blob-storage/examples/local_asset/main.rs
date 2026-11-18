@@ -9,14 +9,16 @@
 
 mod catalog;
 mod fixture;
+#[cfg(test)]
+mod tests;
 
 use std::io::{self, Read};
 
-use ic_blob_storage::caffeine::{Limits as ReadLimits, RootVerifier, VerificationError};
-use ic_blob_storage::local::{
-    Error as BlobError, LocalModel, ReferenceStatus, UploadRequest, UploadState,
+use ic_blob_storage::{
+    caffeine::{Limits as ReadLimits, RootVerifier, VerificationError},
+    local::{Error as BlobError, LocalModel, ReferenceStatus, UploadRequest, UploadState},
+    references::RetentionState,
 };
-use ic_blob_storage::references::RetentionState;
 use ic_platform_types::Principal;
 
 use catalog::{Catalog, Error as CatalogError, Publication, commit_verified, remove};
@@ -287,6 +289,3 @@ fn verify_read(mut source: impl Read, original: &UploadRequest) -> io::Result<()
 fn integrity_error(error: VerificationError) -> io::Error {
     io::Error::new(io::ErrorKind::InvalidData, format!("{error:?}"))
 }
-
-#[cfg(test)]
-mod tests;

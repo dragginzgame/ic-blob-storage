@@ -26,6 +26,7 @@ thread_local! {
     static SERVICE: RefCell<Option<Service<DefaultMemoryImpl>>> = const { RefCell::new(None) };
 }
 
+/// Create the fresh standalone service with the supplied authority and limits.
 #[ic_platform_runtime::init(
     runtime = ic_platform_runtime,
     guard = codec::unguarded,
@@ -39,6 +40,7 @@ fn init(input: Installation) {
     SERVICE.with_borrow_mut(|state| *state = Some(service));
 }
 
+/// Require drained admission before the controller replaces the module.
 #[ic_platform_runtime::pre_upgrade(
     runtime = ic_platform_runtime,
     guard = codec::unguarded,
@@ -55,6 +57,7 @@ fn pre_upgrade(_: ()) {
     });
 }
 
+/// Reopen the existing service and verify admission remains drained.
 #[ic_platform_runtime::post_upgrade(
     runtime = ic_platform_runtime,
     guard = codec::unguarded,
@@ -68,6 +71,7 @@ fn post_upgrade(_: ()) {
     SERVICE.with_borrow_mut(|state| *state = Some(service));
 }
 
+/// Apply a command under the ingress caller’s service permissions.
 #[ic_platform_runtime::update(
     runtime = ic_platform_runtime,
     name = "blob_update",
@@ -86,6 +90,7 @@ fn blob_update(command: Command) -> Result<Outcome, Error> {
     })
 }
 
+/// Inspect the local records visible to the caller.
 #[ic_platform_runtime::query(
     runtime = ic_platform_runtime,
     name = "blob_query",
@@ -104,7 +109,7 @@ fn blob_query(request: Inspection) -> Result<Observation, Error> {
     })
 }
 
-// Read-only, but replicated: management callers must authenticate the update outcome.
+/// Return a replicated maintenance observation to an authorized management caller.
 #[ic_platform_runtime::update(
     runtime = ic_platform_runtime,
     name = "blob_management",

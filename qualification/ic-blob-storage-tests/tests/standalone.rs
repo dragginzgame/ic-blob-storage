@@ -20,12 +20,15 @@ use std::num::NonZeroU128;
 fn actor(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
 }
+
 fn pic_actor(n: u8) -> CanisterId {
     CanisterId::from_slice(actor(n).as_slice())
 }
+
 fn id(n: u128) -> NonZeroU128 {
     n.try_into().unwrap()
 }
+
 fn input() -> Installation {
     Installation {
         application: actor(1),
@@ -44,6 +47,7 @@ fn input() -> Installation {
         },
     }
 }
+
 fn encode<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
     ic_wire::encode(
         value,
@@ -55,6 +59,7 @@ fn encode<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
     )
     .unwrap()
 }
+
 fn decode<T: DeserializeOwned>(method: &str, bytes: &[u8]) -> T {
     ic_wire::decode(
         bytes,
@@ -66,6 +71,7 @@ fn decode<T: DeserializeOwned>(method: &str, bytes: &[u8]) -> T {
     )
     .unwrap()
 }
+
 async fn update(
     pic: &PocketIc,
     canister: CanisterId,
@@ -84,6 +90,7 @@ async fn update(
         .unwrap(),
     )
 }
+
 async fn query(
     pic: &PocketIc,
     canister: CanisterId,
@@ -102,6 +109,7 @@ async fn query(
         .unwrap(),
     )
 }
+
 async fn management(
     pic: &PocketIc,
     canister: CanisterId,
@@ -119,10 +127,12 @@ async fn management(
         .unwrap(),
     )
 }
+
 fn root() -> [u8; 32] {
     let hex = "b5b435d47a4cce7dfec493b1e020c5308d9c7fe90add1aff510f9c2a9c4ea8e7";
     std::array::from_fn(|i| u8::from_str_radix(&hex[2 * i..2 * i + 2], 16).unwrap())
 }
+
 fn authorize(request: UploadRequest) -> Command {
     Command::Authorize {
         request,

@@ -21,6 +21,7 @@ pub(super) fn argument(canister: Principal) -> Result<Vec<u8>, String> {
     .encode(1024)
     .map_err(|_| "cannot encode canister management target".into())
 }
+
 pub(crate) async fn read(client: &Client, canister: Principal) -> Result<CanisterStatus, String> {
     let bytes = client
         .update(

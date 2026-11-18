@@ -8,14 +8,18 @@
 
 pub mod callbacks;
 mod record;
+#[cfg(test)]
+mod tests;
 
 use ic_platform_types::Principal;
 use ic_storage::{Memory, RuntimeMemory, adapter::StableCell};
 
 use super::{Error, LocalModel, valid_principal};
-use crate::caffeine::Header;
-use crate::protocol::{
-    Command, Inspection, Installation, Maintenance, ManagementView, Observation, Outcome,
+use crate::{
+    caffeine::Header,
+    protocol::{
+        Command, Inspection, Installation, Maintenance, ManagementView, Observation, Outcome,
+    },
 };
 use record::{Record, STATE_LIMITS, STATE_VERSION};
 
@@ -234,6 +238,7 @@ impl<M: Memory> Service<M> {
             Err(Error::Denied)
         }
     }
+
     fn maintenance(&self) -> Maintenance {
         Maintenance {
             attempt: self.attempt,
@@ -268,6 +273,3 @@ fn validate(input: Installation) -> Result<(), OpenError> {
     }
     Ok(())
 }
-
-#[cfg(test)]
-mod tests;

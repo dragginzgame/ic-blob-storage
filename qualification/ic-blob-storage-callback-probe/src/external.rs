@@ -16,6 +16,7 @@ const LIMITS: Limits = Limits {
     skipping: 65_536,
 };
 
+/// Bound the provider request before decoding. Each callback applies its own access policy.
 pub(super) fn admit() -> Result<(), String> {
     if ic0::msg_arg_data_size() > BYTES {
         Err("callback input limit".into())
@@ -53,10 +54,12 @@ pub(super) fn empty(bytes: &[u8]) -> Result<(), std::convert::Infallible> {
 pub(super) fn liveness(value: Vec<bool>) -> Result<Vec<u8>, c::EncodeError> {
     c::encode_liveness(&value, BYTES)
 }
+
 pub(super) fn candidates(value: Vec<Root>) -> Result<Vec<u8>, c::EncodeError> {
     let blobs: Vec<_> = value.into_iter().map(|root| root.to_vec()).collect();
     c::encode_roots(&blobs, BYTES)
 }
+
 pub(super) fn done(_: ()) -> Result<Vec<u8>, c::EncodeError> {
     c::encode_empty(BYTES)
 }

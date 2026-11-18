@@ -41,6 +41,7 @@ pub fn now() -> u64 {
         .try_into()
         .unwrap()
 }
+
 /// Network observation windows; historical witnesses use an explicit different window.
 #[must_use]
 pub fn policy() -> TimePolicy {
@@ -87,6 +88,7 @@ impl Client {
             .unwrap(),
         }
     }
+
     /// Prepare exact signed fixture bytes, without dispatch or renewal.
     /// # Panics
     /// Panics if the fixed fixture request cannot be signed.
@@ -106,6 +108,7 @@ impl Client {
             )
             .unwrap()
     }
+
     /// Observe the retained request once, including after ingress expiry.
     pub async fn observe(
         &self,
@@ -115,6 +118,7 @@ impl Client {
             .observe_request(&self.signer, original, now() + 120_000_000_000, policy())
             .await
     }
+
     /// Wait for a terminal observation of one original request, never resubmit it.
     /// # Panics
     /// Panics on authentication failure or expiry of the fixture deadline.
@@ -136,6 +140,7 @@ impl Client {
         .await
         .expect("fixture original-request deadline")
     }
+
     /// Send one fixture update and retain authenticated rejection as an error.
     pub async fn update(
         &self,
@@ -173,6 +178,7 @@ impl Client {
             _ => Err(ReadError::MissingPath),
         }
     }
+
     /// Authenticate a signed fixture query under the selected local root.
     /// # Panics
     /// Panics on expiry of the fixture deadline.

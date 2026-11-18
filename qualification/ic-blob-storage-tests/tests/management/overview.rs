@@ -1,5 +1,4 @@
-use super::support;
-use super::{TEST_PEM, encode, installation, refused};
+use super::{TEST_PEM, encode, installation, refused, support};
 use ic_blob_storage::{
     local::{Error, UploadRequest},
     protocol::{Command, Outcome, RPC_LIMITS},

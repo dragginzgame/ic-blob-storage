@@ -1,8 +1,10 @@
 //! Fixed first-party SDK observations; see the provider review's vector provenance.
 //! This fixture does not prepare arbitrary uploads or implement SDK transfer code.
 
-use ic_blob_storage::caffeine::{Header, ManifestLimits};
-use ic_blob_storage::local::{Limits, Root, UploadRequest};
+use ic_blob_storage::{
+    caffeine::{Header, ManifestLimits},
+    local::{Limits, Root, UploadRequest},
+};
 use ic_platform_types::Principal;
 
 pub const BYTES: usize = 5 * 1024 * 1024 + 17;

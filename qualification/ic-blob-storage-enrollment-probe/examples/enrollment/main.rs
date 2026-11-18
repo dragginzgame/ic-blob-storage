@@ -1,13 +1,15 @@
 //! Offline qualification frames only; signing and external custody stay with the operator.
 
+mod cashier;
+#[cfg(test)]
+mod tests;
+
 use clap::{Parser, ValueEnum};
 use ic_blob_storage_enrollment_probe::protocol::{Error, Installation, LIMITS, View};
 use ic_platform_types::Principal;
 use ic_wire as wire;
 use serde::Serialize;
 use serde_json::{Value, json};
-
-mod cashier;
 
 #[derive(Parser)]
 #[command(about = "Encode/decode enrollment qualification frames offline; never signs or sends")]
@@ -131,6 +133,3 @@ fn unhex(value: &str) -> Result<Vec<u8>, String> {
         })
         .collect()
 }
-
-#[cfg(test)]
-mod tests;

@@ -1,5 +1,7 @@
-use crate::protocol::{DraftInput, DraftView, Error, Installation, Phase};
-use crate::state::{self, State};
+use crate::{
+    protocol::{DraftInput, DraftView, Error, Installation, Phase},
+    state::{self, State},
+};
 use ic_blob_storage::{
     local::{Error as BlobError, ReferenceStatus, UploadState},
     protocol::{Command, Inspection, Observation, Outcome, RPC_LIMITS},
@@ -34,6 +36,7 @@ thread_local! {
     static IN_FLIGHT: Cell<u32> = const { Cell::new(0) };
 }
 
+/// Create the application catalog bound to the configured Blob canister.
 #[ic_platform_runtime::init(
     runtime = ic_platform_runtime,
     guard = unguarded,
@@ -47,6 +50,7 @@ fn init(input: Installation) {
     });
 }
 
+/// Require outstanding application calls to finish before upgrade.
 #[ic_platform_runtime::pre_upgrade(
     runtime = ic_platform_runtime,
     guard = unguarded,
@@ -62,6 +66,7 @@ fn pre_upgrade(_: ()) {
     );
 }
 
+/// Reopen the existing catalog and its Blob binding.
 #[ic_platform_runtime::post_upgrade(
     runtime = ic_platform_runtime,
     guard = unguarded,
@@ -73,6 +78,7 @@ fn post_upgrade(_: ()) {
     STATE.with_borrow_mut(|state| *state = Some(State::open(memory(false), api::canister_self())));
 }
 
+/// Save the caller’s immutable draft and request its Blob upload grant.
 #[ic_platform_runtime::update(
     runtime = ic_platform_runtime,
     name = "app_create",
@@ -93,6 +99,7 @@ async fn app_create(input: DraftInput) -> Result<DraftView, Error> {
     view(caller, draft.input.id)
 }
 
+/// Publish the caller’s draft in the catalog after checking its Blob grant and reference.
 #[ic_platform_runtime::update(
     runtime = ic_platform_runtime,
     name = "app_publish",
@@ -131,6 +138,7 @@ async fn app_publish(id: NonZeroU128) -> Result<DraftView, Error> {
     STATE.with_borrow_mut(|state| state.as_mut().unwrap().publish(caller, id))
 }
 
+/// Cancel the caller’s draft and resolve its outstanding Blob reference.
 #[ic_platform_runtime::update(
     runtime = ic_platform_runtime,
     name = "app_cancel",
@@ -164,6 +172,7 @@ async fn app_cancel(id: NonZeroU128) -> Result<DraftView, Error> {
     STATE.with_borrow_mut(|state| state.as_mut().unwrap().cleaned(caller, id))
 }
 
+/// Return one draft owned by the caller.
 #[ic_platform_runtime::query(
     runtime = ic_platform_runtime,
     name = "app_draft",
@@ -177,6 +186,7 @@ fn app_draft(id: NonZeroU128) -> Result<DraftView, Error> {
     view(api::caller(), id)
 }
 
+/// List the caller’s published catalog entries.
 #[ic_platform_runtime::query(
     runtime = ic_platform_runtime,
     name = "app_catalog",
@@ -251,6 +261,7 @@ async fn call<T: Serialize, R: DeserializeOwned>(method: &str, request: &T) -> R
     .map_err(|_| Error::Uncertain)
 }
 
+/// Bound the request before decoding. Catalog operations enforce caller ownership.
 #[expect(
     clippy::unnecessary_wraps,
     reason = "Platform guard signature; oversized transport traps"
@@ -317,6 +328,7 @@ fn memory(fresh: bool) -> RuntimeMemory<DefaultMemoryImpl> {
         .unwrap()
 }
 
+/// Accept system lifecycle invocations.
 #[expect(
     clippy::unnecessary_wraps,
     reason = "Runtime guard signature; authorization belongs to the handler"

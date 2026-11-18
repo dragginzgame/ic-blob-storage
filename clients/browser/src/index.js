@@ -1,4 +1,6 @@
 // Experimental Caffeine transfer boundary. No IC calls, storage engine or replay.
+import { endpoint, providerBinding } from "./binding.js";
+
 const CHUNK_BYTES = 1024 * 1024;
 const MAX_BYTES = 32 * CHUNK_BYTES;
 const encoder = new TextEncoder();
@@ -46,30 +48,6 @@ async function parent(left, right) {
 
 function leaf(hash) {
   return { hash, json: { hash: hashText(hash), left: null, right: null } };
-}
-
-function selector(value) {
-  if (typeof value !== "string" || !/^[\x21-\x7e]{1,128}$/.test(value)) {
-    throw new TypeError("Expected a bounded printable provider selector");
-  }
-  return value;
-}
-
-function endpoint(value) {
-  const url = new URL(value);
-  if ((url.protocol !== "https:" && !(url.protocol === "http:"
-      && ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)))
-      || url.username || url.password || url.hash || url.href.length > 4096) {
-    throw new TypeError("Expected bounded HTTPS or owned loopback HTTP URL without credentials or fragment");
-  }
-  return url;
-}
-
-function binding(options) {
-  const url = endpoint(options.gateway);
-  if (url.search || url.pathname !== "/") throw new TypeError("Gateway must be an origin");
-  return Object.freeze({ gateway: url.origin, owner: selector(options.owner),
-    project: selector(options.project), bucket: selector(options.bucket) });
 }
 
 // A stalled caller claim must not later resume network dispatch after cancellation.
@@ -237,7 +215,7 @@ export async function prepare(source, { contentType = "application/octet-stream"
    */
   async function upload(options) {
     if (used) throw new Error("Prepared file already consumed; never retry it");
-    const target = binding(options);
+    const target = providerBinding(options);
     if (options.certificate?.root !== declaration.root || typeof options.claim !== "function") {
       throw new TypeError("Matching authenticated certificate and durable claim callback required");
     }

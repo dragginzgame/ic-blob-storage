@@ -19,10 +19,10 @@ done < <(jq -r '.stages[] | select(.required and (.target | startswith("installe
 [[ ${#goals[@]} -gt 0 ]]
 # Full qualification lint already covers these targets with the same features.
 if ! jq -e '.stages[] | select(.target == "check-qualification") | .required' "$plan" >/dev/null; then
-    CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml \
+    CARGO_BUILD_WARNINGS=deny cargo clippy --locked --manifest-path qualification/Cargo.toml \
         -p ic-blob-storage-tests --example prepare-server "${tests[@]}" -- -D warnings
     if printf '%s\n' "${tests[@]}" | grep -qx enrollment; then
-        CARGO_BUILD_WARNINGS=deny cargo clippy --offline --locked --manifest-path qualification/Cargo.toml \
+        CARGO_BUILD_WARNINGS=deny cargo clippy --locked --manifest-path qualification/Cargo.toml \
             -p ic-blob-storage-enrollment-probe --lib --tests --examples -- -D warnings
     fi
 fi

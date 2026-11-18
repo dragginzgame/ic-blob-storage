@@ -7,6 +7,7 @@ use crate::{
 fn actor(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
 }
+
 fn record() -> Record {
     let input = Installation {
         application: actor(1),

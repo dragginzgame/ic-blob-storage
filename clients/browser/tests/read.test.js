@@ -109,7 +109,7 @@ test("invalid read target or declaration refuses before network access", async (
   const declaration = (await prepare(text("abc"))).declaration;
   const fetch = () => assert.fail("invalid read must not dispatch");
   for (const url of ["http://storage.example/asset", "https://user@storage.example/asset",
-    "https://storage.example/asset#fragment", "file:///asset", `https://storage.example/${"x".repeat(4096)}`]) {
+    "https://storage.example/asset#fragment", "https://storage.example/asset#", "file:///asset", `https://storage.example/${"x".repeat(4096)}`]) {
     await assert.rejects(readVerified(url, declaration, { fetch }), TypeError);
   }
   await assert.rejects(readVerified("https://storage.example/asset", { ...declaration, bytes: 0 }, { fetch }), TypeError);

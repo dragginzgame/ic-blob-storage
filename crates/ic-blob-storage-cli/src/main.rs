@@ -326,10 +326,10 @@ fn read(path: &Path, limit: usize) -> Result<Vec<u8>, String> {
     // use files::read_at on their already admitted directory without this step.
     let resolved = path
         .canonicalize()
-        .map_err(|_| format!("cannot resolve input file: {}", path.display()))?;
+        .map_err(|error| format!("cannot resolve input file {path:?}: {error}"))?;
     let (parent, name) = files::parent(&resolved)?;
     files::read_at(&parent, name, limit)
-        .map_err(|e| format!("cannot read bounded regular file {}: {e}", path.display()))
+        .map_err(|e| format!("cannot read bounded regular file {path:?}: {e}"))
 }
 
 impl Context {

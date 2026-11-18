@@ -6,27 +6,35 @@ use super::{
     Error as E, Limits, LocalModel, ObjectView, ReferenceStatus as R, ReferenceView, Root,
     UploadRequest, UploadState as U, UploadView, Usage,
 };
-use crate::caffeine::{Header, ManifestLimits, VerificationError};
-use crate::references::{ReferenceError, RetentionState};
+use crate::{
+    caffeine::{Header, ManifestLimits, VerificationError},
+    references::{ReferenceError, RetentionState},
+};
 
 fn actor(value: u8) -> Principal {
     Principal::from_slice(&[value, 1])
 }
+
 fn id(value: u128) -> NonZeroU128 {
     NonZeroU128::new(value).unwrap()
 }
+
 fn limit(value: usize) -> NonZeroUsize {
     NonZeroUsize::new(value).unwrap()
 }
+
 fn bytes(value: u64) -> NonZeroU64 {
     NonZeroU64::new(value).unwrap()
 }
+
 fn hash(hex: &str) -> Root {
     std::array::from_fn(|i| u8::from_str_radix(&hex[2 * i..2 * i + 2], 16).unwrap())
 }
+
 fn abc() -> Root {
     hash("b5b435d47a4cce7dfec493b1e020c5308d9c7fe90add1aff510f9c2a9c4ea8e7")
 }
+
 fn other() -> Root {
     hash("82123b33e498318c7b9849ae6aa8fd2b2735d5a478077fce66a9d363cb838941")
 }
@@ -45,6 +53,7 @@ fn limits() -> Limits {
         exposure_bytes: bytes(10),
     }
 }
+
 fn request(n: u128) -> UploadRequest {
     UploadRequest {
         id: id(n),
@@ -55,17 +64,21 @@ fn request(n: u128) -> UploadRequest {
         expires_at: 100,
     }
 }
+
 fn model() -> LocalModel {
     LocalModel::new(actor(1), limits()).unwrap()
 }
+
 fn admit(m: &mut LocalModel, request: UploadRequest) -> U {
     m.authorize(actor(1), request, &[request.root], &[], 10)
         .unwrap()
         .state
 }
+
 fn usage(m: &LocalModel) -> Usage {
     m.usage(actor(1)).unwrap()
 }
+
 fn state(m: &LocalModel, n: u128) -> U {
     m.inspect_upload(actor(1), id(n)).unwrap().state
 }

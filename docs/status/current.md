@@ -20,6 +20,14 @@ custody under `target/publication/publish.selection.kZTBdA/` and the checksum re
 `target/01050-release/registry-verified.json`. The release commit’s [hosted CI run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44199800600)
 was in progress at publication. Optional metadata-editor refresh remains deferred.
 
+The next development batch selects IC Wire 0.25.0 and the authenticated Toko
+Tooling 0.45.8 snapshot in both workspaces. Rust consumers of `RPC_LIMITS` or
+Blob’s codec error need matching Wire types, so the pending changelog targets
+0.106.0. Populated standalone and catalog instances built from tag `v0.105.0`
+reopened successfully with the new codec in PocketIC. Focused check logs are in
+`target/wire025-toko0457/`. The [0.45.8 code hygiene review](../reports/audits/2026/11/18/code-hygiene/01/report.md)
+records the browser, CLI and qualification changes and their local verification.
+
 ## Next action and provider boundary
 
 Canic can integrate the released named-lease API and qualify its own composed catalog.

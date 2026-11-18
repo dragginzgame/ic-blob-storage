@@ -154,7 +154,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=0 active=true"));
+    assert!(support::stdout(&output).contains("attempt=0 active=true"));
     refused(
         &inspect(&directory, url.as_str(), canister, "2").await,
         "state format mismatch",
@@ -214,7 +214,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(String::from_utf8_lossy(&output.stdout).contains("NOT submitted"));
+    assert!(support::stdout(&output).contains("NOT submitted"));
     let packet = std::fs::read(claim.join("request.cbor")).unwrap();
     let intent = std::fs::read(claim.join("intent.wire")).unwrap();
     refused(
@@ -427,7 +427,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(String::from_utf8_lossy(&output.stdout).contains("Original drain acknowledged"));
+    assert!(support::stdout(&output).contains("Original drain acknowledged"));
     assert_eq!(std::fs::read(claim.join("request.cbor")).unwrap(), packet);
     assert_eq!(std::fs::read(claim.join("intent.wire")).unwrap(), intent);
     let drain = ic_wire::encode(
@@ -455,7 +455,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=1 active=false"));
+    assert!(support::stdout(&output).contains("attempt=1 active=false"));
     // A crash after claiming but before transmission is deliberately unrecoverable
     // by dispatch. A new record/request ID cannot bypass that same target attempt.
     let stranded = owned.client().create_canister().await;
@@ -546,7 +546,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(String::from_utf8_lossy(&output.stdout).contains("historical outcome only"));
+    assert!(support::stdout(&output).contains("historical outcome only"));
     let stop_claim = directory.join("stop");
     refused(
         &command(&directory, url.as_str(), stranded, "1", "prepare-stop")
@@ -702,9 +702,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(
-        String::from_utf8_lossy(&output.stdout).contains("original=acknowledged platform=Stopped")
-    );
+    assert!(support::stdout(&output).contains("original=acknowledged platform=Stopped"));
     // Stopped state cannot fabricate acknowledgment of another, unsent request
     // or authorize dispatch of that replacement request ID.
     let output = command(&directory, url.as_str(), canister, "1", "observe-stop")
@@ -718,9 +716,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(
-        String::from_utf8_lossy(&output.stdout).contains("original=unavailable platform=Stopped")
-    );
+    assert!(support::stdout(&output).contains("original=unavailable platform=Stopped"));
     refused(
         &command(&directory, url.as_str(), canister, "1", "dispatch-stop")
             .arg("--record")
@@ -859,10 +855,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(
-        String::from_utf8_lossy(&output.stdout)
-            .contains("replacement Wasm matched, platform=Stopped")
-    );
+    assert!(support::stdout(&output).contains("replacement Wasm matched, platform=Stopped"));
     refused(
         &upgrade_command("observe-upgrade", &unused_upgrade, &current_stop)
             .output()
@@ -967,7 +960,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=3 active=false"));
+    assert!(support::stdout(&output).contains("attempt=3 active=false"));
     let output = start_command("observe-start", &start_claim, &upgrade_claim, &current_stop)
         .output()
         .await
@@ -1021,7 +1014,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=3 active=false"));
+    assert!(support::stdout(&output).contains("attempt=3 active=false"));
     let activation = directory.join("activation");
     let unused_activation = directory.join("unused-activation");
     let activate_command = |operation: &str, record: &Path, start: &Path| {
@@ -1093,7 +1086,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=3 active=true"));
+    assert!(support::stdout(&output).contains("attempt=3 active=true"));
     let output = activate_command("observe-activate", &activation, &start_claim)
         .output()
         .await
@@ -1103,7 +1096,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=3 active=true"));
+    assert!(support::stdout(&output).contains("attempt=3 active=true"));
     refused(
         &activate_command("observe-activate", &unused_activation, &start_claim)
             .output()
@@ -1206,7 +1199,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     assert!(!stale_activation.exists());
     let output = inspect(&directory, url.as_str(), canister, "1").await;
     assert!(output.status.success());
-    assert!(String::from_utf8_lossy(&output.stdout).contains("attempt=4 active=false"));
+    assert!(support::stdout(&output).contains("attempt=4 active=false"));
     // A definitive install rejection retains the old state and the dispatch claim.
     let failure_stop = directory.join("failure-stop");
     let output = command(&directory, url.as_str(), canister, "1", "prepare-stop")

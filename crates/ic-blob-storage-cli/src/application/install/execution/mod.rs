@@ -1,5 +1,8 @@
 //! One claimed install dispatch; original certified outcomes survive later status failures.
 
+#[cfg(test)]
+mod tests;
+
 use super::{Input, Selection, load};
 use crate::{files, management, network, overview::hex};
 use clap::Args;
@@ -154,6 +157,3 @@ pub(crate) async fn observe(input: &Input) -> Result<String, String> {
             selected.binding.controller, current.status))
     }).await.map_err(|_| "installation observation timed out; preserve outcome and claim, never resubmit".to_owned())?
 }
-
-#[cfg(test)]
-mod tests;

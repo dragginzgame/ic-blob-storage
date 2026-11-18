@@ -84,16 +84,19 @@ impl Client {
             root,
         })
     }
+
     pub(crate) fn principal(&self) -> Principal {
         self.identity
             .as_ref()
             .map_or(Principal::anonymous(), Ed25519Identity::principal)
     }
+
     pub(crate) fn signer(&self) -> Result<&Ed25519Identity, String> {
         self.identity
             .as_ref()
             .ok_or_else(|| "this operation requires an explicit identity".into())
     }
+
     pub(crate) fn prepare(
         &self,
         recipient: Principal,
@@ -117,6 +120,7 @@ impl Client {
             )
             .map_err(|_| "cannot sign original request".into())
     }
+
     pub(crate) async fn observe(
         &self,
         original: &PreparedUpdate,
@@ -131,6 +135,7 @@ impl Client {
             .await
             .map_err(|_| "original request status authentication failed".into())
     }
+
     pub(crate) async fn update(
         &self,
         recipient: Principal,
@@ -180,6 +185,7 @@ impl Client {
         .await
         .map_err(|_| "original request timed out; no resubmission".to_owned())?
     }
+
     pub(crate) async fn query(
         &self,
         target: Principal,

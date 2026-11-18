@@ -1,14 +1,20 @@
 //! Original certificate-request custody and authenticated historical recovery.
 
 pub(crate) mod custody;
+#[cfg(test)]
+mod tests;
 pub(crate) mod transfer;
 
-use crate::files;
-use crate::network::Client;
-use crate::overview::{Network, principal};
+use crate::{
+    files,
+    network::Client,
+    overview::{Network, principal},
+};
 use clap::Args;
-use ic_platform::ingress::{Content, decode_envelope};
-use ic_platform::native::{PreparedUpdate, RequestStatus};
+use ic_platform::{
+    ingress::{Content, decode_envelope},
+    native::{PreparedUpdate, RequestStatus},
+};
 use ic_platform_protocol::{caffeine as c, candid::Limits};
 use ic_platform_types::Principal;
 use std::path::PathBuf;
@@ -154,6 +160,3 @@ pub(crate) async fn run(input: Input) -> Result<String, String> {
         input.target.root
     ))
 }
-
-#[cfg(test)]
-mod tests;

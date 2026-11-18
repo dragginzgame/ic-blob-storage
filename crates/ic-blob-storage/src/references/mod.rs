@@ -14,8 +14,13 @@
 //! A future service protocol must separately retain any admitted failure outcomes
 //! it promises to replay. Reference IDs are not provider keys or operation IDs.
 
-use std::collections::BTreeMap;
-use std::num::{NonZeroU128, NonZeroUsize};
+#[cfg(test)]
+mod tests;
+
+use std::{
+    collections::BTreeMap,
+    num::{NonZeroU128, NonZeroUsize},
+};
 
 /// An application-assigned, nonzero reference name within its object binding.
 ///
@@ -166,6 +171,3 @@ impl ObjectReferences {
         self.references.len()
     }
 }
-
-#[cfg(test)]
-mod tests;

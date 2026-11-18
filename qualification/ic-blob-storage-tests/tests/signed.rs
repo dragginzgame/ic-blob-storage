@@ -8,8 +8,10 @@ use ic_blob_storage::{
     local::{Error, Limits, ReferenceStatus, UploadRequest, UploadState, UploadView},
     protocol::{Command, Inspection, Installation, Observation, Outcome, RPC_LIMITS},
 };
-use ic_blob_storage_tests::native::{Client, identity};
-use ic_blob_storage_tests::support_tests as support;
+use ic_blob_storage_tests::{
+    native::{Client, identity},
+    support_tests as support,
+};
 use ic_platform::native::ReadError;
 use ic_platform_types::Principal;
 use ic_testkit::pocket_ic::PocketIcBuilder;

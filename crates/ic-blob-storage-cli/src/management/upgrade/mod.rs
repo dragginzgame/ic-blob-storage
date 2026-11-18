@@ -1,11 +1,12 @@
 //! One ordinary upgrade of a stopped host, chained to an acknowledged original stop.
 
-use ic_platform::native::RequestStatus;
-use ic_platform_protocol::management_snapshots::Status as CanisterStatusType;
-
 use super::{Context, Operation, load, request_status, stop};
 use ic_blob_storage::protocol::RPC_LIMITS;
-use ic_platform_protocol::management::{InstallCodeArgs, InstallMode};
+use ic_platform::native::RequestStatus;
+use ic_platform_protocol::{
+    management::{InstallCodeArgs, InstallMode},
+    management_snapshots::Status as CanisterStatusType,
+};
 use sha2::{Digest, Sha256};
 use std::path::Path;
 

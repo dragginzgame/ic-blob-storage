@@ -1,5 +1,14 @@
-use super::{Cli, help_command};
+use super::{Cli, help_command, read};
 use clap::{Parser, error::ErrorKind};
+use std::path::Path;
+
+#[test]
+fn input_error_displays_the_filename_on_one_line() {
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("Cargo.toml/first\nsecond");
+    let error = read(&path, 1).unwrap_err();
+    assert!(error.contains("first\\nsecond"));
+    assert!(!error.contains('\n'));
+}
 
 #[test]
 fn help_navigates_groups_without_loading_inputs() {

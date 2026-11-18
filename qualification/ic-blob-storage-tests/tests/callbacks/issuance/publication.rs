@@ -435,10 +435,7 @@ async fn publication_cases(browser: bool) {
                         .unwrap()
                         .unwrap();
                 assert!(output.status.success(), "{scenario}");
-                assert_eq!(
-                    String::from_utf8_lossy(&output.stdout).trim(),
-                    "replay-refused"
-                );
+                assert_eq!(support::stdout(&output).trim(), "replay-refused");
                 assert_eq!(
                     std::fs::read(claim.join("transfer/intent.wire")).unwrap(),
                     intent

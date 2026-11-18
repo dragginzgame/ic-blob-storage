@@ -7,12 +7,14 @@ use ic_blob_storage::local::{ReferenceStatus, UploadState};
 use ic_blob_storage_tests::native::{Client, identity, policy};
 use ic_host_artifacts::Length;
 use ic_host_fs::{Commit, Destination, Directory, Policy, Retention};
-use ic_platform::certificate::{
-    CertificateDecodeLimits, PreparedRootKey, TimePolicy, TimeWindow, VerificationLimits,
-    authenticate_certificate, decode_certificate,
+use ic_platform::{
+    certificate::{
+        CertificateDecodeLimits, PreparedRootKey, TimePolicy, TimeWindow, VerificationLimits,
+        authenticate_certificate, decode_certificate,
+    },
+    ingress::{Content, decode_envelope},
+    native::{PreparedUpdate, ReadError, RequestStatus},
 };
-use ic_platform::ingress::{Content, decode_envelope};
-use ic_platform::native::{PreparedUpdate, ReadError, RequestStatus};
 
 use ic_testkit::server::{Instance, Server};
 use sha2::{Digest, Sha256};
@@ -24,14 +26,17 @@ fn root_text(root: Root) -> String {
     let hex: String = root.iter().map(|b| format!("{b:02x}")).collect();
     format!("sha256:{hex}")
 }
+
 fn issue_args(root: Root) -> Vec<u8> {
     provider::encode_root(&root_text(root), 1024).unwrap()
 }
+
 fn assert_reply(bytes: &[u8], root: Root) {
     let reply = provider::decode_certificate(bytes, PROVIDER_LIMITS).unwrap();
     assert_eq!(reply.method, "upload");
     assert_eq!(reply.blob_hash, root_text(root));
 }
+
 async fn inspect(pic: &PocketIc, owner: CanisterId, request: Inspection) -> Observation {
     let bytes = pic
         .query_call(
@@ -780,7 +785,7 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
         String::from_utf8_lossy(&output.stderr)
     );
     assert!(
-        String::from_utf8_lossy(&output.stdout)
+        support::stdout(&output)
             .contains(&id.iter().map(|b| format!("{b:02x}")).collect::<String>())
     );
     let saved = std::fs::read(directory.join("certificate.cbor")).unwrap();
@@ -1074,7 +1079,7 @@ async fn owned_transfer_authenticates_proof_verifies_read_and_refuses_process_re
             "{}",
             String::from_utf8_lossy(&output.stderr)
         );
-        assert_eq!(String::from_utf8_lossy(&output.stdout).trim(), expected);
+        assert_eq!(support::stdout(&output).trim(), expected);
         assert_eq!(
             std::fs::read(claim.join("transfer/certificate.cbor")).unwrap(),
             proof

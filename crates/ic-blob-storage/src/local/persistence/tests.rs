@@ -15,9 +15,11 @@ use crate::{
 fn actor(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
 }
+
 fn id(n: u128) -> NonZeroU128 {
     n.try_into().unwrap()
 }
+
 fn input() -> Installation {
     Installation {
         application: actor(1),
@@ -36,6 +38,7 @@ fn input() -> Installation {
         },
     }
 }
+
 fn memory(backing: VectorMemory) -> RuntimeMemory<VectorMemory> {
     let mut runtime = MemoryRuntime::new(backing).unwrap();
     runtime
@@ -55,10 +58,12 @@ fn memory(backing: VectorMemory) -> RuntimeMemory<VectorMemory> {
         .open_memory(&StableKey::parse(STORAGE_KEY).unwrap())
         .unwrap()
 }
+
 fn root() -> [u8; 32] {
     let hex = "b5b435d47a4cce7dfec493b1e020c5308d9c7fe90add1aff510f9c2a9c4ea8e7";
     std::array::from_fn(|i| u8::from_str_radix(&hex[2 * i..2 * i + 2], 16).unwrap())
 }
+
 fn request(n: u128) -> UploadRequest {
     UploadRequest {
         id: id(n),
@@ -69,6 +74,7 @@ fn request(n: u128) -> UploadRequest {
         expires_at: 100,
     }
 }
+
 fn authorize(n: u128) -> Command {
     Command::Authorize {
         request: request(n),

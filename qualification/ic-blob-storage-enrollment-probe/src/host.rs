@@ -1,5 +1,7 @@
-use crate::protocol::{Error, Installation, LIMITS, Outcome, REPLY_BYTES, View};
-use crate::state::State;
+use crate::{
+    protocol::{Error, Installation, LIMITS, Outcome, REPLY_BYTES, View},
+    state::stable::State,
+};
 use ic_platform_runtime::{
     call::{Call, Outcome as CallOutcome, Wait},
     raw as ic0, system as api,
@@ -21,6 +23,7 @@ thread_local! {
     static IN_FLIGHT: Cell<bool> = const { Cell::new(false) };
 }
 
+/// Bind the fresh probe to its controller-operator and Cashier.
 #[ic_platform_runtime::init(
     runtime = ic_platform_runtime,
     guard = unguarded,
@@ -36,6 +39,7 @@ fn init(config: Installation) {
     STATE.with_borrow_mut(|state| *state = Some(State::create(api::canister_self(), config)));
 }
 
+/// Require the enrollment call to finish before upgrading the probe.
 #[ic_platform_runtime::pre_upgrade(
     runtime = ic_platform_runtime,
     guard = unguarded,
@@ -50,6 +54,7 @@ fn pre_upgrade(_: ()) {
     );
 }
 
+/// Reopen the probe’s original enrollment record.
 #[ic_platform_runtime::post_upgrade(
     runtime = ic_platform_runtime,
     guard = unguarded,
@@ -61,6 +66,7 @@ fn post_upgrade(_: ()) {
     STATE.with_borrow_mut(|state| *state = Some(State::open(api::canister_self())));
 }
 
+/// Let the configured controller-operator inspect the retained attempt.
 #[ic_platform_runtime::update(
     runtime = ic_platform_runtime,
     name = "enrollment_inspect",
@@ -74,6 +80,7 @@ fn enrollment_inspect(_: ()) -> Result<View, Error> {
     inspect(api::caller())
 }
 
+/// Let the configured controller-operator submit once or inspect the existing attempt.
 #[ic_platform_runtime::update(
     runtime = ic_platform_runtime,
     name = "enrollment_attempt",
@@ -154,6 +161,7 @@ fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, wire::Error>
     )
 }
 
+/// Accept lifecycle calls and defer enrollment access checks to the controller-operator check.
 #[expect(
     clippy::unnecessary_wraps,
     reason = "Runtime guard signature; authorization belongs to the handler"

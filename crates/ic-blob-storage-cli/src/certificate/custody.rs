@@ -1,13 +1,13 @@
 //! One permanent claim per network/issuer/root in caller-owned trusted custody.
 
 use super::{METHOD, PACKET_LIMIT, Target, original};
-use crate::files;
-use crate::network::Client;
-use crate::overview::hex;
+use crate::{files, network::Client, overview::hex};
 use clap::Args;
 use ic_host_fs::Directory;
-use ic_platform::ingress::{Content, decode_envelope};
-use ic_platform::native::{Dispatch as NativeDispatch, PreparedUpdate, RequestStatus};
+use ic_platform::{
+    ingress::{Content, decode_envelope},
+    native::{Dispatch as NativeDispatch, PreparedUpdate, RequestStatus},
+};
 use ic_platform_protocol::caffeine as c;
 use ic_platform_types::Principal;
 use serde::{Deserialize, Serialize};

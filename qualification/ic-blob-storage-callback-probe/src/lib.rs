@@ -34,6 +34,7 @@ thread_local! {
     static STATE: RefCell<Option<Callbacks<DefaultMemoryImpl>>> = const { RefCell::new(None) };
 }
 
+/// Install the probe with its Blob configuration and callback gateway.
 #[ic_platform_runtime::init(
     runtime = ic_platform_runtime,
     guard = unguarded,
@@ -62,6 +63,7 @@ fn init((input, gateway): (Installation, Principal)) {
     STATE.with_borrow_mut(|state| *state = Some(callbacks));
 }
 
+/// Require drained admission before upgrading the probe.
 #[ic_platform_runtime::pre_upgrade(
     runtime = ic_platform_runtime,
     guard = unguarded,
@@ -78,6 +80,7 @@ fn pre_upgrade(_: ()) {
     });
 }
 
+/// Reopen the existing control records and callback binding.
 #[ic_platform_runtime::post_upgrade(
     runtime = ic_platform_runtime,
     guard = unguarded,
@@ -105,6 +108,7 @@ fn post_upgrade(_: ()) {
     STATE.with_borrow_mut(|state| *state = Some(callbacks));
 }
 
+/// Exercise a local Blob command with the actual caller.
 #[ic_platform_runtime::update(
     runtime = ic_platform_runtime,
     name = "blob_update",
@@ -123,6 +127,7 @@ fn blob_update(command: Command) -> Result<Outcome, Error> {
     })
 }
 
+/// Read the local Blob records visible to the caller.
 #[ic_platform_runtime::query(
     runtime = ic_platform_runtime,
     name = "blob_query",
@@ -142,6 +147,7 @@ fn blob_query(input: Inspection) -> Result<Observation, Error> {
     })
 }
 
+/// Register the bound uploader’s root and return the candidate certificate response.
 #[ic_platform_runtime::update(
     runtime = ic_platform_runtime,
     name = "_immutableObjectStorageCreateCertificate",
@@ -165,6 +171,7 @@ fn issue(root: [u8; 32]) -> [u8; 32] {
     root
 }
 
+/// Report the probe’s retention decision for each requested root.
 #[ic_platform_runtime::query(
     runtime = ic_platform_runtime,
     name = "_immutableObjectStorageBlobsAreLive",
@@ -182,6 +189,7 @@ fn liveness(roots: Vec<[u8; 32]>) -> Vec<bool> {
     STATE.with_borrow(|state| state.as_ref().unwrap().liveness(&roots).unwrap())
 }
 
+/// Return release candidates to the configured gateway.
 #[ic_platform_runtime::query(
     runtime = ic_platform_runtime,
     name = "_immutableObjectStorageBlobsToDelete",
@@ -195,6 +203,7 @@ fn candidates(_: ()) -> Vec<[u8; 32]> {
     STATE.with_borrow(|state| state.as_ref().unwrap().candidates(api::caller()).unwrap())
 }
 
+/// Record the gateway’s acknowledgment for candidate roots.
 #[ic_platform_runtime::update(
     runtime = ic_platform_runtime,
     name = "_immutableObjectStorageConfirmBlobDeletion",
@@ -245,6 +254,7 @@ fn memory(fresh: bool) -> MemoryRuntime<DefaultMemoryImpl> {
     runtime
 }
 
+/// Bound the Wire request before the service authorizes the caller.
 fn admit() -> Result<(), String> {
     if ic0::msg_arg_data_size() > RPC_LIMITS.bytes {
         Err("Wire input limit".into())
@@ -276,6 +286,7 @@ fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, wire::Error>
     )
 }
 
+/// Accept system lifecycle invocations.
 #[expect(
     clippy::unnecessary_wraps,
     reason = "Runtime guard signature; authorization belongs to the handler"

@@ -1,10 +1,8 @@
 //! Exact client metadata hashing; this is not HTTP header validation.
 
-use std::collections::BTreeSet;
-use std::num::NonZeroUsize;
+use std::{collections::BTreeSet, num::NonZeroUsize};
 
-use sha2::Digest;
-use sha2::Sha256;
+use sha2::{Digest, Sha256};
 
 use super::{Hash, Header, VerificationError};
 

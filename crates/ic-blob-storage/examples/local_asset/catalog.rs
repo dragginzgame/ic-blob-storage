@@ -5,8 +5,10 @@
 
 use std::collections::BTreeMap;
 
-use ic_blob_storage::local::{Error as BlobError, LocalModel, ReferenceStatus, UploadRequest};
-use ic_blob_storage::references::ReferenceId;
+use ic_blob_storage::{
+    local::{Error as BlobError, LocalModel, ReferenceStatus, UploadRequest},
+    references::ReferenceId,
+};
 use ic_platform_types::Principal;
 
 pub(super) type Catalog = BTreeMap<&'static str, ReferenceId>;

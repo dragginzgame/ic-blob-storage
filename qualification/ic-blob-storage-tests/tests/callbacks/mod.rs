@@ -37,9 +37,11 @@ const PROVIDER_LIMITS: ProviderLimits = ProviderLimits {
 fn actor(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
 }
+
 fn caller(n: u8) -> CanisterId {
     CanisterId::from_slice(actor(n).as_slice())
 }
+
 fn frame<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
     wire::encode(
         value,
@@ -51,10 +53,12 @@ fn frame<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
     )
     .unwrap()
 }
+
 fn wasm() -> Vec<u8> {
     std::fs::read(std::env::var_os("BLOB_CALLBACK_PROBE").expect("set BLOB_CALLBACK_PROBE"))
         .unwrap()
 }
+
 fn input() -> Installation {
     Installation {
         application: actor(1),
@@ -73,6 +77,7 @@ fn input() -> Installation {
         },
     }
 }
+
 fn grant(n: u128, root: Root, uploader: u8) -> Command {
     Command::Authorize {
         request: UploadRequest {
@@ -87,6 +92,7 @@ fn grant(n: u128, root: Root, uploader: u8) -> Command {
         headers: vec![],
     }
 }
+
 async fn update(
     pic: &PocketIc,
     owner: CanisterId,
@@ -112,6 +118,7 @@ async fn update(
     )
     .unwrap()
 }
+
 async fn usage(pic: &PocketIc, owner: CanisterId) -> Observation {
     let bytes = pic
         .query_call(
@@ -133,6 +140,7 @@ async fn usage(pic: &PocketIc, owner: CanisterId) -> Observation {
     .unwrap()
     .unwrap()
 }
+
 fn roots(values: &[Root]) -> Vec<u8> {
     // These fixtures include the 65-root refusal; all counts fit one LEB byte.
     assert!(values.len() < 128);
@@ -144,6 +152,7 @@ fn roots(values: &[Root]) -> Vec<u8> {
     }
     bytes
 }
+
 async fn liveness(pic: &PocketIc, owner: CanisterId, values: &[Root]) -> Vec<bool> {
     let bytes = pic
         .query_call(owner, CanisterId::anonymous(), LIVE, roots(values))
@@ -151,6 +160,7 @@ async fn liveness(pic: &PocketIc, owner: CanisterId, values: &[Root]) -> Vec<boo
         .unwrap();
     provider::decode_liveness(&bytes, PROVIDER_LIMITS).unwrap()
 }
+
 async fn candidates(pic: &PocketIc, owner: CanisterId) -> Vec<Vec<u8>> {
     let bytes = pic
         .query_call(owner, caller(7), LIST, provider::encode_empty(32).unwrap())
@@ -164,6 +174,7 @@ async fn candidates(pic: &PocketIc, owner: CanisterId) -> Vec<Vec<u8>> {
     assert_eq!(bytes, roots(&expected), "exact vec blob wire profile");
     result
 }
+
 async fn ack(pic: &PocketIc, owner: CanisterId, values: &[Root]) {
     let bytes = pic
         .update_call(owner, caller(7), ACK, roots(values))
@@ -171,6 +182,7 @@ async fn ack(pic: &PocketIc, owner: CanisterId, values: &[Root]) {
         .unwrap();
     provider::decode_empty(&bytes, PROVIDER_LIMITS).unwrap();
 }
+
 async fn install(pic: &PocketIc) -> CanisterId {
     let owner = pic
         .create_canister_with_settings(Some(caller(9)), None)

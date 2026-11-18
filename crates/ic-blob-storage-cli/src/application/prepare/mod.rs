@@ -1,5 +1,8 @@
 //! Encode the two existing init contracts before publishing an offline input directory.
 
+#[cfg(test)]
+mod tests;
+
 use clap::Args;
 use ic_blob_storage::{
     caffeine::ManifestLimits,
@@ -148,6 +151,3 @@ pub(crate) fn run(input: Input) -> Result<String, String> {
     files::publish(&output, "inputs.txt".as_ref(), report.as_bytes())?;
     Ok(report)
 }
-
-#[cfg(test)]
-mod tests;

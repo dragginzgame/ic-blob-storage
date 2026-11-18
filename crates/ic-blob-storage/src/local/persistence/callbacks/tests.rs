@@ -12,6 +12,7 @@ use ic_storage::{
 fn actor(n: u8) -> Principal {
     Principal::from_slice(&[n, 1])
 }
+
 fn input() -> Installation {
     Installation {
         application: actor(1),

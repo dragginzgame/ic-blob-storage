@@ -89,6 +89,7 @@ test("invalid bindings never reach the durable claim", async () => {
   for (const change of [
     { gateway: "http://storage.example" }, { gateway: "https://user:secret@storage.example" },
     { gateway: "https://storage.example/path" }, { gateway: "https://storage.example?x=1" },
+    { gateway: "https://storage.example?" }, { gateway: "https://storage.example#" },
     { project: "project\r\nInjected: value" }, { timeoutMs: 0 },
     { certificate: { root: "different", bytes: Uint8Array.of(1) } },
     { certificate: { root: file.declaration.root, bytes: new Uint8Array(128 * 1024 + 1) } },

@@ -5,6 +5,9 @@
 //! This candidate profile does not establish provider key scope, authority expiry,
 //! physical deletion or billing closure. No endpoints are exported by this module.
 
+#[cfg(test)]
+mod tests;
+
 use super::{MAX_RECORDS, OpenError, Service, create_cell, load_cell};
 use crate::{
     local::{Error, Root, UploadId, valid_principal},
@@ -226,6 +229,3 @@ fn closing<M: Memory>(service: &Service<M>, root: Root) -> Option<UploadId> {
         .ok()?;
     (view.retention == Some(RetentionState::Closing)).then_some(view.original_upload.request.id)
 }
-
-#[cfg(test)]
-mod tests;

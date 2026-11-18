@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFile } from "node:fs/promises";
 import { authenticateCertificate } from "../src/certificate.js";
+import { initializeCustody } from "../src/custody.js";
 import { callWithMethodFixture } from "@tokostudios/ic-platform/testing";
 
 const fixture = JSON.parse(await readFile(new URL("./fixtures/certificate.json", import.meta.url)));
@@ -9,6 +10,13 @@ function input() {
   return { ...fixture, ...Object.fromEntries(["request", "certificate", "rootKey", "badCertificate"]
     .map(key => [key, new Uint8Array(Buffer.from(fixture[key], "base64"))])) };
 }
+
+test("custody refuses non-origin gateways before opening IndexedDB", async () => {
+  const config = { ...input(), project: "app", bucket: "assets" };
+  for (const gateway of ["https://storage.example?", "https://storage.example#"]) {
+    await assert.rejects(initializeCustody({ ...config, gateway }), TypeError);
+  }
+});
 
 test("authenticate historical installed proof against original trusted bindings", async () => {
   const source = input();

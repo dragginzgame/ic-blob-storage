@@ -17,6 +17,7 @@ const LIMITS: ic_wire::Limits = ic_wire::Limits {
     depth: 8,
 };
 
+/// Allocate the stable page used to observe committed writes.
 #[ic_platform_runtime::init(
     runtime = ic_platform_runtime,
     guard = unguarded,
@@ -28,6 +29,7 @@ fn init(_: ()) {
     assert_eq!(DefaultMemoryImpl::default().grow(1), 0);
 }
 
+/// Increment the probe byte and optionally trigger a reply-encoding failure.
 #[ic_platform_runtime::update(
     runtime = ic_platform_runtime,
     name = "probe_write",
@@ -44,6 +46,7 @@ fn probe_write(fail_reply: bool) -> Vec<u8> {
     vec![value; if fail_reply { LIMITS.bytes } else { 1 }]
 }
 
+/// Read the last committed probe byte.
 #[ic_platform_runtime::query(
     runtime = ic_platform_runtime,
     name = "probe_read",
@@ -81,6 +84,7 @@ fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, wire::Error>
     )
 }
 
+/// Allow all callers to exercise the disposable reply-failure probe.
 #[expect(
     clippy::unnecessary_wraps,
     reason = "Runtime guard signature; authorization belongs to the handler"
@@ -91,7 +95,7 @@ fn unguarded() -> Result<(), std::convert::Infallible> {
 
 #[expect(
     clippy::unnecessary_wraps,
-    reason = "Runtime lifecycle decoder signature; pre-upgrade has no arguments"
+    reason = "Runtime lifecycle decoder signature; probe installation has no arguments"
 )]
 fn empty(_: &[u8]) -> Result<(), std::convert::Infallible> {
     Ok(())

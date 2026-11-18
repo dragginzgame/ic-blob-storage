@@ -3,11 +3,13 @@
 use ic_platform_types::Principal;
 use serde::{Deserialize, Serialize};
 
-use crate::local::{
-    Limits, ObjectView, PrincipalOverview, ReferenceView, Root, UploadId, UploadRequest,
-    UploadView, Usage,
+use crate::{
+    local::{
+        Limits, ObjectView, PrincipalOverview, ReferenceView, Root, UploadId, UploadRequest,
+        UploadView, Usage,
+    },
+    references::ReferenceId,
 };
-use crate::references::ReferenceId;
 
 /// Admission shared by the host and its native caller, including the Wire envelope.
 pub const RPC_LIMITS: ic_wire::Limits = ic_wire::Limits {

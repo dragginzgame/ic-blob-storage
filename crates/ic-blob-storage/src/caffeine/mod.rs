@@ -6,6 +6,8 @@
 
 mod manifest;
 mod metadata;
+#[cfg(test)]
+mod tests;
 
 pub use manifest::{ManifestLimits, check_manifest};
 
@@ -253,6 +255,3 @@ fn node_hash(left: Hash, right: Option<Hash>) -> Hash {
     );
     hasher.finalize().into()
 }
-
-#[cfg(test)]
-mod tests;

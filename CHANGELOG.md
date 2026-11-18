@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.106.0] - Unreleased
+
+### ⚠️ Breaking changes
+
+- Blob now uses IC Wire 0.25. Rust hosts that pass Blob’s `RPC_LIMITS` to Wire
+  or handle its codec errors should select the same Wire minor version.
+
+### Fixes
+
+- Browser transfer and durable custody now check provider bindings with the same
+  rules. A gateway ending in an empty query or fragment is rejected before a claim.
+- The CLI escapes filenames in input errors and reports the filesystem reason
+  when it cannot resolve a path.
+
+### 🔧 Tooling
+
+- Adopt Toko Tooling 0.45.8. Cargo checks continue to use locked dependencies
+  and can now fetch missing packages. Set `CARGO_NET_OFFLINE=true` to request
+  an offline run.
+
 ## [0.105.0] - 2026-11-17
 
 ### ⚠️ Breaking changes

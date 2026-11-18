@@ -4,15 +4,16 @@ mod install;
 mod prepare;
 mod targets;
 
-use crate::network::Client;
+use crate::{
+    network::Client,
+    overview::{Network, hex, principal},
+};
 use clap::{Args, Subcommand};
 use ic_blob_storage::protocol::RPC_LIMITS;
 use ic_blob_storage_reference_app::protocol::{DraftView, Error, Phase};
 use ic_platform_types::Principal;
 use serde::{Serialize, de::DeserializeOwned};
 use std::{fmt::Write, num::NonZeroU128};
-
-use crate::overview::{Network, hex, principal};
 
 #[derive(Args)]
 #[command(mut_arg("identity", |arg| arg.required(true).help("Owning user's Ed25519 PKCS#8 PEM; required for application inspection.")))]

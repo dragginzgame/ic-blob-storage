@@ -164,6 +164,7 @@ async function qualify(scenario) {
   const sources = new Map([
     ["/", ["text/html", Buffer.from('<!doctype html><title>Blob browser transport qualification</title><script type="module" src="/scenario.js"></script>')]],
     ["/scenario.js", ["text/javascript", await readFile(new URL("./runtime-page.js", import.meta.url))]],
+    ["/binding.js", ["text/javascript", await readFile(new URL("../src/binding.js", import.meta.url))]],
     ["/client.js", ["text/javascript", await readFile(new URL("../src/index.js", import.meta.url))]],
     ["/custody.js", ["text/javascript", bundle.outputFiles[0].contents]],
     ["/proof.json", ["application/json", JSON.stringify(fixture)]],

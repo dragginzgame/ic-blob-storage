@@ -1,7 +1,5 @@
 //! Immutable maintenance-request custody and guarded dispatch; no renewal or resubmission.
 
-use ic_platform::native::RequestStatus;
-
 mod activate;
 mod start;
 pub(crate) mod status;
@@ -9,13 +7,16 @@ mod stop;
 mod upgrade;
 
 use super::{Context, read};
-use crate::files;
+use crate::{files, overview::hex};
 use ic_blob_storage::{
     local::Error,
     protocol::{Command, Installation, Outcome, RPC_LIMITS},
 };
 use ic_host_fs::{Directory, FilePolicy};
-use ic_platform::ingress::{Content, decode_envelope};
+use ic_platform::{
+    ingress::{Content, decode_envelope},
+    native::RequestStatus,
+};
 use ic_platform_types::Principal;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -288,7 +289,7 @@ pub(super) async fn prepare(
     Ok(format!(
         "Prepared {}: request_id={} attempt={attempt}; NOT submitted. Preserve the original claim; no renewal or retry is authorized.",
         operation.name(),
-        crate::overview::hex(signed.request_id())
+        hex(signed.request_id())
     ))
 }
 
@@ -424,7 +425,7 @@ fn acknowledge(id: &[u8; 32], attempt: u64, bytes: &[u8], active: bool) -> Resul
             Ok(format!(
                 "Original {operation} acknowledged: request_id={display_id} attempt={}; historical outcome only, not current admission or activation approval.",
                 attempt,
-                display_id = crate::overview::hex(id)
+                display_id = hex(id)
             ))
         }
         _ => Err(format!(
@@ -435,7 +436,7 @@ fn acknowledge(id: &[u8; 32], attempt: u64, bytes: &[u8], active: bool) -> Resul
 
 pub(super) async fn admit_tooling(checkout: &Path) -> Result<(), String> {
     let snapshot = read(&checkout.join(".toko-tooling.snapshot"), 64 * 1024)?;
-    if crate::overview::hex(&Sha256::digest(&snapshot))
+    if hex(&Sha256::digest(&snapshot))
         != include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/tooling.sha256")).trim()
     {
         return Err("checkout tooling snapshot differs from this binary".into());
@@ -479,11 +480,7 @@ pub(super) async fn dispatch(
 ) -> Result<String, String> {
     let original = load(context, directory, operation)?;
     unexpired(original.expires_at)?;
-    let network: String = context
-        .root_hash
-        .iter()
-        .map(|byte| format!("{byte:02x}"))
-        .collect();
+    let network = hex(&context.root_hash);
     let target_directory = custody.join(network).join(context.canister.to_text());
     let held =
         files::directory(&target_directory, true).map_err(|_| "cannot admit target custody")?;

@@ -1,6 +1,8 @@
 //! Fresh-install request bindings and offline readback; execution retains these exact bytes.
 
 pub(super) mod execution;
+#[cfg(test)]
+mod tests;
 
 use crate::{
     files, network,
@@ -297,6 +299,3 @@ fn load(
     }
     Ok((held, signed))
 }
-
-#[cfg(test)]
-mod tests;

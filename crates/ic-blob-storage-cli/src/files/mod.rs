@@ -1,5 +1,8 @@
 //! Blob's native custody policy over held Host directories; no cleanup or retry.
 
+#[cfg(test)]
+mod tests;
+
 use ic_host_artifacts::Length;
 use ic_host_fs::{Access, Commit, Destination, Directory, FilePolicy, Policy, Retention};
 use std::{
@@ -127,6 +130,3 @@ pub(crate) fn publish(parent: &Directory, name: &OsStr, bytes: &[u8]) -> Result<
         )),
     }
 }
-
-#[cfg(test)]
-mod tests;

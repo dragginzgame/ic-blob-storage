@@ -14,6 +14,8 @@
 //! Dropping a bare model loses history; it MUST NOT back real upload authority.
 
 pub mod persistence;
+#[cfg(test)]
+mod tests;
 mod types;
 pub use types::{
     Error, Limits, ObjectView, PrincipalObject, PrincipalOverview, ReferenceStatus, ReferenceView,
@@ -24,9 +26,9 @@ use std::collections::BTreeMap;
 
 use ic_platform_types::Principal;
 
-use crate::caffeine::{Header, check_manifest};
-use crate::references::{
-    ObjectReferences, ReferenceError, ReferenceId, ReferenceState, RetentionState,
+use crate::{
+    caffeine::{Header, check_manifest},
+    references::{ObjectReferences, ReferenceError, ReferenceId, ReferenceState, RetentionState},
 };
 
 struct Upload {
@@ -482,6 +484,3 @@ fn valid_principal(principal: Principal) -> Result<(), Error> {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests;

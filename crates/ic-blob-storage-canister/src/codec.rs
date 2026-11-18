@@ -11,6 +11,7 @@ pub(super) const UPDATE: u64 = wire::method_id("blob_update");
 pub(super) const QUERY: u64 = wire::method_id("blob_query");
 pub(super) const MANAGEMENT: u64 = wire::method_id("blob_management");
 
+/// Check the byte limit and method header before decoding. The service authorizes the caller.
 #[expect(
     clippy::unnecessary_wraps,
     reason = "Platform guard signature; malformed transport still traps"
@@ -59,6 +60,7 @@ fn trap(error: ic_wire::Error) -> ! {
     api::trap(&error.to_string())
 }
 
+/// Accept system lifecycle invocations.
 #[expect(
     clippy::unnecessary_wraps,
     reason = "Runtime guard signature; authorization belongs to the handler"
