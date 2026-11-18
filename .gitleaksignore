@@ -7,3 +7,8 @@ c78dbcd3e6d3f20de51e0e4167a270d2e54b47fa:qualification/ic-blob-storage-tests/tes
 # Public deterministic Ed25519 seed [7; 32], local manager fixture at historical paths.
 2051ec2409c5c0f5ac1e2cc7d98efa97eded80c7:qualification/crates/ic-blob-storage-tests/tests/management.rs:private-key:24
 102edcd5d00c5e34dc76bdf66acc2d228962bb6e:qualification/crates/ic-blob-storage-tests/tests/management/mod.rs:private-key:26
+# Historical install and certificate tests using the reviewed [2; 32] Ed25519 seed.
+5332089efb54e3f719991b07e70fbcbe4c623de1:crates/ic-blob-storage-cli/src/application/install/tests.rs:private-key:9
+1032653bc14019ff3e5c31520b509f4dcb7bae5b:crates/ic-blob-storage-cli/src/certificate/tests.rs:private-key:4
+# Historical PocketIC install test using the reviewed [7; 32] Ed25519 seed.
+5332089efb54e3f719991b07e70fbcbe4c623de1:qualification/ic-blob-storage-tests/tests/install/mod.rs:private-key:11

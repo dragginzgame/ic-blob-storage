@@ -1,6 +1,6 @@
 # IC Blob Storage
 
-Development uses **ic-storage 0.78.0**. Hosts install ordinary Cargo Wasm and
+Blob uses the **ic-storage 0.78** named allocation API. Hosts install ordinary Cargo Wasm and
 grant Blob a named stable-memory allocation. This layout supports fresh installs
 and upgrades from the same stable layout. [Storage contract](docs/design/stable-storage.md)
 and [current checks](docs/status/current.md).

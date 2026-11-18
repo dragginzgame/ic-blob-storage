@@ -2,31 +2,25 @@
 
 ## Delivery and active work
 
-**0.105.0 is published** on crates.io for the library, standalone canister, reference
-application and CLI. The annotated [GitHub tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.105.0)
-points to `7bc9db55dfbeb1f91a874435b8a800af8edf00f1`. Qualification stays private.
-Both workspaces use registry Storage 0.78.0. The installed CLI reports `blob 0.105.0`.
-See the [stable storage contract](../design/stable-storage.md) and [release procedure](../operations/releases.md).
+**0.106.0 is published** for the library, standalone canister, reference application
+and CLI. The annotated [GitHub tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.106.0)
+points to `fcd4ba8e1c1ca551811f3eb059f009aef9aae6e4`. The CLI on PATH reports
+`blob 0.106.0`. Rust hosts passing Blob’s `RPC_LIMITS` to Wire or handling Wire
+errors should select IC Wire 0.25. Both workspace locks resolve Storage 0.78.3
+and Toko Tooling 0.45.8. Qualification stays private.
 
-All 17 release stages passed on the committed development batch, including 21 installed
-tests across eight suites. See `target/validation/blob.UXPiiL/proof.json` and
-`target/01050-release/release.log`. Separate populated upgrade tests preserved state
-after refusal from both older Blob tags and the interim Storage 0.77 layout.
-Full-history same-layout upgrades used 256 KiB of stable memory. See `target/storage-078/`.
+All 17 release stages passed, including the eight installed suites. Populated
+0.105.0 standalone and catalog instances reopened with the release candidate.
+Chromium exercised publication and cancellation against the installed catalog.
+See `target/validation/blob.YnQamk/proof.json` and `target/01060-release/`.
 
-Published archive bytes matched all four prepared packages and registry checksums.
-Independent source verification is under `target/publication/provenance-01050/`, upload
-custody under `target/publication/publish.selection.kZTBdA/` and the checksum record in
-`target/01050-release/registry-verified.json`. The release commit’s [hosted CI run](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44199800600)
-was in progress at publication. Optional metadata-editor refresh remains deferred.
-
-The next development batch selects IC Wire 0.25.0 and the authenticated Toko
-Tooling 0.45.8 snapshot in both workspaces. Rust consumers of `RPC_LIMITS` or
-Blob’s codec error need matching Wire types, so the pending changelog targets
-0.106.0. Populated standalone and catalog instances built from tag `v0.105.0`
-reopened successfully with the new codec in PocketIC. Focused check logs are in
-`target/wire025-toko0457/`. The [0.45.8 code hygiene review](../reports/audits/2026/11/18/code-hygiene/01/report.md)
-records the browser, CLI and qualification changes and their local verification.
+All four crates.io archives matched the prepared bytes and registry checksums.
+The checksum record is `target/01060-release/registry-verified.json`, the source
+check is in `target/publication/provenance-01060/`, and upload evidence is in
+`target/publication/publish.selection.Cy5TI8/`. The release commit’s
+[hosted workflow scan](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44390781435)
+flagged three historical deterministic Ed25519 test fixtures. The delivery
+follow-up records their exact fingerprints. The full-history scan passed locally.
 
 ## Next action and provider boundary
 
@@ -102,14 +96,13 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Review and limitations
 
-Post-push review of `v0.104.0..v0.105.0` confirmed the library owns the service rules,
-the host grants named allocations and the CLI signs ordinary upgrades. The OP transform,
-linker layout and grant wrapper have been removed. Searches of executable paths found
-no remaining Keep-only upgrade or alternate OP persistence implementation. The product
-Rust diff removed 268 net lines excluding test files. Archive inspection found no
-qualification Wasm or private custody.
+Post-push review of `v0.105.0..v0.106.0` confirmed that browser transfer and
+custody both call the same provider-binding check and that the enrollment
+probe’s Wasm storage split uses the original record format. No competing
+provider policy or persistence implementation surfaced. The
+[code hygiene review](../reports/audits/2026/11/18/code-hygiene/01/report.md)
+records the scope and fixes.
 
 Finite lifetime slots still bound sustained use. Provider acceptance/settlement,
 Canic composition and unrestricted-controller snapshot continuity remain unqualified.
-The last Chromium witness remains `6a369f8` with the 0.103.2 cohort; local Node
-and installed tests do not establish browser profile rollback or multi-device custody.
+Chromium qualification covers a single browser profile. Profile rollback and multi-device custody remain open.
