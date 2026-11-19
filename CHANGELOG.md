@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.106.2] - Unreleased
+## [0.106.2] - 2026-11-19
 
 ### 🔧 Tooling
 
