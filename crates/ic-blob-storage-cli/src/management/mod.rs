@@ -345,8 +345,8 @@ fn load(context: &Context, directory: &Path, operation: Operation<'_>) -> Result
     else {
         return Err("management claim is not a call".into());
     };
-    if sender.as_slice() != context.configuration.manager.as_slice()
-        || canister_id.as_slice() != operation.recipient(context).as_slice()
+    if *sender != context.configuration.manager
+        || *canister_id != operation.recipient(context)
         || method_name != operation.method()
         || *arg != operation.argument(context, intent.attempt)?
         || sender_info.is_some()

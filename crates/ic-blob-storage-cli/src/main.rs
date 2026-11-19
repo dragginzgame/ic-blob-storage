@@ -344,7 +344,7 @@ impl Context {
             wasm,
             state_version,
         } = target;
-        if canister == Principal::anonymous() || canister == Principal::management_canister() {
+        if overview::is_special_principal(canister) {
             return Err("expected an installed Blob canister".into());
         }
         let configuration: Installation = ic_wire::decode(
@@ -418,7 +418,7 @@ impl Context {
         )
         .map_err(|_| "invalid management reply")?;
         let view = result.map_err(|_| "host refused management inspection")?;
-        if view.installation.as_slice() != self.canister.as_slice()
+        if view.installation != self.canister
             || view.configuration != self.configuration
             || view.state_version != self.state_version
         {

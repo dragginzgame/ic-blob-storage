@@ -46,7 +46,7 @@ fn decode(reply: &[u8], expected: Principal) -> Result<Account, String> {
             ));
         }
     };
-    if account.account_owner_id.as_slice() != expected.as_slice() {
+    if account.account_owner_id != expected {
         return Err("Cashier returned a different account principal".into());
     }
     Ok(account)

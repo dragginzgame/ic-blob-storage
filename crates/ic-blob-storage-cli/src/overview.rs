@@ -60,9 +60,13 @@ impl Network {
     }
 }
 
+pub(crate) fn is_special_principal(value: Principal) -> bool {
+    value == Principal::anonymous() || value == Principal::management_canister()
+}
+
 pub(crate) fn principal(value: &str) -> Result<Principal, String> {
     let value = Principal::from_text(value).map_err(|_| "invalid principal")?;
-    if value == Principal::anonymous() || value == Principal::management_canister() {
+    if is_special_principal(value) {
         return Err("expected a non-special principal".into());
     }
     Ok(value)
@@ -115,7 +119,7 @@ pub(crate) async fn run(input: Input) -> Result<String, String> {
     else {
         return Err("unexpected Blob observation".into());
     };
-    if view.uploader.as_slice() != input.principal.as_slice() {
+    if view.uploader != input.principal {
         return Err("overview principal mismatch".into());
     }
     let mut output = format!(

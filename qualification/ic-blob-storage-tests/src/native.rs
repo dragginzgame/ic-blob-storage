@@ -1,4 +1,5 @@
 //! Explicit synthetic signers, trust and bounded observation for local IC tests.
+
 use ic_platform::{
     certificate::{PreparedRootKey, TimePolicy, TimeWindow, VerificationLimits},
     native::{

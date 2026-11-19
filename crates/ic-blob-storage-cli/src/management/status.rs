@@ -1,10 +1,12 @@
 //! Bounded authenticated management status using Platform's selected schema.
+
 use crate::network::Client;
 use ic_platform_protocol::{
     candid::Limits,
     management_snapshots::{CanisterArgs, CanisterStatus, decode_canister_status},
 };
 use ic_platform_types::Principal;
+
 pub(crate) const LIMITS: Limits = Limits {
     bytes: 64 * 1024,
     header: 8 * 1024,
@@ -14,6 +16,7 @@ pub(crate) const LIMITS: Limits = Limits {
     vector: 64 * 1024,
     skipping: 512 * 1024,
 };
+
 pub(super) fn argument(canister: Principal) -> Result<Vec<u8>, String> {
     CanisterArgs {
         canister_id: canister,

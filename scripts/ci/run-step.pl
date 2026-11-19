@@ -10,11 +10,11 @@ my ($phase, @command) = @ARGV;
 defined($phase) && $phase =~ /\A[a-z][a-z0-9-]*\z/ && @command
     or die "usage: run-step.pl PHASE COMMAND [ARG...]\n";
 my @secrets = grep { length($_) >= 4 } map { $ENV{$_} }
-    grep { /token|secret|password|credential|private.?key/i } keys %ENV;
+    grep { /token|secret|password|credential|private.?key|(?:access|api)[_-]?key/i } keys %ENV;
 my ($tail, $pending, $pem, $omitted, $printed) = ('', '', 0, 0, 0);
 sub diagnostic {
     my ($line) = @_;
-    $line =~ s/\e\[[0-9;]*[A-Za-z]//g;
+    $line =~ s/\e\[[0-?]*[ -\/]*[\@-~]//g;
     $line =~ s/[^\x09\x20-\x7e]/?/g;
     if ($line =~ /-----BEGIN .*PRIVATE KEY-----/) { $pem = 1 }
     if ($pem) {
@@ -22,7 +22,8 @@ sub diagnostic {
         return '[private key material omitted]';
     }
     return '[sensitive field or environment assignment omitted]'
-        if $line =~ /(?:authorization|cookie|token|secret|password|credential|private.?key|signature|envelope|payload)\s*["']?\s*[:=]/i
+        if $line =~ /(?:authorization|cookie|token|secret|password|credential|private.?key|(?:access|api)[ _-]?key|signature|envelope|payload)\s*["']?\s*[:=]/i
+        || $line =~ /\bBearer\s+\S+/i
         || $line =~ /^\s*(?:export\s+)?[A-Z_][A-Z0-9_]*=/;
     for my $secret (@secrets) { $line =~ s/\Q$secret\E/[redacted]/g }
     $line =~ s{https?://\S+}{[URL omitted]}g;
@@ -55,6 +56,10 @@ while (read($child, my $chunk, 4096)) {
     $pending .= $chunk;
     while ($pending =~ s/\A([^\n]*)\n//) {
         my $line = $1;
+        if ($discard || length($line) > 4096) {
+            # An omitted opening delimiter still governs subsequent lines.
+            $pem = 1 if $line =~ /-----BEGIN /;
+        }
         if (!$discard) {
             if (length($line) <= 4096) { retain($line) }
             else { retain('[line exceeding 4096 bytes omitted]'); $omitted = 1 }
@@ -63,7 +68,9 @@ while (read($child, my $chunk, 4096)) {
     }
     if (length($pending) > 4096) {
         retain('[line exceeding 4096 bytes omitted]') unless $discard;
-        $pending = ''; $discard = 1; $omitted = 1;
+        $pem = 1 if $pending =~ /-----BEGIN /;
+        # Keep enough suffix to recognize a delimiter split across reads.
+        $pending = substr($pending, -16); $discard = 1; $omitted = 1;
     }
 }
 retain($pending) if length($pending) && !$discard;

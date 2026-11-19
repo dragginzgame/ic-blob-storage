@@ -64,8 +64,6 @@ pub(super) fn done(_: ()) -> Result<Vec<u8>, c::EncodeError> {
     c::encode_empty(BYTES)
 }
 
-use c::CertificateReply;
-
 #[expect(
     clippy::unnecessary_wraps,
     reason = "Runtime decoder signature; malformed provider input traps"
@@ -90,7 +88,7 @@ pub(super) fn certificate_reply(root: Root) -> Result<Vec<u8>, c::EncodeError> {
     // This plain record is not the IC certificate. Request-status proof is owned
     // by the replica/Agent, and provider acceptance of that proof remains unqualified.
     c::encode_certificate(
-        &CertificateReply {
+        &c::CertificateReply {
             method: "upload".into(),
             blob_hash: format!("sha256:{hex}"),
         },

@@ -21,8 +21,7 @@ pub(super) async fn status(
         || !result
             .settings
             .controllers
-            .iter()
-            .any(|controller| controller.as_slice() == context.configuration.manager.as_slice())
+            .contains(&context.configuration.manager)
     {
         return Err("platform artifact or manager/controller mismatch".into());
     }

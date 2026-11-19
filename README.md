@@ -112,7 +112,7 @@ Installed tests select Testkit 0.110.0 and Host Process 0.81.0.
 See the [integration boundary](docs/design/application-boundary.md#types-0212-integration).
 
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.45.8. Both workspaces select IC Wire 0.25.0's root-level
+and published Toko Tooling 0.45.15. Both workspaces select IC Wire 0.25.0's root-level
 `Encoding` API; no old `native` API adapter is retained. GitHub development uses the `main` branch of
 `dragginzgame/ic-blob-storage`. Releases use the shared Toko workflow; there is no production deployment configuration.
 

@@ -1,11 +1,13 @@
 use super::*;
 use clap::Parser;
 use ic_platform::native::{Ed25519Identity, UpdateArgs};
+use sha2::Digest;
+
 const PEM: &str = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC\n-----END PRIVATE KEY-----\n";
+
 fn identity() -> Ed25519Identity {
     Ed25519Identity::from_pem(PEM, 4096).unwrap()
 }
-use sha2::Digest;
 
 #[test]
 fn offline_preparation_keeps_one_root_claim() {
@@ -23,7 +25,7 @@ fn offline_preparation_keeps_one_root_claim() {
     let directory = directory.canonicalize().unwrap();
     let key = directory.join("uploader.pem");
     // Public deterministic test seed; no wallet key.
-    std::fs::write(&key, "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC\n-----END PRIVATE KEY-----\n").unwrap();
+    std::fs::write(&key, PEM).unwrap();
     let identity = identity();
     let uploader = identity.principal().to_text();
     let args = [
@@ -106,7 +108,10 @@ fn original_request_binding_and_expired_history() {
         trailing,
         signed.envelope_bytes()[..signed.envelope_bytes().len() - 1].to_vec(),
     ] {
-        assert!(original(&packet, sender, target, &root).is_err());
+        assert_eq!(
+            original(&packet, sender, target, &root).unwrap_err(),
+            "invalid retained ingress content"
+        );
     }
     assert_eq!(
         original(signed.envelope_bytes(), sender, target, &root).unwrap(),
@@ -117,7 +122,10 @@ fn original_request_binding_and_expired_history() {
         (sender, other, root.clone()),
         (sender, target, format!("sha256:{}", "cd".repeat(32))),
     ] {
-        assert!(original(signed.envelope_bytes(), uploader, issuer, &expected).is_err());
+        assert_eq!(
+            original(signed.envelope_bytes(), uploader, issuer, &expected).unwrap_err(),
+            "retained request does not match uploader, issuer, method and root"
+        );
     }
     let wrong_method = identity
         .prepare_update(
@@ -132,12 +140,15 @@ fn original_request_binding_and_expired_history() {
             PACKET_LIMIT,
         )
         .unwrap();
-    for packet in [
-        wrong_method.envelope_bytes().to_vec(),
-        vec![],
-        vec![0; PACKET_LIMIT + 1],
-    ] {
-        assert!(original(&packet, sender, target, &root).is_err());
+    assert_eq!(
+        original(wrong_method.envelope_bytes(), sender, target, &root).unwrap_err(),
+        "retained request does not match uploader, issuer, method and root"
+    );
+    for packet in [vec![], vec![0; PACKET_LIMIT + 1]] {
+        assert_eq!(
+            original(&packet, sender, target, &root).unwrap_err(),
+            "invalid retained ingress content"
+        );
     }
 }
 
@@ -145,12 +156,15 @@ fn original_request_binding_and_expired_history() {
 fn exact_upload_reply_and_root_admission() {
     let expected = format!("sha256:{}", "ab".repeat(32));
     assert_eq!(root(&expected).unwrap(), expected);
-    for value in [
-        expected.to_uppercase(),
-        "sha256:00".into(),
-        format!("sha256:{}", "gg".repeat(32)),
-    ] {
-        assert!(root(&value).is_err());
+    assert_eq!(
+        root(&expected.to_uppercase()).unwrap_err(),
+        "expected canonical sha256 root"
+    );
+    for value in ["sha256:00".into(), format!("sha256:{}", "gg".repeat(32))] {
+        assert_eq!(
+            root(&value).unwrap_err(),
+            "expected 64 lowercase hexadecimal root digits"
+        );
     }
     let reply = |method: &str, hash: &str| {
         c::encode_certificate(
@@ -166,12 +180,16 @@ fn exact_upload_reply_and_root_admission() {
     admit_reply(&good, &expected).unwrap();
     let mut trailing = good;
     trailing.push(0);
-    for bytes in [
-        reply("delete", &expected),
-        reply("upload", "wrong-root"),
-        trailing,
-        vec![0; 1025],
-    ] {
-        assert!(admit_reply(&bytes, &expected).is_err());
+    for bytes in [reply("delete", &expected), reply("upload", "wrong-root")] {
+        assert_eq!(
+            admit_reply(&bytes, &expected).unwrap_err(),
+            "certified reply does not match upload and original root"
+        );
+    }
+    for bytes in [trailing, vec![0; 1025]] {
+        assert_eq!(
+            admit_reply(&bytes, &expected).unwrap_err(),
+            "invalid certified upload reply"
+        );
     }
 }

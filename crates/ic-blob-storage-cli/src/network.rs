@@ -1,4 +1,5 @@
 //! Blob's explicit trust, deadlines and observation policy over Platform transport.
+
 use ic_platform::{
     certificate::{PreparedRootKey, TimePolicy, TimeWindow, VerificationLimits},
     native::{

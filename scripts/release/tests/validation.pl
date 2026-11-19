@@ -100,6 +100,17 @@ chmod 0755, glob('target/bin/*');
 local $ENV{PATH} = "$work/target/bin:$ENV{PATH}";
 local $ENV{RELEASE_PREVIOUS} = '0.103.3';
 local $ENV{FIXTURE_LOG} = "$work/target/commands.log";
+{
+    local $ENV{BLOB_VALIDATION_PLAN} = 'target/incomplete-plan.json';
+    write_file($ENV{BLOB_VALIDATION_PLAN}, $json->encode({
+        stages => [{target => 'installed-standalone', required => JSON::PP::true}],
+    }) . "\n{");
+    my $status = system('bash', '-c', 'bash scripts/release/prepare-installed.sh > target/incomplete-plan.log 2>&1');
+    isnt($status, 0, 'truncated plan refuses installed preparation');
+    open my $diagnostic, '<', 'target/incomplete-plan.log' or die $!;
+    like(do { local $/; <$diagnostic> }, qr/parse error/i, 'preparation reports the JSON parse failure');
+    ok(!-e $ENV{FIXTURE_LOG}, 'plan refusal precedes lint and artifact builds');
+}
 # GNU Make's inherited generated environment is maintained by actual Make children.
 sub select_case {
     my ($path) = @_;

@@ -8,6 +8,7 @@ use FindBin;
 my $root = tempdir(CLEANUP => 1);
 local $ENV{RUNNER_TEMP} = $root;
 local $ENV{FIXTURE_TOKEN} = 'fixture-sensitive-value';
+local $ENV{FIXTURE_ACCESS_KEY} = 'synthetic-access-value';
 sub read_file {
     open my $file, '<', $_[0] or die "read fixture: $!";
     local $/;
@@ -31,7 +32,12 @@ open my $attempt, '>', "$root/.attempt/install.log" or die $!;
 print {$attempt} "compiler failed: missing fixture dependency\n",
     "Authorization: Bearer fixture-sensitive-value\n",
     "-----BEGIN PRIVATE KEY-----\nfixture-key-material\n-----END PRIVATE KEY-----\n",
-    "PATH=/fixture/environment\nhttps://example.invalid/?secret=fixture-sensitive-value\n";
+    "PATH=/fixture/environment\nhttps://example.invalid/?secret=fixture-sensitive-value\n",
+    "request failed with Bearer synthetic-bearer-value\n",
+    "embedded=prefix-synthetic-access-value-suffix\n",
+    qq({"api_key": "synthetic-labelled-value"}\n),
+    ('x' x 9000), "-----BEGIN PRIVATE KEY-----\nsynthetic-long-line-key\n-----END PRIVATE KEY-----\n",
+    "final harmless diagnostic\n";
 close $attempt;
 # As the Toko Rust installer does, print the explicitly owned attempt log on
 # compilation failure. No tree scan or symlink traversal is needed to retain it.
@@ -43,6 +49,9 @@ like($saved, qr/phase=early-setup .*original_status=37/, 'phase and original sta
 for my $bytes ($saved, read_file("$root/early-setup.console")) {
     unlike($bytes, qr/fixture-sensitive-value|fixture-key-material|\/fixture\/environment/,
         'artifact and console exclude credentials, keys and environment');
+    unlike($bytes, qr/synthetic-(?:bearer-value|access-value|labelled-value|long-line-key)/,
+        'both outputs redact bearer, access-key and continued private-key material');
+    like($bytes, qr/final harmless diagnostic/, 'ordinary diagnostics resume after a private key');
 }
 is(run('empty', 'exit 19'), 19, 'missing diagnostic still fails');
 like(read_file("$root/blob-ci-evidence/empty.txt"), qr/No command diagnostics/, 'missing diagnostics explicit');

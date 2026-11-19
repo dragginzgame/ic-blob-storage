@@ -17,6 +17,7 @@ pub mod persistence;
 #[cfg(test)]
 mod tests;
 mod types;
+
 pub use types::{
     Error, Limits, ObjectView, PrincipalObject, PrincipalOverview, ReferenceStatus, ReferenceView,
     Root, UploadId, UploadRequest, UploadState, UploadView, Usage,

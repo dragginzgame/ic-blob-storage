@@ -1,4 +1,4 @@
-# Current status — 2026-11-18
+# Current status — 2026-11-19
 
 ## Delivery and active work
 
@@ -21,6 +21,14 @@ check is in `target/publication/provenance-01060/`, and upload evidence is in
 [hosted workflow scan](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44390781435)
 flagged three historical deterministic Ed25519 test fixtures. The delivery
 follow-up records their exact fingerprints. The full-history scan passed locally.
+
+Development selects Toko Tooling 0.45.15 in both workspaces. The
+[first hygiene review](../reports/audits/2026/11/19/code-hygiene/01/report.md)
+covers CI redaction and CLI refusal tests. The
+[follow-up review](../reports/audits/2026/11/19/code-hygiene/02/report.md)
+covers principal comparisons and release-plan validation for the pending 0.106.1 batch.
+The release metadata editor remains at IC Build 0.73.0 for this patch. Evaluate
+0.87.5 in the next release-tooling maintenance pass with the two-lock metadata fixture.
 
 ## Next action and provider boundary
 

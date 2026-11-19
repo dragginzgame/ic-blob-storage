@@ -20,7 +20,7 @@ use std::{
 
 use crate::{
     files,
-    overview::{hex, principal},
+    overview::{hex, is_special_principal, principal},
 };
 
 #[derive(Args)]
@@ -92,11 +92,11 @@ pub(super) fn validate_roles(
     if authorities
         .iter()
         .enumerate()
-        .any(|(i, p)| principal(&p.to_text()).is_err() || authorities[..i].contains(p))
+        .any(|(i, p)| is_special_principal(*p) || authorities[..i].contains(p))
         || users.is_empty()
         || users.len() > 8
         || users.iter().enumerate().any(|(i, p)| {
-            principal(&p.to_text()).is_err() || authorities.contains(p) || users[..i].contains(p)
+            is_special_principal(*p) || authorities.contains(p) || users[..i].contains(p)
         })
     {
         return Err("canisters, manager and one to eight users must be distinct".into());

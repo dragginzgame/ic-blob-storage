@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.106.1] - Unreleased
+
+### 🔧 Tooling
+
+- Adopt Toko Tooling 0.45.15. CI redacts Bearer credentials and access-key values
+  from console output and retained diagnostics, including key material following
+  an oversized opening line.
+- Installed release preparation rejects incomplete validation plans before
+  invoking Cargo or building artifacts.
+- Refresh both lockfiles to IC Storage 0.78.4, Platform 0.34.17 and Wire 0.25.1.
+  Qualification now uses Testkit 0.110.2.
+
 ## [0.106.0] - 2026-11-18
 
 ### ⚠️ Breaking changes

@@ -1,4 +1,5 @@
 //! Explicit PocketIC asset admission for Blob's installed qualification.
+
 use ic_testkit::server::{PreparedServer, host_asset, prepare};
 use std::path::PathBuf;
 

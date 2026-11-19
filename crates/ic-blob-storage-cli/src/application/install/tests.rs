@@ -188,19 +188,28 @@ fn partial_claims_are_not_repaired_and_symlink_inputs_are_refused() {
 #[test]
 fn invalid_pair_and_over_budget_inputs_leave_no_claim() {
     let input = fixture("app");
-    fs::write(
-        input.inputs.join("app-init.wire"),
-        frame(
-            "app_init",
-            &AppInstallation {
-                blob: input.blob_canister,
-                users: vec![input.canister],
-            },
-        ),
-    )
-    .unwrap();
-    assert!(prepare(&input).is_err());
-    assert!(!input.custody.exists());
+    for user in [
+        input.canister,
+        Principal::anonymous(),
+        Principal::management_canister(),
+    ] {
+        fs::write(
+            input.inputs.join("app-init.wire"),
+            frame(
+                "app_init",
+                &AppInstallation {
+                    blob: input.blob_canister,
+                    users: vec![user],
+                },
+            ),
+        )
+        .unwrap();
+        assert_eq!(
+            prepare(&input).unwrap_err(),
+            "canisters, manager and one to eight users must be distinct"
+        );
+        assert!(!input.custody.exists());
+    }
     let input = fixture("blob");
     fs::write(&input.wasm, vec![0; 1024 * 1024 + 1]).unwrap();
     assert!(prepare(&input).is_err());
@@ -228,7 +237,10 @@ fn signature_is_checked_even_if_the_saved_packet_hash_matches() {
     let mut tampered = packet;
     tampered[offsets[0]] ^= 1;
     replace_packet(&input, &tampered);
-    assert!(inspect(&input).is_err());
+    assert_eq!(
+        inspect(&input).unwrap_err(),
+        "invalid original installation signature or envelope"
+    );
     assert_eq!(
         fs::read(selected.directory.join("request.cbor")).unwrap(),
         tampered
@@ -278,7 +290,14 @@ fn valid_signatures_cannot_substitute_another_operation_and_expiry_never_renews(
     ] {
         let packet = identity.prepare_update(altered, PACKET_BYTES).unwrap();
         replace_packet(&input, packet.envelope_bytes());
-        assert!(inspect(&input).is_err());
+        assert_eq!(
+            inspect(&input).unwrap_err(),
+            "signed request differs from the exact fresh installation"
+        );
+        assert_eq!(
+            fs::read(selected.directory.join("request.cbor")).unwrap(),
+            packet.envelope_bytes()
+        );
     }
     let expired = identity.prepare_update(exact, PACKET_BYTES).unwrap();
     replace_packet(&input, expired.envelope_bytes());

@@ -106,8 +106,8 @@ fn original(
     };
     let expected =
         c::encode_root(&root.to_owned(), 1024).map_err(|_| "cannot encode expected root")?;
-    if sender.as_slice() != uploader.as_slice()
-        || canister_id.as_slice() != canister.as_slice()
+    if *sender != uploader
+        || *canister_id != canister
         || method_name != METHOD
         || *arg != expected
         || sender_info.is_some()

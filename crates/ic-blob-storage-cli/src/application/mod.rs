@@ -101,7 +101,7 @@ pub(crate) async fn run(command: Command) -> Result<String, String> {
     };
     let agent = target.network.client()?;
     let caller = agent.principal();
-    if caller.as_slice() == Principal::anonymous().as_slice() {
+    if caller == Principal::anonymous() {
         return Err(
             "reference-application inspection requires the owning user's --identity".into(),
         );
@@ -116,10 +116,9 @@ pub(crate) async fn run(command: Command) -> Result<String, String> {
         query(&agent, target.canister, "app_catalog", &()).await?
     };
     if views.len() > 16
-        || views.iter().any(|view| {
-            view.uploader.as_slice() != caller.as_slice()
-                || (id.is_none() && view.phase != Phase::Published)
-        })
+        || views
+            .iter()
+            .any(|view| view.uploader != caller || (id.is_none() && view.phase != Phase::Published))
     {
         return Err("application reply differs from the requested owner or catalog".into());
     }
