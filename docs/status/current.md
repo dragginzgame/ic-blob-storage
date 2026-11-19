@@ -2,28 +2,27 @@
 
 ## Delivery and active work
 
-**0.106.3 is published** for the library, standalone canister, reference application
-and CLI. The annotated [GitHub tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.106.3)
-points to `fe3dccc4cabf217e466825dd9cf2ad7dea03d0ce`. The CLI on PATH reports
-`blob 0.106.3`. The release locks select Storage 0.78.6, Wire 0.25.2 and
-Toko Tooling 0.45.18. Qualification stays private.
+**0.107.0 is published** for the library, standalone canister, reference
+application and CLI. The [annotated GitHub tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.107.0)
+points to `6554f349112cf52680862c0b0a42185025a10728`. The CLI on PATH reports
+`blob 0.107.0`. The release locks select Storage 0.78.7, Wire 0.26.0 and
+Toko Tooling 0.45.21. Qualification stays private.
 
-All 17 local release stages passed, including eight installed suites. This run
-covered the Node browser client. The optional Chromium and historical-layout
-cases were outside the run. See `target/validation/blob.sFK8au/proof.json` and
-the [release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44528719732).
+All 17 local release stages passed, including the populated standalone upgrade
+from 0.106.3 and eight installed suites. The Node browser client ran, while the
+opt-in Chromium and historical incompatible-layout fixtures were outside the run.
+See `target/validation/blob.TuzDBO/proof.json` and the
+[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44576155053).
 
-All four archives downloaded from crates.io matched the prepared bytes and
-registry checksums. See `target/01063-release/registry-verified.json`,
-`target/publication/provenance-01063/` and `target/publication/publish.selection.vPFA1J/`.
+All four downloads matched the prepared archives and the crates.io index checksums.
+See `target/01070-release/registry-verified.json`,
+`target/publication/provenance-01070-remote/` and `target/publication/publish.selection.RhqEtk/`.
 The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.5 in the
 next release-tooling maintenance pass with the two-lock metadata fixture.
 
 ## Next action and provider boundary
 
-The pending 0.107.0 changes adopt IC Wire 0.26.0 and Toko Tooling 0.45.21 in
-both workspaces. Registry Runtime and Macros 0.23.22 now support native checks
-of the five canister implementations. Rust consumers of Blob's public Wire types
+Rust hosts passing Blob’s `RPC_LIMITS` to Wire or handling its codec errors
 should select Wire 0.26. See the [hygiene review](../reports/audits/2026/11/19/code-hygiene/03/report.md).
 
 Canic can integrate the released named-lease API and qualify its own composed catalog.
@@ -98,11 +97,11 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Review and limitations
 
-Post-push review of `v0.106.2..v0.106.3` confirmed that all five canister
-library roots group the handlers with their permissions and bounds. Their release
-Wasms export the same 31 IC entrypoints. The shared codecs and state still
-compile natively, and the endpoint move left provider custody with its existing
-owners. See `target/01063-release/registry.exports`.
+Post-push review of `v0.106.3..v0.107.0` found no new parallel implementations
+or compatibility adapters. Runtime 0.23.22 lets the five canisters share their
+entrypoint code across native checks and Wasm builds. Their 31 exported names
+match the previous release. Blob still owns its service rules and the browser
+client owns transfer. See `target/01070-release/registry.exports`.
 
 Finite lifetime slots still bound sustained use. Provider acceptance/settlement,
 Canic composition and unrestricted-controller snapshot continuity remain unqualified.
