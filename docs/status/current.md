@@ -2,33 +2,22 @@
 
 ## Delivery and active work
 
-**0.106.0 is published** for the library, standalone canister, reference application
-and CLI. The annotated [GitHub tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.106.0)
-points to `fcd4ba8e1c1ca551811f3eb059f009aef9aae6e4`. The CLI on PATH reports
-`blob 0.106.0`. Rust hosts passing Blob’s `RPC_LIMITS` to Wire or handling Wire
-errors should select IC Wire 0.25. Both workspace locks resolve Storage 0.78.3
-and Toko Tooling 0.45.8. Qualification stays private.
+**0.106.1 is published** for the library, standalone canister, reference application
+and CLI. The annotated [GitHub tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.106.1)
+points to `76016237c75ff292ca36d2e3dd1d0b79c3e02545`. The CLI on PATH reports
+`blob 0.106.1`. Both workspace locks select Storage 0.78.4, Wire 0.25.1 and
+Toko Tooling 0.45.15. Qualification stays private.
 
-All 17 release stages passed, including the eight installed suites. Populated
-0.105.0 standalone and catalog instances reopened with the release candidate.
-Chromium exercised publication and cancellation against the installed catalog.
-See `target/validation/blob.YnQamk/proof.json` and `target/01060-release/`.
+All 17 local release stages passed, including eight installed suites. This run
+covered the Node browser client. The optional Chromium and historical-layout
+cases were outside the run. See `target/validation/blob.tnRyUv/proof.json` and
+the [release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44500636489).
 
-All four crates.io archives matched the prepared bytes and registry checksums.
-The checksum record is `target/01060-release/registry-verified.json`, the source
-check is in `target/publication/provenance-01060/`, and upload evidence is in
-`target/publication/publish.selection.Cy5TI8/`. The release commit’s
-[hosted workflow scan](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44390781435)
-flagged three historical deterministic Ed25519 test fixtures. The delivery
-follow-up records their exact fingerprints. The full-history scan passed locally.
-
-Development selects Toko Tooling 0.45.15 in both workspaces. The
-[first hygiene review](../reports/audits/2026/11/19/code-hygiene/01/report.md)
-covers CI redaction and CLI refusal tests. The
-[follow-up review](../reports/audits/2026/11/19/code-hygiene/02/report.md)
-covers principal comparisons and release-plan validation for the pending 0.106.1 batch.
-The release metadata editor remains at IC Build 0.73.0 for this patch. Evaluate
-0.87.5 in the next release-tooling maintenance pass with the two-lock metadata fixture.
+All four archives downloaded from crates.io matched the prepared bytes and
+registry checksums. See `target/01061-release/registry-verified.json`,
+`target/publication/provenance-01061-network/` and `target/publication/publish.selection.yu9REv/`.
+The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.5 in the
+next release-tooling maintenance pass with the two-lock metadata fixture.
 
 ## Next action and provider boundary
 
@@ -104,12 +93,12 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Review and limitations
 
-Post-push review of `v0.105.0..v0.106.0` confirmed that browser transfer and
-custody both call the same provider-binding check and that the enrollment
-probe’s Wasm storage split uses the original record format. No competing
-provider policy or persistence implementation surfaced. The
-[code hygiene review](../reports/audits/2026/11/18/code-hygiene/01/report.md)
-records the scope and fixes.
+Post-push review of `v0.106.0..v0.106.1` found the principal checks shared within
+the CLI and release-plan validation confined to installed artifact preparation.
+The patch added no provider state or parallel storage path. The
+[first hygiene review](../reports/audits/2026/11/19/code-hygiene/01/report.md)
+covers CI diagnostics and the [follow-up](../reports/audits/2026/11/19/code-hygiene/02/report.md)
+records the malformed-plan regression and CLI checks.
 
 Finite lifetime slots still bound sustained use. Provider acceptance/settlement,
 Canic composition and unrestricted-controller snapshot continuity remain unqualified.
