@@ -33,6 +33,7 @@ pub(super) async fn admit(
         wasm,
     )
     .await?;
+
     Ok(())
 }
 
@@ -51,6 +52,7 @@ pub(super) async fn acknowledge(
                 .into(),
         );
     }
+
     Ok(format!(
         "Start observed: request_id={display_id} attempt={attempt} active=false; replacement artifact, configuration and reopened host matched; no activation performed.",
         display_id = crate::overview::hex(id)
@@ -62,6 +64,7 @@ pub(super) async fn inspect(context: &Context, wasm: &[u8]) -> Result<Management
     if stop::status(context, &expected).await? != CanisterStatusType::Running {
         return Err("reopened target is not running; preserve custody".into());
     }
+
     context.inspect_artifact(&expected).await
 }
 

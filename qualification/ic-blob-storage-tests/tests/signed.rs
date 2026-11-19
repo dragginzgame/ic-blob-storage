@@ -51,6 +51,7 @@ async fn update(agent: &Client, target: Principal, command: &Command) -> Result<
         .update(target, "blob_update", &encode("blob_update", command))
         .await
         .unwrap();
+
     decode("blob_update", &bytes)
 }
 
@@ -63,6 +64,7 @@ async fn query(
         .query(target, "blob_query", &encode("blob_query", &request))
         .await
         .unwrap();
+
     decode("blob_query", &bytes)
 }
 

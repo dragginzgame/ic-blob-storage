@@ -22,6 +22,7 @@ pub(super) fn classify(bytes: &[u8]) -> Result<Value, String> {
         },
     )
     .map_err(|error| format!("invalid or oversized Cashier top-up reply: {error:?}"))?;
+
     Ok(match result {
         // Validate/skip the payload; this command makes no balance or credit claim.
         TopUpResult::Ok(_) => json!({ "provider_result": "Ok", "payload_interpreted": false }),

@@ -82,6 +82,7 @@ impl<M: Memory> Callbacks<M> {
         let bytes = ic_wire::encode(&record, ic_wire::Encoding::Payload, LIMITS)
             .map_err(OpenError::Codec)?;
         let cell = create_cell(memory, bytes)?;
+
         Ok(Self {
             service,
             record,
@@ -115,6 +116,7 @@ impl<M: Memory> Callbacks<M> {
         {
             return Err(OpenError::Record);
         }
+
         Ok(Self {
             service,
             record,
@@ -148,6 +150,7 @@ impl<M: Memory> Callbacks<M> {
     /// Rejects excess positions before projection. Hosts validate 32-byte keys first.
     pub fn liveness(&self, roots: &[Root]) -> Result<Vec<bool>, CallbackError> {
         bounded(roots)?;
+
         Ok(roots
             .iter()
             .map(|&root| closing(&self.service, root).is_none())
@@ -160,6 +163,7 @@ impl<M: Memory> Callbacks<M> {
     /// Rejects non-gateway callers, including operators/controllers, even for an empty list.
     pub fn candidates(&self, caller: Principal) -> Result<Vec<Root>, CallbackError> {
         self.gateway(caller)?;
+
         Ok(self
             .service
             .model
@@ -202,6 +206,7 @@ impl<M: Memory> Callbacks<M> {
             ic_wire::encode(&self.record, ic_wire::Encoding::Payload, LIMITS)
                 .expect("bounded callback receipts"),
         );
+
         Ok(())
     }
 
@@ -227,5 +232,6 @@ fn closing<M: Memory>(service: &Service<M>, root: Root) -> Option<UploadId> {
         .model
         .inspect_object(service.model.application, root)
         .ok()?;
+
     (view.retention == Some(RetentionState::Closing)).then_some(view.original_upload.request.id)
 }

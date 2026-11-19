@@ -99,6 +99,7 @@ fn sized_request(bytes: usize) -> Vec<u8> {
     )
     .unwrap();
     assert_eq!(frame.len(), bytes);
+
     frame
 }
 

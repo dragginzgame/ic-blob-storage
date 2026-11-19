@@ -85,6 +85,7 @@ fn command(
         .arg("--state-version")
         .arg(version)
         .kill_on_drop(true);
+
     command
 }
 

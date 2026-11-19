@@ -58,6 +58,7 @@ async fn update(
         )
         .await
         .unwrap();
+
     ic_wire::decode(
         &bytes,
         ic_wire::Encoding::Frame {
@@ -93,6 +94,7 @@ async fn query(
         )
         .await
         .unwrap();
+
     ic_wire::decode(
         &bytes,
         ic_wire::Encoding::Frame {
@@ -127,6 +129,7 @@ async fn observations(
             .await
             .unwrap(),
     );
+
     values
 }
 

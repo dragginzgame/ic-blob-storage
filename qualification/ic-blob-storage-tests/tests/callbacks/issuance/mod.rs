@@ -24,6 +24,7 @@ const ISSUE: &str = "_immutableObjectStorageCreateCertificate";
 
 fn root_text(root: Root) -> String {
     let hex: String = root.iter().map(|b| format!("{b:02x}")).collect();
+
     format!("sha256:{hex}")
 }
 
@@ -47,6 +48,7 @@ async fn inspect(pic: &PocketIc, owner: CanisterId, request: Inspection) -> Obse
         )
         .await
         .unwrap();
+
     wire::decode::<Result<Observation, Error>>(
         &bytes,
         wire::Encoding::Frame {
@@ -215,6 +217,7 @@ async fn signed_command(agent: &Client, owner: CanisterId, command: Command) -> 
         RPC_LIMITS,
     )
     .unwrap();
+
     result.unwrap()
 }
 
@@ -265,6 +268,7 @@ fn certificate_command(
             .arg("--root-subnet")
             .arg(std::fs::read_to_string(directory.join("root-subnet.txt")).unwrap());
     }
+
     command
 }
 
@@ -282,6 +286,7 @@ fn recovery_command(
         .arg(directory.join("request.cbor"))
         .arg("--output")
         .arg(directory.join("certificate.cbor"));
+
     command
 }
 
@@ -326,6 +331,7 @@ fn corrupt_signature(bytes: &[u8]) -> Vec<u8> {
     assert_eq!(offsets.len(), 1);
     let mut changed = bytes.to_vec();
     changed[offsets[0]] ^= 1;
+
     changed
 }
 
@@ -338,12 +344,14 @@ async fn signed_issuer() -> (Server, Instance, CanisterId, Vec<u8>) {
     )
     .await;
     let (owner, trust_root) = install_issuer(&owned, signer(1), issuer_limits()).await;
+
     (server, owned, owner, trust_root)
 }
 
 fn issuer_limits() -> Limits {
     let mut limits = input().limits;
     limits.manifest.max_headers = 2.try_into().unwrap();
+
     limits
 }
 
@@ -369,6 +377,7 @@ async fn install_issuer(
         )
         .await;
     let trust_root = owned.client().root_key().await.unwrap();
+
     (owner, trust_root)
 }
 
@@ -393,6 +402,7 @@ fn certificate_directory(name: &str, trust_root: &[u8], root_subnet: CanisterId)
         root_subnet.to_text().as_bytes(),
     )
     .unwrap();
+
     directory
 }
 
@@ -401,6 +411,7 @@ fn certificate_claim(custody: &Path, trust_root: &[u8], owner: CanisterId, root:
         .iter()
         .map(|b| format!("{b:02x}"))
         .collect();
+
     custody
         .join(network)
         .join(owner.to_text())
@@ -969,6 +980,7 @@ fn abc_authorization() -> Command {
         ("Content-Length".into(), "3".into()),
         ("Content-Type".into(), "text/plain".into()),
     ];
+
     authorize
 }
 
@@ -1026,6 +1038,7 @@ async fn retain_proof(
         &corrupt_signature(&proof),
     )
     .unwrap();
+
     claim
 }
 
@@ -1126,6 +1139,7 @@ fn publish_fixture(path: &Path, bytes: &[u8]) -> Result<(), String> {
         .write_from(bytes, Length::Exactly(bytes.len() as u64))
         .and_then(ic_host_fs::Written::seal)
         .map_err(|e| e.to_string())?;
+
     match sealed.commit() {
         Commit::Committed(_) => Ok(()),
         other => Err(format!("{other:?}")),

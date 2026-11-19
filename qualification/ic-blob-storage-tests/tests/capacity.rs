@@ -91,6 +91,7 @@ async fn resources(pic: &PocketIc, canister: CanisterId) -> Resources {
     )
     .unwrap();
     let status = pic.canister_status(canister, None).await.unwrap();
+
     Resources {
         execution_cycles: metrics.cycles_consumed.instructions.0.try_into().unwrap(),
         balance: status.cycles.0.try_into().unwrap(),
@@ -147,6 +148,7 @@ async fn call<T: Serialize, R: DeserializeOwned>(
     if let Some(before) = before {
         report(label.unwrap(), &before, &resources(pic, canister).await);
     }
+
     decode(method, &result)
 }
 
@@ -163,6 +165,7 @@ async fn usage(pic: &PocketIc, canister: CanisterId, label: Option<&str>) -> Usa
     let Observation::Usage(usage) = result.unwrap() else {
         panic!("usage reply")
     };
+
     usage
 }
 

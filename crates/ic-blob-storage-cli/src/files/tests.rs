@@ -17,6 +17,7 @@ fn fixture() -> PathBuf {
                 .as_nanos()
         ));
     fs::create_dir_all(&path).unwrap();
+
     path.canonicalize().unwrap()
 }
 

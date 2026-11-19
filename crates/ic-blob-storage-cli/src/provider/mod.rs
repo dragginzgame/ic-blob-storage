@@ -49,6 +49,7 @@ fn decode(reply: &[u8], expected: Principal) -> Result<Account, String> {
     if account.account_owner_id != expected {
         return Err("Cashier returned a different account principal".into());
     }
+
     Ok(account)
 }
 
@@ -71,6 +72,7 @@ pub(crate) async fn inspect(input: Inspect) -> Result<String, String> {
     .map_err(|error| format!("Cashier query failed: {:?}", error))?;
     let account = decode(&reply, input.principal)?;
     let usage = account.storage_usage;
+
     Ok(format!(
         "Caffeine Cashier: {}\nAccount principal: {}\nSource: {}\n\nProvider-reported blobs: {}\nProvider-reported blob bytes: {}\nProvider-reported chunks: {}\nProvider-reported chunk bytes: {}\nProvider-reported cycle balance: {}\nLast charge timestamp (ns): {}\n\nOne account only; payer-funded owner accounts are not aggregated.\nNo file names, roots or individual file inventory are provided by this query.\nQuery observation, not consensus-certified evidence, verified availability or charge closure.",
         input.cashier,
@@ -126,6 +128,7 @@ fn subaccount(value: &str) -> Result<[u8; 32], String> {
         *byte = u8::from_str_radix(&value[i * 2..i * 2 + 2], 16)
             .map_err(|_| "invalid deposit subaccount hex")?;
     }
+
     Ok(bytes)
 }
 
@@ -141,6 +144,7 @@ pub(crate) fn prepare(input: &Enrollment) -> Result<String, String> {
     if debit > input.max_debit_cycles.get() {
         return Err("deposit plus ledger fee exceeds maximum debit".into());
     }
+
     Ok(format!(
         "OFFLINE ENROLLMENT PROPOSAL — not signed or executable\nEndpoint: {}\nCashier: {}\nCycles Ledger: {}\nPayer: {}\nExisting owner: {}\n\n1. Inspect this exact payer, owner and existing payment relationship.\n   Recheck ledger fee and Cashier deposit address for this payer; do not infer them.\n2. Proposed deposit: {} cycles; ledger fee: {}; source debit: {}; maximum: {}.\n   Destination: Cashier {}, subaccount {}.\n   Retain exact intent and signed request before any later submission.\n   Existing or uncertain deposits must be reconciled; this proposal is no retry authority.\n3. After a separately executed deposit, retain its acknowledgment and notify Cashier once.\n   Credit amount remains unknown until acknowledged and read back.\n4. Proposed relationship: owner {} paid by {}, daily limit {}, expiry {} ns.\n   Qualify units, expiry enforcement and existing settings before signing.\n5. Inspect owner allocation and gateway credit before considering upload readiness.\n\nOwner creation, relationship effects, continuing storage/download charges and other fees\nare outside the deposit debit bound. No spending cap or provider closure is established.\nNo identity was loaded, no network call was made and no cycles were spent.",
         input.url,

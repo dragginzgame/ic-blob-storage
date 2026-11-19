@@ -15,7 +15,7 @@ ignored = ["toko-tooling"]
 [dependencies]
 ic-blob-storage.workspace = true
 ic-host-process.workspace = true
-ic-platform = { workspace = true, features = ["native-signed", "ingress-packets"] }
+ic-platform = { workspace = true, features = ["native-signed"] }
 ic-platform-types.workspace = true
 ic-testkit = { workspace = true, features = ["held-reply-fixtures", "managed-server"] }
 ic-wire.workspace = true

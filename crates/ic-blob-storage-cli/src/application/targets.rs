@@ -27,6 +27,7 @@ pub(super) async fn admit_fresh(
     if observed.status == CanisterStatusType::Stopping {
         return Err("target is stopping; disposition remains unresolved".into());
     }
+
     Ok(observed.status)
 }
 
@@ -55,6 +56,7 @@ pub(crate) async fn run(input: Input) -> Result<String, String> {
     if signer == Principal::anonymous() {
         return Err("target status requires a controller identity".into());
     }
+
     tokio::time::timeout(Duration::from_secs(30), async {
         let mut report = format!("Target observations\nController: {signer}\nSource: {}\n", input.network.url);
         for (role, canister) in [("Application", input.canister), ("Blob", input.blob_canister)] {

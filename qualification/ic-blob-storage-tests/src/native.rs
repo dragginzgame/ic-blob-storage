@@ -23,6 +23,7 @@ pub fn identity(seed: u8) -> Ed25519Identity {
         9 => "MC4CAQAwBQYDK2VwBCIEIAkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJCQkJ",
         _ => panic!("unselected public fixture seed"),
     };
+
     Ed25519Identity::from_pem(
         &format!("-----BEGIN PRIVATE KEY-----\n{body}\n-----END PRIVATE KEY-----\n"),
         4096,
@@ -51,6 +52,7 @@ pub fn policy() -> TimePolicy {
         max_age_ns: 300_000_000_000,
         max_future_skew_ns: 30_000_000_000,
     };
+
     TimePolicy {
         certificate: window,
         delegation: TimeWindow {
@@ -95,6 +97,7 @@ impl Client {
     /// Panics if the fixed fixture request cannot be signed.
     pub fn prepare(&self, target: impl AsRef<[u8]>, method: &str, args: &[u8]) -> PreparedUpdate {
         let target = Principal::from_slice(target.as_ref());
+
         self.signer
             .prepare_update(
                 UpdateArgs {
@@ -165,6 +168,7 @@ impl Client {
             Dispatch::Accepted => self.wait(&original).await,
             Dispatch::UncertifiedRejection { .. } => return Err(ReadError::Packet),
         };
+
         match observed.status() {
             RequestStatus::Replied(bytes) => Ok(bytes.clone()),
             RequestStatus::Rejected {

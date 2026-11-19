@@ -168,6 +168,7 @@ impl Input {
             .join(hex(&binding.root_hash))
             .join(target.to_text())
             .join("install");
+
         Ok(Selection {
             binding,
             target,
@@ -245,12 +246,14 @@ pub(super) fn prepare(input: &Input) -> Result<String, String> {
     let held = files::claim(&selected.directory)?;
     files::publish(&held, "intent.wire".as_ref(), &bytes)?;
     files::publish(&held, "request.cbor".as_ref(), signed.envelope_bytes())?;
+
     Ok(report)
 }
 
 pub(super) fn inspect(input: &Input) -> Result<String, String> {
     let selected = input.selection()?;
     let (_, signed) = load(input, &selected)?;
+
     selected.report(&signed)
 }
 
@@ -297,5 +300,6 @@ fn load(
     {
         return Err("signed request differs from the exact fresh installation".into());
     }
+
     Ok((held, signed))
 }

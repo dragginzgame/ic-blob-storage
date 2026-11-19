@@ -62,6 +62,7 @@ impl LocalModel {
     /// Rejects anonymous/management application authorities.
     pub fn new(application: Principal, limits: Limits) -> Result<Self, Error> {
         valid_principal(application)?;
+
         Ok(Self {
             application,
             limits,
@@ -177,6 +178,7 @@ impl LocalModel {
         );
         self.references
             .insert(request.first_reference, request.root);
+
         Ok(view)
     }
 
@@ -215,6 +217,7 @@ impl LocalModel {
         self.reserved_bytes -= request.bytes;
         self.live_bytes += request.bytes;
         self.unresolved_bytes += request.bytes;
+
         Ok(())
     }
 
@@ -235,6 +238,7 @@ impl LocalModel {
             return Err(Error::NotExpired);
         }
         self.retire(id, UploadState::Expired);
+
         Ok(())
     }
 
@@ -251,6 +255,7 @@ impl LocalModel {
             if target != root {
                 return Err(Error::Conflict);
             }
+
             return match self.reference_status(id, root) {
                 ReferenceStatus::Live | ReferenceStatus::Released => Ok(()),
                 ReferenceStatus::Reserved | ReferenceStatus::Retired => {
@@ -271,6 +276,7 @@ impl LocalModel {
             .retain(id)
             .map_err(Error::Reference)?;
         self.references.insert(id, root);
+
         Ok(())
     }
 
@@ -301,6 +307,7 @@ impl LocalModel {
             }
             ReferenceStatus::Released | ReferenceStatus::Retired => {}
         }
+
         Ok(())
     }
 
@@ -312,6 +319,7 @@ impl LocalModel {
         if caller != self.application && caller != view.request.uploader {
             return Err(Error::Denied);
         }
+
         Ok(view)
     }
 
@@ -326,6 +334,7 @@ impl LocalModel {
     ) -> Result<ReferenceView, Error> {
         self.application(caller)?;
         let root = *self.references.get(&id).ok_or(Error::UnknownReference)?;
+
         Ok(ReferenceView {
             root,
             status: self.reference_status(id, root),
@@ -337,6 +346,7 @@ impl LocalModel {
     /// Rejects callers other than the application authority.
     pub fn usage(&self, caller: Principal) -> Result<Usage, Error> {
         self.application(caller)?;
+
         Ok(Usage {
             reserved_bytes: self.reserved_bytes,
             live_bytes: self.live_bytes,
@@ -359,6 +369,7 @@ impl LocalModel {
     pub fn inspect_object(&self, caller: Principal, root: Root) -> Result<ObjectView, Error> {
         self.application(caller)?;
         let object = self.objects.get(&root).ok_or(Error::UnknownObject)?;
+
         Ok(ObjectView {
             original_upload: self.uploads[&object.upload].view,
             retention: object
@@ -424,6 +435,7 @@ impl LocalModel {
                 references,
             });
         }
+
         Ok(PrincipalOverview {
             uploader,
             objects,
@@ -449,6 +461,7 @@ impl LocalModel {
 
     fn registered(&self, root: Root) -> Result<&ObjectReferences, Error> {
         let object = self.objects.get(&root).ok_or(Error::UnknownObject)?;
+
         match self.uploads[&object.upload].view.state {
             UploadState::Reserved => Err(Error::ObjectReserved),
             UploadState::Cancelled | UploadState::Expired => Err(Error::RootRetired),
@@ -464,6 +477,7 @@ impl LocalModel {
             Err(Error::RootRetired) => return ReferenceStatus::Retired,
             _ => unreachable!("admitted references have an object owner"),
         };
+
         match references.reference_state(id).unwrap() {
             ReferenceState::Live => ReferenceStatus::Live,
             ReferenceState::Released => ReferenceStatus::Released,

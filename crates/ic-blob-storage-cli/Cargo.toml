@@ -23,7 +23,7 @@ ic-blob-storage.workspace = true
 ic-blob-storage-reference-app.workspace = true
 ic-host-artifacts.workspace = true
 ic-host-fs.workspace = true
-ic-platform = { workspace = true, features = ["ingress-packets", "native-signed"] }
+ic-platform = { workspace = true, features = ["native-signed"] }
 ic-platform-protocol = { workspace = true, features = ["caffeine", "management"] }
 ic-platform-types.workspace = true
 ic-wire.workspace = true

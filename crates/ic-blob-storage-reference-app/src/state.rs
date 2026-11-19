@@ -49,6 +49,7 @@ impl State {
             memory,
             ic_wire::encode(&record, ic_wire::Encoding::Payload, LIMITS).unwrap(),
         );
+
         Self { record, cell }
     }
 
@@ -75,6 +76,7 @@ impl State {
                 );
             }
         }
+
         Self { record, cell }
     }
 
@@ -84,6 +86,7 @@ impl State {
 
     pub fn catalog(&self, caller: Principal) -> Result<Vec<DraftView>, Error> {
         self.user(caller)?;
+
         Ok(self
             .record
             .drafts
@@ -104,6 +107,7 @@ impl State {
         if draft.uploader != caller {
             return Err(Error::Denied);
         }
+
         Ok(draft.clone())
     }
 
@@ -116,6 +120,7 @@ impl State {
             .any(|draft| draft.input.id == input.id)
         {
             let draft = self.view(caller, input.id)?;
+
             return if draft.input == input {
                 Ok(draft)
             } else {
@@ -133,6 +138,7 @@ impl State {
         };
         self.record.drafts.push(draft.clone());
         self.persist();
+
         Ok(draft)
     }
 
@@ -154,6 +160,7 @@ impl State {
             return Err(Error::Conflict);
         }
         self.set_phase(id, Phase::Published);
+
         self.view(caller, id)
     }
 
@@ -166,6 +173,7 @@ impl State {
         if draft.phase != Phase::Cleaned {
             self.set_phase(id, Phase::Cancelled);
         }
+
         self.view(caller, id)
     }
 
@@ -177,6 +185,7 @@ impl State {
         let draft = self.view(caller, id)?;
         assert!(matches!(draft.phase, Phase::Cancelled | Phase::Cleaned));
         self.set_phase(id, Phase::Cleaned);
+
         self.view(caller, id)
     }
 
@@ -250,5 +259,6 @@ fn validate_input(input: &DraftInput) -> Result<(), Error> {
     {
         return Err(Error::Invalid);
     }
+
     Ok(())
 }

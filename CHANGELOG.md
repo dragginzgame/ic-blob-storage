@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.107.0] - Unreleased
+
+### ⚠️ Breaking changes
+
+- The public Rust codec types now come from IC Wire 0.26. Hosts that pass Blob’s
+  `RPC_LIMITS` to Wire or handle its codec errors should select Wire 0.26.
+
+### 🔧 Tooling
+
+- Adopt Toko Tooling 0.45.21 in both workspaces. Platform Runtime 0.23.22 lets
+  native Clippy check the same five canister entrypoint implementations that ship
+  on Wasm. Their headers now identify admission guards and request and reply budgets.
+
 ## [0.106.3] - 2026-11-19
 
 ### 🔧 Tooling

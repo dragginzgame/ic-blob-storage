@@ -37,6 +37,7 @@ pub(crate) fn policy(historical: bool) -> Result<TimePolicy, String> {
         },
         max_future_skew_ns: 30_000_000_000,
     };
+
     Ok(TimePolicy {
         certificate,
         delegation: TimeWindow {
@@ -79,6 +80,7 @@ impl Client {
             },
         })
         .map_err(|_| "cannot configure IC transport")?;
+
         Ok(Self {
             transport,
             identity,
@@ -145,6 +147,7 @@ impl Client {
         args: &[u8],
     ) -> Result<Vec<u8>, String> {
         let original = self.prepare(recipient, effective, method, args)?;
+
         tokio::time::timeout(Duration::from_secs(30), async {
             let mut observed = match self
                 .transport
@@ -195,6 +198,7 @@ impl Client {
     ) -> Result<Vec<u8>, String> {
         let expiry = now()?.saturating_add(120_000_000_000);
         let time = policy(false)?;
+
         tokio::time::timeout(Duration::from_secs(30), async {
             match &self.identity {
                 Some(signer) => {

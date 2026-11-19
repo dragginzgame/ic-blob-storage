@@ -16,6 +16,7 @@ pub(super) async fn acknowledge(
     if view.maintenance.attempt != attempt || !view.maintenance.active {
         return Err("original activation acknowledged historically; current admission differs, no resubmission".into());
     }
+
     Ok(format!(
         "Activation observed: request_id={display_id} attempt={attempt} active=true; current replacement artifact, configuration and admission matched.",
         display_id = crate::overview::hex(id)

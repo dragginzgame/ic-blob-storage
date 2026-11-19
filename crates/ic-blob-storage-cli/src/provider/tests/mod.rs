@@ -3,6 +3,7 @@ use clap::Parser;
 
 fn fixture(text: &str) -> Vec<u8> {
     let text = text.trim();
+
     (0..text.len())
         .step_by(2)
         .map(|i| u8::from_str_radix(&text[i..i + 2], 16).unwrap())

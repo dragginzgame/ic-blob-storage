@@ -65,6 +65,7 @@ impl Target {
         if client.principal() != self.uploader {
             return Err("certificate identity must match original uploader".into());
         }
+
         Ok(client)
     }
 }
@@ -80,6 +81,7 @@ fn root(value: &str) -> Result<String, String> {
     {
         return Err("expected 64 lowercase hexadecimal root digits".into());
     }
+
     Ok(value.to_owned())
 }
 
@@ -114,6 +116,7 @@ fn original(
     {
         return Err("retained request does not match uploader, issuer, method and root".into());
     }
+
     // Content inspection is not signature verification. Certified request_status
     // establishes the outcome. Expired original ingress remains inspectable.
     content
@@ -127,6 +130,7 @@ fn admit_reply(bytes: &[u8], root: &str) -> Result<(), String> {
     if reply.method != "upload" || reply.blob_hash != root {
         return Err("certified reply does not match upload and original root".into());
     }
+
     Ok(())
 }
 
@@ -154,6 +158,7 @@ pub(crate) async fn run(input: Input) -> Result<String, String> {
     files::publish(&parent, name, bytes).map_err(|error| {
         format!("certificate publication failed; preserve original request and any output: {error}")
     })?;
+
     Ok(format!(
         "Recovered certified historical reply: request={} root={}\nCertificate saved; provider acceptance and current availability are not established.",
         crate::overview::hex(&id),

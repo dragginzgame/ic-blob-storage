@@ -27,6 +27,7 @@ fn check(
         .arg("--root-subnet")
         .arg(std::fs::read_to_string(directory.join("root-subnet.txt")).unwrap())
         .kill_on_drop(true);
+
     command
 }
 

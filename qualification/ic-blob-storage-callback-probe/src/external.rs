@@ -22,6 +22,7 @@ const LIMITS: Limits = Limits {
 pub(super) fn roots(bytes: &[u8]) -> Result<Vec<Root>, std::convert::Infallible> {
     let roots = c::decode_roots(bytes, LIMITS).unwrap();
     assert!(roots.len() <= MAX_ROOTS, "callback root limit");
+
     Ok(roots
         .into_iter()
         .map(|root| root.try_into().expect("32-byte tree root"))
@@ -34,6 +35,7 @@ pub(super) fn roots(bytes: &[u8]) -> Result<Vec<Root>, std::convert::Infallible>
 )]
 pub(super) fn empty(bytes: &[u8]) -> Result<(), std::convert::Infallible> {
     c::decode_empty(bytes, LIMITS).unwrap();
+
     Ok(())
 }
 
@@ -47,6 +49,7 @@ pub(super) fn liveness(value: Vec<bool>) -> Result<Vec<u8>, c::EncodeError> {
 
 pub(super) fn candidates(value: Vec<Root>) -> Result<Vec<u8>, c::EncodeError> {
     let blobs: Vec<_> = value.into_iter().map(|root| root.to_vec()).collect();
+
     c::encode_roots(&blobs, BYTES)
 }
 
@@ -68,6 +71,7 @@ pub(super) fn certificate_root(bytes: &[u8]) -> Result<Root, std::convert::Infal
                 .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)),
         "canonical root"
     );
+
     Ok(std::array::from_fn(|i| {
         u8::from_str_radix(&hex[2 * i..2 * i + 2], 16).unwrap()
     }))
@@ -75,6 +79,7 @@ pub(super) fn certificate_root(bytes: &[u8]) -> Result<Root, std::convert::Infal
 
 pub(super) fn certificate_reply(root: Root) -> Result<Vec<u8>, c::EncodeError> {
     let hex: String = root.iter().map(|byte| format!("{byte:02x}")).collect();
+
     // This plain record is not the IC certificate. Request-status proof is owned
     // by the replica/Agent, and provider acceptance of that proof remains unqualified.
     c::encode_certificate(

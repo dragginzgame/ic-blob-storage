@@ -61,6 +61,7 @@ async fn draft(pic: &PocketIc, app: CanisterId, user: CanisterId, input: &DraftI
         .query_call(app, user, "app_draft", encode("app_draft", &input.id))
         .await
         .unwrap();
+
     decode::<Result<DraftView, Error>>("app_draft", &bytes).unwrap()
 }
 
@@ -69,6 +70,7 @@ async fn catalog(pic: &PocketIc, app: CanisterId, user: CanisterId) -> Vec<Draft
         .query_call(app, user, "app_catalog", encode("app_catalog", &()))
         .await
         .unwrap();
+
     decode::<Result<Vec<DraftView>, Error>>("app_catalog", &bytes).unwrap()
 }
 
@@ -86,6 +88,7 @@ async fn app_state(pic: &PocketIc, app: CanisterId, users: &[CanisterId]) -> Vec
             );
         }
     }
+
     state
 }
 

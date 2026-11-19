@@ -251,6 +251,7 @@ fn main() -> io::Result<()> {
         "Final release: live=0, unresolved={} declared bytes; no settlement claim.",
         final_usage.unresolved_bytes
     );
+
     Ok(())
 }
 
@@ -283,6 +284,7 @@ fn verify_read(mut source: impl Read, original: &UploadRequest) -> io::Result<()
             .append(verifier.received_bytes(), &frame[..count])
             .map_err(integrity_error)?;
     }
+
     verifier.finish().map_err(integrity_error)
 }
 

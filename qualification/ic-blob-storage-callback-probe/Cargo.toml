@@ -15,16 +15,14 @@ ignored = ["toko-tooling"]
 [lib]
 crate-type = ["cdylib"]
 
-[target.'cfg(target_arch = "wasm32")'.dependencies]
+[dependencies]
+ic-blob-storage.workspace = true
+ic-platform-protocol = { workspace = true, features = ["caffeine"] }
 ic-platform-runtime = { workspace = true, features = ["entrypoint-macros", "system-raw"] }
 ic-platform-types.workspace = true
 ic-storage.workspace = true
 ic-wire.workspace = true
 serde.workspace = true
-
-[dependencies]
-ic-blob-storage.workspace = true
-ic-platform-protocol = { workspace = true, features = ["caffeine"] }
 
 [dev-dependencies]
 toko-tooling.workspace = true

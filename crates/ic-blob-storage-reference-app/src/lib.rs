@@ -3,17 +3,8 @@
 //! Durable drafts precede calls; cancellation is irreversible and cleanup uses original IDs.
 
 pub mod protocol;
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "Native consumers use the protocol; installed IC handlers drive the private state."
-    )
-)]
 mod state;
 
-// Platform Runtime exposes IC system calls and transport only on Wasm.
-#[cfg(target_arch = "wasm32")]
 mod host {
     use crate::{
         protocol::{DraftInput, DraftView, Error, Installation, Phase},
@@ -42,8 +33,7 @@ mod host {
 
     // init
     // Create the application catalog bound to the configured Blob canister.
-    // scope  : IC lifecycle
-    // limits : 65,536 request bytes
+    // limits : 65,536 request bytes, no reply
     #[ic_platform_runtime::init(
         runtime = ic_platform_runtime,
         guard = unguarded,
@@ -59,8 +49,7 @@ mod host {
 
     // pre_upgrade
     // Require outstanding application calls to finish before upgrade.
-    // scope  : IC lifecycle
-    // limits : no arguments
+    // limits : no request bytes or reply
     #[ic_platform_runtime::pre_upgrade(
         runtime = ic_platform_runtime,
         guard = unguarded,
@@ -78,8 +67,7 @@ mod host {
 
     // post_upgrade
     // Reopen the existing catalog and its Blob binding.
-    // scope  : IC lifecycle
-    // limits : 65,536 request bytes
+    // limits : 65,536 request bytes, no reply
     #[ic_platform_runtime::post_upgrade(
         runtime = ic_platform_runtime,
         guard = unguarded,
@@ -94,9 +82,9 @@ mod host {
     }
 
     // app_create
-    // Save the caller’s immutable draft and request its Blob upload grant.
-    // scope  : configured application user, acting as the draft uploader
-    // limits : 65,536 request bytes, at most 16 lifetime draft IDs
+    // Let a configured user save a draft and request its upload grant, up to 16 lifetime draft IDs.
+    // guard  : admit checks the Wire byte budget
+    // limits : RPC_LIMITS for request and reply
     #[ic_platform_runtime::update(
         runtime = ic_platform_runtime,
         name = "app_create",
@@ -113,14 +101,15 @@ mod host {
             return Ok(draft);
         }
         authorize(&draft).await?;
+
         // A concurrent cancellation may already have cleaned it. Never overwrite that decision.
         view(caller, draft.input.id)
     }
 
     // app_publish
-    // Publish the caller’s draft in the catalog after checking its Blob grant and reference.
-    // scope  : configured application user who owns the draft
-    // limits : 65,536 request bytes
+    // Publish a configured user’s own draft after checking its Blob grant and reference.
+    // guard  : admit checks the Wire byte budget
+    // limits : RPC_LIMITS for request and reply
     #[ic_platform_runtime::update(
         runtime = ic_platform_runtime,
         name = "app_publish",
@@ -156,14 +145,15 @@ mod host {
                     && reference.status == ReferenceStatus::Live => {}
             _ => return Err(Error::NotLive),
         }
+
         // Current local cancellation/name ownership is decisive even if the reply says Live.
         STATE.with_borrow_mut(|state| state.as_mut().unwrap().publish(caller, id))
     }
 
     // app_cancel
-    // Cancel the caller’s draft and resolve its outstanding Blob reference.
-    // scope  : configured application user who owns the draft
-    // limits : 65,536 request bytes
+    // Cancel a configured user’s own draft and resolve its outstanding Blob reference.
+    // guard  : admit checks the Wire byte budget
+    // limits : RPC_LIMITS for request and reply
     #[ic_platform_runtime::update(
         runtime = ic_platform_runtime,
         name = "app_cancel",
@@ -194,13 +184,14 @@ mod host {
             Err(Error::Blob(BlobError::Expired)) => {}
             Err(error) => return Err(error),
         }
+
         STATE.with_borrow_mut(|state| state.as_mut().unwrap().cleaned(caller, id))
     }
 
     // app_draft
-    // Return one draft owned by the caller.
-    // scope  : configured application user who owns the draft
-    // limits : 65,536 request bytes
+    // Return a configured user’s own draft.
+    // guard  : admit checks the Wire byte budget
+    // limits : RPC_LIMITS for request and reply
     #[ic_platform_runtime::query(
         runtime = ic_platform_runtime,
         name = "app_draft",
@@ -215,9 +206,9 @@ mod host {
     }
 
     // app_catalog
-    // List the caller’s published catalog entries.
-    // scope  : configured application user, own entries only
-    // limits : 65,536 request bytes, at most 16 drafts
+    // List a configured user’s own published entries, up to 16 drafts.
+    // guard  : admit checks the Wire byte budget
+    // limits : RPC_LIMITS for request and reply
     #[ic_platform_runtime::query(
         runtime = ic_platform_runtime,
         name = "app_catalog",
@@ -256,12 +247,14 @@ mod host {
         if matches!(draft.phase, Phase::Cancelled | Phase::Cleaned) {
             return Err(Error::Cancelled);
         }
+
         Ok(draft)
     }
 
     async fn authorize(draft: &DraftView) -> Result<(), Error> {
         let result: Result<Outcome, BlobError> =
             call("blob_update", &state::authorization(draft)).await?;
+
         match result.map_err(Error::Blob)? {
             Outcome::Upload(view) if view.request == state::request(draft) => Ok(()),
             _ => Err(Error::Uncertain),
@@ -300,6 +293,7 @@ mod host {
         let CallOutcome::Reply(reply) = completion.into_parts().0 else {
             return Err(Error::Uncertain);
         };
+
         wire::decode(
             &reply,
             wire::Encoding::Frame {
@@ -320,6 +314,7 @@ mod host {
         if ic0::msg_arg_data_size() > RPC_LIMITS.bytes {
             api::trap("application request too large");
         }
+
         Ok(())
     }
 
@@ -373,6 +368,7 @@ mod host {
                 &GenericAllocationPolicy,
             )
             .unwrap();
+
         runtime
             .open_memory(&StableKey::parse("catalog.control.v1").unwrap())
             .unwrap()

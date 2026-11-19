@@ -101,6 +101,7 @@ pub(super) fn validate_roles(
     {
         return Err("canisters, manager and one to eight users must be distinct".into());
     }
+
     Ok(())
 }
 
@@ -149,5 +150,6 @@ pub(crate) fn run(input: Input) -> Result<String, String> {
     files::publish(&output, "blob-init.wire".as_ref(), &blob_bytes)?;
     files::publish(&output, "app-init.wire".as_ref(), &app_bytes)?;
     files::publish(&output, "inputs.txt".as_ref(), report.as_bytes())?;
+
     Ok(report)
 }

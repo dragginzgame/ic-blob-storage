@@ -47,6 +47,7 @@ fn memories(backing: VectorMemory) -> [RuntimeMemory<VectorMemory>; 2] {
             &GenericAllocationPolicy,
         )
         .unwrap();
+
     keys.map(|key| {
         runtime
             .open_memory(&StableKey::parse(key).unwrap())
@@ -56,6 +57,7 @@ fn memories(backing: VectorMemory) -> [RuntimeMemory<VectorMemory>; 2] {
 
 fn create(backing: VectorMemory) -> Callbacks<VectorMemory> {
     let [control, receipts] = memories(backing);
+
     Callbacks::create(
         Service::create(control, actor(8), input()).unwrap(),
         receipts,
@@ -66,6 +68,7 @@ fn create(backing: VectorMemory) -> Callbacks<VectorMemory> {
 
 fn reopen(backing: VectorMemory) -> Result<Callbacks<VectorMemory>, OpenError> {
     let [control, receipts] = memories(backing);
+
     Callbacks::open(Service::open(control, actor(8)).unwrap(), receipts)
 }
 

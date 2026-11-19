@@ -72,6 +72,7 @@ impl<M: Memory> Service<M> {
             .map_err(|_| OpenError::Configuration)?;
         let bytes = Record::capture(&model, input.manager, installation, 0).encode()?;
         let cell = create_cell(memory, bytes)?;
+
         Ok(Self {
             model,
             manager: input.manager,
@@ -94,6 +95,7 @@ impl<M: Memory> Service<M> {
         let manager = record.input.manager;
         let attempt = record.maintenance.attempt;
         let model = record.restore(installation)?;
+
         Ok(Self {
             model,
             manager,
@@ -174,6 +176,7 @@ impl<M: Memory> Service<M> {
             .encode()
             .expect("bounded Blob state encoding");
         self.cell.set(bytes);
+
         Ok(outcome)
     }
 
@@ -213,6 +216,7 @@ impl<M: Memory> Service<M> {
     /// Refuses any caller other than the configured manager.
     pub fn inspect_management(&self, caller: Principal) -> Result<ManagementView, Error> {
         self.manager(caller)?;
+
         Ok(ManagementView {
             installation: self.installation,
             configuration: Installation {
@@ -254,6 +258,7 @@ fn create_cell<M: Memory>(
     if memory.size() != 0 {
         return Err(OpenError::Occupied);
     }
+
     Ok(StableCell::create(memory, bytes))
 }
 
@@ -262,6 +267,7 @@ fn load_cell<M: Memory>(
     maximum: usize,
 ) -> Result<StableCell<Vec<u8>, M>, OpenError> {
     ic_storage::stable_cell_payload_length(&memory, maximum).map_err(OpenError::Storage)?;
+
     StableCell::load(memory).map_err(OpenError::Storage)
 }
 
@@ -271,5 +277,6 @@ fn validate(input: Installation) -> Result<(), OpenError> {
     if input.limits.uploads.get() > MAX_RECORDS || input.limits.references.get() > MAX_RECORDS {
         return Err(OpenError::Configuration);
     }
+
     Ok(())
 }

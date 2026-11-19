@@ -92,6 +92,7 @@ pub(crate) fn prepare(input: &Input) -> Result<String, String> {
         .map_err(|_| "certificate root already claimed or custody unavailable; preserve it, do not reprepare")?;
     files::publish(&claim, "intent.wire".as_ref(), &bytes)?;
     files::publish(&claim, "request.cbor".as_ref(), signed.envelope_bytes())?;
+
     Ok(format!(
         "Prepared original request={} without submission.\nRetain request at {:?}; expires in 120 seconds, never renew it.",
         hex(signed.request_id()),
@@ -124,6 +125,7 @@ pub(super) fn load(
         return Err("certificate custody does not match original bindings and packet".into());
     }
     let id = original(&packet, target.uploader, target.canister, &target.root)?;
+
     Ok((held, packet, id))
 }
 
@@ -175,6 +177,7 @@ pub(crate) async fn dispatch(input: Dispatch) -> Result<String, String> {
         },
         NativeDispatch::Accepted => {}
     }
+
     Ok(format!(
         "Original request={} dispatched; preserve custody and use blob certificate recover.\nNo provider acceptance or availability is established.",
         hex(&id)

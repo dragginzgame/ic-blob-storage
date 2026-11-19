@@ -81,6 +81,7 @@ impl ObjectReferences {
             .values()
             .filter(|&&state| state == ReferenceState::Live)
             .count();
+
         Some(Self {
             references: records,
             live,
@@ -121,6 +122,7 @@ impl ObjectReferences {
         }
         self.references.insert(id, ReferenceState::Live);
         self.live += 1;
+
         Ok(())
     }
 
@@ -140,6 +142,7 @@ impl ObjectReferences {
             *state = ReferenceState::Released;
             self.live -= 1;
         }
+
         Ok(())
     }
 

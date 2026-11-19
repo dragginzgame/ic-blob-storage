@@ -112,6 +112,7 @@ impl RootVerifier {
         limits: Limits,
     ) -> Result<Self, VerificationError> {
         check_length(expected_bytes, limits.max_content_bytes)?;
+
         Ok(Self {
             expected_root,
             expected_bytes,
@@ -159,6 +160,7 @@ impl RootVerifier {
             }
         }
         self.received_bytes += length;
+
         Ok(())
     }
 
@@ -179,6 +181,7 @@ impl RootVerifier {
         if root != self.expected_root {
             return Err(VerificationError::RootMismatch);
         }
+
         Ok(())
     }
 
@@ -198,6 +201,7 @@ fn check_length(bytes: u64, maximum: NonZeroU64) -> Result<(), VerificationError
     if bytes > maximum.get() {
         return Err(VerificationError::ContentLimit);
     }
+
     Ok(())
 }
 
@@ -207,6 +211,7 @@ fn push_chunk(frontier: &mut [Option<Hash>; TREE_LEVELS], mut hash: Hash) {
             hash = node_hash(left, Some(hash));
         } else {
             *slot = Some(hash);
+
             return;
         }
     }
@@ -215,6 +220,7 @@ fn push_chunk(frontier: &mut [Option<Hash>; TREE_LEVELS], mut hash: Hash) {
 
 fn root_with_metadata(frontier: &[Option<Hash>; TREE_LEVELS], metadata: Option<Hash>) -> Hash {
     let root = tree_root(frontier);
+
     metadata.map_or(root, |metadata| node_hash(root, Some(metadata)))
 }
 
@@ -235,12 +241,14 @@ fn tree_root(frontier: &[Option<Hash>; TREE_LEVELS]) -> Hash {
         root = node_hash(left, Some(root));
         height += 1;
     }
+
     root
 }
 
 fn chunk_hasher() -> Sha256 {
     let mut hasher = Sha256::new();
     hasher.update(b"icfs-chunk/");
+
     hasher
 }
 
@@ -253,5 +261,6 @@ fn node_hash(left: Hash, right: Option<Hash>) -> Hash {
             .as_ref()
             .map_or(b"UNBALANCED".as_slice(), |hash| hash.as_slice()),
     );
+
     hasher.finalize().into()
 }

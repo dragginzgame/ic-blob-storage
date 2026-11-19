@@ -35,6 +35,7 @@ fn gateway(value: &str) -> Result<String, String> {
     if url.path() != "/" {
         return Err("provider gateway must be an origin without a path".into());
     }
+
     Ok(url.origin().ascii_serialization())
 }
 
@@ -42,6 +43,7 @@ fn selector(value: &str) -> Result<String, String> {
     if value.is_empty() || value.len() > 128 || !value.bytes().all(|b| b.is_ascii_graphic()) {
         return Err("provider selector must contain 1..128 printable ASCII bytes".into());
     }
+
     Ok(value.to_owned())
 }
 
@@ -108,6 +110,7 @@ pub(crate) fn claim(input: &Input) -> Result<String, String> {
             format!("transfer custody publication failed; preserve claim: {error}")
         })?;
     }
+
     Ok(format!(
         "Transfer claim retained for original request={}; no network call made.\nThis authenticates historical proof, not current application permission or provider acceptance.",
         crate::overview::hex(&id)

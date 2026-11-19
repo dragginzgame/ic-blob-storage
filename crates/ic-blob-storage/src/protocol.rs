@@ -19,7 +19,11 @@ pub const RPC_LIMITS: ic_wire::Limits = ic_wire::Limits {
     depth: 32,
 };
 
-/// Fresh installation only; upgrade arguments are a method-bound unit value.
+///
+/// Installation
+/// Immutable authorities and resource limits for a fresh Blob installation.
+///
+
 #[derive(Clone, Copy, Debug, Deserialize, Serialize, Eq, PartialEq)]
 pub struct Installation {
     /// Authority for application grants and references.
@@ -30,8 +34,12 @@ pub struct Installation {
     pub limits: Limits,
 }
 
-/// Manager-only projection for replicated inspection before and after maintenance.
-/// This value is not itself an authenticated transport receipt or a continuity proof.
+///
+/// ManagementView
+/// Configuration and maintenance state returned to the manager by replicated inspection.
+/// Transport authentication and continuity checks belong to the caller.
+///
+
 #[derive(Clone, Copy, Debug, Deserialize, Serialize, Eq, PartialEq)]
 pub struct ManagementView {
     /// Canister principal bound into the durable record at creation.
@@ -81,7 +89,11 @@ pub enum Outcome {
     Maintenance(Maintenance),
 }
 
-/// One current attempt; old requests cannot reactivate a later drain.
+///
+/// Maintenance
+/// Current admission state and attempt number used to reject stale activation requests.
+///
+
 #[derive(Clone, Copy, Debug, Deserialize, Serialize, Eq, PartialEq)]
 pub struct Maintenance {
     /// Zero before first maintenance, otherwise monotonically increasing.

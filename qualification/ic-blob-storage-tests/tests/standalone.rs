@@ -130,6 +130,7 @@ async fn management(
 
 fn root() -> [u8; 32] {
     let hex = "b5b435d47a4cce7dfec493b1e020c5308d9c7fe90add1aff510f9c2a9c4ea8e7";
+
     std::array::from_fn(|i| u8::from_str_radix(&hex[2 * i..2 * i + 2], 16).unwrap())
 }
 

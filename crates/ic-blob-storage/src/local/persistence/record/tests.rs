@@ -40,6 +40,7 @@ fn record() -> Record {
         .authorize(actor(1), request, &[root], &[], 10)
         .unwrap();
     model.register(actor(2), root, 10).unwrap();
+
     Record::capture(&model, input.manager, actor(8), 0)
 }
 

@@ -89,6 +89,7 @@ pub(super) fn fixture(role: &str) -> Input {
     else {
         panic!("expected prepare-install");
     };
+
     input
 }
 

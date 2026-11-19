@@ -60,5 +60,6 @@ pub fn check_manifest(
     if root_with_metadata(&frontier, metadata) != expected_root {
         return Err(VerificationError::RootMismatch);
     }
+
     Ok(())
 }

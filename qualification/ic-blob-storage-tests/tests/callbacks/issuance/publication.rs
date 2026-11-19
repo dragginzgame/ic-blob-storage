@@ -24,6 +24,7 @@ async fn application_state(pic: &PocketIc, app: CanisterId) -> Vec<Vec<u8>> {
             );
         }
     }
+
     result
 }
 
@@ -42,6 +43,7 @@ fn declaration() -> DraftInput {
             hash.finalize().into()
         })
         .collect();
+
     DraftInput {
         id: 1.try_into().unwrap(),
         asset: "portrait".into(),
@@ -66,6 +68,7 @@ async fn app_update<T: Serialize>(
         .update(&app, method, &frame(method, input))
         .await
         .unwrap();
+
     wire::decode(
         &bytes,
         wire::Encoding::Frame {
@@ -82,6 +85,7 @@ async fn catalog(user: &Client, app: CanisterId) -> Vec<DraftView> {
         .query(&app, "app_catalog", &frame("app_catalog", &()))
         .await
         .unwrap();
+
     wire::decode::<Result<Vec<DraftView>, AppError>>(
         &bytes,
         wire::Encoding::Frame {
@@ -121,6 +125,7 @@ async fn cli_application(
     if let Some(id) = id {
         command.args(["--id", &id.to_string()]);
     }
+
     tokio::time::timeout(Duration::from_secs(30), command.output())
         .await
         .unwrap()
@@ -133,6 +138,7 @@ fn cli_report(output: &std::process::Output) -> &str {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
+
     std::str::from_utf8(&output.stdout).unwrap()
 }
 

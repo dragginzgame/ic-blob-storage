@@ -187,6 +187,7 @@ impl Record {
         {
             return Err(OpenError::Record);
         }
+
         Ok(model)
     }
 }

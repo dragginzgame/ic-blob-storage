@@ -36,6 +36,7 @@ fn arguments(output: &std::path::Path) -> Vec<String> {
         args.extend([flag.to_owned(), Principal::from_slice(&[id, 1]).to_text()]);
     }
     args.extend(["--output".into(), output.to_str().unwrap().into()]);
+
     args
 }
 
@@ -44,6 +45,7 @@ fn prepare(args: Vec<String>) -> Result<String, String> {
     let RootCommand::Application(Command::PrepareInstallation(input)) = cli.command else {
         panic!("expected installation preparation")
     };
+
     run(input)
 }
 
@@ -59,6 +61,7 @@ fn fixture() -> PathBuf {
                 .as_nanos()
         ));
     fs::create_dir_all(&path).unwrap();
+
     path.canonicalize().unwrap()
 }
 

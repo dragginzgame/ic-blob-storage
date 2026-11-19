@@ -56,6 +56,7 @@ impl State {
             memory(true),
             wire::encode(&record, wire::Encoding::Payload, LIMITS).unwrap(),
         );
+
         Self { record, cell }
     }
 
@@ -76,6 +77,7 @@ impl State {
             arguments(owner, view.configuration.target_balance)
         );
         assert!(view.outcome.is_none() || view.attempted_at.is_some());
+
         Self { record, cell }
     }
 
@@ -142,6 +144,7 @@ fn memory(fresh: bool) -> RuntimeMemory<DefaultMemoryImpl> {
             &GenericAllocationPolicy,
         )
         .unwrap();
+
     runtime
         .open_memory(&StableKey::parse("enrollment.control.v1").unwrap())
         .unwrap()

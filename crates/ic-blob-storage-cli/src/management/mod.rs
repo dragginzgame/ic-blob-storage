@@ -107,6 +107,7 @@ impl<'a> Operation<'a> {
                 wasm,
             )
             .await?;
+
             return Ok(());
         }
         if let Self::Upgrade { stop_record, .. } = self {
@@ -121,6 +122,7 @@ impl<'a> Operation<'a> {
             return start::admit(context, stop_record, upgrade_record, attempt, wasm).await;
         }
         let view = context.inspect().await?;
+
         match self {
             Self::Drain
                 if view.maintenance.active
@@ -162,8 +164,10 @@ impl<'a> Operation<'a> {
             if original.attempt != attempt {
                 return Err("predecessor attempt mismatch".into());
             }
+
             return Ok(Some(original));
         }
+
         Ok(None)
     }
 
@@ -212,6 +216,7 @@ impl<'a> Operation<'a> {
             }
             operation.admit_custody(context, attempt, target)?;
         }
+
         Ok(())
     }
 }
@@ -286,6 +291,7 @@ pub(super) async fn prepare(
     files::publish(&held, "request.cbor".as_ref(), signed.envelope_bytes()).map_err(|error| {
         format!("signed management request publication failed; preserve claim: {error}")
     })?;
+
     Ok(format!(
         "Prepared {}: request_id={} attempt={attempt}; NOT submitted. Preserve the original claim; no renewal or retry is authorized.",
         operation.name(),
@@ -358,6 +364,7 @@ fn load(context: &Context, directory: &Path, operation: Operation<'_>) -> Result
     let id = content
         .request_id()
         .map_err(|_| "cannot derive original request ID")?;
+
     Ok(Original {
         attempt: intent.attempt,
         packet,
@@ -385,6 +392,7 @@ pub(super) async fn observe(
     if matches!(operation, Operation::Stop) {
         return stop::observe(context, &original.id, status).await;
     }
+
     match status {
         RequestStatus::Replied(reply) => acknowledge(&original.id, original.attempt, &reply, false),
         RequestStatus::Rejected { .. } => {
@@ -406,6 +414,7 @@ async fn request_status(context: &Context, original: &Original) -> Result<Reques
         crate::network::MESSAGE_BYTES,
     )
     .map_err(|_| "invalid original signed request")?;
+
     Ok(context.client.observe(&prepared).await?.status().clone())
 }
 
@@ -420,6 +429,7 @@ fn acknowledge(id: &[u8; 32], attempt: u64, bytes: &[u8], active: bool) -> Resul
         RPC_LIMITS,
     )
     .map_err(|_| format!("invalid original {operation} reply"))?;
+
     match result {
         Ok(Outcome::Maintenance(state)) if state.attempt == attempt && state.active == active => {
             Ok(format!(
@@ -458,6 +468,7 @@ pub(super) async fn admit_tooling(checkout: &Path) -> Result<(), String> {
     if !status.success() {
         return Err("tooling admission refused dispatch".into());
     }
+
     Ok(())
 }
 
@@ -469,6 +480,7 @@ fn unexpired(expires_at: u64) -> Result<(), String> {
     if u128::from(expires_at) <= now {
         return Err("original request expired; no renewal authorized".into());
     }
+
     Ok(())
 }
 
@@ -531,6 +543,7 @@ pub(super) async fn dispatch(
         .transport
         .dispatch(&prepared, crate::network::policy(false)?)
         .await;
+
     match result {
         Ok(ic_platform::native::Dispatch::Observed(observed))
             if matches!(observed.status(), RequestStatus::Replied(_)) =>

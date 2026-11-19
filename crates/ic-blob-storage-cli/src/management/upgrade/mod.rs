@@ -23,6 +23,7 @@ pub(super) fn argument(context: &Context, wasm: &[u8]) -> Result<Vec<u8>, String
         RPC_LIMITS,
     )
     .map_err(|_| "cannot encode fixed upgrade arguments")?;
+
     InstallCodeArgs {
         // Omitted flags select ordinary upgrade: run pre_upgrade, replace heap.
         // There are deliberately no CLI overrides or fresh-install fallback.
@@ -41,6 +42,7 @@ pub(super) async fn admit(context: &Context, record: &Path, attempt: u64) -> Res
     if stop::status(context, &context.wasm_hash).await? != CanisterStatusType::Stopped {
         return Err("upgrade requires the admitted host to remain stopped".into());
     }
+
     Ok(())
 }
 
@@ -61,11 +63,13 @@ pub(super) async fn confirm_stop(
             );
         }
     }
+
     Ok(())
 }
 
 pub(super) fn acknowledge(id: &[u8; 32], bytes: &[u8]) -> Result<String, String> {
     stop::reply(bytes).map_err(|_| "invalid original upgrade reply")?;
+
     Ok(format!(
         "Original upgrade acknowledged: request_id={display_id}; historical outcome only, no start or activation approval.",
         display_id = crate::overview::hex(id)
@@ -96,6 +100,7 @@ pub(super) async fn observe(
     if stop::status(context, &expected).await? != CanisterStatusType::Stopped {
         return Err("acknowledged upgrade target is no longer stopped".into());
     }
+
     Ok(format!(
         "Upgrade observed: request_id={display_id}; original acknowledgment and replacement Wasm matched, platform=Stopped; no start or activation approval.",
         display_id = crate::overview::hex(id)

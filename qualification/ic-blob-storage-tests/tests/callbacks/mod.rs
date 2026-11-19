@@ -108,6 +108,7 @@ async fn update(
         )
         .await
         .unwrap();
+
     wire::decode(
         &bytes,
         wire::Encoding::Frame {
@@ -129,6 +130,7 @@ async fn usage(pic: &PocketIc, owner: CanisterId) -> Observation {
         )
         .await
         .unwrap();
+
     wire::decode::<Result<Observation, Error>>(
         &bytes,
         wire::Encoding::Frame {
@@ -150,6 +152,7 @@ fn roots(values: &[Root]) -> Vec<u8> {
         bytes.push(32);
         bytes.extend_from_slice(root);
     }
+
     bytes
 }
 
@@ -158,6 +161,7 @@ async fn liveness(pic: &PocketIc, owner: CanisterId, values: &[Root]) -> Vec<boo
         .query_call(owner, CanisterId::anonymous(), LIVE, roots(values))
         .await
         .unwrap();
+
     provider::decode_liveness(&bytes, PROVIDER_LIMITS).unwrap()
 }
 
@@ -172,6 +176,7 @@ async fn candidates(pic: &PocketIc, owner: CanisterId) -> Vec<Vec<u8>> {
         .map(|root| root.as_slice().try_into().unwrap())
         .collect();
     assert_eq!(bytes, roots(&expected), "exact vec blob wire profile");
+
     result
 }
 
@@ -195,6 +200,7 @@ async fn install(pic: &PocketIc) -> CanisterId {
         Some(caller(9)),
     )
     .await;
+
     owner
 }
 

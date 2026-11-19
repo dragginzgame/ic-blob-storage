@@ -67,6 +67,7 @@ pub(super) fn commit_verified(
         return Err(Error::ReferenceAlreadyPublished);
     }
     catalog.insert(asset, original.first_reference);
+
     Ok(Publication::Inserted)
 }
 
@@ -81,6 +82,7 @@ pub(super) fn remove(
     let reference = blob
         .inspect_reference(application, expected)
         .map_err(Error::Blob)?;
+
     match catalog.get(asset) {
         Some(&current) if current == expected => {
             blob.release(application, expected).map_err(Error::Blob)?;

@@ -53,6 +53,7 @@ impl Relay {
                 }
             }
         });
+
         Self {
             url,
             packet,

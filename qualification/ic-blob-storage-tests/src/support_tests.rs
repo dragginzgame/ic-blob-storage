@@ -36,6 +36,7 @@ pub async fn instance(builder: PocketIcBuilder, lifetime_seconds: u64) -> (Serve
         .instance(builder, Duration::from_secs(60))
         .await
         .unwrap();
+
     (server, instance)
 }
 
@@ -101,5 +102,6 @@ pub async fn blob_state(
         .unwrap();
         state.push(value.unwrap());
     }
+
     state
 }

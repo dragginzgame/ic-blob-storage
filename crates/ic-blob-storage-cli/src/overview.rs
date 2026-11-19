@@ -46,6 +46,7 @@ impl Network {
                 .unwrap(),
             ),
         };
+
         Ok(trust)
     }
 
@@ -56,6 +57,7 @@ impl Network {
             .as_ref()
             .map(|p| crate::read(p, 16 * 1024))
             .transpose()?;
+
         Client::new(self.url.as_str(), key, subnet, pem.as_deref())
     }
 }
@@ -69,6 +71,7 @@ pub(crate) fn principal(value: &str) -> Result<Principal, String> {
     if is_special_principal(value) {
         return Err("expected a non-special principal".into());
     }
+
     Ok(value)
 }
 
@@ -155,6 +158,7 @@ pub(crate) async fn run(input: Input) -> Result<String, String> {
     output.push_str(
         "\nQuery observation, not consensus-certified evidence or a provider availability claim.",
     );
+
     Ok(output)
 }
 

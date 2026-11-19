@@ -2,17 +2,8 @@
 //! No uploads, certificates, arbitrary calls, attached cycles, timers or retries.
 
 pub mod protocol;
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "Native consumers use the protocol; installed IC handlers drive the private state."
-    )
-)]
 mod state;
 
-// Platform Runtime exposes IC system calls and transport only on Wasm.
-#[cfg(target_arch = "wasm32")]
 mod host {
     use crate::{
         protocol::{Error, Installation, LIMITS, Outcome, REPLY_BYTES, View},
@@ -31,8 +22,7 @@ mod host {
 
     // init
     // Bind the fresh probe to its controller-operator and Cashier.
-    // scope  : IC lifecycle
-    // limits : 16,384 request bytes
+    // limits : 16,384 request bytes, no reply
     #[ic_platform_runtime::init(
         runtime = ic_platform_runtime,
         guard = unguarded,
@@ -50,8 +40,7 @@ mod host {
 
     // pre_upgrade
     // Require the enrollment call to finish before upgrading the probe.
-    // scope  : IC lifecycle
-    // limits : no arguments
+    // limits : no request bytes or reply
     #[ic_platform_runtime::pre_upgrade(
         runtime = ic_platform_runtime,
         guard = unguarded,
@@ -68,8 +57,7 @@ mod host {
 
     // post_upgrade
     // Reopen the probe’s original enrollment record.
-    // scope  : IC lifecycle
-    // limits : 16,384 request bytes
+    // limits : 16,384 request bytes, no reply
     #[ic_platform_runtime::post_upgrade(
         runtime = ic_platform_runtime,
         guard = unguarded,
@@ -83,8 +71,7 @@ mod host {
 
     // enrollment_inspect
     // Let the configured controller-operator inspect the retained attempt.
-    // scope  : configured operator who is also a current controller
-    // limits : 16,384 request bytes
+    // limits : LIMITS for request and reply (16,384 bytes each)
     #[ic_platform_runtime::update(
         runtime = ic_platform_runtime,
         name = "enrollment_inspect",
@@ -99,9 +86,8 @@ mod host {
     }
 
     // enrollment_attempt
-    // Let the configured controller-operator submit once or inspect the existing attempt.
-    // scope  : configured operator who is also a current controller
-    // limits : 16,384 request bytes, one 30-second call with zero attached cycles per installation
+    // Let the controller-operator inspect the attempt or make one 30-second call with zero attached cycles per installation.
+    // limits : LIMITS for request and reply (16,384 bytes each)
     #[ic_platform_runtime::update(
         runtime = ic_platform_runtime,
         name = "enrollment_attempt",
@@ -145,6 +131,7 @@ mod host {
         // Revocation cannot erase an already incurred result. Record first, then
         // decide whether this caller may receive the retained observation.
         STATE.with_borrow_mut(|state| state.as_mut().unwrap().finish(outcome));
+
         inspect(caller)
     }
 
@@ -164,6 +151,7 @@ mod host {
         if caller != operator || !api::is_controller(&caller) {
             return Err(Error::Denied);
         }
+
         Ok(STATE.with_borrow(|state| state.as_ref().unwrap().view().clone()))
     }
 
@@ -172,6 +160,7 @@ mod host {
             ic0::msg_arg_data_size() <= LIMITS.bytes,
             "enrollment input limit"
         );
+
         wire::decode(
             bytes,
             wire::Encoding::Frame {

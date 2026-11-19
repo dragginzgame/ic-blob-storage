@@ -105,15 +105,15 @@ Install the published CLI with `cargo install ic-blob-storage-cli --locked`; the
 executable is `blob`. Rust 1.100.0 or newer and Cargo’s bin directory on PATH are
 required. Guarded maintenance still needs the matching source checkout and tools.
 
-Blob’s public Rust records use Platform Types 0.21.3, with Runtime 0.23.20
-in the hosts, Platform 0.34.18 for signed transport/proof custody and Protocol 0.3.6
+Blob’s public Rust records use Platform Types 0.21.3, with Runtime 0.23.22
+in the hosts, Platform 0.34.18 for signed transport/proof custody and Protocol 0.3.7
 for Caffeine and management codecs. No legacy Platform remains in the product.
-Installed tests select Testkit 0.110.0 and Host Process 0.81.0.
+Installed tests select Testkit 0.110.2 and Host Process 0.81.2.
 See the [integration boundary](docs/design/application-boundary.md#types-0212-integration).
 
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.45.18. Both workspaces select IC Wire 0.25.0's root-level
-`Encoding` API; no old `native` API adapter is retained. GitHub development uses the `main` branch of
+and published Toko Tooling 0.45.21. Both workspaces use IC Wire 0.26.0. Rust hosts
+that pass Blob’s `RPC_LIMITS` to Wire should also select Wire 0.26. GitHub development uses the `main` branch of
 `dragginzgame/ic-blob-storage`. Releases use the shared Toko workflow; there is no production deployment configuration.
 
 The [selected crate layout](docs/design/ic-blob-storage-design.md#selected-crate-layout)

@@ -34,5 +34,6 @@ pub(crate) async fn read(client: &Client, canister: Principal) -> Result<Caniste
             &argument(canister)?,
         )
         .await?;
+
     decode_canister_status(&bytes, LIMITS).map_err(|_| "invalid platform status reply".into())
 }

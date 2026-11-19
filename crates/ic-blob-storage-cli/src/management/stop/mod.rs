@@ -25,6 +25,7 @@ pub(super) async fn status(
     {
         return Err("platform artifact or manager/controller mismatch".into());
     }
+
     Ok(result.status)
 }
 
@@ -32,6 +33,7 @@ pub(super) async fn admit(context: &Context) -> Result<(), String> {
     if status(context, &context.wasm_hash).await? != CanisterStatusType::Running {
         return Err("stop preparation/dispatch requires a running, drained host".into());
     }
+
     Ok(())
 }
 
@@ -42,6 +44,7 @@ pub(super) fn reply(bytes: &[u8]) -> Result<(), String> {
 
 pub(super) fn acknowledge(id: &[u8; 32], bytes: &[u8]) -> Result<String, String> {
     reply(bytes)?;
+
     Ok(format!(
         "Original stop acknowledged: request_id={display_id}; historical outcome only. Observe current platform status before any further management.",
         display_id = crate::overview::hex(id)
@@ -70,6 +73,7 @@ pub(super) async fn observe(
             "original stop {outcome}; platform={current:?}; preserve custody, no resubmission or restart"
         ));
     }
+
     Ok(format!(
         "Stop observed: request_id={display_id} original={outcome} platform=Stopped; current observation only, not continuity, upgrade or activation approval.",
         display_id = crate::overview::hex(id)

@@ -85,6 +85,7 @@ async fn query<T: Serialize, R: DeserializeOwned>(
         RPC_LIMITS,
     )
     .map_err(|_| "invalid reference-application reply (target may not support this command)")?;
+
     result.map_err(|error| format!("Application inspection refused: {error:?}"))
 }
 
@@ -147,5 +148,6 @@ pub(crate) async fn run(command: Command) -> Result<String, String> {
             view.input.id).unwrap();
     }
     output.push_str("\nQuery observation, not consensus-certified evidence. Catalog publication does not prove provider availability; Cleaned does not prove deletion or settlement.");
+
     Ok(output)
 }

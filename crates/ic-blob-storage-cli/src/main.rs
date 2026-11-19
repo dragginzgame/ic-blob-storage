@@ -49,6 +49,7 @@ fn help_command() -> clap::Command {
             ))
             .mut_subcommands(banner)
     }
+
     banner(Cli::command())
 }
 
@@ -317,6 +318,7 @@ fn endpoint(value: &str) -> Result<Url, String> {
     {
         return Err("use HTTPS or loopback HTTP without credentials, query or fragment".into());
     }
+
     Ok(url)
 }
 
@@ -328,6 +330,7 @@ fn read(path: &Path, limit: usize) -> Result<Vec<u8>, String> {
         .canonicalize()
         .map_err(|error| format!("cannot resolve input file {path:?}: {error}"))?;
     let (parent, name) = files::parent(&resolved)?;
+
     files::read_at(&parent, name, limit)
         .map_err(|e| format!("cannot read bounded regular file {path:?}: {e}"))
 }
@@ -364,6 +367,7 @@ impl Context {
         if client.principal() != configuration.manager {
             return Err("identity does not match the expected manager".into());
         }
+
         Ok(Self {
             client,
             url: url.into(),
@@ -438,6 +442,7 @@ impl Context {
         if observed != *expected {
             return Err("installed Wasm changed during inspection".into());
         }
+
         Ok(view)
     }
 }
@@ -693,6 +698,7 @@ async fn main() -> ExitCode {
             | Command::Certificate(CertificateCommand::Recover(_) | CertificateCommand::Prepare(_))
             | Command::Transfer(_)
     );
+
     match tokio::time::timeout(Duration::from_secs(45), run(command)).await {
         Ok(Ok(message)) => {
             println!("{message}");

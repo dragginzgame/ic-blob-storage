@@ -34,6 +34,7 @@ fn client(input: &Input, selected: &Selection) -> Result<network::Client, String
     {
         return Err("installation controller or root differs from original custody".into());
     }
+
     Ok(client)
 }
 
@@ -54,6 +55,7 @@ fn unexpired(expiry: u64) -> Result<(), String> {
     if expiry <= network::now()? {
         return Err("original installation expired; preserve custody, never renew".into());
     }
+
     Ok(())
 }
 
@@ -66,6 +68,7 @@ fn retain(held: &Directory, observed: &RequestObservation) -> Result<(), String>
         // CreateNew preserves any concurrent/partial publication without repair.
         files::publish(held, OUTCOME.as_ref(), observed.certificate_bytes())?;
     }
+
     Ok(())
 }
 
@@ -105,6 +108,7 @@ pub(crate) async fn dispatch(input: DispatchInput) -> Result<String, String> {
     }
     unexpired(original.expiry())?;
     let client = client(&input.input, &selected)?;
+
     tokio::time::timeout(Duration::from_secs(30), async {
         management::admit_tooling(&input.checkout).await?;
         super::super::targets::admit_fresh(&client, selected.target).await?;
@@ -132,6 +136,7 @@ pub(crate) async fn observe(input: &Input) -> Result<String, String> {
         return Err("installation dispatch claim does not match the original request".into());
     }
     let client = client(input, &selected)?;
+
     tokio::time::timeout(Duration::from_secs(30), async {
         let observed = if present(&held, OUTCOME)? {
             let certificate = files::read_at(&held, OUTCOME.as_ref(), network::MESSAGE_BYTES)?;

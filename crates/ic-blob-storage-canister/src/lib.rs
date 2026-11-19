@@ -1,14 +1,8 @@
 //! Experimental standalone host. All domain and admission rules live in the library.
 //! Exports only owned Wire methods; no Caffeine certificate, callback or network call.
 
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(dead_code, reason = "The installed IC entrypoints call these codecs.")
-)]
 mod codec;
 
-// Platform Runtime exposes IC system calls and transport only on Wasm.
-#[cfg(target_arch = "wasm32")]
 mod host {
     use crate::codec::{self, INIT, MANAGEMENT, QUERY, UPDATE, UPGRADE};
     use ic_blob_storage::{
@@ -31,8 +25,7 @@ mod host {
 
     // init
     // Create the fresh standalone service with the supplied authority and limits.
-    // scope  : IC lifecycle
-    // limits : 65,536 request bytes
+    // limits : 65,536 request bytes, no reply
     #[ic_platform_runtime::init(
         runtime = ic_platform_runtime,
         guard = codec::unguarded,
@@ -48,8 +41,7 @@ mod host {
 
     // pre_upgrade
     // Require drained admission before the controller replaces the module.
-    // scope  : IC lifecycle
-    // limits : no arguments
+    // limits : no request bytes or reply
     #[ic_platform_runtime::pre_upgrade(
         runtime = ic_platform_runtime,
         guard = codec::unguarded,
@@ -68,8 +60,7 @@ mod host {
 
     // post_upgrade
     // Reopen the existing service and verify admission remains drained.
-    // scope  : IC lifecycle
-    // limits : 65,536 request bytes
+    // limits : 65,536 request bytes, no reply
     #[ic_platform_runtime::post_upgrade(
         runtime = ic_platform_runtime,
         guard = codec::unguarded,
@@ -85,9 +76,9 @@ mod host {
     }
 
     // blob_update
-    // Apply a command under the ingress caller’s service permissions.
-    // scope  : application authority for grants and references, bound uploader for registration, manager for maintenance
-    // limits : 65,536 request bytes
+    // Apply grants and references for the application authority, registration for the bound uploader, or maintenance for the manager.
+    // guard  : admit checks the Wire byte budget and method header
+    // limits : RPC_LIMITS for request and reply
     #[ic_platform_runtime::update(
         runtime = ic_platform_runtime,
         name = "blob_update",
@@ -107,9 +98,9 @@ mod host {
     }
 
     // blob_query
-    // Inspect the local records visible to the caller.
-    // scope  : application authority for catalog inspection, bound uploader for its upload, manager for maintenance
-    // limits : 65,536 request bytes
+    // Inspect records under the caller’s application, uploader or maintenance permissions.
+    // guard  : admit checks the Wire byte budget and method header
+    // limits : RPC_LIMITS for request and reply
     #[ic_platform_runtime::query(
         runtime = ic_platform_runtime,
         name = "blob_query",
@@ -129,9 +120,9 @@ mod host {
     }
 
     // blob_management
-    // Return a replicated maintenance observation to an authorized management caller.
-    // scope  : configured manager
-    // limits : 65,536 request bytes
+    // Return a replicated maintenance observation to the configured manager.
+    // guard  : admit checks the Wire byte budget and method header
+    // limits : RPC_LIMITS for request and reply
     #[ic_platform_runtime::update(
         runtime = ic_platform_runtime,
         name = "blob_management",
@@ -182,6 +173,7 @@ mod host {
         runtime
             .bootstrap(&declarations, &grants, &GenericAllocationPolicy)
             .expect("storage admission");
+
         runtime
             .open_memory(&StableKey::parse(STORAGE_KEY).unwrap())
             .expect("Blob lease")
@@ -204,6 +196,7 @@ mod host {
         // Inspect only the fixed header before Runtime allocates/copies the payload.
         ic0::msg_arg_data_copy(&mut header, 0);
         ic_wire::validate_request_header(ID, &header).unwrap_or_else(|error| trap(error));
+
         Ok(())
     }
 

@@ -24,6 +24,7 @@ use serde::Serialize;
 fn raw_reply(bytes: &[u8]) -> Vec<u8> {
     assert!(bytes.len() <= REPLY_BYTES + 1);
     let data: String = bytes.iter().map(|b| format!("\\{b:02x}")).collect();
+
     wat::parse_str(format!(
         r#"(module
       (import "ic0" "msg_reply_data_append" (func $append (param i32 i32)))
@@ -86,6 +87,7 @@ async fn install(pic: &PocketIc, cashier: CanisterId) -> CanisterId {
         Some(actor()),
     )
     .await;
+
     owner
 }
 

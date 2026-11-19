@@ -1,14 +1,8 @@
 //! Local provider candidate: callbacks and a certified-ingress reply, with no provider calls.
 //! Never deploy this qualification artifact on a live funded owner.
 
-#[cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(dead_code, reason = "The installed IC entrypoints call these codecs.")
-)]
 mod external;
 
-// Platform Runtime exposes IC system calls and transport only on Wasm.
-#[cfg(target_arch = "wasm32")]
 mod host {
     use crate::external;
     use ic_blob_storage::{
@@ -33,8 +27,7 @@ mod host {
 
     // init
     // Install the probe with its Blob configuration and callback gateway.
-    // scope  : IC lifecycle
-    // limits : 65,536 request bytes
+    // limits : 65,536 request bytes, no reply
     #[ic_platform_runtime::init(
         runtime = ic_platform_runtime,
         guard = unguarded,
@@ -65,8 +58,7 @@ mod host {
 
     // pre_upgrade
     // Require drained admission before upgrading the probe.
-    // scope  : IC lifecycle
-    // limits : no arguments
+    // limits : no request bytes or reply
     #[ic_platform_runtime::pre_upgrade(
         runtime = ic_platform_runtime,
         guard = unguarded,
@@ -85,8 +77,7 @@ mod host {
 
     // post_upgrade
     // Reopen the existing control records and callback binding.
-    // scope  : IC lifecycle
-    // limits : 65,536 request bytes
+    // limits : 65,536 request bytes, no reply
     #[ic_platform_runtime::post_upgrade(
         runtime = ic_platform_runtime,
         guard = unguarded,
@@ -115,9 +106,9 @@ mod host {
     }
 
     // blob_update
-    // Exercise a local Blob command with the actual caller.
-    // scope  : application authority for grants and references, bound uploader for registration, manager for maintenance
-    // limits : 65,536 request bytes
+    // Apply grants and references for the application authority, registration for the bound uploader, or maintenance for the manager.
+    // guard  : admit checks the Wire byte budget
+    // limits : RPC_LIMITS for request and reply
     #[ic_platform_runtime::update(
         runtime = ic_platform_runtime,
         name = "blob_update",
@@ -137,9 +128,9 @@ mod host {
     }
 
     // blob_query
-    // Read the local Blob records visible to the caller.
-    // scope  : application authority for catalog inspection, bound uploader for its upload, manager for maintenance
-    // limits : 65,536 request bytes
+    // Inspect records under the caller’s application, uploader or maintenance permissions.
+    // guard  : admit checks the Wire byte budget
+    // limits : RPC_LIMITS for request and reply
     #[ic_platform_runtime::query(
         runtime = ic_platform_runtime,
         name = "blob_query",
@@ -160,9 +151,9 @@ mod host {
     }
 
     // issue
-    // Register the bound uploader’s root and return the candidate certificate response.
-    // scope  : uploader bound to the grant for this root
-    // limits : 4,096 request bytes, one canonical SHA-256 root
+    // Register one canonical SHA-256 root for its bound uploader and return the certificate response record.
+    // guard  : admit_callback checks the Candid byte budget
+    // limits : 4,096 request bytes, 1,024 reply bytes
     #[ic_platform_runtime::update(
         runtime = ic_platform_runtime,
         name = "_immutableObjectStorageCreateCertificate",
@@ -183,13 +174,14 @@ mod host {
                 .execute(api::caller(), Command::Register(root), api::time())
                 .unwrap()
         });
+
         root
     }
 
     // liveness
-    // Report the probe’s retention decision for each requested root.
-    // scope  : public
-    // limits : 4,096 request bytes, at most 64 roots
+    // Report retention decisions for up to 64 roots to any caller.
+    // guard  : admit_callback checks the Candid byte budget
+    // limits : 4,096 bytes each for request and reply
     #[ic_platform_runtime::query(
         runtime = ic_platform_runtime,
         name = "_immutableObjectStorageBlobsAreLive",
@@ -209,8 +201,8 @@ mod host {
 
     // candidates
     // Return release candidates to the configured gateway.
-    // scope  : configured gateway
-    // limits : 4,096 request bytes
+    // guard  : admit_callback checks the Candid byte budget
+    // limits : 4,096 bytes each for request and reply
     #[ic_platform_runtime::query(
         runtime = ic_platform_runtime,
         name = "_immutableObjectStorageBlobsToDelete",
@@ -225,9 +217,9 @@ mod host {
     }
 
     // acknowledge
-    // Record the gateway’s acknowledgment for candidate roots.
-    // scope  : configured gateway
-    // limits : 4,096 request bytes, at most 64 roots
+    // Record the configured gateway’s deletion acknowledgment for up to 64 roots.
+    // guard  : admit_callback checks the Candid byte budget
+    // limits : 4,096 bytes each for request and reply
     #[ic_platform_runtime::update(
         runtime = ic_platform_runtime,
         name = "_immutableObjectStorageConfirmBlobDeletion",
@@ -285,6 +277,7 @@ mod host {
                 &GenericAllocationPolicy,
             )
             .unwrap();
+
         runtime
     }
 
@@ -299,6 +292,7 @@ mod host {
 
     fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result<T, wire::Error> {
         admit().unwrap();
+
         wire::decode(
             bytes,
             wire::Encoding::Frame {

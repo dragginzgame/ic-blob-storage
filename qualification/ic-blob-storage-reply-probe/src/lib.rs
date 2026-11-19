@@ -1,22 +1,13 @@
 //! Installed synchronous reply-failure probe for the selected Platform/Wire hooks.
 //! Owns one raw stable page solely to observe IC rollback; never deployed as Blob.
 
-#![cfg_attr(
-    not(target_arch = "wasm32"),
-    expect(
-        dead_code,
-        reason = "Platform generates callers for these probe hooks only in the installed Wasm."
-    )
-)]
-
 use ic_storage::{DefaultMemoryImpl, Memory};
 use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
 
 // init
 // Allocate the stable page used to observe committed writes.
-// scope  : IC lifecycle
-// limits : 32 request bytes
+// limits : 32 request bytes, no reply
 #[ic_platform_runtime::init(
     runtime = ic_platform_runtime,
     guard = unguarded,
@@ -30,8 +21,7 @@ fn init(_: ()) {
 
 // probe_write
 // Increment the probe byte and optionally trigger a reply-encoding failure.
-// scope  : public
-// limits : 32 request bytes
+// limits : LIMITS for request and reply (32 bytes each)
 #[ic_platform_runtime::update(
     runtime = ic_platform_runtime,
     name = "probe_write",
@@ -44,14 +34,14 @@ fn init(_: ()) {
 fn probe_write(fail_reply: bool) -> Vec<u8> {
     let value = probe_read(()) + 1;
     DefaultMemoryImpl::default().write(0, &[value]);
+
     // No manual reply or simulated error: the actual encoder must trap after this write.
     vec![value; if fail_reply { LIMITS.bytes } else { 1 }]
 }
 
 // probe_read
 // Read the last committed probe byte.
-// scope  : public
-// limits : 32 request bytes
+// limits : LIMITS for request and reply (32 bytes each)
 #[ic_platform_runtime::query(
     runtime = ic_platform_runtime,
     name = "probe_read",
@@ -64,6 +54,7 @@ fn probe_write(fail_reply: bool) -> Vec<u8> {
 fn probe_read(_: ()) -> u8 {
     let mut value = [0];
     DefaultMemoryImpl::default().read(0, &mut value);
+
     value[0]
 }
 
@@ -115,8 +106,6 @@ fn empty(_: &[u8]) -> Result<(), std::convert::Infallible> {
     Ok(())
 }
 
-// The generated Wasm entrypoints report codec errors through the IC trap API.
-#[cfg(target_arch = "wasm32")]
 fn fail(error: impl std::fmt::Debug) -> ! {
     ic_platform_runtime::system::trap(&format!("entrypoint failed: {error:?}"))
 }

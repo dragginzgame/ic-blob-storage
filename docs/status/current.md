@@ -5,7 +5,7 @@
 **0.106.3 is published** for the library, standalone canister, reference application
 and CLI. The annotated [GitHub tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.106.3)
 points to `fe3dccc4cabf217e466825dd9cf2ad7dea03d0ce`. The CLI on PATH reports
-`blob 0.106.3`. Both workspace locks select Storage 0.78.6, Wire 0.25.2 and
+`blob 0.106.3`. The release locks select Storage 0.78.6, Wire 0.25.2 and
 Toko Tooling 0.45.18. Qualification stays private.
 
 All 17 local release stages passed, including eight installed suites. This run
@@ -21,14 +21,10 @@ next release-tooling maintenance pass with the two-lock metadata fixture.
 
 ## Next action and provider boundary
 
-Both workspaces select registry Platform 0.34.18, Runtime and Macros 0.23.20,
-Protocol 0.3.6 and Types 0.21.3. Runtime 0.23.20 still exposes `raw`, `system`
-and `Call::execute` only on Wasm. Removing the guards with this release fails
-native CLI and qualification builds. When the portable Runtime and macros reach
-crates.io, move the four target-specific dependency tables into ordinary
-dependencies and remove the five target guards and five native lint expectations.
-The patch in `target/portable-runtime-review/` passed native Clippy, the
-enrollment unit test and 15 installed tests with the local Platform candidate.
+The pending 0.107.0 changes adopt IC Wire 0.26.0 and Toko Tooling 0.45.21 in
+both workspaces. Registry Runtime and Macros 0.23.22 now support native checks
+of the five canister implementations. Rust consumers of Blob's public Wire types
+should select Wire 0.26. See the [hygiene review](../reports/audits/2026/11/19/code-hygiene/03/report.md).
 
 Canic can integrate the released named-lease API and qualify its own composed catalog.
 Populated 0.103.3 or 0.104.0 installations still require separate disposition.

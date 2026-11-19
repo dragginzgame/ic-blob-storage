@@ -15,5 +15,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         _ => return Err("usage: prepare-server asset | check DIRECTORY | prepare ARCHIVE DIRECTORY ABSOLUTE_GZIP".into()),
     }
+
     Ok(())
 }

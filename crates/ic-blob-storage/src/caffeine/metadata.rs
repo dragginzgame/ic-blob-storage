@@ -42,6 +42,7 @@ pub(super) fn hash(
     for line in lines {
         hasher.update(line.as_bytes());
     }
+
     Ok(Some(hasher.finalize().into()))
 }
 

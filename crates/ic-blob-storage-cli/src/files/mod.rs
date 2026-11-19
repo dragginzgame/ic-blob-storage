@@ -47,17 +47,20 @@ pub(crate) fn directory(path: &Path, prepare: bool) -> Result<Directory, String>
             .map_err(|e| e.to_string())?
             .ok_or("missing custody directory")?;
     }
+
     Ok(held)
 }
 
 pub(crate) fn parent(path: &Path) -> Result<(Directory, &OsStr), String> {
     let name = path.file_name().ok_or("missing file name")?;
     let parent = directory(path.parent().ok_or("missing parent")?, false)?;
+
     Ok((parent, name))
 }
 
 pub(crate) fn claim(path: &Path) -> Result<Directory, String> {
     let (parent, name) = parent(path)?;
+
     parent
         .create_directory(name, 0o700, 0o077)
         .map_err(|e| e.to_string())
@@ -80,6 +83,7 @@ pub(crate) fn read_at(parent: &Directory, name: &OsStr, limit: usize) -> Result<
     if bytes.is_empty() {
         return Err("empty input".into());
     }
+
     Ok(bytes)
 }
 
@@ -120,6 +124,7 @@ pub(crate) fn publish(parent: &Directory, name: &OsStr, bytes: &[u8]) -> Result<
         .write_from(bytes, Length::Exactly(bytes.len() as u64))
         .and_then(ic_host_fs::Written::seal)
         .map_err(|e| format!("publication incomplete; preserve custody: {e:?}"))?;
+
     match sealed.commit() {
         Commit::Committed(_) => Ok(()),
         Commit::NotPublished { cause, .. } => {

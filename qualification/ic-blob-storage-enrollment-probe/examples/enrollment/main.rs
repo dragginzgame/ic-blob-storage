@@ -61,6 +61,7 @@ fn main() -> Result<(), String> {
         "{}",
         serde_json::to_string_pretty(&output).map_err(|error| error.to_string())?
     );
+
     Ok(())
 }
 
@@ -118,6 +119,7 @@ fn principal(value: &str) -> Result<Principal, String> {
     if value == Principal::anonymous() || value == Principal::management_canister() {
         return Err("an explicit non-anonymous principal is required".into());
     }
+
     Ok(value)
 }
 
@@ -125,6 +127,7 @@ fn unhex(value: &str) -> Result<Vec<u8>, String> {
     if value.len() > LIMITS.bytes * 2 || !value.len().is_multiple_of(2) || !value.is_ascii() {
         return Err("expected bounded, even-length hexadecimal".into());
     }
+
     (0..value.len())
         .step_by(2)
         .map(|offset| {
