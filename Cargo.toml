@@ -9,7 +9,7 @@ exclude = ["qualification"]
 resolver = "3"
 
 [workspace.package]
-version = "0.106.0"
+version = "0.106.1"
 edition = "2024"
 rust-version = "1.100.0"
 license-file = "LICENSE.md"
@@ -19,8 +19,8 @@ publish = ["crates-io"]
 [workspace.dependencies]
 # Production
 clap = { version = "4.6.7", features = ["derive"] }
-ic-blob-storage = { version = "0.106.0", path = "crates/ic-blob-storage" }
-ic-blob-storage-reference-app = { version = "0.106.0", path = "crates/ic-blob-storage-reference-app" }
+ic-blob-storage = { version = "0.106.1", path = "crates/ic-blob-storage" }
+ic-blob-storage-reference-app = { version = "0.106.1", path = "crates/ic-blob-storage-reference-app" }
 ic-host-artifacts = { version = "0.80.3", default-features = false }
 ic-host-fs = { version = "0.80.3", default-features = false }
 ic-platform = { version = "0.34.13", default-features = false }
