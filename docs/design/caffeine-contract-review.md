@@ -573,7 +573,7 @@ grant state, object declarations or usage counters. Service's format and ordinar
 authorization remain unchanged. Missing, foreign or inconsistent receipts refuse
 reopening without repair. No migration from the installed enrollment probe exists.
 
-The [qualification host](../../qualification/ic-blob-storage-callback-probe/src/host.rs)
+The [qualification host](../../qualification/ic-blob-storage-callback-probe/src/lib.rs)
 alone mounts this explicitly selected candidate, based on the pinned Motoko mixin
 and legacy callback profile:
 

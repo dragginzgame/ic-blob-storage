@@ -21,6 +21,19 @@ next release-tooling maintenance pass with the two-lock metadata fixture.
 
 ## Next action and provider boundary
 
+Development selects Toko Tooling 0.45.18. The five canister library roots now
+list their exported handlers, access rules and limits together. The standalone
+and callback codecs and the catalog and enrollment state also compile natively.
+
+Both workspaces select registry Platform 0.34.18, Runtime and Macros 0.23.20,
+Protocol 0.3.6 and Types 0.21.3. Runtime 0.23.20 still exposes `raw`, `system`
+and `Call::execute` only on Wasm. Removing the guards with this release fails
+native CLI and qualification builds. When the portable Runtime and macros reach
+crates.io, move the four target-specific dependency tables into ordinary
+dependencies and remove the five target guards and five native lint expectations.
+The patch in `target/portable-runtime-review/` passed native Clippy, the
+enrollment unit test and 15 installed tests with the local Platform candidate.
+
 Canic can integrate the released named-lease API and qualify its own composed catalog.
 Populated 0.103.3 or 0.104.0 installations still require separate disposition.
 

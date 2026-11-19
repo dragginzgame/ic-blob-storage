@@ -482,9 +482,9 @@ limits. A synchronous output-encoding failure must trap in the same execution,
 rolling back the handler's stable mutation; converting it into an ordinary error
 reply would change the transaction contract.
 
-The [standalone host](../../crates/ic-blob-storage-canister/src/host.rs) needs init,
+The [standalone host](../../crates/ic-blob-storage-canister/src/lib.rs) needs init,
 pre-upgrade, post-upgrade, query and update exports. The
-[reference application](../../crates/ic-blob-storage-reference-app/src/host.rs)
+[reference application](../../crates/ic-blob-storage-reference-app/src/lib.rs)
 also needs a 30-second bounded awaited call with owned arguments. It records
 intent before dispatch and classifies failure as uncertain; Runtime must not
 retry, resume durable business operations or turn timeout into proof of no effect.

@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.106.3] - Unreleased
+
+### 🔧 Tooling
+
+- Adopt Toko Tooling 0.45.18 in both workspaces. Each canister library root now
+  lists its IC endpoints together with their caller permissions and request bounds.
+- Use published Platform Runtime, Macros and Runtime Guard 0.23.20 across
+  the product and qualification workspaces. Both lockfiles select Platform
+  0.34.18, Storage 0.78.6 and Wire 0.25.2.
+
 ## [0.106.2] - 2026-11-19
 
 ### 🔧 Tooling
