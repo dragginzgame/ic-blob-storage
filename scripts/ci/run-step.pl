@@ -3,6 +3,9 @@ use strict;
 use warnings;
 use File::Path qw(make_path);
 use Fcntl qw(O_WRONLY O_CREAT O_EXCL);
+use Errno qw(EINTR);
+use FindBin;
+use IO::File;
 
 # Capture only this command's output, including attempt logs printed by Toko's
 # installers. Never crawl retained tool stores, homes or provider custody.
@@ -35,9 +38,10 @@ sub diagnostic {
 sub retain {
     my ($line) = @_;
     my $safe = diagnostic($line)."\n";
-    if ($printed + length($safe) <= 65536) { print "[$phase] $safe" }
+    my $progress = "[$phase] $safe";
+    if ($printed + length($progress) <= 65536) { print $progress }
     elsif ($printed <= 65536) { print "[$phase] Further console output suppressed; retaining bounded tail.\n" }
-    $printed += length($safe);
+    $printed += length($progress);
     $tail .= $safe;
     if (length($tail) > 65536) {
         substr($tail, 0, length($tail) - 65536, '');
@@ -51,8 +55,15 @@ if (!$pid) {
     open STDERR, '>&', STDOUT or die "cannot capture stderr\n";
     exec { $command[0] } @command or die "cannot execute CI command: $!\n";
 }
-my $discard = 0;
-while (read($child, my $chunk, 4096)) {
+my ($discard, $read_error) = (0, 0);
+while (1) {
+    my $count = sysread($child, my $chunk, 4096);
+    if (!defined $count) {
+        next if $! == EINTR;
+        $read_error = 1;
+        last;
+    }
+    last unless $count;
     $pending .= $chunk;
     while ($pending =~ s/\A([^\n]*)\n//) {
         my $line = $1;
@@ -73,9 +84,11 @@ while (read($child, my $chunk, 4096)) {
         $pending = substr($pending, -16); $discard = 1; $omitted = 1;
     }
 }
-retain($pending) if length($pending) && !$discard;
+retain($pending) if length($pending) && !$discard && !$read_error;
 close $child;
-my $status = $? & 127 ? 128 + ($? & 127) : $? >> 8;
+my $wait = $?;
+my $status = $wait == -1 ? 1 : $wait & 127 ? 128 + ($wait & 127) : $wait >> 8;
+$status ||= 1 if $read_error;
 exit 0 unless $status;
 my $root = $ENV{RUNNER_TEMP};
 if (!defined($root)) {
@@ -88,11 +101,21 @@ my $summary = "phase=$phase tool=$command[0] original_status=$status\n".
     ($omitted ? "Output truncated or oversized lines omitted.\n" : '').
     (length($tail) ? '' : "No command diagnostics were emitted.\n");
 print STDERR $summary;
-if ($printed > 65536) {
-    print STDERR "Failure excerpt (last 16 KiB):\n";
-    print STDERR "[$phase] $_\n" for split /\n/, substr($tail, -16384);
-}
 eval {
+    # Toko 0.45.21 collects through EOF. Keep immediate console progress above,
+    # then pass only its bounded, sanitized tail to the shared failure formatter.
+    # An admission failure must work even if the module itself is missing or corrupt.
+    if ($phase ne 'admit' && length $tail) {
+        require "$FindBin::Bin/../../vendor/toko-tooling/scripts/ci/SetupDiagnostics.pm";
+        my $input = IO::File->new_tmpfile or die "cannot prepare diagnostic excerpt: $!\n";
+        print {$input} $tail or die "cannot buffer diagnostic excerpt: $!\n";
+        seek $input, 0, 0 or die "cannot rewind diagnostic excerpt: $!\n";
+        $tail = SetupDiagnostics::excerpt($input);
+    }
+    if ($printed > 65536) {
+        print STDERR "Failure excerpt (last 16 KiB):\n";
+        print STDERR "[$phase] $_\n" for split /\n/, substr($tail, -16384);
+    }
     -d $root && !-l $root or die "runner temp is unavailable or redirected\n";
     !-l "$root/blob-ci-evidence" or die "evidence directory is redirected\n";
     make_path("$root/blob-ci-evidence", {mode => 0700});

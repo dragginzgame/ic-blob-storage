@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.107.1] - Unreleased
+
+### 🔧 Tooling
+
+- CI uses Toko’s shared formatter for failure excerpts and streams short progress
+  lines as they arrive. Evidence collection preserves the command’s exit status.
+- Refresh the locks to IC Wire 0.26.1, Platform Runtime 0.23.23 and Types 0.21.4.
+  Qualification uses Testkit 0.110.3.
+
 ## [0.107.0] - 2026-11-19
 
 ### ⚠️ Breaking changes

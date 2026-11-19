@@ -26,6 +26,7 @@ revision	af1ba8e16aaf1dae0951f08a228a4f00b928d09ff68997bd94ccc397ace5e4be
 # entrypoint	vendor/toko-tooling/.github/actions/cache-tool-downloads/action.yml
 # entrypoint	vendor/toko-tooling/scripts/ci/archive-evidence.sh
 # entrypoint	vendor/toko-tooling/scripts/ci/extract-workflow-step.sh
+# entrypoint	vendor/toko-tooling/scripts/ci/SetupDiagnostics.pm
 file	5ad48a8fb19d0a83e48909947adfb2db853ea21d13898ae0e0a3963c0278cf94	-	TOKO-TOOLING.md
 file	3f2971bfefccf71cf4929cabd1fa000e0c7b3d4002b9a08ca58821ccb048c123	-	LICENSE.md
 file	0ae38d62c728fb06f1a2dd2325f99f2277bfdb0cd48ac6df49d4120c0bfe88bd	-	CONTRIBUTING.md
@@ -48,6 +49,7 @@ file	186289ce65fb422c2d44bacc689122e37fbbb9ece75ec126f906e1c3f859d598	-	vendor/t
 file	6b93b0a15bed59a00eb3bdace46b76ee360c396872702bb4182ad12b9bb4a29c	-	vendor/toko-tooling/.github/actions/cache-tool-downloads/action.yml
 file	5be336cb3e8045b2d2d536542a94944b376ee812b03f786a90b9d962ab697f13	x	vendor/toko-tooling/scripts/ci/archive-evidence.sh
 file	e2825c554ea3952515ecb2938f7ad592d6539ec5304c3b3107d32a1bfc6b4eda	-	vendor/toko-tooling/scripts/ci/extract-workflow-step.sh
+file	5c4b137ef1c611246d62a033b5f3f35acdf377ca1a5153c595d28fe4b0db644a	-	vendor/toko-tooling/scripts/ci/SetupDiagnostics.pm
 file	aec8dfcff940adbf7ca69d0e9edb4cd31b65648e1deef299ffb194e94e64c536	x	vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh
 file	da86464696f4f600f034566cef732aa680dc9c577e534519c71ee3d07172a875	-	vendor/toko-tooling/scripts/dev/toko-tooling.sh
 file	85acf1dd722a00daa6c0bbd7edaf49255285e10085829e9d9b3da6f886fca4b9	-	vendor/toko-tooling/make/tools.mk

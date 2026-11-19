@@ -2,10 +2,12 @@
 use strict;
 use warnings;
 use Test::More;
+use File::Copy qw(copy);
 use File::Temp qw(tempdir);
 use FindBin;
 
 my $root = tempdir(CLEANUP => 1);
+my $wrapper = "$FindBin::Bin/run-step.pl";
 local $ENV{RUNNER_TEMP} = $root;
 local $ENV{FIXTURE_TOKEN} = 'fixture-sensitive-value';
 local $ENV{FIXTURE_ACCESS_KEY} = 'synthetic-access-value';
@@ -21,7 +23,7 @@ sub run {
     if (!$pid) {
         open STDOUT, '>', "$root/$phase.console" or die $!;
         open STDERR, '>&', STDOUT or die $!;
-        exec $^X, "$FindBin::Bin/run-step.pl", $phase, $^X, '-e', $code, @args;
+        exec $^X, $wrapper, $phase, $^X, '-e', $code, @args;
         die "exec fixture: $!";
     }
     waitpid($pid, 0);
@@ -60,14 +62,37 @@ is(run('large', 'print "context\n" x 50000; print "x" x 50000; print "\nfinal di
 my $large = read_file("$root/blob-ci-evidence/large.txt");
 ok(length($large) < 67000, 'artifact has an explicit size bound');
 like($large, qr/Output truncated.*final diagnostic/s, 'truncation explicit and final diagnostic survives');
-ok(-s "$root/large.console" < 250000, 'console output bounded');
-is(run('success', 'print "ok\n"'), 0, 'successful command stays successful');
+ok(-s "$root/large.console" < 90000, 'console prefix and final excerpt stay bounded including phase labels');
+cmp_ok(scalar(() = $large =~ /^context$/mg), '<=', 99, 'failure artifact uses the shared excerpt line budget');
+like($large, qr/earlier output or oversized lines omitted/, 'shared formatter marks the evicted lines');
+is(run('success', q{
+    $| = 1;
+    print STDERR "Authorization: Bearer fixture-sensitive-value\n";
+    print "short progress line\n";
+    for (1..100) {
+        open my $console, '<', $ARGV[0] or die $!;
+        exit 0 if grep { /short progress line/ } <$console>;
+        select undef, undef, undef, 0.05;
+    }
+    exit 42;
+}, "$root/success.console"), 0, 'short sanitized progress reaches the console before the child exits');
+unlike(read_file("$root/success.console"), qr/fixture-sensitive-value/, 'successful stderr is also sanitized');
 ok(!-e "$root/blob-ci-evidence/success.txt", 'no success artifact');
 symlink "$root/.attempt/install.log", "$root/blob-ci-evidence/refused.txt" or die $!;
 my $original = read_file("$root/.attempt/install.log");
 is(run('refused', 'print "failure\n"; exit 29'), 29, 'collector refusal cannot mask original failure');
 is(read_file("$root/.attempt/install.log"), $original, 'collector never follows output symlink');
 like(read_file("$root/refused.console"), qr/Evidence collection failed/, 'collection failure explicit');
+is(run('early-setup', 'print "later failure\n"; exit 43'), 43, 'existing phase evidence preserves the later failure status');
+is(read_file("$root/blob-ci-evidence/early-setup.txt"), $saved, 'exclusive creation preserves the original phase file');
+{
+    my $redirected = "$root/redirected";
+    mkdir $redirected or die $!;
+    symlink "$root/.attempt", "$redirected/blob-ci-evidence" or die $!;
+    local $ENV{RUNNER_TEMP} = $redirected;
+    is(run('directory', 'exit 41'), 41, 'redirected evidence directory preserves child status');
+    ok(!-e "$root/.attempt/directory.txt", 'redirected directory receives no evidence');
+}
 {
     local $ENV{RUNNER_TEMP};
     delete $ENV{RUNNER_TEMP};
@@ -75,4 +100,11 @@ like(read_file("$root/refused.console"), qr/Evidence collection failed/, 'collec
 }
 my @artifacts = glob "$root/blob-ci-evidence/*";
 is(scalar @artifacts, 4, 'only selected diagnostic files and refused fixture link present');
+# Simulate an incomplete checkout. The snapshot verifier must be able to report
+# its own failure before any code from the selected diagnostics module is loaded.
+mkdir "$root/checkout" or die $!;
+$wrapper = "$root/checkout/run-step.pl";
+copy("$FindBin::Bin/run-step.pl", $wrapper) or die $!;
+is(run('admit', 'print "snapshot entry missing\n"; exit 17'), 17, 'bootstrap preserves verifier failure without the helper');
+like(read_file("$root/blob-ci-evidence/admit.txt"), qr/snapshot entry missing/, 'bootstrap retains the verifier diagnostic');
 done_testing();
