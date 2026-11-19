@@ -2,21 +2,21 @@
 
 ## Delivery and active work
 
-**0.107.0 is published** for the library, standalone canister, reference
-application and CLI. The [annotated GitHub tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.107.0)
-points to `6554f349112cf52680862c0b0a42185025a10728`. The CLI on PATH reports
-`blob 0.107.0`. The release locks select Storage 0.78.7, Wire 0.26.0 and
-Toko Tooling 0.45.21. Qualification stays private.
+**0.107.1 is published** for the library, standalone canister, reference
+application and CLI. The [annotated GitHub tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.107.1)
+points to `45f00946f9743fb487607249e75655e360c2916c`. The installed CLI reports
+`blob 0.107.1`. Both locks select Storage 0.78.7, Wire 0.26.1 and Toko Tooling
+0.45.21. Qualification stays private.
 
-All 17 local release stages passed, including the populated standalone upgrade
-from 0.106.3 and eight installed suites. The Node browser client ran, while the
-opt-in Chromium and historical incompatible-layout fixtures were outside the run.
-See `target/validation/blob.TuzDBO/proof.json` and the
-[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44576155053).
+All 17 local release stages passed, including eight installed suites. The
+diagnostics and workflow fixtures passed 100 assertions. The opt-in Chromium
+and historical incompatible-layout cases were outside the run.
+See `target/validation/blob.WaTZB6/proof.json` and the
+[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44591140858).
 
 All four downloads matched the prepared archives and the crates.io index checksums.
-See `target/01070-release/registry-verified.json`,
-`target/publication/provenance-01070-remote/` and `target/publication/publish.selection.RhqEtk/`.
+See `target/01071-release/registry-verified.json`,
+`target/publication/provenance-01071/` and `target/publication/publish.selection.7Evrw9/`.
 The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.5 in the
 next release-tooling maintenance pass with the two-lock metadata fixture.
 
@@ -97,11 +97,11 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Review and limitations
 
-Post-push review of `v0.106.3..v0.107.0` found no new parallel implementations
-or compatibility adapters. Runtime 0.23.22 lets the five canisters share their
-entrypoint code across native checks and Wasm builds. Their 31 exported names
-match the previous release. Blob still owns its service rules and the browser
-client owns transfer. See `target/01070-release/registry.exports`.
+The post-push review of `v0.107.0..v0.107.1` traced the CI wrapper through
+snapshot admission, live console output and retained failure evidence. Toko
+formats the failure excerpt after admission. The wrapper still streams sanitized
+progress because Toko 0.45.21 reads through EOF. Revisit that code if the helper
+adds streaming. [Blob issue #4](https://github.com/dragginzgame/ic-blob-storage/issues/4) is closed.
 
 Finite lifetime slots still bound sustained use. Provider acceptance/settlement,
 Canic composition and unrestricted-controller snapshot continuity remain unqualified.
