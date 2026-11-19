@@ -1,6 +1,6 @@
 use crate::{
     protocol::{Error, Installation, LIMITS, Outcome, REPLY_BYTES, View},
-    state::stable::State,
+    state::State,
 };
 use ic_platform_runtime::{
     call::{Call, Outcome as CallOutcome, Wait},

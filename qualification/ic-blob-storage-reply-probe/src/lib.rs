@@ -1,9 +1,14 @@
 //! Installed synchronous reply-failure probe for the selected Platform/Wire hooks.
 //! Owns one raw stable page solely to observe IC rollback; never deployed as Blob.
 
-#![cfg(target_arch = "wasm32")]
+#![cfg_attr(
+    not(target_arch = "wasm32"),
+    expect(
+        dead_code,
+        reason = "Platform generates callers for these probe hooks only in the installed Wasm."
+    )
+)]
 
-use ic_platform_runtime::system as api;
 use ic_storage::{DefaultMemoryImpl, Memory};
 use ic_wire as wire;
 use serde::{Serialize, de::DeserializeOwned};
@@ -101,6 +106,8 @@ fn empty(_: &[u8]) -> Result<(), std::convert::Infallible> {
     Ok(())
 }
 
+// The generated Wasm entrypoints report codec errors through the IC trap API.
+#[cfg(target_arch = "wasm32")]
 fn fail(error: impl std::fmt::Debug) -> ! {
-    api::trap(&format!("entrypoint failed: {error:?}"))
+    ic_platform_runtime::system::trap(&format!("entrypoint failed: {error:?}"))
 }

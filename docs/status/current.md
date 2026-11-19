@@ -19,6 +19,11 @@ registry checksums. See `target/01061-release/registry-verified.json`,
 The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.5 in the
 next release-tooling maintenance pass with the two-lock metadata fixture.
 
+Development selects Toko Tooling 0.45.16. Native builds compile the catalog and
+enrollment state and the standalone and callback codecs. Platform Runtime 0.23.18
+exports `system`, `raw` and `Call::execute` only on Wasm, so four IC host modules
+and the reply probe’s trap hook still require a Wasm target.
+
 ## Next action and provider boundary
 
 Canic can integrate the released named-lease API and qualify its own composed catalog.

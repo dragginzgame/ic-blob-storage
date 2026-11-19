@@ -6,15 +6,6 @@ rust-version.workspace = true
 license-file.workspace = true
 publish.workspace = true
 
-[target.'cfg(target_arch = "wasm32")'.dependencies]
-ic-blob-storage.workspace = true
-ic-platform-protocol = { workspace = true, features = ["caffeine"] }
-ic-platform-runtime = { workspace = true, features = ["entrypoint-macros", "system-raw"] }
-ic-platform-types.workspace = true
-ic-storage.workspace = true
-ic-wire.workspace = true
-serde.workspace = true
-
 [package.metadata.toko-tooling.loc]
 category = "tests"
 
@@ -23,6 +14,17 @@ ignored = ["toko-tooling"]
 
 [lib]
 crate-type = ["cdylib"]
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+ic-platform-runtime = { workspace = true, features = ["entrypoint-macros", "system-raw"] }
+ic-platform-types.workspace = true
+ic-storage.workspace = true
+ic-wire.workspace = true
+serde.workspace = true
+
+[dependencies]
+ic-blob-storage.workspace = true
+ic-platform-protocol = { workspace = true, features = ["caffeine"] }
 
 [dev-dependencies]
 toko-tooling.workspace = true

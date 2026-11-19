@@ -51,7 +51,7 @@ or SDK transfer is installed or contacted by this example.
 
 The [durable service](crates/ic-blob-storage/src/local/persistence/mod.rs) now backs
 the same rules with a bounded, versioned stable cell. The experimental
-[standalone host](crates/ic-blob-storage-canister/src/lib.rs) captures IC callers
+[standalone host](crates/ic-blob-storage-canister/src/host.rs) captures IC callers
 and time, and mounts `blob_update` / `blob_query` using Wire. Its 64 upload and
 64 reference slots include historical identities. Reopening rebuilds indexes and
 accounting from validated records; no empty-state fallback exists.
@@ -112,7 +112,7 @@ Installed tests select Testkit 0.110.0 and Host Process 0.81.0.
 See the [integration boundary](docs/design/application-boundary.md#types-0212-integration).
 
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.45.15. Both workspaces select IC Wire 0.25.0's root-level
+and published Toko Tooling 0.45.16. Both workspaces select IC Wire 0.25.0's root-level
 `Encoding` API; no old `native` API adapter is retained. GitHub development uses the `main` branch of
 `dragginzgame/ic-blob-storage`. Releases use the shared Toko workflow; there is no production deployment configuration.
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.106.2] - Unreleased
+
+### 🔧 Tooling
+
+- Adopt Toko Tooling 0.45.16 in both workspaces. Native builds now check the
+  standalone Wire codecs, callback codecs, catalog state and enrollment storage.
+  Wasm target guards cover the IC entrypoints and the reply probe's trap hook.
+
 ## [0.106.1] - 2026-11-19
 
 ### 🔧 Tooling

@@ -3,9 +3,8 @@
 
 use ic_blob_storage::local::{Root, persistence::callbacks::MAX_ROOTS};
 use ic_platform_protocol::{caffeine as c, candid::Limits};
-use ic_platform_runtime::raw as ic0;
 
-const BYTES: usize = 4096;
+pub(super) const BYTES: usize = 4096;
 const LIMITS: Limits = Limits {
     bytes: BYTES,
     header: 512,
@@ -15,15 +14,6 @@ const LIMITS: Limits = Limits {
     vector: 4096,
     skipping: 65_536,
 };
-
-/// Bound the provider request before decoding. Each callback applies its own access policy.
-pub(super) fn admit() -> Result<(), String> {
-    if ic0::msg_arg_data_size() > BYTES {
-        Err("callback input limit".into())
-    } else {
-        Ok(())
-    }
-}
 
 #[expect(
     clippy::unnecessary_wraps,
