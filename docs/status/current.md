@@ -2,28 +2,24 @@
 
 ## Delivery and active work
 
-**0.106.2 is published** for the library, standalone canister, reference application
-and CLI. The annotated [GitHub tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.106.2)
-points to `b7dc3cece8c2cda8251abf49588e644fbd21f049`. The CLI on PATH reports
-`blob 0.106.2`. Both workspace locks select Storage 0.78.4, Wire 0.25.1 and
-Toko Tooling 0.45.16. Qualification stays private.
+**0.106.3 is published** for the library, standalone canister, reference application
+and CLI. The annotated [GitHub tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.106.3)
+points to `fe3dccc4cabf217e466825dd9cf2ad7dea03d0ce`. The CLI on PATH reports
+`blob 0.106.3`. Both workspace locks select Storage 0.78.6, Wire 0.25.2 and
+Toko Tooling 0.45.18. Qualification stays private.
 
 All 17 local release stages passed, including eight installed suites. This run
 covered the Node browser client. The optional Chromium and historical-layout
-cases were outside the run. See `target/validation/blob.Tu4dtQ/proof.json` and
-the [release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44504517777).
+cases were outside the run. See `target/validation/blob.sFK8au/proof.json` and
+the [release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44528719732).
 
 All four archives downloaded from crates.io matched the prepared bytes and
-registry checksums. See `target/01062-release/registry-verified.json`,
-`target/publication/provenance-01062/` and `target/publication/publish.selection.kDZP5C/`.
+registry checksums. See `target/01063-release/registry-verified.json`,
+`target/publication/provenance-01063/` and `target/publication/publish.selection.vPFA1J/`.
 The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.5 in the
 next release-tooling maintenance pass with the two-lock metadata fixture.
 
 ## Next action and provider boundary
-
-Development selects Toko Tooling 0.45.18. The five canister library roots now
-list their exported handlers, access rules and limits together. The standalone
-and callback codecs and the catalog and enrollment state also compile natively.
 
 Both workspaces select registry Platform 0.34.18, Runtime and Macros 0.23.20,
 Protocol 0.3.6 and Types 0.21.3. Runtime 0.23.20 still exposes `raw`, `system`
@@ -106,11 +102,11 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Review and limitations
 
-Post-push review of `v0.106.1..v0.106.2` confirmed that native and Wasm builds
-use the same catalog and enrollment state and the same standalone and callback
-codecs. Four IC host modules and the reply probe’s trap hook retain target guards
-for Wasm-only Platform Runtime APIs. Enrollment now keeps its record and stable
-cell together. The release introduced no second storage implementation.
+Post-push review of `v0.106.2..v0.106.3` confirmed that all five canister
+library roots group the handlers with their permissions and bounds. Their release
+Wasms export the same 31 IC entrypoints. The shared codecs and state still
+compile natively, and the endpoint move left provider custody with its existing
+owners. See `target/01063-release/registry.exports`.
 
 Finite lifetime slots still bound sustained use. Provider acceptance/settlement,
 Canic composition and unrestricted-controller snapshot continuity remain unqualified.
