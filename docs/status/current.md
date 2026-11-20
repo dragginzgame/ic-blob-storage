@@ -1,19 +1,18 @@
-# Current status — 2026-11-20
+# Current status — 2026-11-21
 
 ## Delivery and active work
 
-**0.108.0 is published** for the library, standalone canister, reference application
-and CLI. The [annotated tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.108.0)
-points to `b31177f9b1424fbf49ae8a59ac4212e505dfeafc`. The installed CLI reports
-`blob 0.108.0`. Each crates.io download matched its prepared archive and registry
-checksum. See `target/01080-release/registry-verified.json` and
-`target/publication/provenance-01080/`.
+**0.108.1 is published** for the library, standalone canister, reference application
+and CLI. Each crates.io download matched its prepared archive and registry checksum.
+The local CLI reports `blob 0.108.1`. See the [annotated tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.108.1),
+`target/01081-release/registry-verified.json` and `target/publication/provenance-01081-remote/`.
 
-All 17 local release stages passed, including eight installed suites and the
-standalone upgrade from 0.107.1. The optional Chromium and historical
-incompatible-layout cases were outside the run. See
-`target/validation/blob.NIrbGK/proof.json` and the
-[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44826429523).
+All 17 local release stages passed, including the eight installed suites and
+the standalone upgrade from the locked 0.108.0 tag. The tagged release Wasms
+also passed the eight-method Wire manifest comparison. The optional Chromium
+and historical incompatible-layout cases were outside the run. See
+`target/validation/blob.9BpjGV/proof.json` and the
+[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44837485540).
 
 ## Next action and provider boundary
 
@@ -97,12 +96,12 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Review and limitations
 
-The `v0.107.1..v0.108.0` review traced command observations to
-`Service::execute`. Blob owns the event meanings, and the host owns the metrics
-handle, log retention and reporting. The observability read endpoints live in
-the private callback probe. The standalone and reference application retain the
-callable methods checked by the baseline. Live provider custody remains with
-the existing owner.
+The `v0.108.0..v0.108.1` review counted 730 lines of reviewed Wire manifests
+and 507 net lines of private Rust qualification. The existing qualifier reads
+the two product mounts and their Serde declarations. Wire owns the manifest
+format. When Wire gains native support for the four integer projections, revisit
+the projection helpers and source extraction together. Both product Wasms keep
+schema generation out of their dependency graphs.
 
 Finite lifetime slots still bound sustained use. Provider acceptance/settlement,
 Canic composition and unrestricted-controller snapshot continuity remain unqualified.
