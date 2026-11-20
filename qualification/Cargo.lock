@@ -995,7 +995,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage"
-version = "0.108.0"
+version = "0.108.1"
 dependencies = [
  "ic-logging",
  "ic-metrics",
@@ -1038,7 +1038,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-reference-app"
-version = "0.108.0"
+version = "0.108.1"
 dependencies = [
  "ic-blob-storage",
  "ic-platform-runtime",
