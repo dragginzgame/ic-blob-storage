@@ -132,7 +132,7 @@ for my $job (sort keys %{$workflow->{jobs}}) {
     ok(!exists $steps->[$cache[1]]{if}, "$job saves only after successful setup");
     is($steps->[$cache[1]]{with}{mode}, 'save', "$job saves only through the shared guarded save branch");
     my $checks = join "\n", map {$_->{run} // ''} @$steps[$cache[1]+1..$#$steps];
-    like($checks, qr/(?:make ci build-host build-reference-app|make test-references test-caffeine test-local test-cli test-example-local|gitleaks" git)/, "$job saves before its original validation coverage");
+    like($checks, qr/(?:make ci check-callable-api|make test-references test-caffeine test-local test-cli test-example-local|gitleaks" git)/, "$job saves before its original validation coverage");
     ok(!grep({exists $_->{'continue-on-error'}} @$steps), "$job preserves setup/check failures");
 }
 my $linux = join "\n", map {$_->{run} // ''} @{$workflow->{jobs}{linux}{steps}};

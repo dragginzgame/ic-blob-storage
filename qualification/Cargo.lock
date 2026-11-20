@@ -281,9 +281,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.11.2"
+version = "1.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33ef9e3e8154a45c7a95cff4c1299702106ad94062d7bb85fdc5d3a5afd91d45"
+checksum = "02f0e023adb368345ce0ca6cdfc0f24a06554468d0e8503e14a0841de79bfa69"
 dependencies = [
  "find-msvc-tools",
  "jobserver",
@@ -336,9 +336,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.6.8"
+version = "4.6.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ac230478587d0269d8d6998b82ae69ea51509d55df66d9e92edd1f986904cd4a"
+checksum = "844c5c0b65be192cb68d570cca1b21a6444431d24e39c084dc0336177015337c"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -358,9 +358,9 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "4.6.8"
+version = "4.6.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "895c9d8d2ac2dd8b8a29f3724a14e72aaaa6debcf8c38c82f97305c6a172767a"
+checksum = "b4c174f11f949b9ca8c60580925e282b9cbd5454750e506f08648b2038080cd7"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -699,6 +699,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
+name = "foldhash"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb"
+
+[[package]]
 name = "form_urlencoded"
 version = "1.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -858,6 +864,11 @@ name = "hashbrown"
 version = "0.17.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ed5909b6e89a2db4456e54cd5f673791d7eca6732202bbf2a9cc504fe2f9b84a"
+dependencies = [
+ "foldhash",
+ "serde",
+ "serde_core",
+]
 
 [[package]]
 name = "heck"
@@ -986,6 +997,8 @@ dependencies = [
 name = "ic-blob-storage"
 version = "0.107.1"
 dependencies = [
+ "ic-logging",
+ "ic-metrics",
  "ic-platform-types",
  "ic-storage",
  "ic-wire",
@@ -998,6 +1011,7 @@ name = "ic-blob-storage-callback-probe"
 version = "0.100.9"
 dependencies = [
  "ic-blob-storage",
+ "ic-logging",
  "ic-platform-protocol",
  "ic-platform-runtime",
  "ic-platform-types",
@@ -1082,19 +1096,20 @@ dependencies = [
 
 [[package]]
 name = "ic-host-artifacts"
-version = "0.80.6"
+version = "0.80.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85a2dde3da173216b499a8e272e226207577ef0ee0344e172e3d40b248af8030"
+checksum = "72ce4d058e0c7d95236311ac00bf274feefff7820dcbf70ad9528559db6ca491"
 dependencies = [
  "sha2 0.11.1",
  "thiserror 2.0.18",
+ "wasmparser",
 ]
 
 [[package]]
 name = "ic-host-fs"
-version = "0.80.6"
+version = "0.80.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee05d23138ab61cb33014fb7d46983f21887e5eec0f9ce9bcf4c712a3643704b"
+checksum = "cbb8bec15385be7577cae7630b6852744c1150993ef56931ec38c763ff1fc90f"
 dependencies = [
  "ic-host-artifacts",
  "rustix",
@@ -1114,6 +1129,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "ic-logging"
+version = "0.25.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7d953bdc17bc0642e0c09de2dbf6f5dca41730571499588ee904c564166a2e6e"
+
+[[package]]
 name = "ic-management-canister-types"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1125,10 +1146,16 @@ dependencies = [
 ]
 
 [[package]]
-name = "ic-platform"
-version = "0.34.18"
+name = "ic-metrics"
+version = "0.30.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b59c6bf641d9d87b4c7cac1012398998b1f4a6217b81bd580b3c84d421b43a2d"
+checksum = "c00ef25ff7952d6b6e667ba64f5840fdf3c933cabe2e03a34a42ce4e92cad488"
+
+[[package]]
+name = "ic-platform"
+version = "0.34.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6372d2e30ba4e84ff47824dd1a4542e88215a18890afd9804fed99525bc35962"
 dependencies = [
  "curve25519-dalek",
  "ed25519-dalek",
@@ -1208,9 +1235,9 @@ dependencies = [
 
 [[package]]
 name = "ic-storage"
-version = "0.78.7"
+version = "0.78.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cfd78eb2becf9ae4a0a7d46ca4c742d0041eb19b364c50384e4cbc4e5aafdb11"
+checksum = "f1dc2f3cf6f4d861a7584c5e856e50251c1cc081df43123817b0704793905574"
 dependencies = [
  "ic-platform",
  "ic-platform-runtime",
@@ -1269,9 +1296,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire"
-version = "0.26.1"
+version = "0.27.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0375907693869ca5de23befc66639d7e982d85a342b8fb06c1bc7ceafed13c4b"
+checksum = "cda4acc0a5815dfb96de0e23509cece62f9fa24abf18f1ce900827fa975dad17"
 dependencies = [
  "bytemuck",
  "postcard",
@@ -1418,6 +1445,8 @@ checksum = "cc4e190f5d26ca7051642629da2c52fc03bde85a03197c99408dcd291734c855"
 dependencies = [
  "equivalent",
  "hashbrown",
+ "serde",
+ "serde_core",
 ]
 
 [[package]]
@@ -2756,9 +2785,9 @@ dependencies = [
 
 [[package]]
 name = "toko-tooling"
-version = "0.45.21"
+version = "0.46.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af1ba8e16aaf1dae0951f08a228a4f00b928d09ff68997bd94ccc397ace5e4be"
+checksum = "4601d2785aaa14e01fd8656d6b3a57653337b214e027810c953595f1d91d6a8d"
 
 [[package]]
 name = "tower"
@@ -3090,8 +3119,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4f5fa0a054ae153606df820eb0a84213e28cda41bbe04ba2628e71b6ba100fcb"
 dependencies = [
  "bitflags",
+ "hashbrown",
  "indexmap",
  "semver",
+ "serde",
 ]
 
 [[package]]

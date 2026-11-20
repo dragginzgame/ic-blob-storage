@@ -1,9 +1,9 @@
 # Toko Tooling snapshot v1
-# version	0.45.21
+# version	0.46.0
 # layout	vendor
 format	1
 source	https://crates.io/crates/toko-tooling
-revision	af1ba8e16aaf1dae0951f08a228a4f00b928d09ff68997bd94ccc397ace5e4be
+revision	4601d2785aaa14e01fd8656d6b3a57653337b214e027810c953595f1d91d6a8d
 # entrypoint	TOKO-TOOLING.md
 # entrypoint	LICENSE.md
 # entrypoint	CONTRIBUTING.md
@@ -27,7 +27,8 @@ revision	af1ba8e16aaf1dae0951f08a228a4f00b928d09ff68997bd94ccc397ace5e4be
 # entrypoint	vendor/toko-tooling/scripts/ci/archive-evidence.sh
 # entrypoint	vendor/toko-tooling/scripts/ci/extract-workflow-step.sh
 # entrypoint	vendor/toko-tooling/scripts/ci/SetupDiagnostics.pm
-file	5ad48a8fb19d0a83e48909947adfb2db853ea21d13898ae0e0a3963c0278cf94	-	TOKO-TOOLING.md
+# entrypoint	vendor/toko-tooling/scripts/ci/check-api-baseline.sh
+file	6750a18a92577ae4fea265c60f34cc80e442335c6f9edeccd498f75debbaa283	-	TOKO-TOOLING.md
 file	3f2971bfefccf71cf4929cabd1fa000e0c7b3d4002b9a08ca58821ccb048c123	-	LICENSE.md
 file	0ae38d62c728fb06f1a2dd2325f99f2277bfdb0cd48ac6df49d4120c0bfe88bd	-	CONTRIBUTING.md
 file	e5be6f538ee619be119aef9b3fca9d156f35c08732d9775e4e2efd698db8cbd7	-	vendor/toko-tooling/make/consumer.mk
@@ -50,6 +51,7 @@ file	6b93b0a15bed59a00eb3bdace46b76ee360c396872702bb4182ad12b9bb4a29c	-	vendor/t
 file	5be336cb3e8045b2d2d536542a94944b376ee812b03f786a90b9d962ab697f13	x	vendor/toko-tooling/scripts/ci/archive-evidence.sh
 file	e2825c554ea3952515ecb2938f7ad592d6539ec5304c3b3107d32a1bfc6b4eda	-	vendor/toko-tooling/scripts/ci/extract-workflow-step.sh
 file	5c4b137ef1c611246d62a033b5f3f35acdf377ca1a5153c595d28fe4b0db644a	-	vendor/toko-tooling/scripts/ci/SetupDiagnostics.pm
+file	f8762150035cfb78ff48ef9c43f803356bfe7ae1748489472f9e5377cb6b0feb	x	vendor/toko-tooling/scripts/ci/check-api-baseline.sh
 file	aec8dfcff940adbf7ca69d0e9edb4cd31b65648e1deef299ffb194e94e64c536	x	vendor/toko-tooling/scripts/ci/verify-toko-tooling-snapshot.sh
 file	da86464696f4f600f034566cef732aa680dc9c577e534519c71ee3d07172a875	-	vendor/toko-tooling/scripts/dev/toko-tooling.sh
 file	85acf1dd722a00daa6c0bbd7edaf49255285e10085829e9d9b3da6f886fca4b9	-	vendor/toko-tooling/make/tools.mk
@@ -75,7 +77,7 @@ file	29f615ebb5393b02b901985a41e07c7838b3e37d39404a5b98f7c5e09b5f8043	-	vendor/t
 file	e00937f22bd31231993ae9c1d7eda844227b39529466d017de44dbc1f0618026	-	vendor/toko-tooling/scripts/ci/cargo-workspace-members.jq
 file	fed2573258080a0c89c7db113208a774f615ca29c372e62c1d2334e58c165654	x	vendor/toko-tooling/scripts/ci/compare-stable-versions.pl
 file	b0221c706bcd6382fbb5d658529466aa447e3e03222df74524131115eed4d203	-	vendor/toko-tooling/scripts/ci/release-metadata-transaction.sh
-file	d2670d079e6fe54ccb72f0f6fab328723bf1baf7829b852ba8157cc9ddebd27b	x	vendor/toko-tooling/scripts/ci/validate-release-inputs.pl
+file	0804fb5ba6008b8fadd42f12b5668c53d6c91cfbb6f4113bd32545d74d950ad0	x	vendor/toko-tooling/scripts/ci/validate-release-inputs.pl
 file	6c094eb6af59e9071c7fa5e87c917202f866b220a94e59f1b4fffe154ed5f92e	-	vendor/toko-tooling/scripts/ci/ValidationPlan.pm
 file	c8693a4bc058f31c1592c86e7037f0ed02a9719a8a0269038e0a45e16ca93c0b	-	vendor/toko-tooling/scripts/ci/validation-input-checkpoint.pl
 file	172ab2415f4816bdad7955720ef45445b4bd81283c928d7ef2ee3de9064b69b5	x	vendor/toko-tooling/scripts/ci/collect-tool-evidence.sh

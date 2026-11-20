@@ -10,6 +10,8 @@ check-common: dependency-pins-check tooling-binding-check fmt-check documentatio
 check-library:
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-blob-storage --all-targets --all-features -- -D warnings
 	CARGO_BUILD_WARNINGS=deny cargo test --locked -p ic-blob-storage --lib
+	CARGO_BUILD_WARNINGS=deny cargo test --locked -p ic-blob-storage --features metrics --lib
+	CARGO_BUILD_WARNINGS=deny cargo test --locked -p ic-blob-storage --features logging --lib
 	$(MAKE) --no-print-directory example-local test-example-local
 	RUSTDOCFLAGS='-D warnings' cargo doc --locked -p ic-blob-storage --all-features --no-deps
 

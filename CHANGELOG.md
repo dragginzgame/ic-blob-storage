@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.108.0] - Unreleased
+
+### ⚠️ Breaking changes
+
+- Blob’s public Rust codec types now use IC Wire 0.27. Hosts that pass Blob’s
+  `RPC_LIMITS` to Wire or handle its codec errors should also select Wire 0.27.
+
+### Added
+
+- The optional `metrics` library feature lets embedded hosts supply a heap store
+  for command outcomes and registered object sizes on creation and reopening.
+- The independent `logging` feature emits Blob lifecycle events and selected refusals
+  through a host-supplied recorder compatible with Canic’s shared log.
+
+### 🔧 Tooling
+
+- Adopt Toko Tooling 0.46.0 and IC Wire 0.27.1 in both workspaces. PR CI
+  compares callable method names and modes in the standalone and reference-app
+  release Wasms with the 0.107.1 baseline.
+
 ## [0.107.1] - 2026-11-19
 
 ### 🔧 Tooling

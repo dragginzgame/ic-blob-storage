@@ -11,6 +11,12 @@ mod record;
 #[cfg(test)]
 mod tests;
 
+#[cfg(feature = "metrics")]
+use {
+    crate::metrics::{CommandKind, Metrics, MetricsStorage},
+    std::rc::Rc,
+};
+
 use ic_platform_types::Principal;
 use ic_storage::{Memory, RuntimeMemory, adapter::StableCell};
 
@@ -30,7 +36,11 @@ pub const STORAGE_AUTHORITY: &str = "blob";
 /// Hard pilot limit; released/cancelled identities continue occupying these slots.
 pub const MAX_RECORDS: usize = 64;
 
-/// Refused creation or reopening. Never repair or initialize on a load failure.
+///
+/// OpenError
+/// Cause of a refused creation or reopening. Hosts must preserve the allocation on failure.
+///
+
 #[derive(Debug)]
 pub enum OpenError {
     /// Invalid authority or unsupported resource limits.
@@ -45,14 +55,25 @@ pub enum OpenError {
     Record,
 }
 
-/// The sole library policy model and its durable backing; hosts own neither a second
-/// ledger nor admission flags. A lease may outlive the host's bootstrap runtime.
+#[cfg(feature = "logging")]
+type LogRecorder = dyn Fn(ic_logging::Level, &'static str, &str);
+
+///
+/// Service
+/// Owns the policy model, admission state and durable ledger. The memory lease
+/// can outlive the host’s bootstrap runtime.
+///
+
 pub struct Service<M: Memory> {
     model: LocalModel,
     manager: Principal,
     installation: Principal,
     attempt: u64,
     cell: StableCell<Vec<u8>, M>,
+    #[cfg(feature = "logging")]
+    log: Option<Box<LogRecorder>>,
+    #[cfg(feature = "metrics")]
+    metrics: Option<Rc<MetricsStorage>>,
 }
 
 impl<M: Memory> Service<M> {
@@ -79,6 +100,10 @@ impl<M: Memory> Service<M> {
             installation,
             attempt: 0,
             cell,
+            #[cfg(feature = "logging")]
+            log: None,
+            #[cfg(feature = "metrics")]
+            metrics: None,
         })
     }
 
@@ -102,14 +127,73 @@ impl<M: Memory> Service<M> {
             installation,
             attempt,
             cell,
+            #[cfg(feature = "logging")]
+            log: None,
+            #[cfg(feature = "metrics")]
+            metrics: None,
         })
+    }
+
+    /// Create a service that records commands into the host's heap store.
+    /// # Errors
+    /// Returns the same installation errors as [`Self::create`].
+    #[cfg(feature = "metrics")]
+    pub fn create_with_metrics(
+        memory: RuntimeMemory<M>,
+        installation: Principal,
+        input: Installation,
+        storage: Rc<MetricsStorage>,
+    ) -> Result<Self, OpenError> {
+        let mut service = Self::create(memory, installation, input)?;
+        service.metrics = Some(storage);
+
+        Ok(service)
+    }
+
+    /// Reopen the durable ledger and use the supplied heap store for subsequent commands.
+    /// Supply a fresh store on upgrade to start a new observation window.
+    /// # Errors
+    /// Returns the same reopening errors as [`Self::open`].
+    #[cfg(feature = "metrics")]
+    pub fn open_with_metrics(
+        memory: RuntimeMemory<M>,
+        installation: Principal,
+        storage: Rc<MetricsStorage>,
+    ) -> Result<Self, OpenError> {
+        let mut service = Self::open(memory, installation)?;
+        service.metrics = Some(storage);
+
+        Ok(service)
+    }
+
+    /// Snapshot the bound host storage. An uninstrumented service has no observations.
+    /// The trusted host owns transport and access policy for this aggregate.
+    #[cfg(feature = "metrics")]
+    #[must_use]
+    pub fn metrics(&self) -> Option<Metrics> {
+        self.metrics.as_ref().map(|storage| storage.snapshot())
+    }
+
+    /// Send selected operational events to the host's single heap log.
+    /// Bind after creation or reopening. Rebinding replaces the previous recorder.
+    /// The host supplies time and retention and should handle append refusals locally.
+    /// The recorder runs synchronously in the command's execution and must not trap.
+    #[cfg(feature = "logging")]
+    #[must_use]
+    pub fn with_logging(
+        mut self,
+        record: impl Fn(ic_logging::Level, &'static str, &str) + 'static,
+    ) -> Self {
+        self.log = Some(Box::new(record));
+
+        self
     }
 
     /// Apply one synchronous command and persist before returning its outcome.
     /// Caller and time must be independently captured by the host. Time uses the
     /// host's units (the standalone host uses IC nanoseconds).
     /// # Errors
-    /// Ordinary domain and authorization refusals leave both owners unchanged.
+    /// Ordinary refusals preserve the ledger and count as refused commands when observed.
     /// # Panics
     /// Persistence/encoding failure must roll back this IC execution; do not catch it.
     pub fn execute(
@@ -118,6 +202,58 @@ impl<M: Memory> Service<M> {
         command: Command,
         now: u64,
     ) -> Result<Outcome, Error> {
+        #[cfg(feature = "metrics")]
+        let kind = CommandKind::from(&command);
+        #[cfg(feature = "metrics")]
+        let previous_exposure = self.model.unresolved_bytes;
+
+        #[cfg(feature = "logging")]
+        let (previous_live_bytes, was_active) = (self.model.live_bytes, self.model.active);
+
+        let result = self.apply(caller, command, now);
+
+        #[cfg(feature = "logging")]
+        if let Some(record) = &self.log {
+            use ic_logging::Level::{Info, Warn};
+
+            // Each registered object has positive declared length. Only first registration
+            // adds live bytes, and only the final release subtracts them.
+            let event = match &result {
+                Ok(_) if self.model.live_bytes > previous_live_bytes => {
+                    Some((Info, "object registered"))
+                }
+                Ok(_) if self.model.live_bytes < previous_live_bytes => {
+                    Some((Info, "final reference released"))
+                }
+                Ok(Outcome::Maintenance(state)) if state.active != was_active => Some((
+                    Info,
+                    if state.active {
+                        "admission reopened"
+                    } else {
+                        "admission drained"
+                    },
+                )),
+                Err(Error::Capacity) => Some((Warn, "capacity limit reached")),
+                Err(Error::Expired) => Some((Warn, "request deadline elapsed")),
+                _ => None,
+            };
+            if let Some((level, message)) = event {
+                record(level, "blob", message);
+            }
+        }
+
+        #[cfg(feature = "metrics")]
+        if let Some(metrics) = &self.metrics {
+            // A successful registration adds exactly the admitted object's declared bytes.
+            let registered_bytes = (kind == CommandKind::Register && result.is_ok())
+                .then(|| self.model.unresolved_bytes - previous_exposure);
+            metrics.record(kind, result.as_ref().err().copied(), registered_bytes);
+        }
+
+        result
+    }
+
+    fn apply(&mut self, caller: Principal, command: Command, now: u64) -> Result<Outcome, Error> {
         let outcome = match command {
             Command::Authorize {
                 request,

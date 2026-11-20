@@ -93,7 +93,7 @@ jobs:
         run: |
           perl scripts/ci/run-step.pl linux-checks bash -e -o pipefail <<'BLOB_CI_STEP'
           perl scripts/ci/test-workflow.pl
-          make ci build-host build-reference-app
+          make ci check-callable-api
           BLOB_CI_STEP
       - name: Retain failure diagnostics
         if: failure()

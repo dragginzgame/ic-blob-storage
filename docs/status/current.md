@@ -1,11 +1,11 @@
-# Current status — 2026-11-19
+# Current status — 2026-11-20
 
 ## Delivery and active work
 
 **0.107.1 is published** for the library, standalone canister, reference
 application and CLI. The [annotated GitHub tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.107.1)
 points to `45f00946f9743fb487607249e75655e360c2916c`. The installed CLI reports
-`blob 0.107.1`. Both locks select Storage 0.78.7, Wire 0.26.1 and Toko Tooling
+`blob 0.107.1`. The release locks select Storage 0.78.7, Wire 0.26.1 and Toko Tooling
 0.45.21. Qualification stays private.
 
 All 17 local release stages passed, including eight installed suites. The
@@ -22,10 +22,17 @@ next release-tooling maintenance pass with the two-lock metadata fixture.
 
 ## Next action and provider boundary
 
-Rust hosts passing Blob’s `RPC_LIMITS` to Wire or handling its codec errors
-should select Wire 0.26. See the [hygiene review](../reports/audits/2026/11/19/code-hygiene/03/report.md).
+The pending 0.108.0 changes select Wire 0.27.1 and Toko 0.46.0. Rust consumers
+using Blob’s codec types should select Wire 0.27 with this update. PR CI compares
+callable names and modes for both product Wasms. Per-method request and reply
+schema comparison still needs Wire projections for nonzero IDs and sizing fields.
+See the [rules and hygiene review](../reports/audits/2026/11/20/code-hygiene/01/report.md).
 
 Canic can integrate the released named-lease API and qualify its own composed catalog.
+The pending optional [Blob metrics source](../../crates/ic-blob-storage/README.md#optional-operational-metrics)
+is ready for a Canic-owned typed source and report projection after publication.
+Its [logging hook](../../crates/ic-blob-storage/README.md#optional-operational-logging)
+can bind directly to the existing recorder in the Canic checkout.
 Populated 0.103.3 or 0.104.0 installations still require separate disposition.
 
 [Storage #6](https://github.com/dragginzgame/ic-storage/issues/6) tracks native

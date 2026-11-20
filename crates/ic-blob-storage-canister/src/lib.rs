@@ -189,7 +189,7 @@ mod host {
         if length > RPC_LIMITS.bytes {
             api::trap("Wire request exceeds byte allowance");
         }
-        let mut header = [0; 11]; // Wire's fixed request-header argument, validated below.
+        let mut header = [0; _]; // The Wire validator sets the array length.
         if length < header.len() {
             trap(ic_wire::Error::Malformed);
         }

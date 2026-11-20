@@ -1,0 +1,5 @@
+update "app_cancel"
+query "app_catalog"
+update "app_create"
+query "app_draft"
+update "app_publish"

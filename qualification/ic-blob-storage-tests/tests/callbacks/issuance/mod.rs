@@ -61,6 +61,40 @@ async fn inspect(pic: &PocketIc, owner: CanisterId, request: Inspection) -> Obse
     .unwrap()
 }
 
+async fn registration_metrics(
+    pic: &PocketIc,
+    owner: CanisterId,
+    who: u8,
+) -> Result<([u128; 5], u64), Error> {
+    probe_report(pic, owner, who, "probe_registration_metrics").await
+}
+
+async fn logs(pic: &PocketIc, owner: CanisterId, who: u8) -> Result<Vec<String>, Error> {
+    probe_report(pic, owner, who, "probe_log_messages").await
+}
+
+async fn probe_report<T: serde::de::DeserializeOwned>(
+    pic: &PocketIc,
+    owner: CanisterId,
+    who: u8,
+    method: &str,
+) -> T {
+    let bytes = pic
+        .query_call(owner, caller(who), method, frame(method, &()))
+        .await
+        .unwrap();
+
+    wire::decode(
+        &bytes,
+        wire::Encoding::Frame {
+            method: wire::method_id(method),
+            direction: wire::Direction::Response,
+        },
+        RPC_LIMITS,
+    )
+    .unwrap()
+}
+
 #[tokio::test]
 async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
     let (server, owned) =
@@ -143,6 +177,22 @@ async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
             before
         );
     }
+    assert_eq!(logs(pic, owner, 1).await, Err(Error::Denied));
+    assert!(logs(pic, owner, 9).await.unwrap().is_empty());
+    // The issuer traps on refusal; its attempted command observations roll back too.
+    assert_eq!(
+        registration_metrics(pic, owner, 2).await,
+        Err(Error::Denied)
+    );
+    assert_eq!(registration_metrics(pic, owner, 1).await, Ok(([0; 5], 0)));
+    assert_eq!(
+        update(pic, owner, 2, Command::Register([3; 32])).await,
+        Err(Error::Expired)
+    );
+    assert_eq!(
+        registration_metrics(pic, owner, 1).await,
+        Ok(([0, 0, 0, 1, 0], 0))
+    );
     // Submit once; delay retrieving the client result until after final release.
     let pending = pic
         .submit_call(owner, caller(2), ISSUE, issue_args(root))
@@ -175,6 +225,25 @@ async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
             .is_err()
     );
     assert!(update(pic, owner, 1, grant(4, root, 2)).await.is_err());
+    // The ordinary command returns its refusal, committing exactly one failed request.
+    assert_eq!(
+        update(pic, owner, 2, Command::Register(root)).await,
+        Err(Error::NotReserved)
+    );
+    for _ in 0..2 {
+        assert_eq!(
+            logs(pic, owner, 9).await.unwrap(),
+            [
+                "request deadline elapsed",
+                "object registered",
+                "final reference released"
+            ]
+        );
+        assert_eq!(
+            registration_metrics(pic, owner, 1).await,
+            Ok(([1, 0, 0, 1, 1], 1))
+        );
+    }
     ack(pic, owner, &[root]).await;
     let exposure = usage(pic, owner).await;
     update(pic, owner, 9, Command::Drain(1)).await.unwrap();
@@ -196,6 +265,8 @@ async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
     );
     assert!(candidates(pic, owner).await.is_empty());
     assert_eq!(usage(pic, owner).await, exposure);
+    assert_eq!(logs(pic, owner, 9).await.unwrap(), ["admission reopened"]);
+    assert_eq!(registration_metrics(pic, owner, 1).await, Ok(([0; 5], 0)));
     support::close(server, owned).await;
 }
 

@@ -140,6 +140,26 @@ async fn installed_frames_and_reply_failure_preserve_the_contract() {
         Some(controller),
     )
     .await;
+    // v0.107.1 / Wire 0.26.1: inspect upload 300 in a fresh catalog. Keep both
+    // frames literal so a coordinated change in the current codecs is visible.
+    let released_request = b"IW\x12\x52\x27\x4a\x26\xbc\x99\x2a\x00\x00\xac\x02";
+    let released_reply = b"IW\x12\x52\x27\x4a\x26\xbc\x99\x2a\x01\x01\x04";
+    assert_eq!(
+        request("blob_query", &Inspection::Upload(300.try_into().unwrap())),
+        released_request
+    );
+    assert_eq!(
+        call(
+            pic,
+            canister,
+            caller,
+            "blob_query",
+            released_request.to_vec()
+        )
+        .await
+        .unwrap(),
+        released_reply
+    );
     let initial =
         support::blob_state(pic, canister, caller, &[Principal::from_slice(&[2, 1])]).await;
     for (method, actor, valid, expected) in [

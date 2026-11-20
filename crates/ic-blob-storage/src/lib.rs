@@ -11,5 +11,7 @@
 
 pub mod caffeine;
 pub mod local;
+#[cfg(feature = "metrics")]
+pub mod metrics;
 pub mod protocol;
 pub mod references;

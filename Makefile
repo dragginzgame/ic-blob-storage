@@ -37,6 +37,7 @@ help:
 	  'make test-cli                    Provider reply and offline enrollment checks' \
 	  'make blob                        Build and install blob into Cargo bin (PATH)' \
 	  'make install-test-server         Explicit authenticated local simulator setup' \
+	  'make check-callable-api           Compare product Wasm method names and modes with the baseline' \
 	  'make test-standalone              Build and test the installed host locally' \
 	  'make test-capacity                Measure full-history host resources and cleanup' \
 	  'make test-endpoints               Test installed frame admission and reply rollback' \
@@ -110,7 +111,7 @@ test-browser-application: build-callback-probe build-cli build-reference-app
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test callbacks -- -D warnings
 	@probe="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_callback_probe") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one callback probe artifact") end' target/blob-callback-probe-artifacts.jsonl)" && \
 	  cli="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "blob" and .executable != null) | .executable] | if length == 1 then .[0] else error("expected one Blob CLI artifact") end' target/blob-cli-artifacts.jsonl)" && \
-	  app="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_reference_app") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one application Wasm artifact") end' target/blob-reference-app-artifacts.jsonl)" && \
+	  app="$$($(call product_wasm,ic_blob_storage_reference_app,target/blob-reference-app-artifacts.jsonl))" && \
 	  BROWSER="$(BROWSER)" BLOB_CALLBACK_PROBE="$$probe" BLOB_CLI="$$cli" BLOB_REFERENCE_APP="$$app" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test callbacks browser_publication_and_late_read_use_the_real_catalog -- --ignored
 
 test-local:
@@ -145,8 +146,18 @@ test-standalone: build-host qualification-tooling-check
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test standalone -- -D warnings
 	$(MAKE) --no-print-directory installed-standalone
 
+# Resolve the exact release artifact Cargo reported, including with CARGO_TARGET_DIR.
+product_wasm = jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "$(1)") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one $(1) Wasm artifact") end' "$(2)"
+
+.PHONY: check-callable-api
+check-callable-api: build-host build-reference-app qualification-tooling-check
+	@host="$$($(call product_wasm,ic_blob_storage_canister,target/blob-wasm-artifacts.jsonl))" && \
+	  app="$$($(call product_wasm,ic_blob_storage_reference_app,target/blob-reference-app-artifacts.jsonl))" && \
+	  bash vendor/toko-tooling/scripts/ci/check-api-baseline.sh qualification/api/callable -- \
+	    cargo run --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --example callable-api -- "$$host" "$$app"
+
 installed-standalone:
-	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
+	@wasm="$$($(call product_wasm,ic_blob_storage_canister,target/blob-wasm-artifacts.jsonl))" && \
 	  BLOB_WASM="$$wasm" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test standalone
 
 test-capacity: build-host qualification-tooling-check
@@ -154,7 +165,7 @@ test-capacity: build-host qualification-tooling-check
 	$(MAKE) --no-print-directory installed-capacity
 
 installed-capacity:
-	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
+	@wasm="$$($(call product_wasm,ic_blob_storage_canister,target/blob-wasm-artifacts.jsonl))" && \
 	  BLOB_WASM="$$wasm" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test capacity -- --nocapture
 
 test-signed: build-host qualification-tooling-check
@@ -162,7 +173,7 @@ test-signed: build-host qualification-tooling-check
 	$(MAKE) --no-print-directory installed-signed
 
 installed-signed:
-	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
+	@wasm="$$($(call product_wasm,ic_blob_storage_canister,target/blob-wasm-artifacts.jsonl))" && \
 	  BLOB_WASM="$$wasm" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test signed
 
 build-reference-app: toko-tooling-check
@@ -175,8 +186,8 @@ test-application: build-host build-reference-app build-cli qualification-tooling
 	$(MAKE) --no-print-directory installed-application
 
 installed-application:
-	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
-	  app="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_reference_app") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one application Wasm artifact") end' target/blob-reference-app-artifacts.jsonl)" && \
+	@wasm="$$($(call product_wasm,ic_blob_storage_canister,target/blob-wasm-artifacts.jsonl))" && \
+	  app="$$($(call product_wasm,ic_blob_storage_reference_app,target/blob-reference-app-artifacts.jsonl))" && \
 	  cli="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "blob" and .executable != null) | .executable] | if length == 1 then .[0] else error("expected one Blob CLI artifact") end' target/blob-cli-artifacts.jsonl)" && \
 	  BLOB_WASM="$$wasm" BLOB_REFERENCE_APP="$$app" BLOB_CLI="$$cli" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test application
 
@@ -210,7 +221,7 @@ test-callbacks: build-callback-probe build-cli build-reference-app
 installed-callbacks:
 	@probe="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_callback_probe") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one callback probe artifact") end' target/blob-callback-probe-artifacts.jsonl)" && \
 	  cli="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "blob" and .executable != null) | .executable] | if length == 1 then .[0] else error("expected one Blob CLI artifact") end' target/blob-cli-artifacts.jsonl)" && \
-	  app="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_reference_app") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one application Wasm artifact") end' target/blob-reference-app-artifacts.jsonl)" && \
+	  app="$$($(call product_wasm,ic_blob_storage_reference_app,target/blob-reference-app-artifacts.jsonl))" && \
 	  BLOB_CALLBACK_PROBE="$$probe" BLOB_CLI="$$cli" BLOB_REFERENCE_APP="$$app" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test callbacks
 
 build-enrollment-probe: qualification-tooling-check
@@ -226,7 +237,7 @@ test-enrollment: build-enrollment-probe build-host
 installed-enrollment:
 	CARGO_BUILD_WARNINGS=deny cargo test --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-enrollment-probe --lib --example enrollment
 	@probe="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_enrollment_probe") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one enrollment probe artifact") end' target/blob-enrollment-probe-artifacts.jsonl)" && \
-	  wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
+	  wasm="$$($(call product_wasm,ic_blob_storage_canister,target/blob-wasm-artifacts.jsonl))" && \
 	  BLOB_ENROLLMENT_PROBE="$$probe" BLOB_WASM="$$wasm" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test enrollment
 
 test-endpoints: build-host build-reply-probe
@@ -234,7 +245,7 @@ test-endpoints: build-host build-reply-probe
 	$(MAKE) --no-print-directory installed-endpoints
 
 installed-endpoints:
-	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
+	@wasm="$$($(call product_wasm,ic_blob_storage_canister,target/blob-wasm-artifacts.jsonl))" && \
 	  probe="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_reply_probe") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one reply probe artifact") end' target/blob-reply-probe-artifacts.jsonl)" && \
 	  BLOB_WASM="$$wasm" BLOB_REPLY_PROBE="$$probe" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test endpoints
 
@@ -243,7 +254,7 @@ test-management: build-host build-cli qualification-tooling-check
 	$(MAKE) --no-print-directory installed-management
 
 installed-management:
-	@wasm="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "ic_blob_storage_canister") | .filenames[] | select(endswith(".wasm"))] | if length == 1 then .[0] else error("expected one Blob Wasm artifact") end' target/blob-wasm-artifacts.jsonl)" && \
+	@wasm="$$($(call product_wasm,ic_blob_storage_canister,target/blob-wasm-artifacts.jsonl))" && \
 	  cli="$$(jq -ser '[.[] | select(.reason == "compiler-artifact" and .target.name == "blob" and .executable != null) | .executable] | if length == 1 then .[0] else error("expected one Blob CLI artifact") end' target/blob-cli-artifacts.jsonl)" && \
 	  BLOB_WASM="$$wasm" BLOB_CLI="$$cli" BLOB_TEST_SERVER="$(CURDIR)/.tools/blob-test-server" CARGO_BUILD_WARNINGS=deny cargo test --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --test management
 

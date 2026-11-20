@@ -25,7 +25,7 @@ tokio.workspace = true
 clap.workspace = true
 ic-blob-storage-enrollment-probe.workspace = true
 ic-blob-storage-reference-app.workspace = true
-ic-host-artifacts.workspace = true
+ic-host-artifacts = { workspace = true, features = ["canister-methods"] }
 ic-host-fs.workspace = true
 ic-platform-protocol = { workspace = true, features = ["caffeine", "management"] }
 serde.workspace = true

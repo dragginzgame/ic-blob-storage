@@ -13,8 +13,10 @@ mod host {
                 callbacks::{self, Callbacks},
             },
         },
+        metrics::{CommandKind, MetricsStorage},
         protocol::{Command, Inspection, Installation, Observation, Outcome, RPC_LIMITS},
     };
+    use ic_logging::{EntryInput, Level, Limits, Log};
     use ic_platform_runtime::{raw as ic0, system as api};
     use ic_platform_types::Principal;
     use ic_storage::{
@@ -23,7 +25,7 @@ mod host {
     };
     use ic_wire as wire;
     use serde::{Serialize, de::DeserializeOwned};
-    use std::cell::RefCell;
+    use std::{cell::RefCell, rc::Rc};
 
     // init
     // Install the probe with its Blob configuration and callback gateway.
@@ -37,14 +39,16 @@ mod host {
     )]
     fn init((input, gateway): (Installation, Principal)) {
         let runtime = memory(true);
-        let service = Service::create(
+        let service = Service::create_with_metrics(
             runtime
                 .open_memory(&StableKey::parse(persistence::STORAGE_KEY).unwrap())
                 .unwrap(),
             api::canister_self(),
             input,
+            METRICS.with(Rc::clone),
         )
-        .unwrap();
+        .unwrap()
+        .with_logging(record);
         let callbacks = Callbacks::create(
             service,
             runtime
@@ -87,13 +91,15 @@ mod host {
     )]
     fn post_upgrade(_: ()) {
         let runtime = memory(false);
-        let service = Service::open(
+        let service = Service::open_with_metrics(
             runtime
                 .open_memory(&StableKey::parse(persistence::STORAGE_KEY).unwrap())
                 .unwrap(),
             api::canister_self(),
+            METRICS.with(Rc::clone),
         )
-        .unwrap();
+        .unwrap()
+        .with_logging(record);
         assert!(service.is_drained(), "retain closed admission");
         let callbacks = Callbacks::open(
             service,
@@ -148,6 +154,72 @@ mod host {
                 .service()
                 .inspect(api::caller(), input)
         })
+    }
+
+    // registration_metrics
+    // Compare both heap readers for the authorized application in this installed fixture.
+    // guard  : the service admits the application authority before either read
+    // limits : RPC_LIMITS for request and reply
+    #[ic_platform_runtime::query(
+        runtime = ic_platform_runtime,
+        name = "probe_registration_metrics",
+        guard = unguarded,
+        decode = decode::<(), METRICS_QUERY>,
+        encode = encode::<_, METRICS_QUERY>,
+        max_bytes = 65536,
+        on_error = fail
+    )]
+    fn registration_metrics(_: ()) -> Result<([u128; 5], u64), Error> {
+        STATE.with_borrow(|state| {
+            let service = state.as_ref().unwrap().service();
+            service.inspect(api::caller(), Inspection::Usage)?;
+
+            let report = service.metrics().unwrap();
+            assert_eq!(report, METRICS.with(|storage| storage.snapshot()));
+            let counts = report.commands(CommandKind::Register);
+
+            Ok((
+                [
+                    counts.succeeded,
+                    counts.denied,
+                    counts.capacity,
+                    counts.expired,
+                    counts.other_refusals,
+                ]
+                .map(|counter| counter.total()),
+                report.registered_bytes.aggregate().samples(),
+            ))
+        })
+    }
+
+    // log_messages
+    // Read the last eight probe messages in append order.
+    // guard  : the service admits the manager before reading the log
+    // limits : RPC_LIMITS for request and reply
+    #[ic_platform_runtime::query(
+        runtime = ic_platform_runtime,
+        name = "probe_log_messages",
+        guard = unguarded,
+        decode = decode::<(), LOG_QUERY>,
+        encode = encode::<_, LOG_QUERY>,
+        max_bytes = 65536,
+        on_error = fail
+    )]
+    fn log_messages(_: ()) -> Result<Vec<String>, Error> {
+        STATE.with_borrow(|state| {
+            state
+                .as_ref()
+                .unwrap()
+                .service()
+                .inspect(api::caller(), Inspection::Maintenance)
+        })?;
+
+        Ok(LOG.with_borrow(|log| {
+            log.checkpoint()
+                .entries()
+                .map(|row| row.message.clone())
+                .collect()
+        }))
     }
 
     // issue
@@ -248,8 +320,31 @@ mod host {
     const UPDATE: u64 = wire::method_id("blob_update");
     const QUERY: u64 = wire::method_id("blob_query");
 
+    const METRICS_QUERY: u64 = wire::method_id("probe_registration_metrics");
+
+    const LOG_QUERY: u64 = wire::method_id("probe_log_messages");
+
     thread_local! {
+        static LOG: RefCell<Log> = const { RefCell::new(Log::new(Limits {
+            max_entries: std::num::NonZeroUsize::new(8).unwrap(),
+            max_label_bytes: 16,
+            max_message_bytes: 64,
+            max_text_bytes: 512,
+        })) };
+        static METRICS: Rc<MetricsStorage> = Rc::default();
         static STATE: RefCell<Option<Callbacks<DefaultMemoryImpl>>> = const { RefCell::new(None) };
+    }
+
+    fn record(level: Level, source: &'static str, message: &str) {
+        LOG.with_borrow_mut(|log| {
+            let _ = log.append(EntryInput {
+                created_at_secs: api::time() / 1_000_000_000,
+                level,
+                source,
+                topic: None,
+                message,
+            });
+        });
     }
 
     fn memory(fresh: bool) -> MemoryRuntime<DefaultMemoryImpl> {
