@@ -37,7 +37,7 @@ help:
 	  'make test-cli                    Provider reply and offline enrollment checks' \
 	  'make blob                        Build and install blob into Cargo bin (PATH)' \
 	  'make install-test-server         Explicit authenticated local simulator setup' \
-	  'make check-callable-api           Compare product Wasm method names and modes with the baseline' \
+	  'make check-callable-api           Compare mounted Wire contracts and product Wasm exports' \
 	  'make test-standalone              Build and test the installed host locally' \
 	  'make test-capacity                Measure full-history host resources and cleanup' \
 	  'make test-endpoints               Test installed frame admission and reply rollback' \
@@ -154,7 +154,7 @@ check-callable-api: build-host build-reference-app qualification-tooling-check
 	@host="$$($(call product_wasm,ic_blob_storage_canister,target/blob-wasm-artifacts.jsonl))" && \
 	  app="$$($(call product_wasm,ic_blob_storage_reference_app,target/blob-reference-app-artifacts.jsonl))" && \
 	  bash vendor/toko-tooling/scripts/ci/check-api-baseline.sh qualification/api/callable -- \
-	    cargo run --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --example callable-api -- "$$host" "$$app"
+	    cargo run --locked --manifest-path qualification/Cargo.toml -p ic-blob-storage-tests --features api-manifest --example callable-api -- "$$host" "$$app"
 
 installed-standalone:
 	@wasm="$$($(call product_wasm,ic_blob_storage_canister,target/blob-wasm-artifacts.jsonl))" && \

@@ -20,9 +20,8 @@ incompatible-layout cases were outside the run. See
 Canic can now consume the published [metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics)
 alongside the named storage lease. Its adapter owns the report projection and
 qualification with its application catalog. Rust hosts that use Blob’s public
-codec types should select Wire 0.27. PR CI compares callable names and modes for
-both product Wasms. Per-method schema comparison still needs Wire projections
-for nonzero IDs and sizing fields. See the
+codec types should select Wire 0.27. PR CI compares both product Wasms’ callable names and modes
+and all eight mounted request and reply manifests. See the
 [baseline scope](../../qualification/api/README.md).
 
 The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.5 in

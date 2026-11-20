@@ -1,18 +1,43 @@
 # Callable Wire methods
 
-Run `make check-callable-api` to build the standalone and reference-app release
-Wasms and compare their callable names and modes. The baseline comes from both
-artifacts rebuilt from tag `v0.107.1` with its Cargo.lock. To review an intended
-change, inspect the comparison runner's candidate directory and the corresponding
-mount. Keep baseline edits explicit.
+Run `make check-callable-api` to rebuild the standalone and reference-app release
+Wasms and compare them with [the reviewed baseline](callable/). The two text
+files record callable names and modes from the Wasms. Each callable must also
+match exactly one mounted Wire contract by name and mode. The per-method JSON
+files record Wire's routing ID, request and reply roots, reachable schemas and
+payload budgets. A shape change can therefore fail CI even when the Wasm export
+inventory stays identical.
 
-All eight callable methods use Wire. IC lifecycle hooks have no callable method
-name. The Caffeine callback and enrollment probes belong to private qualification.
-The installed endpoint suite also checks a request and reply captured with the
-0.107.1 codecs.
+The text inventory dates from v0.107.1. The first schema baseline uses the
+v0.108.0 product declarations with Wire 0.27.1. For an intended API change,
+inspect the candidate directory printed by the shared comparison runner, review
+the affected manifests against the mount and copy the accepted files into the
+baseline. The installed endpoint suite also checks request and reply bytes
+captured with the 0.107.1 codecs.
 
-A full per-method schema baseline requires typed mount descriptors for request,
-reply and limits. Wire 0.27.1's schema trait lacks projections for Blob's
-`NonZeroU128` reference and upload IDs, `NonZeroU64`, `NonZeroUsize` and
-`usize` fields. When these are available, generate manifests from the mounted
-DTOs and compare them alongside this inventory.
+## How qualification obtains the schemas
+
+The [qualification build script](../ic-blob-storage-tests/build/contracts/mod.rs)
+reads the Platform mounts, their Wire codec IDs and budgets, and the Serde
+declarations used by their handlers. It preserves field order, variant order
+and Serde attributes for Wire's derive. The [exporter](../ic-blob-storage-tests/examples/callable-api.rs)
+uses Wire's validated registry and format-1 manifest writer. Wire budgets in
+these files exclude the frame header. The native allocation budget is outside
+Wire's manifest format.
+
+Wire 0.27.1 supplies the ordinary scalar, container and Platform principal
+projections. Four integer types used by these mounts still lack a native
+`Wire` implementation. The [qualification projections](../ic-blob-storage-tests/examples/projection/mod.rs)
+cover their existing binary Serde representations.
+
+| Rust type | Encoded unsigned width | Range accepted on the release Wasm |
+|---|---:|---|
+| `NonZeroU128` | 128 | 1 through `u128::MAX` |
+| `NonZeroU64` | 64 | 1 through `u64::MAX` |
+| `usize` | 64 | 0 through `u32::MAX` |
+| `NonZeroUsize` | 64 | 1 through `u32::MAX` |
+
+The private qualification feature keeps schema generation out of product builds.
+The two product Wasms have eight callable Wire methods. IC lifecycle hooks have
+no callable names. The Caffeine callback and enrollment probes are private
+qualification canisters.

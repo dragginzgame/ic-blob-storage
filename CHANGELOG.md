@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.108.1] - Unreleased
+
+### 🔧 Tooling
+
+- PR CI now compares the mounted request and reply schemas for all eight Wire
+  methods alongside the release Wasm export names and call modes. Schema
+  generation runs in the private qualification workspace.
+- Both Cargo lockfiles now select `url` 2.5.9 and `form_urlencoded` 1.2.3.
+
 ## [0.108.0] - 2026-11-20
 
 ### ⚠️ Breaking changes

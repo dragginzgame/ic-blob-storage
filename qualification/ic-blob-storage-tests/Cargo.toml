@@ -5,12 +5,23 @@ edition.workspace = true
 rust-version.workspace = true
 license-file.workspace = true
 publish.workspace = true
+build = "build/main.rs"
 
 [package.metadata.toko-tooling.loc]
 category = "tests"
 
 [package.metadata.cargo-machete]
 ignored = ["toko-tooling"]
+
+[features]
+api-manifest = [
+    "dep:proc-macro2",
+    "dep:quote",
+    "dep:syn",
+    "ic-wire/api-manifest",
+    "ic-wire/derive",
+    "ic-wire/platform-types",
+]
 
 [dependencies]
 ic-blob-storage.workspace = true
@@ -21,6 +32,11 @@ ic-testkit = { workspace = true, features = ["held-reply-fixtures", "managed-ser
 ic-wire.workspace = true
 tokio.workspace = true
 
+[build-dependencies]
+proc-macro2 = { workspace = true, optional = true }
+quote = { workspace = true, optional = true }
+syn = { workspace = true, features = ["full", "visit"], optional = true }
+
 [dev-dependencies]
 clap.workspace = true
 ic-blob-storage-enrollment-probe.workspace = true
@@ -29,9 +45,14 @@ ic-host-artifacts = { workspace = true, features = ["canister-methods"] }
 ic-host-fs.workspace = true
 ic-platform-protocol = { workspace = true, features = ["caffeine", "management"] }
 serde.workspace = true
+serde_json.workspace = true
 sha2.workspace = true
 toko-tooling.workspace = true
 wat.workspace = true
+
+[[example]]
+name = "callable-api"
+required-features = ["api-manifest"]
 
 [[test]]
 name = "callbacks"
