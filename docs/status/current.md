@@ -2,17 +2,15 @@
 
 ## Delivery and active work
 
-**0.108.1 is published** for the library, standalone canister, reference application
-and CLI. Each crates.io download matched its prepared archive and registry checksum.
-The local CLI reports `blob 0.108.1`. See the [annotated tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.108.1),
-`target/01081-release/registry-verified.json` and `target/publication/provenance-01081-remote/`.
+**0.109.0 is published** for all four product crates. The local CLI reports
+`blob 0.109.0`. Every crates.io download matched its prepared archive and
+registry checksum. See the [release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.109.0),
+`target/01090-release/registry-verified.json` and `target/publication/provenance-01090/`.
 
-All 17 local release stages passed, including the eight installed suites and
-the standalone upgrade from the locked 0.108.0 tag. The tagged release Wasms
-also passed the eight-method Wire manifest comparison. The optional Chromium
-and historical incompatible-layout cases were outside the run. See
-`target/validation/blob.9BpjGV/proof.json` and the
-[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44837485540).
+All 16 selected release stages passed, including the eight installed suites and
+the ordinary upgrade from the locked 0.108.1 tag. The tagged product Wasms matched
+all eight Wire manifests. See `target/validation/blob.LBlhmF/proof.json` and the
+[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44915777939).
 
 ## Next action and provider boundary
 
@@ -96,12 +94,12 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Review and limitations
 
-The `v0.108.0..v0.108.1` review counted 730 lines of reviewed Wire manifests
-and 507 net lines of private Rust qualification. The existing qualifier reads
-the two product mounts and their Serde declarations. Wire owns the manifest
-format. When Wire gains native support for the four integer projections, revisit
-the projection helpers and source extraction together. Both product Wasms keep
-schema generation out of their dependency graphs.
+The `v0.108.1..v0.109.0` review traced overview grouping to the existing
+ordered reference map and replay detection to the existing durable receipt list.
+The changes add no persistent index or storage format. A read-only backing-memory
+test verifies zero writes on exact replay, including after reopening.
+Wire 0.28.0 still needs the four private integer projections documented in the
+[qualification baseline](../../qualification/api/README.md).
 
 Finite lifetime slots still bound sustained use. Provider acceptance/settlement,
 Canic composition and unrestricted-controller snapshot continuity remain unqualified.
