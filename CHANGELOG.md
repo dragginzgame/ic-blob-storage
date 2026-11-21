@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.109.0] - Unreleased
+
+### ⚠️ Breaking changes
+
+- Blob now exposes IC Wire 0.28 types. Hosts that pass `RPC_LIMITS` to Wire or
+  handle Blob’s Wire errors should select IC Wire 0.28.
+
+### Performance
+
+- Uploader overviews scan application references once, preserving ID order
+  and shared-root references across uploaders.
+- Empty and fully acknowledged callback batches skip stable writes. Mixed
+  batches still validate every root before persisting new receipts.
+
 ## [0.108.1] - 2026-11-20
 
 ### 🔧 Tooling

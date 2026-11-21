@@ -137,10 +137,23 @@ fn full_history_cleanup_retains_exposure_and_reopens_receipts() {
     );
     assert_eq!(*backing.borrow(), before);
     callbacks.execute(actor(9), Command::Drain(1), 10).unwrap();
+    callbacks.acknowledge(actor(7), &roots[..1]).unwrap();
+    {
+        // VectorMemory needs a mutable borrow for every write, even identical bytes.
+        let _read_only = backing.borrow();
+        callbacks.acknowledge(actor(7), &[]).unwrap();
+        callbacks.acknowledge(actor(7), &[roots[0]; 2]).unwrap();
+        assert_eq!(
+            callbacks.acknowledge(actor(9), &[]),
+            Err(CallbackError::Denied)
+        );
+        assert_eq!(
+            callbacks.acknowledge(actor(7), &[roots[0], roots[1], [255; 32]]),
+            Err(CallbackError::NotClosing)
+        );
+        assert_eq!(callbacks.candidates(actor(7)).unwrap(), roots[1..]);
+    }
     callbacks.acknowledge(actor(7), &roots).unwrap();
-    callbacks
-        .acknowledge(actor(7), &[[0; 32], [0; 32]])
-        .unwrap();
     assert_eq!(
         callbacks
             .service()
@@ -149,7 +162,8 @@ fn full_history_cleanup_retains_exposure_and_reopens_receipts() {
         usage
     );
     drop(callbacks);
-    let mut callbacks = reopen(backing).unwrap();
+    let mut callbacks = reopen(backing.clone()).unwrap();
+    let _read_only = backing.borrow();
     assert!(callbacks.candidates(actor(7)).unwrap().is_empty());
     assert_eq!(callbacks.liveness(&roots).unwrap(), vec![false; 64]);
     assert_eq!(

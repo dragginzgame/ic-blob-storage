@@ -25,7 +25,7 @@ uses Wire's validated registry and format-1 manifest writer. Wire budgets in
 these files exclude the frame header. The native allocation budget is outside
 Wire's manifest format.
 
-Wire 0.27.1 supplies the ordinary scalar, container and Platform principal
+Wire 0.28.0 supplies the ordinary scalar, container and Platform principal
 projections. Four integer types used by these mounts still lack a native
 `Wire` implementation. The [qualification projections](../ic-blob-storage-tests/examples/projection/mod.rs)
 cover their existing binary Serde representations.

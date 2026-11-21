@@ -191,14 +191,17 @@ impl<M: Memory> Callbacks<M> {
     pub fn acknowledge(&mut self, caller: Principal, roots: &[Root]) -> Result<(), CallbackError> {
         self.gateway(caller)?;
         bounded(roots)?;
-        let receipts: Vec<_> = roots
-            .iter()
-            .map(|&root| {
-                closing(&self.service, root)
-                    .map(|id| (root, id))
-                    .ok_or(CallbackError::NotClosing)
-            })
-            .collect::<Result<_, _>>()?;
+        let mut receipts = Vec::new();
+        for &root in roots {
+            let id = closing(&self.service, root).ok_or(CallbackError::NotClosing)?;
+            let receipt = (root, id);
+            if self.record.acknowledged.binary_search(&receipt).is_err() {
+                receipts.push(receipt);
+            }
+        }
+        if receipts.is_empty() {
+            return Ok(());
+        }
         self.record.acknowledged.extend(receipts);
         self.record.acknowledged.sort_unstable();
         self.record.acknowledged.dedup();

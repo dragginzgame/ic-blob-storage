@@ -112,7 +112,10 @@ fn principal_overview_keeps_shared_objects_history_and_authority_distinct() {
     let view = m.overview(actor(1), actor(2)).unwrap();
     assert_eq!(view.objects.len(), 1);
     assert_eq!(view.objects[0].uploads.len(), 2);
-    assert_eq!(view.objects[0].references.len(), 3);
+    assert_eq!(
+        view.objects[0].references,
+        [(id(1), R::Live), (id(2), R::Live), (id(3), R::Live)]
+    );
     assert_eq!(view.usage.live_bytes, 3);
     assert_eq!(view.usage.unresolved_bytes, 3);
     assert_eq!(view.usage.reserved_bytes, 0);
@@ -145,8 +148,20 @@ fn principal_overview_keeps_shared_objects_history_and_authority_distinct() {
     m.release(actor(1), id(4)).unwrap();
     let retired = m.overview(actor(1), actor(2)).unwrap();
     assert_eq!(retired.objects.len(), 2);
+    assert_eq!(retired.objects[0].references, [(id(4), R::Retired)]);
+    assert_eq!(retired.objects[1], closing.objects[0]);
     assert_eq!(retired.usage.reserved_bytes, 0);
     assert_eq!(retired.usage.unresolved_bytes, 3);
+    let attached = m.overview(actor(1), actor(3)).unwrap();
+    assert_eq!(attached.objects.len(), 1);
+    assert_eq!(
+        attached.objects[0].uploads,
+        [m.inspect_upload(actor(1), id(3)).unwrap()]
+    );
+    assert_eq!(
+        attached.objects[0].references,
+        closing.objects[0].references
+    );
 }
 
 #[test]

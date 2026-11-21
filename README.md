@@ -112,8 +112,8 @@ Installed tests select Testkit 0.110.3 and Host Process 0.81.3.
 See the [integration boundary](docs/design/application-boundary.md#types-0212-integration).
 
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.46.0. Both workspaces use IC Wire 0.27.1. Rust hosts
-that pass Blob’s `RPC_LIMITS` to Wire should also select Wire 0.27. GitHub development uses the `main` branch of
+and published Toko Tooling 0.46.0. Both workspaces use IC Wire 0.28.0. Rust hosts
+that pass Blob’s `RPC_LIMITS` to Wire should also select Wire 0.28. GitHub development uses the `main` branch of
 `dragginzgame/ic-blob-storage`. Releases use the shared Toko workflow; there is no production deployment configuration.
 
 The [selected crate layout](docs/design/ic-blob-storage-design.md#selected-crate-layout)

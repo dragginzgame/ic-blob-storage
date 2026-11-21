@@ -396,27 +396,26 @@ impl LocalModel {
     ) -> Result<PrincipalOverview, Error> {
         self.application(caller)?;
         valid_principal(uploader)?;
-        let mut grouped: BTreeMap<Root, Vec<UploadView>> = BTreeMap::new();
+        let mut grouped = BTreeMap::<Root, (Vec<_>, Vec<_>)>::new();
         for upload in self
             .uploads
             .values()
             .filter(|u| u.view.request.uploader == uploader)
         {
-            grouped
-                .entry(upload.view.request.root)
-                .or_default()
-                .push(upload.view);
+            let (uploads, _) = grouped.entry(upload.view.request.root).or_default();
+            uploads.push(upload.view);
+        }
+        if !grouped.is_empty() {
+            for (&id, &root) in &self.references {
+                if let Some((_, references)) = grouped.get_mut(&root) {
+                    references.push((id, self.reference_status(id, root)));
+                }
+            }
         }
         let mut usage = Usage::default();
         let mut objects = Vec::with_capacity(grouped.len());
-        for (root, uploads) in grouped {
+        for (root, (uploads, references)) in grouped {
             let object = self.inspect_object(caller, root)?;
-            let references: Vec<_> = self
-                .references
-                .iter()
-                .filter(|(_, target)| **target == root)
-                .map(|(id, _)| (*id, self.reference_status(*id, root)))
-                .collect();
             let bytes = object.original_upload.request.bytes;
             if object.original_upload.state == UploadState::Reserved {
                 usage.reserved_bytes += bytes;
