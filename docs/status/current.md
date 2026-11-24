@@ -1,23 +1,24 @@
-# Current status — 2026-11-21
+# Current status — 2026-11-24
 
 ## Delivery and active work
 
-**0.109.0 is published** for all four product crates. The local CLI reports
-`blob 0.109.0`. Every crates.io download matched its prepared archive and
-registry checksum. See the [release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.109.0),
-`target/01090-release/registry-verified.json` and `target/publication/provenance-01090/`.
+**0.110.0 is published** for all four product crates. The local CLI reports
+`blob 0.110.0`. Every crates.io download matched its prepared archive and
+registry checksum. See the [release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.110.0),
+`target/01100-release/registry-verified.json` and `target/publication/provenance-01100/`.
 
-All 16 selected release stages passed, including the eight installed suites and
-the ordinary upgrade from the locked 0.108.1 tag. The tagged product Wasms matched
-all eight Wire manifests. See `target/validation/blob.LBlhmF/proof.json` and the
-[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/44915777939).
+All 17 local release stages passed, including the eight installed suites, the
+two-lockfile metadata fixture and the upgrade from the locked 0.109.0 tag.
+The tagged product Wasms matched all eight reviewed Wire manifests. See
+`target/validation/blob.K0ZmoF/proof.json` and the
+[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/45374660348).
 
 ## Next action and provider boundary
 
 Canic can now consume the published [metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics)
 alongside the named storage lease. Its adapter owns the report projection and
-qualification with its application catalog. For the unreleased dependency update, Rust hosts using Blob’s
-public codec types should select Wire 0.30. PR CI compares both product Wasms’ callable names and modes
+qualification with its application catalog. Rust hosts using Blob’s public codec types
+should select Wire 0.30 and match admission failures as `Error::Limit(kind)`. PR CI compares both product Wasms’ callable names and modes
 and all eight mounted request and reply manifests. See the
 [baseline scope](../../qualification/api/README.md).
 
@@ -94,12 +95,11 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Review and limitations
 
-The `v0.108.1..v0.109.0` review traced overview grouping to the existing
-ordered reference map and replay detection to the existing durable receipt list.
-The changes add no persistent index or storage format. A read-only backing-memory
-test verifies zero writes on exact replay, including after reopening.
-Wire 0.28.0 still needs the four private integer projections documented in the
-[qualification baseline](../../qualification/api/README.md).
+The `v0.109.0..v0.110.0` review traced the Wire change to Blob’s public codec
+types and its oversized-record regression, which now checks `LimitKind::Bytes`.
+Both Cargo workspaces select the same Wire and Platform releases. The four integer
+projections still belong to the private [API qualifier](../../qualification/api/README.md).
+The packaged CLI checksum matches the installed Toko snapshot.
 
 Finite lifetime slots still bound sustained use. Provider acceptance/settlement,
 Canic composition and unrestricted-controller snapshot continuity remain unqualified.
