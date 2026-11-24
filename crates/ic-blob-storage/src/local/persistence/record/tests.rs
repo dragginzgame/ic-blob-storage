@@ -95,6 +95,6 @@ fn codec_rejects_truncation_trailing_and_oversized_input() {
             ic_wire::Encoding::Payload,
             STATE_LIMITS
         ),
-        Err(ic_wire::Error::Limit)
+        Err(ic_wire::Error::Limit(ic_wire::LimitKind::Bytes))
     ));
 }

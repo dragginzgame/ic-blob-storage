@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.110.0] - Unreleased
+
+### ⚠️ Breaking changes
+
+- Hosts using Blob’s public Wire types should select IC Wire 0.30. Match
+  admission failures as `Error::Limit(kind)` to inspect the exceeded allowance.
+
+### 📦 Dependencies
+
+- Adopt Toko Tooling 0.46.3 and align both workspaces on Platform 0.34.19,
+  Runtime 0.23.25, Protocol 0.3.8 and Types 0.21.4.
+
 ## [0.109.0] - 2026-11-21
 
 ### ⚠️ Breaking changes

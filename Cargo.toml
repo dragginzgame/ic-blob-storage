@@ -25,19 +25,19 @@ ic-host-artifacts = { version = "0.80.3", default-features = false }
 ic-host-fs = { version = "0.80.3", default-features = false }
 ic-logging = { version = "0.25.0", default-features = false }
 ic-metrics = { version = "0.30.0", default-features = false }
-ic-platform = { version = "0.34.17", default-features = false }
-ic-platform-protocol = { version = "0.3.6", default-features = false }
-ic-platform-runtime = { version = "0.23.22", default-features = false }
-ic-platform-types = { version = "0.21.3", default-features = false }
+ic-platform = { version = "0.34.19", default-features = false }
+ic-platform-protocol = { version = "0.3.8", default-features = false }
+ic-platform-runtime = { version = "0.23.25", default-features = false }
+ic-platform-types = { version = "0.21.4", default-features = false }
 ic-storage = "0.78.0"
-ic-wire = { version = "0.28.0", default-features = false }
+ic-wire = { version = "0.30.0", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }
 sha2 = { version = "0.11.1", default-features = false }
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread", "time", "process"] }
 url = "2.5.8"
 
 # Tests and tooling
-toko-tooling = "=0.46.0"
+toko-tooling = "=0.46.3"
 
 [workspace.lints.cargo]
 unused_dependencies = "deny"

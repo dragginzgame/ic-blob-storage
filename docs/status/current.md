@@ -16,8 +16,8 @@ all eight Wire manifests. See `target/validation/blob.LBlhmF/proof.json` and the
 
 Canic can now consume the published [metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics)
 alongside the named storage lease. Its adapter owns the report projection and
-qualification with its application catalog. Rust hosts that use Blob’s public
-codec types should select Wire 0.28. PR CI compares both product Wasms’ callable names and modes
+qualification with its application catalog. For the unreleased dependency update, Rust hosts using Blob’s
+public codec types should select Wire 0.30. PR CI compares both product Wasms’ callable names and modes
 and all eight mounted request and reply manifests. See the
 [baseline scope](../../qualification/api/README.md).
 
