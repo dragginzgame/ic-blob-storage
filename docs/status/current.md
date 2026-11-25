@@ -1,4 +1,4 @@
-# Current status — 2026-11-24
+# Current status — 2026-11-25
 
 ## Delivery and active work
 
@@ -15,14 +15,23 @@ The tagged product Wasms matched all eight reviewed Wire manifests. See
 
 ## Next action and provider boundary
 
-Canic can now consume the published [metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics)
+The pending **0.111.0** batch uses Storage 0.80 for fresh installations and
+same-format upgrades. Keep existing 0.110.0 installations on their original
+backing and code until a separate migration is qualified. The local PocketIC refusal
+test used the exact 0.110.0 source tag and lockfile and verified the retained
+module, stable bytes, maintenance attempt and outstanding exposure.
+See the [storage contract](../design/stable-storage.md) and
+`target/dependency-adoption/predecessor-wasm.sha256`.
+
+Canic can consume the published [metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics)
 alongside the named storage lease. Its adapter owns the report projection and
-qualification with its application catalog. Rust hosts using Blob’s public codec types
+qualification with its application catalog and needs a Storage 0.80 lease for
+the pending batch. Rust hosts using Blob’s public codec types
 should select Wire 0.30 and match admission failures as `Error::Limit(kind)`. PR CI compares both product Wasms’ callable names and modes
 and all eight mounted request and reply manifests. See the
 [baseline scope](../../qualification/api/README.md).
 
-The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.5 in
+The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.7 in
 the next release-tooling maintenance pass with the two-lock metadata fixture.
 Populated 0.103.3 or 0.104.0 installations still require separate disposition.
 
@@ -95,11 +104,10 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Review and limitations
 
-The `v0.109.0..v0.110.0` review traced the Wire change to Blob’s public codec
-types and its oversized-record regression, which now checks `LimitKind::Bytes`.
-Both Cargo workspaces select the same Wire and Platform releases. The four integer
-projections still belong to the private [API qualifier](../../qualification/api/README.md).
-The packaged CLI checksum matches the installed Toko snapshot.
+Both Cargo workspaces select Platform 0.35.1, Wire 0.30.2 and Storage 0.80.0.
+The callable API and all eight Wire manifests match the reviewed baseline.
+The four integer projections still belong to the private
+[API qualifier](../../qualification/api/README.md).
 
 Finite lifetime slots still bound sustained use. Provider acceptance/settlement,
 Canic composition and unrestricted-controller snapshot continuity remain unqualified.

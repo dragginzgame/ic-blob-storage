@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.111.0]
+
+### ⚠️ Breaking changes
+
+- Use IC Storage 0.80 named allocations and Cells. Fresh installations and
+  same-layout upgrades use the new format. Existing Storage 0.78 installations
+  need a separately qualified migration before they can move to this release.
+  Rust applications embedding Blob should use Storage 0.80 for their leases.
+
+### 📦 Dependencies
+
+- Align both Cargo workspaces on Platform 0.35.1, Runtime 0.23.27, Protocol
+  0.3.10, Types 0.21.5, IC Wire 0.30.2 and Toko Tooling 0.46.4.
+- Both lockfiles select IC Logging 0.25.21 and IC Metrics 0.30.22.
+
 ## [0.110.0] - 2026-11-24
 
 ### ⚠️ Breaking changes

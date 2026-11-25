@@ -66,9 +66,10 @@ Read [the current handoff](docs/status/current.md) first.
 
 ## Checks
 
-Use registry Storage 0.78 named allocations and governed stable cells in both
+Use registry Storage 0.80 named allocations and governed stable cells in both
 workspaces. Hosts distinguish fresh installation from reopening before constructing
-Storage and use ordinary upgrades. Follow the [storage contract](docs/design/stable-storage.md).
+Storage and use ordinary upgrades within the same layout. Follow the
+[storage contract](docs/design/stable-storage.md) for incompatible predecessors.
 The 0.104.0 OP heap and the consumed 0.74.1 probe require separate disposition.
 Preserve original provider obligations and custody.
 

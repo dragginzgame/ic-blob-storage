@@ -1,8 +1,9 @@
 # IC Blob Storage
 
-Blob uses the **ic-storage 0.78** named allocation API. Hosts install ordinary Cargo Wasm and
+Blob uses the **ic-storage 0.80** named allocation API. Hosts install ordinary Cargo Wasm and
 grant Blob a named stable-memory allocation. This layout supports fresh installs
-and upgrades from the same stable layout. [Storage contract](docs/design/stable-storage.md)
+and upgrades from the same stable layout. Existing Storage 0.78 installations
+require separate migration planning. [Storage contract](docs/design/stable-storage.md)
 and [current checks](docs/status/current.md).
 
 Clean-start rewrite workspace. [Bounded object references](crates/ic-blob-storage/src/references/mod.rs)
@@ -105,14 +106,14 @@ Install the published CLI with `cargo install ic-blob-storage-cli --locked`; the
 executable is `blob`. Rust 1.100.0 or newer and Cargo’s bin directory on PATH are
 required. Guarded maintenance still needs the matching source checkout and tools.
 
-Blob’s public Rust records use Platform Types 0.21.4, with Runtime 0.23.25
-in the hosts, Platform 0.34.19 for signed transport/proof custody and Protocol 0.3.8
+Blob’s public Rust records use Platform Types 0.21.5, with Runtime 0.23.27
+in the hosts, Platform 0.35.1 for signed transport/proof custody and Protocol 0.3.10
 for Caffeine and management codecs. No legacy Platform remains in the product.
 Installed tests select Testkit 0.110.4 and Host Process 0.81.4.
 See the [integration boundary](docs/design/application-boundary.md#types-0212-integration).
 
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.46.3. Both workspaces use IC Wire 0.30.0. Rust hosts
+and published Toko Tooling 0.46.4. Both workspaces use IC Wire 0.30.2. Rust hosts
 that pass Blob’s `RPC_LIMITS` to Wire should also select Wire 0.30. GitHub development uses the `main` branch of
 `dragginzgame/ic-blob-storage`. Releases use the shared Toko workflow; there is no production deployment configuration.
 
@@ -152,8 +153,9 @@ It requires `wasm32-unknown-unknown` and makes no Caffeine calls. `make ci` is t
 separate aggregate native gate; installed testing is an explicit command.
 `make test-capacity` measures full-history resource use and verifies cleanup and
 upgrade at capacity; see the [results and limits](docs/design/standalone-capacity.md).
-Set `BLOB_PREVIOUS_WASM=/absolute/path/to/previous.wasm` for a predecessor-to-current
-upgrade witness. `make test-endpoints` checks raw frames on the actual host and
+Set `BLOB_PREVIOUS_WASM=/absolute/path/to/previous.wasm` for an upgrade witness from
+a compatible predecessor. The [storage qualification](docs/design/stable-storage.md#qualification)
+covers refusal of incompatible predecessors. `make test-endpoints` checks raw frames on the actual host and
 uses a separate, small qualification canister to force reply-encoding failure
 after a stable write. The latter tests rollback without a production fault mode.
 `make test-signed` exercises the production host through an owned local HTTP gateway

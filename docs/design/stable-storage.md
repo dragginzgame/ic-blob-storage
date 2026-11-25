@@ -1,6 +1,6 @@
 # Stable storage
 
-The standalone host and embedded applications use the published ic-storage 0.78.0 named allocation directory. The host declares all names in one Storage runtime, bootstraps their authorities and passes each exclusive memory lease to its owner. An embedded application can keep its own catalog in a separate lease and call Blob locally. [Supplier release](https://github.com/dragginzgame/ic-storage/tree/97771217f32b58adf56f5f31e82bbbca6c067667)
+The standalone host and embedded applications use the published ic-storage 0.80.0 V1 named allocation directory and Storage-owned Cell format. The host declares all names in one Storage runtime, bootstraps their authorities and passes each exclusive memory lease to its owner. An embedded application can keep its own catalog in a separate lease and call Blob locally. [Supplier release](https://github.com/dragginzgame/ic-storage/tree/v0.80.0)
 
 | Owner | Stable key | Wire payload limit |
 | --- | --- | --- |
@@ -16,15 +16,34 @@ Each owner writes one bounded Wire payload to a governed stable cell. Reopening 
 Use `make build-host` or `make build-reference-app`. The selected Cargo Wasm artifact is installable directly.
 
 1. Fresh installation requires empty physical backing and creates each cell in an empty lease.
+   Use a fresh canister for a new installation.
 2. Drain admission and finish outstanding runtime calls. Stop the canister and issue an ordinary upgrade with the source hook enabled. The CLI signs `Upgrade(None)`.
 3. Before constructing Storage, the target requires existing stable pages. Load the original cells, validate the expected installation and preserve the drained maintenance attempt. Start the host, inspect its state and explicitly activate the current attempt.
 
-A populated 0.104.0 OP host may have zero stable pages. It cannot upgrade to this layout. Storage 0.78.0 also rejects the prior 0.77.0 stable directory. Missing cells and malformed records fail reopening. Existing installations require their own disposition. The consumed live enrollment probe remains under [Storage #1](https://github.com/dragginzgame/ic-storage/issues/1). The previous release has its own [OP contract](native-storage.md).
+Storage 0.80 refuses to reopen the Storage 0.78 directory used by Blob 0.110.0.
+Retain existing installations on their original code and backing pending a
+separately qualified migration. Blob has no export/import runner for this layout
+change. Missing cells and malformed records also fail reopening.
+
+The 0.103.3 stable layout and 0.104.0 OP heap still require separate disposition.
+The consumed live enrollment probe remains under [Storage #1](https://github.com/dragginzgame/ic-storage/issues/1).
+See the [historical OP contract](native-storage.md).
 
 ## Qualification
 
-`make test-standalone` exercises ordinary upgrades with live and released references. Two opt-in tests take incompatible predecessors built with each tag's own `make build-host`. Supply the prepared 0.104.0 module in `BLOB_OP_WASM` or the 0.103.3 stable module in `BLOB_INCOMPATIBLE_STABLE_WASM`. Each test populates a disposable instance, drains it and attempts an ordinary upgrade. After refusal it checks the installed module against the original SHA-256, compares stable bytes and reads back the maintenance attempt and outstanding exposure. The same stable-directory test covers the interim Storage 0.77.0 development build.
+`make test-standalone` exercises ordinary upgrades with live and released
+references. For the opt-in refusal tests, build each predecessor from its exact
+tag and lockfile. Use `BLOB_INCOMPATIBLE_STABLE_WASM` for the 0.110.0 standalone
+module or an earlier incompatible stable host such as 0.103.3. Use `BLOB_OP_WASM`
+for the 0.104.0 OP module. Each test populates a disposable instance, drains it and
+attempts an ordinary upgrade. After refusal it compares the installed module hash
+and stable bytes with the original and reads back the maintenance attempt and
+outstanding exposure.
 
 `make test-capacity` exercises distinct, shared and reserved objects at full history. [Standalone measurements](standalone-capacity.md)
 
-The bounded control record and lifecycle guard adapt Blob's [0.103.3 implementation](https://github.com/dragginzgame/ic-blob-storage/tree/v0.103.3/crates/ic-blob-storage/src/local/persistence) to the new Storage directory and upstream cell layout. Closed admission and retention of obligations across upgrades also follow the [legacy lifecycle regression](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/standalone_lifecycle/mod.rs).
+The bounded control record and lifecycle guard originated in Blob's
+[0.103.3 implementation](https://github.com/dragginzgame/ic-blob-storage/tree/v0.103.3/crates/ic-blob-storage/src/local/persistence).
+The Storage 0.80 adoption retains those record codecs and the existing reopen
+checks. Closed admission and retention of obligations across upgrades also follow
+the [legacy lifecycle regression](https://github.com/dragginzgame/ic-blob-storage-legacy/blob/25bed1352f3d2b9659f0d2583f50fa9af859ea84/qualification/ic-blob-storage-pocketic-tests/tests/standalone_lifecycle/mod.rs).
