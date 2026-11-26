@@ -15,12 +15,12 @@
       {"name":"bytes","value":{"k":"ref","name":"Wire_u64_4d35d3193e8d66f2"}},
       {"name":"expires_at","value":{"k":"ref","name":"Wire_u64_4d35d3193e8d66f2"}},
       {"name":"chunks","value":{"k":"ref","name":"Wire_Vec_5e0c6805bf276bb7"}},
-      {"name":"headers","value":{"k":"ref","name":"Wire_Vec_66bff6c69d9e05c3"}}]},
+      {"name":"headers","value":{"k":"ref","name":"Wire_Vec_66bff6c69d9e05c3"}}],"fixed":true},
     "Wire_Result_6ce6118437822484":{"k":"result","ok":{"k":"ref","name":"Wire_DraftViewSchema_d36a0af997052b19"},"err":{"k":"ref","name":"Wire_ErrorSchema_c1ca70c928fa6179"}},
     "Wire_DraftViewSchema_d36a0af997052b19":{"k":"record","fields":[
       {"name":"input","value":{"k":"ref","name":"Wire_DraftInputSchema_7c0a85a6e3a268da"}},
       {"name":"uploader","value":{"k":"ref","name":"Wire_Principal_f14095eb1cc0831f"}},
-      {"name":"phase","value":{"k":"ref","name":"Wire_PhaseSchema_128423a725a6cc90"}}]},
+      {"name":"phase","value":{"k":"ref","name":"Wire_PhaseSchema_128423a725a6cc90"}}],"fixed":true},
     "Wire_ErrorSchema_c1ca70c928fa6179":{"k":"enum","variants":[
       {"name":"Denied","id":0,"value":{"k":"unit"}},
       {"name":"Unknown","id":1,"value":{"k":"unit"}},

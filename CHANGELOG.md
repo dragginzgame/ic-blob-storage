@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.113.0]
+
+### ⚠️ Breaking changes
+
+- Hosts passing Blob’s `RPC_LIMITS` to Wire or matching Blob’s codec errors
+  should select IC Wire 0.31 for the public Rust types.
+
+### 📦 Dependencies
+
+- Both workspaces select IC Wire 0.31.1, Platform Types 0.21.6, Platform Protocol
+  0.3.11 and Toko Tooling 0.46.7.
+
 ## [0.112.0] - 2026-11-26
 
 ### ⚠️ Breaking changes

@@ -32,25 +32,25 @@
       {"name":"installation","value":{"k":"ref","name":"Wire_Principal_f14095eb1cc0831f"}},
       {"name":"configuration","value":{"k":"ref","name":"Wire_InstallationSchema_a216ff4ece495fb1"}},
       {"name":"state_version","value":{"k":"ref","name":"Wire_u32_4d2bdf193e8526d1"}},
-      {"name":"maintenance","value":{"k":"ref","name":"Wire_MaintenanceSchema_ea68b2ecb6094f7a"}}]},
+      {"name":"maintenance","value":{"k":"ref","name":"Wire_MaintenanceSchema_ea68b2ecb6094f7a"}}],"fixed":true},
     "Wire_InstallationSchema_a216ff4ece495fb1":{"k":"record","fields":[
       {"name":"application","value":{"k":"ref","name":"Wire_Principal_f14095eb1cc0831f"}},
       {"name":"manager","value":{"k":"ref","name":"Wire_Principal_f14095eb1cc0831f"}},
-      {"name":"limits","value":{"k":"ref","name":"Wire_LimitsSchema_82416146115f67a2"}}]},
+      {"name":"limits","value":{"k":"ref","name":"Wire_LimitsSchema_82416146115f67a2"}}],"fixed":true},
     "Wire_LimitsSchema_82416146115f67a2":{"k":"record","fields":[
       {"name":"manifest","value":{"k":"ref","name":"Wire_ManifestLimitsSchema_d2f528e9e51b4383"}},
       {"name":"uploads","value":{"k":"ref","name":"Wire_Shape_2176cfe6bade0b15"}},
       {"name":"references","value":{"k":"ref","name":"Wire_Shape_2176cfe6bade0b15"}},
       {"name":"logical_bytes","value":{"k":"ref","name":"Wire_Shape_4403e63ed1241552"}},
-      {"name":"exposure_bytes","value":{"k":"ref","name":"Wire_Shape_4403e63ed1241552"}}]},
+      {"name":"exposure_bytes","value":{"k":"ref","name":"Wire_Shape_4403e63ed1241552"}}],"fixed":true},
     "Wire_MaintenanceSchema_ea68b2ecb6094f7a":{"k":"record","fields":[
       {"name":"attempt","value":{"k":"ref","name":"Wire_u64_4d35d3193e8d66f2"}},
-      {"name":"active","value":{"k":"ref","name":"Wire_bool_cd2fd49bc6b014bd"}}]},
+      {"name":"active","value":{"k":"ref","name":"Wire_bool_cd2fd49bc6b014bd"}}],"fixed":true},
     "Wire_ManifestLimitsSchema_d2f528e9e51b4383":{"k":"record","fields":[
       {"name":"max_content_bytes","value":{"k":"ref","name":"Wire_Shape_4403e63ed1241552"}},
       {"name":"max_chunks","value":{"k":"ref","name":"Wire_Shape_2176cfe6bade0b15"}},
       {"name":"max_headers","value":{"k":"ref","name":"Wire_Shape_2176cfe6bade0b15"}},
-      {"name":"max_header_bytes","value":{"k":"ref","name":"Wire_Shape_2176cfe6bade0b15"}}]},
+      {"name":"max_header_bytes","value":{"k":"ref","name":"Wire_Shape_2176cfe6bade0b15"}}],"fixed":true},
     "Wire_Principal_f14095eb1cc0831f":{"k":"ref","name":"Wire_Bytes_ceafa818703233a0"},
     "Wire_Bytes_ceafa818703233a0":{"k":"bytes","max":29},
     "Wire_ReferenceErrorSchema_5a1bf2871a00685b":{"k":"enum","variants":[

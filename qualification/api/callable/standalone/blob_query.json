@@ -46,23 +46,23 @@
       {"name":"Overview","id":5,"value":{"k":"ref","name":"Wire_PrincipalOverviewSchema_d6b481f29461a525"}}]},
     "Wire_MaintenanceSchema_ea68b2ecb6094f7a":{"k":"record","fields":[
       {"name":"attempt","value":{"k":"ref","name":"Wire_u64_4d35d3193e8d66f2"}},
-      {"name":"active","value":{"k":"ref","name":"Wire_bool_cd2fd49bc6b014bd"}}]},
+      {"name":"active","value":{"k":"ref","name":"Wire_bool_cd2fd49bc6b014bd"}}],"fixed":true},
     "Wire_ObjectViewSchema_78b0df45fd031e28":{"k":"record","fields":[
       {"name":"original_upload","value":{"k":"ref","name":"Wire_UploadViewSchema_1d9cf74bb16c00d2"}},
       {"name":"retention","value":{"k":"ref","name":"Wire_Option_4d371b1a17d31482"}},
-      {"name":"live_references","value":{"k":"ref","name":"Wire_Shape_2437b51edba6d3bc"}}]},
+      {"name":"live_references","value":{"k":"ref","name":"Wire_Shape_2437b51edba6d3bc"}}],"fixed":true},
     "Wire_Option_4d371b1a17d31482":{"k":"option","item":{"k":"ref","name":"Wire_RetentionStateSchema_7859e715784c65a1"}},
     "Wire_PrincipalOverviewSchema_d6b481f29461a525":{"k":"record","fields":[
       {"name":"uploader","value":{"k":"ref","name":"Wire_Principal_f14095eb1cc0831f"}},
       {"name":"objects","value":{"k":"ref","name":"Wire_Vec_d2ad60c73b3f699e"}},
-      {"name":"usage","value":{"k":"ref","name":"Wire_UsageSchema_20a2dd7f17115ba7"}}]},
+      {"name":"usage","value":{"k":"ref","name":"Wire_UsageSchema_20a2dd7f17115ba7"}}],"fixed":true},
     "Wire_ReferenceErrorSchema_5a1bf2871a00685b":{"k":"enum","variants":[
       {"name":"Closing","id":0,"value":{"k":"unit"}},
       {"name":"CapacityExhausted","id":1,"value":{"k":"unit"}},
       {"name":"UnknownReference","id":2,"value":{"k":"unit"}}]},
     "Wire_ReferenceViewSchema_cb5b6d04567bb768":{"k":"record","fields":[
       {"name":"root","value":{"k":"ref","name":"Wire__u8__32__a6c3ffa4fc6f7348"}},
-      {"name":"status","value":{"k":"ref","name":"Wire_ReferenceStatusSchema_d6183c6c30f474b3"}}]},
+      {"name":"status","value":{"k":"ref","name":"Wire_ReferenceStatusSchema_d6183c6c30f474b3"}}],"fixed":true},
     "Wire_ReferenceStatusSchema_d6183c6c30f474b3":{"k":"enum","variants":[
       {"name":"Reserved","id":0,"value":{"k":"unit"}},
       {"name":"Live","id":1,"value":{"k":"unit"}},
@@ -75,14 +75,14 @@
     "Wire_Shape_50664f42da928cc5":{"k":"u","bits":128,"min":1},
     "Wire_UploadViewSchema_1d9cf74bb16c00d2":{"k":"record","fields":[
       {"name":"request","value":{"k":"ref","name":"Wire_UploadRequestSchema_4f461cc72854b5e2"}},
-      {"name":"state","value":{"k":"ref","name":"Wire_UploadStateSchema_eda726d2e3ee52e6"}}]},
+      {"name":"state","value":{"k":"ref","name":"Wire_UploadStateSchema_eda726d2e3ee52e6"}}],"fixed":true},
     "Wire_UploadRequestSchema_4f461cc72854b5e2":{"k":"record","fields":[
       {"name":"id","value":{"k":"ref","name":"Wire_Shape_50664f42da928cc5"}},
       {"name":"uploader","value":{"k":"ref","name":"Wire_Principal_f14095eb1cc0831f"}},
       {"name":"root","value":{"k":"ref","name":"Wire__u8__32__a6c3ffa4fc6f7348"}},
       {"name":"bytes","value":{"k":"ref","name":"Wire_u64_4d35d3193e8d66f2"}},
       {"name":"first_reference","value":{"k":"ref","name":"Wire_Shape_50664f42da928cc5"}},
-      {"name":"expires_at","value":{"k":"ref","name":"Wire_u64_4d35d3193e8d66f2"}}]},
+      {"name":"expires_at","value":{"k":"ref","name":"Wire_u64_4d35d3193e8d66f2"}}],"fixed":true},
     "Wire_UploadStateSchema_eda726d2e3ee52e6":{"k":"enum","variants":[
       {"name":"Reserved","id":0,"value":{"k":"unit"}},
       {"name":"Registered","id":1,"value":{"k":"unit"}},
@@ -94,12 +94,12 @@
       {"name":"live_bytes","value":{"k":"ref","name":"Wire_u64_4d35d3193e8d66f2"}},
       {"name":"unresolved_bytes","value":{"k":"ref","name":"Wire_u64_4d35d3193e8d66f2"}},
       {"name":"uploads","value":{"k":"ref","name":"Wire_Shape_2437b51edba6d3bc"}},
-      {"name":"references","value":{"k":"ref","name":"Wire_Shape_2437b51edba6d3bc"}}]},
+      {"name":"references","value":{"k":"ref","name":"Wire_Shape_2437b51edba6d3bc"}}],"fixed":true},
     "Wire_Vec_d2ad60c73b3f699e":{"k":"list","item":{"k":"ref","name":"Wire_PrincipalObjectSchema_b13a9efc81b5cea5"}},
     "Wire_PrincipalObjectSchema_b13a9efc81b5cea5":{"k":"record","fields":[
       {"name":"object","value":{"k":"ref","name":"Wire_ObjectViewSchema_78b0df45fd031e28"}},
       {"name":"uploads","value":{"k":"ref","name":"Wire_Vec_7e48e21502180549"}},
-      {"name":"references","value":{"k":"ref","name":"Wire_Vec_0549382718d9bb35"}}]},
+      {"name":"references","value":{"k":"ref","name":"Wire_Vec_0549382718d9bb35"}}],"fixed":true},
     "Wire_Vec_0549382718d9bb35":{"k":"list","item":{"k":"ref","name":"Wire_Shape_58e902b56fe69d10"}},
     "Wire_Shape_58e902b56fe69d10":{"k":"tuple","items":[{"k":"ref","name":"Wire_Shape_50664f42da928cc5"},{"k":"ref","name":"Wire_ReferenceStatusSchema_d6183c6c30f474b3"}]},
     "Wire_Vec_7e48e21502180549":{"k":"list","item":{"k":"ref","name":"Wire_UploadViewSchema_1d9cf74bb16c00d2"}},

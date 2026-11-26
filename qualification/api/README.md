@@ -20,12 +20,17 @@ captured with the 0.107.1 codecs.
 The [qualification build script](../ic-blob-storage-tests/build/contracts/mod.rs)
 reads the Platform mounts, their Wire codec IDs and budgets, and the Serde
 declarations used by their handlers. It preserves field order, variant order
-and Serde attributes for Wire's derive. The [exporter](../ic-blob-storage-tests/examples/callable-api.rs)
+and Serde attributes for Wire's derive and marks projected structs and tuples
+as fixed. The [exporter](../ic-blob-storage-tests/examples/callable-api.rs)
 uses Wire's validated registry and format-1 manifest writer. Wire budgets in
 these files exclude the frame header. The native allocation budget is outside
 Wire's manifest format.
 
-Wire 0.30.2 supplies the ordinary scalar, container and Platform principal
+The Wire 0.31.1 baseline adds the `fixed: true` annotations to the existing
+ordinary Serde layouts. Removing those annotations reproduces the previous
+eight manifests byte for byte.
+
+Wire 0.31.1 supplies the ordinary scalar, container and Platform principal
 projections. Four integer types used by these mounts still lack a native
 `Wire` implementation. The [qualification projections](../ic-blob-storage-tests/examples/projection/mod.rs)
 cover their existing binary Serde representations.
