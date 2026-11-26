@@ -2,19 +2,19 @@
 
 ## Delivery and active work
 
-**0.112.0 is published** for all four product crates. Every crates.io download
+**0.113.0 is published** for all four product crates. Every crates.io download
 matched the prepared archive and registry checksum. See the
-[release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.112.0),
-`target/01120-release/registry-verified.json` and `target/publication/provenance-01120/`.
+[release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.113.0),
+`target/01130-release/registry-verified.json` and `target/publication/provenance-01130/`.
 
 All 17 local release stages passed, including an ordinary upgrade from the
-checksum-verified 0.111.0 standalone Wasm. See
-`target/validation/blob.EilcUU/proof.json` and the
-[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/45821307423).
+checksum-verified 0.112.0 standalone Wasm. See
+`target/validation/blob.r5wmM5/proof.json` and the
+[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/45875237802).
 
 ## Next action and provider boundary
 
-Blob 0.112.0 uses Storage 0.80 for fresh installations and
+Blob 0.113.0 uses Storage 0.80 for fresh installations and
 same-format upgrades. Keep existing 0.110.0 installations on their original
 backing and code until a separate migration is qualified. PocketIC verified
 that refusing the upgrade from the tagged 0.110.0 build to 0.111.0 preserved
@@ -23,10 +23,10 @@ See the [storage contract](../design/stable-storage.md) and
 `target/01110-release/exact-tag-refusal.log`.
 
 The Canic adapter owns the report projection and qualification with its
-application catalog. To adopt Blob 0.112.0 it needs a Storage 0.80 lease and
+application catalog. To adopt Blob 0.113.0 it needs a Storage 0.80 lease and
 IC Logging 0.26's `Level` type for its recorder. See the
 [metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics).
-Rust hosts using Blob’s public codec types should select Wire 0.30
+Rust hosts using Blob’s public codec types should select Wire 0.31
 and match admission failures as `Error::Limit(kind)`.
 
 The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.8 in
@@ -102,7 +102,8 @@ selection is explicit; the existing named signer was used without exporting keys
 
 ## Review and limitations
 
-The tagged Wasms matched the reviewed callable API and all eight Wire manifests.
+The tagged Wasms matched the reviewed callable API. The eight Wire manifests
+add fixed-layout annotations to the existing Serde layouts.
 Hosts own log retention and the metrics heap, and their Storage leases carry
 the durable state. The published CLI archive fingerprints the installed Toko
 Tooling snapshot. The [API qualifier](../../qualification/api/README.md) owns
