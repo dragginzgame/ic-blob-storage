@@ -2,29 +2,30 @@
 
 ## Delivery and active work
 
-**0.111.0 is published** for all four product crates. Every crates.io download
+**0.112.0 is published** for all four product crates. Every crates.io download
 matched the prepared archive and registry checksum. See the
-[release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.111.0),
-`target/01110-release/registry-verified.json` and `target/publication/provenance-01110/`.
+[release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.112.0),
+`target/01120-release/registry-verified.json` and `target/publication/provenance-01120/`.
 
-All 17 local release stages passed. See `target/validation/blob.whh2mx/proof.json`
-and the [release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/45614150469).
+All 17 local release stages passed, including an ordinary upgrade from the
+checksum-verified 0.111.0 standalone Wasm. See
+`target/validation/blob.EilcUU/proof.json` and the
+[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/45821307423).
 
 ## Next action and provider boundary
 
-Blob 0.111.0 uses Storage 0.80 for fresh installations and
+Blob 0.112.0 uses Storage 0.80 for fresh installations and
 same-format upgrades. Keep existing 0.110.0 installations on their original
-backing and code until a separate migration is qualified. The local PocketIC
-refusal test used both exact tagged builds and verified the retained module,
-stable bytes, maintenance attempt and outstanding exposure.
+backing and code until a separate migration is qualified. PocketIC verified
+that refusing the upgrade from the tagged 0.110.0 build to 0.111.0 preserved
+the original module, stable bytes, maintenance attempt and outstanding exposure.
 See the [storage contract](../design/stable-storage.md) and
 `target/01110-release/exact-tag-refusal.log`.
 
-Canic can consume the published [metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics)
-alongside the named storage lease. Its adapter owns the report projection and
-qualification with its application catalog and needs a Storage 0.80 lease for
-Blob 0.111.0. The pending 0.112.0 logging hook uses IC Logging 0.26's `Level`
-type, so the Canic recorder must select that same Logging line when adopting it.
+The Canic adapter owns the report projection and qualification with its
+application catalog. To adopt Blob 0.112.0 it needs a Storage 0.80 lease and
+IC Logging 0.26's `Level` type for its recorder. See the
+[metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics).
 Rust hosts using Blob’s public codec types should select Wire 0.30
 and match admission failures as `Error::Limit(kind)`.
 
@@ -102,9 +103,10 @@ selection is explicit; the existing named signer was used without exporting keys
 ## Review and limitations
 
 The tagged Wasms matched the reviewed callable API and all eight Wire manifests.
-The published diff keeps stable leases with the hosts and the four integer
-projections with the private [API qualifier](../../qualification/api/README.md).
-The published CLI archive fingerprints the installed tooling snapshot.
+Hosts own log retention and the metrics heap, and their Storage leases carry
+the durable state. The published CLI archive fingerprints the installed Toko
+Tooling snapshot. The [API qualifier](../../qualification/api/README.md) owns
+the four integer projections.
 
 Finite lifetime slots still bound sustained use. Provider acceptance/settlement,
 Canic composition and unrestricted-controller snapshot continuity remain unqualified.
