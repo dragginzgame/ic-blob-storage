@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.112.0]
+## [0.112.0] - 2026-11-26
 
 ### ⚠️ Breaking changes
 
