@@ -33,4 +33,4 @@ without resubmitting. See `blob app dispatch-install --help` for required inputs
 
 See the [repository](https://github.com/dragginzgame/ic-blob-storage) for the
 design, limits and qualification. Licensed under the Toko Studios Network Licence
-1.0; see the packaged `LICENSE.md`.
+1.1; see the packaged `LICENSE.md`.

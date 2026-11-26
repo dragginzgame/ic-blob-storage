@@ -22,7 +22,7 @@ ic-blob-storage-reference-app = { path = "../crates/ic-blob-storage-reference-ap
 ic-host-artifacts = { version = "0.80.7", default-features = false }
 ic-host-fs = { version = "0.80.3", default-features = false }
 ic-host-process = { version = "0.81.0", default-features = false }
-ic-logging = { version = "0.25.0", default-features = false }
+ic-logging = { version = "0.26.0", default-features = false }
 ic-platform = { version = "0.35.1", default-features = false }
 ic-platform-protocol = { version = "0.3.10", default-features = false }
 ic-platform-runtime = { version = "0.23.27", default-features = false }
@@ -37,7 +37,7 @@ serde_json = "1.0.154"
 sha2 = { version = "0.11.1", default-features = false }
 syn = "3.0.10"
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread", "time", "process", "io-util", "net"] }
-toko-tooling = "=0.46.4"
+toko-tooling = "=0.46.5"
 wat = "1.263.0"
 
 [workspace.lints.cargo]

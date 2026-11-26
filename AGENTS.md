@@ -101,8 +101,8 @@ raw instructions distinct, and preserve original request/proof/custody evidence.
 Current commands, fixture coverage and limitations belong with their owning
 implementation and handoff, not duplicated in this overlay.
 
-Use `make deps-list` for package inventory, `make update`/`make deps-update` for
-lock updates and `toko-cloc` for requested source counts. Tooling changes use
+Use `make update`/`make deps-update` for lock updates and `toko-cloc` for requested
+source counts. Tooling changes use
 `make toko-tooling-update` after coherent changes to both workspace selections.
 
 ## Learn from the predecessor before subsystem work

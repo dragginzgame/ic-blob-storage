@@ -1,4 +1,4 @@
-# Current status — 2026-11-25
+# Current status — 2026-11-26
 
 ## Delivery and active work
 
@@ -23,10 +23,12 @@ See the [storage contract](../design/stable-storage.md) and
 Canic can consume the published [metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics)
 alongside the named storage lease. Its adapter owns the report projection and
 qualification with its application catalog and needs a Storage 0.80 lease for
-Blob 0.111.0. Rust hosts using Blob’s public codec types should select Wire 0.30
+Blob 0.111.0. The pending 0.112.0 logging hook uses IC Logging 0.26's `Level`
+type, so the Canic recorder must select that same Logging line when adopting it.
+Rust hosts using Blob’s public codec types should select Wire 0.30
 and match admission failures as `Error::Limit(kind)`.
 
-The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.7 in
+The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.8 in
 the next release-tooling maintenance pass with the two-lock metadata fixture.
 Populated 0.103.3 or 0.104.0 installations still require separate disposition.
 

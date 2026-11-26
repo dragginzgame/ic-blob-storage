@@ -51,7 +51,7 @@ help:
 	  'make docs-check / docs-qualification-check  Product / qualification Rustdoc checks' \
 	  'make documentation-links-check   Check repository Markdown links' \
 	  'make deps                        Fetch the locked dependencies' \
-	  'make deps-list                   List workspace package versions and groups' \
+	  'make deps-list                   List product package versions and groups' \
 	  'make update / deps-update        Update Cargo locks within manifest requirements' \
 	  'make toko-tooling-update          Install the Cargo-selected tooling snapshot' \
 	  'make release-patch/minor/major    Validate, version and deliver to GitHub' \

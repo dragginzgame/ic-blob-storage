@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.112.0]
+
+### ⚠️ Breaking changes
+
+- Hosts using Blob’s optional logging hook must use IC Logging 0.26 for the
+  `Level` type passed to the recorder.
+
+### 📦 Dependencies
+
+- Select IC Logging 0.26.0, IC Metrics 0.30.23 and Toko Tooling 0.46.5 in both
+  Cargo workspaces.
+- Both lockfiles also select IC Storage 0.80.6, Platform Protocol 0.3.11 and
+  Host Artifacts and Host FS 0.80.9. Qualification uses Testkit 0.110.5.
+
+### 🔧 Tooling
+
+- `make deps-list` lists product packages by default. Add
+  `DEPENDENCY_MANIFEST=qualification/Cargo.toml` to include qualification packages.
+
 ## [0.111.0] - 2026-11-25
 
 ### ⚠️ Breaking changes

@@ -42,6 +42,8 @@ unresolved declared bytes separately. The durable ledger survives upgrades.
 
 ## Optional operational logging
 
+Use IC Logging 0.26 for the recorder’s `ic_logging::Level` parameter.
+
 Enable the library’s `logging` feature and bind the host’s recorder after creating
 or reopening the service. A Canic host with logging initialized can use its
 existing recorder directly.
@@ -72,4 +74,4 @@ new heap log. Metrics and logging can be enabled independently.
 
 See the [repository](https://github.com/dragginzgame/ic-blob-storage) for the
 design, limits and qualification. Licensed under the Toko Studios Network Licence
-1.0; see the packaged `LICENSE.md`.
+1.1; see the packaged `LICENSE.md`.

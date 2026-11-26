@@ -113,7 +113,7 @@ Installed tests select Testkit 0.110.4 and Host Process 0.81.4.
 See the [integration boundary](docs/design/application-boundary.md#types-0212-integration).
 
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.46.4. Both workspaces use IC Wire 0.30.2. Rust hosts
+and published Toko Tooling 0.46.5. Both workspaces use IC Wire 0.30.2. Rust hosts
 that pass Blob’s `RPC_LIMITS` to Wire should also select Wire 0.30. GitHub development uses the `main` branch of
 `dragginzgame/ic-blob-storage`. Releases use the shared Toko workflow; there is no production deployment configuration.
 
@@ -194,7 +194,8 @@ persistence format remain unchanged.
 It does not establish live gateway membership, provider
 acceptance of recovered proof, deletion or billing closure.
 
-`make deps-list` lists workspace package versions and release groups. `make update`
+`make deps-list` lists product package versions and release groups. Add
+`DEPENDENCY_MANIFEST=qualification/Cargo.toml` to include qualification packages. `make update`
 delegates to Toko Tooling's `make deps-update` (`cargo update -v`), updating locks
 within the manifest requirements. To select one dependency, use
 `make update DEPENDENCY_PACKAGE=toko-tooling`; `DEPENDENCY_PRECISE` optionally
