@@ -1,16 +1,16 @@
-# Current status — 2026-11-26
+# Current status — 2026-11-27
 
 ## Delivery and active work
 
-**0.113.0 is published** for all four product crates. Every crates.io download
+**0.113.1 is published** for all four product crates. Every crates.io download
 matched the prepared archive and registry checksum. See the
-[release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.113.0),
-`target/01130-release/registry-verified.json` and `target/publication/provenance-01130/`.
+[release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.113.1),
+`target/01131-release/registry-verified.json` and `target/publication/provenance-01131/`.
 
 All 17 local release stages passed, including an ordinary upgrade from the
-checksum-verified 0.112.0 standalone Wasm. See
-`target/validation/blob.r5wmM5/proof.json` and the
-[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/45875237802).
+checksum-verified 0.113.0 standalone Wasm. See
+`target/validation/blob.NRv9mj/proof.json` and the
+[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/45982138526).
 
 ## Next action and provider boundary
 
@@ -41,7 +41,7 @@ separately owns the old consumed image. Canic owns fleet integration in
 Its older `0167a30` witness pins Blob `decde204` (0.100.6) and does not qualify
 this stable-memory boundary. Do not add another Blob adapter here.
 
-[Blob #6](https://github.com/dragginzgame/ic-blob-storage/issues/6) tracks the
+[Blob #6](https://github.com/dragginzgame/ic-blob-storage/issues/6) was closed as unsupported. Reconsider it when the provider can supply the
 [catalogue completion witness](../design/caffeine-contract-review.md#catalogue-completion-and-recovery).
 D0 remains open for supported enrollment, namespace/scope, enforced bounds, proof
 recovery/lifetime and charge closure. D1/D3 remain partial; D2 has no positive live
@@ -108,8 +108,8 @@ The tagged Wasms matched the reviewed callable API. The eight Wire manifests
 add fixed-layout annotations to the existing Serde layouts.
 Hosts own log retention and the metrics heap, and their Storage leases carry
 the durable state. The published CLI archive fingerprints the installed Toko
-Tooling snapshot. The [API qualifier](../../qualification/api/README.md) owns
-the four integer projections.
+Tooling snapshot. The native `inspection` feature exposes the supplier-owned schemas used by Canic.
+The [API qualifier](../../qualification/api/README.md) checks the mounted contracts.
 
 Finite lifetime slots still bound sustained use. Provider acceptance/settlement,
 Canic composition and unrestricted-controller snapshot continuity remain unqualified.
