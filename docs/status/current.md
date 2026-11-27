@@ -2,17 +2,21 @@
 
 ## Delivery and active work
 
-**0.113.1 is published** for all four product crates. Every crates.io download
+**0.113.2 is published** for all four product crates. Every crates.io download
 matched the prepared archive and registry checksum. See the
-[release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.113.1),
-`target/01131-release/registry-verified.json` and `target/publication/provenance-01131/`.
+[release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.113.2),
+`target/01132-release/registry-verified.json` and `target/publication/provenance-01132/`.
 
 All 17 local release stages passed, including an ordinary upgrade from the
-checksum-verified 0.113.0 standalone Wasm. See
-`target/validation/blob.NRv9mj/proof.json` and the
-[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/45982138526).
+checksum-verified 0.113.1 standalone Wasm. See
+`target/validation/blob.14uP8n/proof.json` and the
+[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/46005351052).
 
 ## Next action and provider boundary
+
+Embedding hosts can now mount the [Caffeine certificate adapter](../../crates/ic-blob-storage/README.md#embedding-the-caffeine-upload-update).
+The installed qualification host accepted the Caffeine SDK 1.1.2 request only for
+the reserved uploader. Project integration and live gateway upload/readback remain downstream work.
 
 Blob 0.113.0 uses Storage 0.80 for fresh installations and
 same-format upgrades. Keep existing 0.110.0 installations on their original
