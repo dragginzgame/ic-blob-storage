@@ -788,7 +788,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage"
-version = "0.113.1"
+version = "0.113.2"
 dependencies = [
  "ic-logging",
  "ic-metrics",
@@ -807,7 +807,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-canister"
-version = "0.113.1"
+version = "0.113.2"
 dependencies = [
  "ic-blob-storage",
  "ic-platform-runtime",
@@ -819,7 +819,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-cli"
-version = "0.113.1"
+version = "0.113.2"
 dependencies = [
  "clap",
  "ic-blob-storage",
@@ -839,7 +839,7 @@ dependencies = [
 
 [[package]]
 name = "ic-blob-storage-reference-app"
-version = "0.113.1"
+version = "0.113.2"
 dependencies = [
  "ic-blob-storage",
  "ic-platform-runtime",
