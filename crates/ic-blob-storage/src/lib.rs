@@ -15,3 +15,33 @@ pub mod local;
 pub mod metrics;
 pub mod protocol;
 pub mod references;
+
+#[cfg(feature = "inspection")]
+mod projection;
+#[cfg(feature = "inspection")]
+mod inspection {
+    include!(concat!(env!("OUT_DIR"), "/inspection.rs"));
+}
+
+#[cfg(all(test, feature = "inspection"))]
+mod inspection_tests {
+    use super::{
+        local::Error,
+        protocol::{Command, Inspection, ManagementView, Observation, Outcome},
+    };
+    use ic_wire::typescript::{SchemaRegistry, Wire};
+
+    fn check<Request: Wire, Reply: Wire>() {
+        let mut registry = SchemaRegistry::new(Default::default()).unwrap();
+        registry.register::<Request>("Request").unwrap();
+        registry.register::<Reply>("Reply").unwrap();
+        registry.finish().unwrap();
+    }
+
+    #[test]
+    fn mounted_request_and_reply_types_register_without_overrides() {
+        check::<Command, Result<Outcome, Error>>();
+        check::<Inspection, Result<Observation, Error>>();
+        check::<(), Result<ManagementView, Error>>();
+    }
+}

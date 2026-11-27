@@ -980,6 +980,24 @@ the single-use enrollment probe above; keep pure checks beside their owner.
 The probe's one intent/result record exists to prevent duplicate enrollment
 effects, not to introduce a parallel object ledger or a general funding framework.
 
+## Catalogue completion and recovery
+
+[Blob Storage #6](https://github.com/dragginzgame/ic-blob-storage/issues/6) depends
+on D0 account and namespace binding and a D2 positive upload witness. The catalogue
+must retain the installation, original grant ID and exact declaration before
+dispatch. The existing `Inspection::Upload(id)` recovers local grant state. The 2026-11-27 registry check still selects SDK 1.1.2.
+Local registration, a caller-supplied root, successful HTTP PUTs and
+verified readback of content by root each leave the grant-specific provider
+decision unknown. Identical content can predate this grant.
+
+To qualify completion, observe a supported provider decision in the selected
+account and namespace, correlate it with the original grant and root, lose its
+reply, then recover the same decision without issuing a second upload. Exercise
+a different grant for the same root, substituted roots, pending work and explicit
+provider refusal. A timeout leaves the decision unknown. Existing custody records
+contain no such positive decision. Keep remote catalogue publication disabled
+while this evidence is outstanding.
+
 ## Recovery and SDK disposition
 
 Rechecked the [npm latest metadata](https://registry.npmjs.org/@caffeineai%2fobject-storage/latest)

@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.113.1]
+
+### ✨ Added
+
+- Enable the optional `inspection` feature to generate native Wire schemas for
+  all three Blob methods from their existing request and reply types.
+
+### 🔧 Tooling
+
+- Select Toko Tooling 0.46.9 in both workspaces and bind the CLI to its snapshot.
+
 ## [0.113.0] - 2026-11-26
 
 ### ⚠️ Breaking changes

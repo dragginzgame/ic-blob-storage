@@ -1,5 +1,6 @@
 //! Render the public methods of the two product release Wasms for PR comparison.
 
+#[path = "../../../crates/ic-blob-storage/src/projection.rs"]
 mod projection;
 
 use clap::Parser;

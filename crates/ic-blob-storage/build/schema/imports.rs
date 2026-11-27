@@ -9,7 +9,7 @@ use syn::{
 };
 
 #[derive(Default)]
-pub(super) struct Names(BTreeSet<Ident>);
+pub(crate) struct Names(BTreeSet<Ident>);
 
 impl<'ast> Visit<'ast> for Names {
     fn visit_attribute(&mut self, attr: &'ast syn::Attribute) {
@@ -32,7 +32,7 @@ impl<'ast> Visit<'ast> for Names {
 }
 
 impl Names {
-    pub(super) fn imports(&self, items: &[Item], product: &Ident) -> TokenStream {
+    pub(crate) fn imports(&self, items: &[Item], product: &Ident) -> TokenStream {
         let mut result = TokenStream::new();
         for item in items {
             if let Item::Use(u) = item {
@@ -66,7 +66,7 @@ impl Names {
         }
     }
 
-    pub(super) fn contains(&self, ident: &Ident) -> bool {
+    pub(crate) fn contains(&self, ident: &Ident) -> bool {
         self.0.contains(ident)
     }
 }

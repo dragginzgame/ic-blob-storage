@@ -41,6 +41,8 @@ separately owns the old consumed image. Canic owns fleet integration in
 Its older `0167a30` witness pins Blob `decde204` (0.100.6) and does not qualify
 this stable-memory boundary. Do not add another Blob adapter here.
 
+[Blob #6](https://github.com/dragginzgame/ic-blob-storage/issues/6) tracks the
+[catalogue completion witness](../design/caffeine-contract-review.md#catalogue-completion-and-recovery).
 D0 remains open for supported enrollment, namespace/scope, enforced bounds, proof
 recovery/lifetime and charge closure. D1/D3 remain partial; D2 has no positive live
 gateway/upload witness. Preserve declared-byte accounting, unresolved exposure

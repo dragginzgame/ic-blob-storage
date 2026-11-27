@@ -12,6 +12,29 @@ owns grants, references and durable obligations; the host captures callers and
 mounts endpoints. Declare `blob.control.v1` in the host’s Storage bootstrap and pass
 the granted `RuntimeMemory` lease to `Service::create` or `Service::open`. This crate does not transfer file bytes or claim provider settlement.
 
+## Native Wire inspection
+
+Enable `ic-blob-storage/inspection` in the native inspector. Canic can then inspect
+the mounted methods with its default schema registry. The supplier implements Wire
+for `protocol::Command`, `Inspection`, `Outcome`, `Observation`, `ManagementView`
+and `local::Error`. Register the same request and typed `Result` used by each
+mount. Ordinary canister builds can omit the feature.
+
+| Method ID input | Request | Reply |
+| --- | --- | --- |
+| `blob_update` | `Command` | `Result<Outcome, Error>` |
+| `blob_query` | `Inspection` | `Result<Observation, Error>` |
+| `blob_management` | `()` | `Result<ManagementView, Error>` |
+
+## Catalogue upload decisions
+
+Keep the original upload ID, uploader, object root and installation. After a
+lost local reply, an authorized caller can query `Inspection::Upload(id)` and compare the
+returned declaration with its original grant. To verify readability, check a
+gateway read against the expected root and byte length. Record the time of that
+observation. A catalogue requiring provider confirmation of a specific upload
+must withhold remote publication. [Blob Storage #6](https://github.com/dragginzgame/ic-blob-storage/issues/6)
+
 ## Optional operational metrics
 
 Enable the library’s `metrics` feature and supply one heap store per service

@@ -795,8 +795,12 @@ dependencies = [
  "ic-platform-types",
  "ic-storage",
  "ic-wire",
+ "proc-macro2",
+ "quote",
  "serde",
+ "serde_json",
  "sha2 0.11.2",
+ "syn 3.0.10",
  "toko-tooling",
 ]
 
@@ -1010,9 +1014,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "668657755a54c068fb0d26155be33de30ad7fc46f32cfdfba3c3b0b24ccb8700"
 dependencies = [
  "bytemuck",
+ "ic-platform-types",
+ "ic-wire-derive",
  "postcard",
  "serde",
  "serde_bytes",
+ "serde_json",
+]
+
+[[package]]
+name = "ic-wire-derive"
+version = "0.31.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "278e24d6e54efe83e421565c71d0f636f453e9e377406a8b6de7502f9354e730"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 3.0.10",
 ]
 
 [[package]]
@@ -1823,6 +1841,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_json"
+version = "1.0.154"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7e9cc8b1b85264074fbcc02a88680c4096b1e47df8f739dceb03bf482f04bd6"
+dependencies = [
+ "itoa",
+ "memchr",
+ "serde",
+ "serde_core",
+ "zmij",
+]
+
+[[package]]
 name = "serde_repr"
 version = "0.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2093,9 +2124,9 @@ dependencies = [
 
 [[package]]
 name = "toko-tooling"
-version = "0.46.7"
+version = "0.46.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2503246851871fc0f452977eee6851205987c63571a5ec4492347a7e10fbb04"
+checksum = "42cc531ac13934abd2fff578d828bc36166edda0612dc9c6e5fdcbf8af1e6257"
 
 [[package]]
 name = "tower"
@@ -2530,3 +2561,9 @@ dependencies = [
  "quote",
  "syn 3.0.10",
 ]
+
+[[package]]
+name = "zmij"
+version = "1.0.23"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "29666d0abbfad1e3dc4dcf6144730dd3a3ab225bbbdac83319345b1b44ccfc1b"

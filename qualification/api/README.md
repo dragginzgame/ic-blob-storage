@@ -32,7 +32,7 @@ eight manifests byte for byte.
 
 Wire 0.31.1 supplies the ordinary scalar, container and Platform principal
 projections. Four integer types used by these mounts still lack a native
-`Wire` implementation. The [qualification projections](../ic-blob-storage-tests/examples/projection/mod.rs)
+`Wire` implementation. The [supplier projections](../../crates/ic-blob-storage/src/projection.rs)
 cover their existing binary Serde representations.
 
 | Rust type | Encoded unsigned width | Range accepted on the release Wasm |
@@ -42,7 +42,7 @@ cover their existing binary Serde representations.
 | `usize` | 64 | 0 through `u32::MAX` |
 | `NonZeroUsize` | 64 | 1 through `u32::MAX` |
 
-The private qualification feature keeps schema generation out of product builds.
+Native consumers can enable the supplier’s `inspection` feature to register the actual protocol types. The ordinary product Wasm build omits this feature.
 The two product Wasms have eight callable Wire methods. IC lifecycle hooks have
 no callable names. The Caffeine callback and enrollment probes are private
 qualification canisters.

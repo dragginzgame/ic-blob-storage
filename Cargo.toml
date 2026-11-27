@@ -36,8 +36,13 @@ sha2 = { version = "0.11.1", default-features = false }
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread", "time", "process"] }
 url = "2.5.8"
 
+proc-macro2 = "1.0.107"
+quote = "1.0.47"
+serde_json = "1.0.154"
+syn = "3.0.10"
+
 # Tests and tooling
-toko-tooling = "=0.46.7"
+toko-tooling = "=0.46.9"
 
 [workspace.lints.cargo]
 unused_dependencies = "deny"
