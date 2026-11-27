@@ -67,7 +67,7 @@ fn input() -> Installation {
             manifest: ManifestLimits {
                 max_content_bytes: 100.try_into().unwrap(),
                 max_chunks: 1.try_into().unwrap(),
-                max_headers: 1.try_into().unwrap(),
+                max_headers: 2.try_into().unwrap(),
                 max_header_bytes: 100.try_into().unwrap(),
             },
             uploads: 64.try_into().unwrap(),

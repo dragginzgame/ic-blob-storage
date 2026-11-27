@@ -56,37 +56,3 @@ pub(super) fn candidates(value: Vec<Root>) -> Result<Vec<u8>, c::EncodeError> {
 pub(super) fn done(_: ()) -> Result<Vec<u8>, c::EncodeError> {
     c::encode_empty(BYTES)
 }
-
-#[expect(
-    clippy::unnecessary_wraps,
-    reason = "Runtime decoder signature; malformed provider input traps"
-)]
-pub(super) fn certificate_root(bytes: &[u8]) -> Result<Root, std::convert::Infallible> {
-    let text = c::decode_root(bytes, LIMITS).unwrap();
-    let hex = text.strip_prefix("sha256:").expect("sha256 tree root");
-    assert!(
-        hex.len() == 64
-            && hex
-                .bytes()
-                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)),
-        "canonical root"
-    );
-
-    Ok(std::array::from_fn(|i| {
-        u8::from_str_radix(&hex[2 * i..2 * i + 2], 16).unwrap()
-    }))
-}
-
-pub(super) fn certificate_reply(root: Root) -> Result<Vec<u8>, c::EncodeError> {
-    let hex: String = root.iter().map(|byte| format!("{byte:02x}")).collect();
-
-    // This plain record is not the IC certificate. Request-status proof is owned
-    // by the replica/Agent, and provider acceptance of that proof remains unqualified.
-    c::encode_certificate(
-        &c::CertificateReply {
-            method: "upload".into(),
-            blob_hash: format!("sha256:{hex}"),
-        },
-        1024,
-    )
-}

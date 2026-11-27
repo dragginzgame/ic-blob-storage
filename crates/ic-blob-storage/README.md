@@ -26,6 +26,18 @@ mount. Ordinary canister builds can omit the feature.
 | `blob_query` | `Inspection` | `Result<Observation, Error>` |
 | `blob_management` | `()` | `Result<ManagementView, Error>` |
 
+## Embedding the Caffeine upload update
+
+Enable `ic-blob-storage/caffeine-certificate` in the embedding host. Mount
+`_immutableObjectStorageCreateCertificate` as a synchronous update. Cap the
+ingress argument at `caffeine::certificate::MAX_REQUEST_BYTES` before copying
+it. Use `certificate::decode_request` as the decoder and
+`certificate::encode_reply` as the encoder. In the handler, call
+`service.execute(caller, Command::Register(root), now)` with the caller and time
+captured from the IC runtime. Return the decoded root only on success. Trap on
+decode, registration or encoding failure so the update rolls back atomically.
+The SDK obtains the certified ingress response from the replica.
+
 ## Catalogue upload decisions
 
 Keep the original upload ID, uploader, object root and installation. After a

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.113.2]
+
+### ✨ Added
+
+- Embedding hosts can enable `caffeine-certificate` to decode SDK upload roots
+  and encode the Candid reply after registering the actual caller’s grant.
+
+
 ## [0.113.1] - 2026-11-27
 
 ### ✨ Added

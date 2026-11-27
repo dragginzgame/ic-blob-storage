@@ -101,8 +101,24 @@ async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
         support::instance(PocketIcBuilder::new().with_application_subnet(), 180).await;
     let pic = owned.client();
     let owner = install(pic).await;
-    let root = [42; 32];
-    update(pic, owner, 1, grant(1, root, 2)).await.unwrap();
+    // Captured at agent.call from @caffeineai/object-storage 1.1.2 putFile
+    // for Uint8Array.of(42) with MIME application/octet-stream and no filename.
+    const SDK_REQUEST: &[u8] = b"DIDL\x00\x01\x71\x47sha256:1a874436692836cd857269b58200727e52cd63f63146a53dc14989f9ca780a69";
+    let hash = "1a874436692836cd857269b58200727e52cd63f63146a53dc14989f9ca780a69";
+    let root = std::array::from_fn(|i| u8::from_str_radix(&hash[2 * i..2 * i + 2], 16).unwrap());
+    let mut authorization = grant(1, root, 2);
+    let Command::Authorize {
+        chunks, headers, ..
+    } = &mut authorization
+    else {
+        unreachable!()
+    };
+    chunks[0] = Sha256::digest([b"icfs-chunk/".as_slice(), &[42]].concat()).into();
+    headers.extend([
+        ("Content-Length".into(), "1".into()),
+        ("Content-Type".into(), "application/octet-stream".into()),
+    ]);
+    update(pic, owner, 1, authorization).await.unwrap();
     let before = support::blob_state(pic, owner, caller(1), &[actor(2), actor(3)]).await;
     for who in [
         CanisterId::anonymous(),
@@ -112,7 +128,7 @@ async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
         caller(9),
     ] {
         assert!(
-            pic.update_call(owner, who, ISSUE, issue_args(root))
+            pic.update_call(owner, who, ISSUE, SDK_REQUEST.to_vec())
                 .await
                 .is_err()
         );
@@ -195,7 +211,7 @@ async fn issuance_is_atomic_and_delayed_reply_cannot_reopen_final_release() {
     );
     // Submit once; delay retrieving the client result until after final release.
     let pending = pic
-        .submit_call(owner, caller(2), ISSUE, issue_args(root))
+        .submit_call(owner, caller(2), ISSUE, SDK_REQUEST.to_vec())
         .await
         .unwrap();
     for _ in 0..20 {

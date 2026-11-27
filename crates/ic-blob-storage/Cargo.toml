@@ -14,6 +14,7 @@ publish.workspace = true
 ignored = ["toko-tooling"]
 
 [features]
+caffeine-certificate = ["dep:ic-platform-protocol"]
 inspection = [
     "dep:proc-macro2",
     "dep:quote",
@@ -28,6 +29,7 @@ metrics = ["dep:ic-metrics"]
 [dependencies]
 ic-logging = { workspace = true, optional = true }
 ic-metrics = { workspace = true, optional = true }
+ic-platform-protocol = { workspace = true, features = ["caffeine"], optional = true }
 ic-platform-types.workspace = true
 ic-storage.workspace = true
 ic-wire.workspace = true

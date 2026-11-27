@@ -6,6 +6,7 @@ mod external;
 mod host {
     use crate::external;
     use ic_blob_storage::{
+        caffeine::certificate,
         local::{
             Error,
             persistence::{
@@ -230,8 +231,8 @@ mod host {
         runtime = ic_platform_runtime,
         name = "_immutableObjectStorageCreateCertificate",
         guard = admit_callback,
-        decode = external::certificate_root,
-        encode = external::certificate_reply,
+        decode = certificate::decode_request,
+        encode = certificate::encode_reply,
         max_bytes = 4096,
         on_error = fail
     )]

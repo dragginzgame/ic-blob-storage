@@ -4,6 +4,8 @@
 //! pins and reuse decisions are in docs/design/caffeine-contract-review.md.
 //! This verifies supplied bytes, not upload authority or provider availability.
 
+#[cfg(feature = "caffeine-certificate")]
+pub mod certificate;
 mod manifest;
 mod metadata;
 #[cfg(test)]
