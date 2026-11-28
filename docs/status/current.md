@@ -2,15 +2,16 @@
 
 ## Delivery and active work
 
-**0.115.0 is published** for all four product crates. Every crates.io download
-matched the prepared archive and registry checksum. See the
-[release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.115.0),
-`target/01150-release/registry-verified.json` and `target/publication/provenance-01150/`.
+**0.116.0 is published** for all five product crates. The crates.io downloads
+matched the verified archives and registry checksums. See the
+[release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.116.0),
+`target/01160-release/registry-verified.json` and `target/publication/provenance-01160/`.
 
-All 17 local release stages passed, including an ordinary upgrade from the
-checksum-verified 0.114.0 standalone Wasm. See
-`target/validation/blob.SpkEzb/proof.json` and the
-[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/46143031457).
+All 17 local release stages passed. The tagged standalone host and reference
+application refused populated 0.115.0 installations and preserved their modules
+and stable bytes. See `target/validation/blob.UAVENR/proof.json`,
+`target/01160-release/old-host-refusal.log`, `target/01160-release/old-app-refusal.log`
+and the [release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/46167319641).
 
 ## Next action and provider boundary
 
@@ -26,17 +27,12 @@ the original module, stable bytes, maintenance attempt and outstanding exposure.
 See the [storage contract](../design/stable-storage.md) and
 `target/01110-release/exact-tag-refusal.log`.
 
-The Canic adapter owns the report projection and qualification with its
-application catalog. To adopt Blob 0.113.0 it needs a Storage 0.80 lease and
-IC Logging 0.26's `Level` type for its recorder. See the
-[metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics).
-Blob 0.115.0 uses Wire 0.33.1 throughout both workspaces. Upgrade callers and
-embedders together to sparse frames. The pending Postcard cutover puts transport
-and schema inspection in the separate Blob Wire crate. Stable state and CLI custody use
-version 3 and refuse earlier records. See the
-[callable schema qualification](../../qualification/api/README.md). The tagged
-reference application also reopened a draft written by the 0.114.0 source build
-in `target/01150-release/predecessor-app.log`.
+Blob 0.116.0 uses Postcard for stable state and CLI custody. Use fresh backing
+for version 3 records and preserve earlier records with their original artifacts.
+The separate [Blob Wire crate](../../crates/ic-blob-storage-wire/README.md) owns
+the typed RPC contracts and native schema projections over IC Wire 0.34.
+[Canic #133](https://github.com/dragginzgame/canic/issues/133) tracks downstream
+adoption and installed schema and client qualification.
 
 The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.8 in
 the next release-tooling maintenance pass with the two-lock metadata fixture.
