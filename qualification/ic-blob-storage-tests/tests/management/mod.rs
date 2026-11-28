@@ -9,9 +9,10 @@ mod targets;
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::Limits,
-    protocol::{Command, Installation, RPC_LIMITS},
+    protocol::{Command, Installation},
 };
 use ic_blob_storage_tests::support_tests as support;
+use ic_blob_storage_wire::RPC_LIMITS;
 use ic_platform::native::Ed25519Identity;
 use ic_platform_types::Principal;
 use ic_testkit::pocket_ic::{CanisterId, PocketIcBuilder};
@@ -25,7 +26,7 @@ use std::{
 const TEST_PEM: &str = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIAcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcH\n-----END PRIVATE KEY-----\n";
 
 fn encode(input: &Installation) -> Vec<u8> {
-    ic_blob_storage::protocol::frame::encode(
+    ic_blob_storage_wire::frame::encode(
         input,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id("blob_init"),
@@ -149,7 +150,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     )
     .unwrap();
     let url = owned.client_mut().make_live(None).await;
-    let output = inspect(&directory, url.as_str(), canister, "2").await;
+    let output = inspect(&directory, url.as_str(), canister, "3").await;
     assert!(
         output.status.success(),
         "{}",
@@ -166,20 +167,20 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     };
     std::fs::write(directory.join("installation.wire"), encode(&different)).unwrap();
     refused(
-        &inspect(&directory, url.as_str(), canister, "2").await,
+        &inspect(&directory, url.as_str(), canister, "3").await,
         "configuration or state format mismatch",
     );
     std::fs::write(directory.join("installation.wire"), encode(&input)).unwrap();
     std::fs::write(directory.join("host.wasm"), b"not the admitted Wasm").unwrap();
     refused(
-        &inspect(&directory, url.as_str(), canister, "2").await,
+        &inspect(&directory, url.as_str(), canister, "3").await,
         "Wasm does not match",
     );
     std::fs::write(directory.join("host.wasm"), &wasm).unwrap();
     let wrong_root = include_bytes!("../../../../crates/ic-blob-storage-cli/src/mainnet-root.der");
     std::fs::write(directory.join("root.der"), wrong_root).unwrap();
     refused(
-        &inspect(&directory, url.as_str(), canister, "2").await,
+        &inspect(&directory, url.as_str(), canister, "3").await,
         "authentication failed",
     );
     std::fs::write(directory.join("root.der"), root).unwrap();
@@ -199,11 +200,11 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         )
         .await;
     refused(
-        &inspect(&directory, url.as_str(), foreign, "2").await,
+        &inspect(&directory, url.as_str(), foreign, "3").await,
         "host refused management inspection",
     );
     let claim = directory.join("drain-1");
-    let output = command(&directory, url.as_str(), canister, "2", "prepare-drain")
+    let output = command(&directory, url.as_str(), canister, "3", "prepare-drain")
         .arg("--record")
         .arg(&claim)
         .args(["--attempt", "1"])
@@ -219,7 +220,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     let packet = std::fs::read(claim.join("request.cbor")).unwrap();
     let intent = std::fs::read(claim.join("intent.wire")).unwrap();
     refused(
-        &command(&directory, url.as_str(), canister, "2", "prepare-drain")
+        &command(&directory, url.as_str(), canister, "3", "prepare-drain")
             .arg("--record")
             .arg(&claim)
             .args(["--attempt", "1"])
@@ -231,7 +232,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     let partial = directory.join("partial-drain");
     std::fs::create_dir(&partial).unwrap();
     refused(
-        &command(&directory, url.as_str(), canister, "2", "prepare-drain")
+        &command(&directory, url.as_str(), canister, "3", "prepare-drain")
             .arg("--record")
             .arg(&partial)
             .args(["--attempt", "1"])
@@ -242,7 +243,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     );
     assert!(std::fs::read_dir(&partial).unwrap().next().is_none());
     refused(
-        &command(&directory, url.as_str(), canister, "2", "observe-drain")
+        &command(&directory, url.as_str(), canister, "3", "observe-drain")
             .arg("--record")
             .arg(&partial)
             .output()
@@ -252,7 +253,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     );
     assert!(std::fs::read_dir(&partial).unwrap().next().is_none());
     refused(
-        &command(&directory, url.as_str(), canister, "2", "observe-drain")
+        &command(&directory, url.as_str(), canister, "3", "observe-drain")
             .arg("--record")
             .arg(&claim)
             .output()
@@ -261,7 +262,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "outcome unavailable",
     );
     refused(
-        &command(&directory, url.as_str(), foreign, "2", "observe-drain")
+        &command(&directory, url.as_str(), foreign, "3", "observe-drain")
             .arg("--record")
             .arg(&claim)
             .output()
@@ -273,7 +274,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     corrupt.push(0);
     std::fs::write(claim.join("request.cbor"), corrupt).unwrap();
     refused(
-        &command(&directory, url.as_str(), canister, "2", "observe-drain")
+        &command(&directory, url.as_str(), canister, "3", "observe-drain")
             .arg("--record")
             .arg(&claim)
             .output()
@@ -295,7 +296,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     )
     .unwrap();
     refused(
-        &command(&directory, url.as_str(), canister, "2", "dispatch-drain")
+        &command(&directory, url.as_str(), canister, "3", "dispatch-drain")
             .arg("--record")
             .arg(&claim)
             .arg("--custody")
@@ -319,7 +320,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     )
     .unwrap();
     refused(
-        &command(&directory, url.as_str(), canister, "2", "dispatch-drain")
+        &command(&directory, url.as_str(), canister, "3", "dispatch-drain")
             .arg("--record")
             .arg(&claim)
             .arg("--custody")
@@ -352,7 +353,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         )
         .unwrap();
     refused(
-        &command(&directory, url.as_str(), canister, "2", "dispatch-drain")
+        &command(&directory, url.as_str(), canister, "3", "dispatch-drain")
             .arg("--record")
             .arg(&claim)
             .arg("--custody")
@@ -368,7 +369,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     drop(lock);
     // Two real processes compete: exactly one may claim dispatch. A separate
     // process then observes the original outcome without relying on its stdout.
-    let mut first = command(&directory, url.as_str(), canister, "2", "dispatch-drain");
+    let mut first = command(&directory, url.as_str(), canister, "3", "dispatch-drain");
     first
         .arg("--record")
         .arg(&claim)
@@ -376,7 +377,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         .arg(&custody)
         .arg("--checkout")
         .arg(&checkout);
-    let mut second = command(&directory, url.as_str(), canister, "2", "dispatch-drain");
+    let mut second = command(&directory, url.as_str(), canister, "3", "dispatch-drain");
     second
         .arg("--record")
         .arg(&claim)
@@ -405,7 +406,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     let marker = std::fs::read(target_directory.join("attempt-1.claim")).unwrap();
     assert_eq!(marker, original_id.to_vec());
     refused(
-        &command(&directory, url.as_str(), canister, "2", "dispatch-drain")
+        &command(&directory, url.as_str(), canister, "3", "dispatch-drain")
             .arg("--record")
             .arg(&claim)
             .arg("--custody")
@@ -417,7 +418,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .unwrap(),
         "already claimed",
     );
-    let output = command(&directory, url.as_str(), canister, "2", "observe-drain")
+    let output = command(&directory, url.as_str(), canister, "3", "observe-drain")
         .arg("--record")
         .arg(&claim)
         .output()
@@ -431,7 +432,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     assert!(support::stdout(&output).contains("Original drain acknowledged"));
     assert_eq!(std::fs::read(claim.join("request.cbor")).unwrap(), packet);
     assert_eq!(std::fs::read(claim.join("intent.wire")).unwrap(), intent);
-    let drain = ic_blob_storage::protocol::frame::encode(
+    let drain = ic_blob_storage_wire::frame::encode(
         &Command::Drain(1),
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id("blob_update"),
@@ -450,7 +451,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         )
         .await
         .unwrap();
-    let output = inspect(&directory, url.as_str(), canister, "2").await;
+    let output = inspect(&directory, url.as_str(), canister, "3").await;
     assert!(
         output.status.success(),
         "{}",
@@ -469,7 +470,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         .install_canister(stranded, wasm, encode(&input), None)
         .await;
     let stranded_claim = directory.join("stranded");
-    let output = command(&directory, url.as_str(), stranded, "2", "prepare-drain")
+    let output = command(&directory, url.as_str(), stranded, "3", "prepare-drain")
         .arg("--record")
         .arg(&stranded_claim)
         .args(["--attempt", "1"])
@@ -481,7 +482,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     std::fs::create_dir_all(&stranded_target).unwrap();
     std::fs::write(stranded_target.join("attempt-1.claim"), []).unwrap();
     let retry_claim = directory.join("stranded-new-request");
-    let output = command(&directory, url.as_str(), stranded, "2", "prepare-drain")
+    let output = command(&directory, url.as_str(), stranded, "3", "prepare-drain")
         .arg("--record")
         .arg(&retry_claim)
         .args(["--attempt", "1"])
@@ -494,7 +495,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         std::fs::read(retry_claim.join("request.cbor")).unwrap()
     );
     refused(
-        &command(&directory, url.as_str(), stranded, "2", "dispatch-drain")
+        &command(&directory, url.as_str(), stranded, "3", "dispatch-drain")
             .arg("--record")
             .arg(&retry_claim)
             .arg("--custody")
@@ -507,7 +508,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "already claimed",
     );
     refused(
-        &command(&directory, url.as_str(), stranded, "2", "observe-drain")
+        &command(&directory, url.as_str(), stranded, "3", "observe-drain")
             .arg("--record")
             .arg(&stranded_claim)
             .output()
@@ -516,7 +517,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "outcome unavailable",
     );
     for transition in [Command::Activate(1), Command::Drain(2)] {
-        let bytes = ic_blob_storage::protocol::frame::encode(
+        let bytes = ic_blob_storage_wire::frame::encode(
             &transition,
             ic_wire::Encoding::Frame {
                 method: ic_wire::method_id("blob_update"),
@@ -536,7 +537,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .await
             .unwrap();
     }
-    let output = command(&directory, url.as_str(), canister, "2", "observe-drain")
+    let output = command(&directory, url.as_str(), canister, "3", "observe-drain")
         .arg("--record")
         .arg(&claim)
         .output()
@@ -550,7 +551,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     assert!(support::stdout(&output).contains("historical outcome only"));
     let stop_claim = directory.join("stop");
     refused(
-        &command(&directory, url.as_str(), stranded, "2", "prepare-stop")
+        &command(&directory, url.as_str(), stranded, "3", "prepare-stop")
             .arg("--record")
             .arg(&stop_claim)
             .args(["--attempt", "1"])
@@ -561,7 +562,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     );
     assert!(!stop_claim.exists());
     // The Blob manager is not automatically a platform controller.
-    let refused_stop = command(&directory, url.as_str(), canister, "2", "prepare-stop")
+    let refused_stop = command(&directory, url.as_str(), canister, "3", "prepare-stop")
         .arg("--record")
         .arg(&stop_claim)
         .args(["--attempt", "2"])
@@ -576,7 +577,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         .set_controllers(canister, None, vec![controller])
         .await
         .unwrap();
-    let output = command(&directory, url.as_str(), canister, "2", "prepare-stop")
+    let output = command(&directory, url.as_str(), canister, "3", "prepare-stop")
         .arg("--record")
         .arg(&stop_claim)
         .args(["--attempt", "2"])
@@ -590,7 +591,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     );
     let stop_packet = std::fs::read(stop_claim.join("request.cbor")).unwrap();
     refused(
-        &command(&directory, url.as_str(), canister, "2", "observe-drain")
+        &command(&directory, url.as_str(), canister, "3", "observe-drain")
             .arg("--record")
             .arg(&stop_claim)
             .output()
@@ -606,7 +607,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
                 canister,
                 controller,
                 "blob_update",
-                ic_blob_storage::protocol::frame::encode(
+                ic_blob_storage_wire::frame::encode(
                     &transition,
                     ic_wire::Encoding::Frame {
                         method: ic_wire::method_id("blob_update"),
@@ -619,7 +620,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .await
             .unwrap();
         refused(
-            &command(&directory, url.as_str(), canister, "2", "dispatch-stop")
+            &command(&directory, url.as_str(), canister, "3", "dispatch-stop")
                 .arg("--record")
                 .arg(&stop_claim)
                 .arg("--custody")
@@ -638,7 +639,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         stop_packet
     );
     let current_stop = directory.join("current-stop");
-    let output = command(&directory, url.as_str(), canister, "2", "prepare-stop")
+    let output = command(&directory, url.as_str(), canister, "3", "prepare-stop")
         .arg("--record")
         .arg(&current_stop)
         .args(["--attempt", "3"])
@@ -651,7 +652,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         String::from_utf8_lossy(&output.stderr)
     );
     refused(
-        &command(&directory, url.as_str(), canister, "2", "observe-stop")
+        &command(&directory, url.as_str(), canister, "3", "observe-stop")
             .arg("--record")
             .arg(&current_stop)
             .output()
@@ -660,7 +661,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "platform=Running",
     );
     let unused_stop = directory.join("unused-stop");
-    let output = command(&directory, url.as_str(), canister, "2", "prepare-stop")
+    let output = command(&directory, url.as_str(), canister, "3", "prepare-stop")
         .arg("--record")
         .arg(&unused_stop)
         .args(["--attempt", "3"])
@@ -676,7 +677,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         std::fs::read(unused_stop.join("request.cbor")).unwrap(),
         std::fs::read(current_stop.join("request.cbor")).unwrap()
     );
-    let output = command(&directory, url.as_str(), canister, "2", "dispatch-stop")
+    let output = command(&directory, url.as_str(), canister, "3", "dispatch-stop")
         .arg("--record")
         .arg(&current_stop)
         .arg("--custody")
@@ -692,7 +693,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         String::from_utf8_lossy(&output.stderr)
     );
     assert!(target_directory.join("attempt-3.stop.claim").is_file());
-    let output = command(&directory, url.as_str(), canister, "2", "observe-stop")
+    let output = command(&directory, url.as_str(), canister, "3", "observe-stop")
         .arg("--record")
         .arg(&current_stop)
         .output()
@@ -706,7 +707,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     assert!(support::stdout(&output).contains("original=acknowledged platform=Stopped"));
     // Stopped state cannot fabricate acknowledgment of another, unsent request
     // or authorize dispatch of that replacement request ID.
-    let output = command(&directory, url.as_str(), canister, "2", "observe-stop")
+    let output = command(&directory, url.as_str(), canister, "3", "observe-stop")
         .arg("--record")
         .arg(&unused_stop)
         .output()
@@ -719,7 +720,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     );
     assert!(support::stdout(&output).contains("original=unavailable platform=Stopped"));
     refused(
-        &command(&directory, url.as_str(), canister, "2", "dispatch-stop")
+        &command(&directory, url.as_str(), canister, "3", "dispatch-stop")
             .arg("--record")
             .arg(&unused_stop)
             .arg("--custody")
@@ -732,7 +733,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "already claimed",
     );
     refused(
-        &command(&directory, url.as_str(), canister, "2", "dispatch-stop")
+        &command(&directory, url.as_str(), canister, "3", "dispatch-stop")
             .arg("--record")
             .arg(&current_stop)
             .arg("--custody")
@@ -749,7 +750,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     let next_wasm = directory.join("next.wasm");
     std::fs::copy(directory.join("host.wasm"), &next_wasm).unwrap();
     let upgrade_command = |operation: &str, record: &Path, predecessor: &Path| {
-        let mut command = command(&directory, url.as_str(), canister, "2", operation);
+        let mut command = command(&directory, url.as_str(), canister, "3", operation);
         command
             .arg("--record")
             .arg(record)
@@ -1001,7 +1002,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
     );
     // An old stop acknowledgment does not hide that the host is now running.
     refused(
-        &command(&directory, url.as_str(), canister, "2", "observe-stop")
+        &command(&directory, url.as_str(), canister, "3", "observe-stop")
             .arg("--record")
             .arg(&current_stop)
             .output()
@@ -1009,7 +1010,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .unwrap(),
         "platform=Running",
     );
-    let output = inspect(&directory, url.as_str(), canister, "2").await;
+    let output = inspect(&directory, url.as_str(), canister, "3").await;
     assert!(
         output.status.success(),
         "{}",
@@ -1143,7 +1144,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
                 canister,
                 controller,
                 "blob_update",
-                ic_blob_storage::protocol::frame::encode(
+                ic_blob_storage_wire::frame::encode(
                     &transition,
                     ic_wire::Encoding::Frame {
                         method: ic_wire::method_id("blob_update"),
@@ -1156,7 +1157,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .await
             .unwrap();
         let outcome: Result<ic_blob_storage::protocol::Outcome, ic_blob_storage::local::Error> =
-            ic_blob_storage::protocol::frame::decode(
+            ic_blob_storage_wire::frame::decode(
                 &bytes,
                 ic_wire::Encoding::Frame {
                     method: ic_wire::method_id("blob_update"),
@@ -1198,12 +1199,12 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "does not match the current drained attempt",
     );
     assert!(!stale_activation.exists());
-    let output = inspect(&directory, url.as_str(), canister, "2").await;
+    let output = inspect(&directory, url.as_str(), canister, "3").await;
     assert!(output.status.success());
     assert!(support::stdout(&output).contains("attempt=4 active=false"));
     // A definitive install rejection retains the old state and the dispatch claim.
     let failure_stop = directory.join("failure-stop");
-    let output = command(&directory, url.as_str(), canister, "2", "prepare-stop")
+    let output = command(&directory, url.as_str(), canister, "3", "prepare-stop")
         .arg("--record")
         .arg(&failure_stop)
         .args(["--attempt", "4"])
@@ -1215,7 +1216,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    let output = command(&directory, url.as_str(), canister, "2", "dispatch-stop")
+    let output = command(&directory, url.as_str(), canister, "3", "dispatch-stop")
         .arg("--record")
         .arg(&failure_stop)
         .arg("--custody")
@@ -1284,7 +1285,7 @@ async fn signed_management_preserves_target_custody_and_closed_admission() {
             .unwrap(),
         "already claimed",
     );
-    let output = command(&directory, url.as_str(), canister, "2", "observe-stop")
+    let output = command(&directory, url.as_str(), canister, "3", "observe-stop")
         .arg("--record")
         .arg(&failure_stop)
         .output()

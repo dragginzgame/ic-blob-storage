@@ -12,23 +12,11 @@ owns grants, references and durable obligations; the host captures callers and
 mounts endpoints. Declare `blob.control.v1` in the host’s Storage bootstrap and pass
 the granted `RuntimeMemory` lease to `Service::create` or `Service::open`. This crate does not transfer file bytes or claim provider settlement.
 
-## Native Wire inspection
+## Cargo features
 
-Mount the callable endpoints with `protocol::frame::decode` and
-`protocol::frame::encode`. The Wire 0.33 contract has a sparse message root
-around each fixed Serde request or reply body. Upgrade callers and hosts
-together, including inter-canister callers. Older positional requests are refused.
-
-Enable `ic-blob-storage/inspection` in the native inspector. The supplier implements Wire
-for `protocol::Command`, `Inspection`, `Outcome`, `Observation`, `ManagementView`
-and `local::Error`. Register `ic_wire::Message<Request>` and `ic_wire::Message<Reply>` using
-the body types below. Ordinary canister builds can omit the feature.
-
-| Method ID input | Request | Reply |
-| --- | --- | --- |
-| `blob_update` | `Command` | `Result<Outcome, Error>` |
-| `blob_query` | `Inspection` | `Result<Observation, Error>` |
-| `blob_management` | `()` | `Result<ManagementView, Error>` |
+The default `persistence` feature puts bounded Postcard records in IC Storage.
+Select `default-features = false` for the in-memory model. Hosts and native schema
+generators use the [Wire adapter](../ic-blob-storage-wire/README.md).
 
 ## Embedding the Caffeine upload update
 

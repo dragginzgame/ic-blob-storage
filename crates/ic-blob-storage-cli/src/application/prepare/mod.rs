@@ -5,11 +5,10 @@ mod tests;
 
 use clap::Args;
 use ic_blob_storage::{
-    caffeine::ManifestLimits,
-    local::Limits,
-    protocol::{Installation as BlobInstallation, RPC_LIMITS},
+    caffeine::ManifestLimits, local::Limits, protocol::Installation as BlobInstallation,
 };
 use ic_blob_storage_reference_app::protocol::Installation;
+use ic_blob_storage_wire::RPC_LIMITS;
 use ic_platform_types::Principal;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -70,7 +69,7 @@ pub(crate) struct Input {
 }
 
 fn frame<T: Serialize>(method: &str, input: &T) -> Result<Vec<u8>, String> {
-    ic_blob_storage::protocol::frame::encode(
+    ic_blob_storage_wire::frame::encode(
         input,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id(method),

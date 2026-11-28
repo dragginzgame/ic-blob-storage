@@ -1,0 +1,34 @@
+[package]
+name = "ic-blob-storage-wire"
+version.workspace = true
+description = "Bounded Wire transport and inspection for IC Blob Storage"
+repository.workspace = true
+readme = "README.md"
+edition.workspace = true
+rust-version.workspace = true
+license-file.workspace = true
+publish.workspace = true
+
+[package.metadata.cargo-machete]
+ignored = ["toko-tooling"]
+
+[features]
+inspection = [
+    "dep:ic-platform-types",
+    "dep:serde_json",
+    "ic-wire/typescript",
+    "ic-wire/platform-types",
+]
+
+[dependencies]
+ic-blob-storage.workspace = true
+ic-platform-types = { workspace = true, optional = true }
+ic-wire.workspace = true
+serde.workspace = true
+serde_json = { workspace = true, optional = true }
+
+[dev-dependencies]
+toko-tooling.workspace = true
+
+[lints]
+workspace = true

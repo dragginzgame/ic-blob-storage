@@ -202,6 +202,7 @@ The separate qualification workspace was accepted on 2026-11-15.
 ```text
 crates/
   ic-blob-storage/           # Reusable service library; exists today
+  ic-blob-storage-wire/      # Shared RPC codec and optional native schemas
   ic-blob-storage-canister/  # Experimental standalone Wire host
   ic-blob-storage-cli/       # Native storage inspection, enrollment proposals and maintenance
   ic-blob-storage-reference-app/ # Standalone durable application catalog
@@ -214,12 +215,12 @@ qualification/
   ic-blob-storage-reply-probe/ # Installed codec-failure rollback fixture
 ```
 
-The four production crates share the root Cargo workspace and lockfile. The
+The five production crates share the root Cargo workspace and lockfile. The
 standalone host depends on the library, captures callers, mounts endpoints,
 supplies memory grants and composes lifecycle hooks. It owns no alternate ledger
 or business rules. The library exports no canister endpoints merely by linking it.
-Canic owns its adapter in the Canic repository and depends on this same library;
-it does not depend on the standalone executable.
+Canic owns its adapter in the Canic repository. The adapter composes the
+Blob service and the shared Wire crate.
 The [Canic adapter handoff](application-boundary.md#canic-adapter-handoff) maps the
 current Service API to a first embedded catalog witness, including trusted local
 authority, one Storage bootstrap and atomic catalog/reference failures. Its

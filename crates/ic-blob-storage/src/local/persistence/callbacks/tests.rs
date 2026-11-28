@@ -210,14 +210,19 @@ fn reopen_refuses_foreign_inconsistent_and_unordered_receipts_without_repair() {
             6 => callbacks.record.version = 0,
             _ => unreachable!(),
         }
-        callbacks.cell.set(
-            crate::protocol::frame::encode(&callbacks.record, ic_wire::Encoding::Payload, LIMITS)
-                .unwrap(),
-        );
+        callbacks
+            .cell
+            .set(crate::storage_codec::encode(&callbacks.record, LIMITS).unwrap());
         drop(callbacks);
         let before = backing.borrow().clone();
         assert!(
-            matches!(reopen(backing.clone()), Err(OpenError::Record)),
+            matches!(
+                (case, reopen(backing.clone())),
+                (
+                    6,
+                    Err(OpenError::Codec(crate::storage_codec::Error::Version))
+                ) | (0..=5, Err(OpenError::Record))
+            ),
             "case {case}"
         );
         assert_eq!(*backing.borrow(), before);

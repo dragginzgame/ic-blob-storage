@@ -22,7 +22,10 @@ The [qualification build script](../ic-blob-storage-tests/build/contracts/mod.rs
 reads the Platform mounts, their Wire codec IDs and budgets, and the Serde
 declarations used by their handlers. It preserves field order, variant order
 and Serde attributes for `WireSchema`, which describes the fixed Serde body.
-Each request and reply is registered under a Wire 0.33 `Message` root. The [exporter](../ic-blob-storage-tests/examples/callable-api.rs)
+It also compares the generated Blob declarations with the reviewed
+[packaged schema snapshot](../../crates/ic-blob-storage-wire/src/schemas.rs).
+When the fixed bodies change, the qualifier prints the generated candidate path
+for review and replacement. Each request and reply is registered under a sparse Wire `Message` root. The [exporter](../ic-blob-storage-tests/examples/callable-api.rs)
 uses Wire's validated registry and format-1 manifest writer. Wire budgets in
 these files exclude the frame header. The native allocation budget is outside
 Wire's manifest format.
@@ -31,10 +34,10 @@ The Wire 0.31.1 baseline adds the `fixed: true` annotations to the existing
 ordinary Serde layouts. Removing those annotations reproduces the previous
 eight manifests byte for byte.
 
-Wire 0.33 supplies ordinary scalar, container and Platform principal
+Wire 0.34 supplies ordinary scalar, container and Platform principal
 projections. Method IDs, payload limits and body layouts carry forward from
 Wire 0.32.0. Four integer types used by these mounts still lack a native
-`Wire` implementation. The [supplier projections](../../crates/ic-blob-storage/src/projection.rs)
+`Wire` implementation. The [supplier projections](../../crates/ic-blob-storage-wire/src/projection.rs)
 cover their existing binary Serde representations.
 
 | Rust type | Encoded unsigned width | Range accepted on the release Wasm |
@@ -44,7 +47,8 @@ cover their existing binary Serde representations.
 | `usize` | 64 | 0 through `u32::MAX` |
 | `NonZeroUsize` | 64 | 1 through `u32::MAX` |
 
-Native consumers can enable the supplier’s `inspection` feature to register the actual protocol types. The ordinary product Wasm build omits this feature.
+Native consumers can enable `ic-blob-storage-wire/inspection` and register the
+public `Schema<T>` wrapper for each protocol type.
 The two product Wasms have eight callable Wire methods. IC lifecycle hooks have
 no callable names. The Caffeine callback and enrollment probes are private
 qualification canisters.

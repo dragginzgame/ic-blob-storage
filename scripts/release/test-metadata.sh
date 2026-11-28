@@ -21,7 +21,7 @@ bash scripts/release/metadata.sh render "$scratch/original" "$scratch/candidate"
 for path in Cargo.lock qualification/Cargo.lock; do
     yq -p toml -o json '.' "$scratch/original/$path" |
         jq --arg version "$RELEASE_VERSION" '
-            (.package[] | select(.source == null and (.name == "ic-blob-storage" or .name == "ic-blob-storage-reference-app" or .name == "ic-blob-storage-cli" or .name == "ic-blob-storage-canister")) | .version) = $version
+            (.package[] | select(.source == null and (.name == "ic-blob-storage" or .name == "ic-blob-storage-reference-app" or .name == "ic-blob-storage-cli" or .name == "ic-blob-storage-canister" or .name == "ic-blob-storage-wire")) | .version) = $version
         ' > "$scratch/expected.json"
     yq -p toml -o json '.' "$scratch/candidate/$path" > "$scratch/actual.json"
     jq -e --slurpfile expected "$scratch/expected.json" '. == $expected[0]' "$scratch/actual.json" > /dev/null
@@ -30,7 +30,8 @@ yq -p toml -o json '.' "$scratch/original/Cargo.toml" |
     jq --arg version "$RELEASE_VERSION" '
         .workspace.package.version = $version |
         .workspace.dependencies["ic-blob-storage"].version = $version |
-        .workspace.dependencies["ic-blob-storage-reference-app"].version = $version
+        .workspace.dependencies["ic-blob-storage-reference-app"].version = $version |
+        .workspace.dependencies["ic-blob-storage-wire"].version = $version
     ' > "$scratch/expected.json"
 yq -p toml -o json '.' "$scratch/candidate/Cargo.toml" > "$scratch/actual.json"
 jq -e --slurpfile expected "$scratch/expected.json" '. == $expected[0]' "$scratch/actual.json" > /dev/null

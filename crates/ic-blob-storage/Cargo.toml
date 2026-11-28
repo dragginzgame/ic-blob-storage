@@ -1,6 +1,5 @@
 [package]
 name = "ic-blob-storage"
-build = "build/main.rs"
 version.workspace = true
 description = "Experimental blob authorization, application references and provider-obligation accounting for the Internet Computer"
 repository.workspace = true
@@ -14,15 +13,9 @@ publish.workspace = true
 ignored = ["toko-tooling"]
 
 [features]
+default = ["persistence"]
+persistence = ["dep:ic-storage", "dep:postcard"]
 caffeine-certificate = ["dep:ic-platform-protocol"]
-inspection = [
-    "dep:proc-macro2",
-    "dep:quote",
-    "dep:syn",
-    "dep:serde_json",
-    "ic-wire/typescript",
-    "ic-wire/platform-types",
-]
 logging = ["dep:ic-logging"]
 metrics = ["dep:ic-metrics"]
 
@@ -31,17 +24,10 @@ ic-logging = { workspace = true, optional = true }
 ic-metrics = { workspace = true, optional = true }
 ic-platform-protocol = { workspace = true, features = ["caffeine"], optional = true }
 ic-platform-types.workspace = true
-ic-storage.workspace = true
-ic-wire.workspace = true
+ic-storage = { workspace = true, optional = true }
+postcard = { workspace = true, optional = true }
 serde.workspace = true
 sha2.workspace = true
-
-serde_json = { workspace = true, optional = true }
-
-[build-dependencies]
-proc-macro2 = { workspace = true, optional = true }
-quote = { workspace = true, optional = true }
-syn = { workspace = true, features = ["full", "visit"], optional = true }
 
 [dev-dependencies]
 toko-tooling.workspace = true

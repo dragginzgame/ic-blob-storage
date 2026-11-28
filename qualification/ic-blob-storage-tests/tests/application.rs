@@ -4,13 +4,16 @@
 
 mod install;
 
+mod retained;
+
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error as BlobError, Limits},
-    protocol::{Command, Installation as BlobInstallation, Outcome, RPC_LIMITS},
+    protocol::{Command, Installation as BlobInstallation, Outcome},
 };
 use ic_blob_storage_reference_app::protocol::{DraftInput, DraftView, Error, Installation, Phase};
 use ic_blob_storage_tests::support_tests as support;
+use ic_blob_storage_wire::RPC_LIMITS;
 use ic_platform_types::Principal;
 use ic_testkit::pocket_ic::{CanisterId, PocketIcBuilder, RejectCode, nonblocking::PocketIc};
 use ic_wire as wire;
@@ -18,7 +21,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use std::{path::Path, time::Duration};
 
 fn encode<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    ic_blob_storage::protocol::frame::encode(
+    ic_blob_storage_wire::frame::encode(
         value,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -30,7 +33,7 @@ fn encode<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
 }
 
 fn decode<R: DeserializeOwned>(method: &str, bytes: &[u8]) -> R {
-    ic_blob_storage::protocol::frame::decode(
+    ic_blob_storage_wire::frame::decode(
         bytes,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -218,12 +221,18 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     .await;
     let wasm = std::fs::read(std::env::var_os("BLOB_REFERENCE_APP").unwrap()).unwrap();
     // Optional retained predecessor exercises stored catalog reopening across a codec update.
-    let installed_app = std::env::var_os("BLOB_PREVIOUS_REFERENCE_APP")
+    let installed_app = std::env::var_os("BLOB_INCOMPATIBLE_REFERENCE_APP")
+        .or_else(|| std::env::var_os("BLOB_PREVIOUS_REFERENCE_APP"))
         .map(|path| std::fs::read(path).unwrap())
         .unwrap_or_else(|| wasm.clone());
     if std::env::var_os("BLOB_PREVIOUS_REFERENCE_APP_POSITIONAL").is_some() {
         assert!(std::env::var_os("BLOB_PREVIOUS_REFERENCE_APP").is_some());
-        positional_catalog_upgrade(pic, app, blob, alice, installed_app, wasm).await;
+        incompatible_catalog_upgrade(pic, app, blob, alice, installed_app, wasm, true).await;
+        support::close(server, owned).await;
+        return;
+    }
+    if std::env::var_os("BLOB_INCOMPATIBLE_REFERENCE_APP").is_some() {
+        incompatible_catalog_upgrade(pic, app, blob, alice, installed_app, wasm, false).await;
         support::close(server, owned).await;
         return;
     }
@@ -625,13 +634,14 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
 
 // A positional app cannot call a sparse Blob. Seed a durable draft before the
 // unavailable cross-canister authorization, then reopen it with the sparse app.
-async fn positional_catalog_upgrade(
+async fn incompatible_catalog_upgrade(
     pic: &PocketIc,
     app: CanisterId,
     blob: CanisterId,
     alice: CanisterId,
     predecessor: Vec<u8>,
     replacement: Vec<u8>,
+    positional: bool,
 ) {
     let limits = ic_wire::Limits {
         bytes: RPC_LIMITS.bytes,
@@ -650,12 +660,11 @@ async fn positional_catalog_upgrade(
     pic.install_canister(
         app,
         predecessor,
-        ic_blob_storage::protocol::frame::encode_retained(
-            &installation,
-            request("app_init"),
-            limits,
-        )
-        .unwrap(),
+        if positional {
+            retained::encode_retained(&installation, request("app_init"), limits).unwrap()
+        } else {
+            encode("app_init", &installation)
+        },
         None,
     )
     .await;
@@ -666,29 +675,63 @@ async fn positional_catalog_upgrade(
             app,
             alice,
             "app_create",
-            ic_blob_storage::protocol::frame::encode_retained(&seed, request("app_create"), limits)
-                .unwrap(),
+            if positional {
+                retained::encode_retained(&seed, request("app_create"), limits).unwrap()
+            } else {
+                encode("app_create", &seed)
+            },
         )
         .await
         .unwrap();
-    let result: Result<DraftView, Error> = ic_blob_storage::protocol::frame::decode_retained(
-        &reply,
-        ic_wire::Encoding::Frame {
-            method: ic_wire::method_id("app_create"),
-            direction: ic_wire::Direction::Response,
-        },
-        limits,
-    )
-    .unwrap();
+    let result: Result<DraftView, Error> = if positional {
+        retained::decode_retained(
+            &reply,
+            ic_wire::Encoding::Frame {
+                method: ic_wire::method_id("app_create"),
+                direction: ic_wire::Direction::Response,
+            },
+            limits,
+        )
+        .unwrap()
+    } else {
+        decode("app_create", &reply)
+    };
     assert_eq!(result, Err(Error::Uncertain));
     let stable = pic.get_stable_memory(app).await;
+    let before = pic.canister_status(app, None).await.unwrap().module_hash;
     pic.stop_canister(app, None).await.unwrap();
     pic.upgrade_canister(app, replacement, encode("app_post_upgrade", &()), None)
         .await
-        .unwrap();
+        .expect_err("the Postcard host refuses old catalog records");
+    assert_eq!(
+        pic.canister_status(app, None).await.unwrap().module_hash,
+        before
+    );
     assert_eq!(pic.get_stable_memory(app).await, stable);
     pic.start_canister(app, None).await.unwrap();
-    let reopened = draft(pic, app, alice, &seed).await;
+    let reopened = if positional {
+        let bytes = pic
+            .query_call(
+                app,
+                alice,
+                "app_draft",
+                retained::encode_retained(&seed.id, request("app_draft"), limits).unwrap(),
+            )
+            .await
+            .unwrap();
+        retained::decode_retained::<Result<DraftView, Error>>(
+            &bytes,
+            ic_wire::Encoding::Frame {
+                method: ic_wire::method_id("app_draft"),
+                direction: ic_wire::Direction::Response,
+            },
+            limits,
+        )
+        .unwrap()
+        .unwrap()
+    } else {
+        draft(pic, app, alice, &seed).await
+    };
     assert_eq!(reopened.phase, Phase::Draft);
     assert_eq!(reopened.input, seed);
 }

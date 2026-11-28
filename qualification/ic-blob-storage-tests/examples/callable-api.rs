@@ -1,6 +1,6 @@
 //! Render the public methods of the two product release Wasms for PR comparison.
 
-#[path = "../../../crates/ic-blob-storage/src/projection.rs"]
+#[path = "../../../crates/ic-blob-storage-wire/src/projection.rs"]
 mod projection;
 
 use clap::Parser;
@@ -62,6 +62,34 @@ type Contracts = std::collections::BTreeMap<String, (String, String)>;
 
 include!(concat!(env!("OUT_DIR"), "/contracts.rs"));
 
+fn add_contract<C, I, O>(
+    contracts: &mut Contracts,
+    name: &str,
+    mode: &str,
+    mount_bytes: usize,
+) -> Result<(), Box<dyn Error>>
+where
+    C: ic_blob_storage_wire::Contract<Request = I, Response = O>,
+    I: projection::Project,
+    O: projection::Project,
+{
+    assert_eq!(C::NAME, name, "standalone export name");
+    assert_eq!(
+        C::REQUEST_LIMITS.bytes,
+        mount_bytes,
+        "standalone request copy cap"
+    );
+    add::<I, O>(
+        contracts,
+        name,
+        mode,
+        C::ID,
+        mount_bytes,
+        C::REQUEST_LIMITS,
+        C::RESPONSE_LIMITS,
+    )
+}
+
 fn add<I: projection::Project, O: projection::Project>(
     contracts: &mut Contracts,
     name: &str,
@@ -83,7 +111,7 @@ fn add<I: projection::Project, O: projection::Project>(
     let payload_limits =
         |limits: ic_wire::Limits, bytes: usize| -> Result<PayloadLimits, Box<dyn Error>> {
             // Subtract the empty sparse block to isolate the frame header.
-            let header = ic_blob_storage::protocol::frame::encode(
+            let header = ic_blob_storage_wire::frame::encode(
                 &(),
                 ic_wire::Encoding::Frame {
                     method: id,

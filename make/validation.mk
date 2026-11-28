@@ -8,12 +8,18 @@ test-release-validation:
 check-common: dependency-pins-check tooling-binding-check fmt-check documentation-links-check
 
 check-library:
+	@set -e; graph="$$(cargo tree --locked -p ic-blob-storage --all-features --edges normal,build --prefix none --format '{p}')"; \
+	  if printf '%s\n' "$$graph" | grep -Eq '^ic-(wire|wire-derive|blob-storage-wire) '; then \
+	    echo 'Blob storage must compile independently of Wire'; exit 1; fi
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-blob-storage --all-targets --all-features -- -D warnings
 	CARGO_BUILD_WARNINGS=deny cargo test --locked -p ic-blob-storage --lib
 	CARGO_BUILD_WARNINGS=deny cargo test --locked -p ic-blob-storage --features metrics --lib
 	CARGO_BUILD_WARNINGS=deny cargo test --locked -p ic-blob-storage --features logging --lib
 	$(MAKE) --no-print-directory example-local test-example-local
 	RUSTDOCFLAGS='-D warnings' cargo doc --locked -p ic-blob-storage --all-features --no-deps
+	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-blob-storage-wire --all-targets --all-features -- -D warnings
+	CARGO_BUILD_WARNINGS=deny cargo test --locked -p ic-blob-storage-wire --all-features --lib
+	RUSTDOCFLAGS='-D warnings' cargo doc --locked -p ic-blob-storage-wire --all-features --no-deps
 
 check-cli:
 	CARGO_BUILD_WARNINGS=deny cargo clippy --locked -p ic-blob-storage-cli --all-targets --all-features -- -D warnings

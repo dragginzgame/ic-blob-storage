@@ -1,6 +1,6 @@
 //! Bounded durable control state over a host-granted Storage lease.
 //!
-//! One Wire record is rewritten per successful mutation (at most 64 uploads and
+//! One Postcard record is rewritten per successful mutation (at most 64 uploads and
 //! 64 references). This is an experimental finite profile, not a large-store design.
 //! IC execution provides rollback: persistence/encoding failures must trap, never
 //! be caught and converted into an ordinary reply after a mutation. Native callers
@@ -50,7 +50,7 @@ pub enum OpenError {
     /// Fresh creation was requested for an existing allocation.
     Occupied,
     /// Bounded record decoding failed.
-    Codec(ic_wire::Error),
+    Codec(crate::storage_codec::Error),
     /// Wrong format, installation binding, or inconsistent domain records.
     Record,
 }
@@ -114,9 +114,9 @@ impl<M: Memory> Service<M> {
     /// # Panics
     /// Traps on backing IO failure; callers must not substitute empty state.
     pub fn open(memory: RuntimeMemory<M>, installation: Principal) -> Result<Self, OpenError> {
-        let cell = load_cell(memory, STATE_LIMITS.bytes)?;
-        let record: Record = crate::protocol::frame::decode_record(cell.get(), STATE_LIMITS)
-            .map_err(OpenError::Codec)?;
+        let cell = load_cell(memory, STATE_LIMITS)?;
+        let record: Record =
+            crate::storage_codec::decode(cell.get(), STATE_LIMITS, 3).map_err(OpenError::Codec)?;
         let manager = record.input.manager;
         let attempt = record.maintenance.attempt;
         let model = record.restore(installation)?;

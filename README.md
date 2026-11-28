@@ -99,7 +99,7 @@ The previous implementation, Git history and provider/recovery custody are in
 [legacy GitHub repository](https://github.com/dragginzgame/ic-blob-storage-legacy).
 Crates.io versions through `0.82.1` are the legacy line. The rewrite started with
 GitHub checkpoint `0.100.0`; `0.101.0` is its first published registry release. All
-four product crates share the root workspace version. This is a breaking rewrite,
+five product crates share the root workspace version. This is a breaking rewrite,
 not a migration for existing installations. See the [release procedure](docs/operations/releases.md).
 
 Install the published CLI with `cargo install ic-blob-storage-cli --locked`; the
@@ -112,9 +112,9 @@ for Caffeine and management codecs. No legacy Platform remains in the product.
 Installed tests select Testkit 0.110.5 and Host Process 0.81.5.
 See the [integration boundary](docs/design/application-boundary.md#types-0212-integration).
 
-The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.46.9. Both workspaces lock IC Wire 0.33.1 for callable frames. Rust hosts use
-`ic_blob_storage::protocol::frame` with Wire 0.33 and regenerate clients for the
+The workspace has five product crates under `crates/`, Rust 1.100.0 / edition 2024
+and published Toko Tooling 0.46.9. Both workspaces lock IC Wire 0.34.0 for callable frames. Rust hosts use
+`ic_blob_storage_wire::frame` with Wire 0.34 and regenerate clients for the
 sparse message roots. GitHub development uses the `main` branch of
 `dragginzgame/ic-blob-storage`. Releases use the shared Toko workflow; there is no production deployment configuration.
 
@@ -155,8 +155,7 @@ separate aggregate native gate; installed testing is an explicit command.
 `make test-capacity` measures full-history resource use and verifies cleanup and
 upgrade at capacity; see the [results and limits](docs/design/standalone-capacity.md).
 Set `BLOB_PREVIOUS_WASM=/absolute/path/to/previous.wasm` for an upgrade witness from
-a compatible predecessor. Set `BLOB_PREVIOUS_WASM_POSITIONAL=1` for a Wire 0.32
-predecessor. The [storage qualification](docs/design/stable-storage.md#qualification)
+a compatible predecessor. The [storage qualification](docs/design/stable-storage.md#qualification)
 covers refusal of incompatible predecessors. `make test-endpoints` checks raw frames on the actual host and
 uses a separate, small qualification canister to force reply-encoding failure
 after a stable write. The latter tests rollback without a production fault mode.

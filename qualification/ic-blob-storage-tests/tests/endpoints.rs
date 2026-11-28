@@ -7,10 +7,10 @@ use ic_blob_storage::{
     local::{Error, Limits, UploadRequest, Usage},
     protocol::{
         Command, Inspection, Installation, Maintenance, ManagementView, Observation, Outcome,
-        RPC_LIMITS,
     },
 };
 use ic_blob_storage_tests::support_tests as support;
+use ic_blob_storage_wire::RPC_LIMITS;
 use ic_platform_types::Principal;
 use ic_testkit::pocket_ic::{
     CanisterId, PocketIcBuilder, RejectCode, RejectResponse, nonblocking::PocketIc,
@@ -19,7 +19,7 @@ use ic_wire as wire;
 use serde::Serialize;
 
 fn request<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    ic_blob_storage::protocol::frame::encode(
+    ic_blob_storage_wire::frame::encode(
         value,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -31,7 +31,7 @@ fn request<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
 }
 
 fn response<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    ic_blob_storage::protocol::frame::encode(
+    ic_blob_storage_wire::frame::encode(
         value,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -75,7 +75,7 @@ fn sized_request(bytes: usize) -> Vec<u8> {
         bytes: RPC_LIMITS.bytes * 2,
         ..RPC_LIMITS
     };
-    let size = ic_blob_storage::protocol::frame::encode(
+    let size = ic_blob_storage_wire::frame::encode(
         &command,
         wire::Encoding::Frame {
             method: wire::method_id("blob_update"),
@@ -89,7 +89,7 @@ fn sized_request(bytes: usize) -> Vec<u8> {
         unreachable!()
     };
     headers[0].1.truncate(bytes - (size - bytes));
-    let frame = ic_blob_storage::protocol::frame::encode(
+    let frame = ic_blob_storage_wire::frame::encode(
         &command,
         wire::Encoding::Frame {
             method: wire::method_id("blob_update"),
@@ -193,7 +193,7 @@ async fn installed_frames_and_reply_failure_preserve_the_contract() {
                 &Ok::<_, Error>(ManagementView {
                     installation: Principal::from_slice(canister.as_slice()),
                     configuration: input,
-                    state_version: 2,
+                    state_version: 3,
                     maintenance: Maintenance {
                         attempt: 0,
                         active: true,

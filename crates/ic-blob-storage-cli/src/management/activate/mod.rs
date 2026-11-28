@@ -10,9 +10,8 @@ pub(super) async fn acknowledge(
     attempt: u64,
     bytes: &[u8],
     wasm: &[u8],
-    positional: bool,
 ) -> Result<String, String> {
-    super::acknowledge(id, attempt, bytes, true, positional)?;
+    super::acknowledge(id, attempt, bytes, true)?;
     let view = start::inspect(context, wasm).await?;
     if view.maintenance.attempt != attempt || !view.maintenance.active {
         return Err("original activation acknowledged historically; current admission differs, no resubmission".into());
@@ -30,11 +29,10 @@ pub(super) async fn observe(
     attempt: u64,
     original: RequestStatus,
     wasm: &[u8],
-    positional: bool,
 ) -> Result<String, String> {
     match original {
         RequestStatus::Replied(reply) => {
-            acknowledge(context, id, attempt, &reply, wasm, positional).await
+            acknowledge(context, id, attempt, &reply, wasm).await
         }
         RequestStatus::Rejected { .. } => {
             Err("original activation rejected; preserve custody, no resubmission".into())

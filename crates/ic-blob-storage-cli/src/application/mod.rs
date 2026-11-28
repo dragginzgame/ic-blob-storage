@@ -9,8 +9,8 @@ use crate::{
     overview::{Network, hex, principal},
 };
 use clap::{Args, Subcommand};
-use ic_blob_storage::protocol::RPC_LIMITS;
 use ic_blob_storage_reference_app::protocol::{DraftView, Error, Phase};
+use ic_blob_storage_wire::RPC_LIMITS;
 use ic_platform_types::Principal;
 use serde::{Serialize, de::DeserializeOwned};
 use std::{fmt::Write, num::NonZeroU128};
@@ -63,7 +63,7 @@ async fn query<T: Serialize, R: DeserializeOwned>(
     method: &str,
     input: &T,
 ) -> Result<R, String> {
-    let request = ic_blob_storage::protocol::frame::encode(
+    let request = ic_blob_storage_wire::frame::encode(
         input,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id(method),
@@ -76,7 +76,7 @@ async fn query<T: Serialize, R: DeserializeOwned>(
         .query(canister, method, &request)
         .await
         .map_err(|error| format!("Application query failed: {:?}", error))?;
-    let result: Result<R, Error> = ic_blob_storage::protocol::frame::decode(
+    let result: Result<R, Error> = ic_blob_storage_wire::frame::decode(
         &reply,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id(method),

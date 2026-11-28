@@ -11,7 +11,6 @@ use ic_storage::{
     MemoryRequest, MemoryRuntime, RuntimeMemory, SealedDeclarationSnapshot, StableKey,
     StorageConfig, adapter::StableCell,
 };
-use ic_wire as wire;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
@@ -43,7 +42,7 @@ impl State {
     pub fn create(owner: Principal, configuration: Installation) -> Self {
         validate(&configuration, owner);
         let record = Record {
-            version: 2,
+            version: 3,
             view: View {
                 owner,
                 arguments: arguments(owner, configuration.target_balance),
@@ -54,8 +53,7 @@ impl State {
         };
         let cell = StableCell::create(
             memory(true),
-            ic_blob_storage::protocol::frame::encode(&record, wire::Encoding::Payload, LIMITS)
-                .unwrap(),
+            ic_blob_storage::storage_codec::encode(&record, LIMITS.bytes).unwrap(),
         );
 
         Self { record, cell }
@@ -67,10 +65,8 @@ impl State {
             .expect("bounded stable payload");
         let cell =
             StableCell::<Vec<u8>, _>::load(memory).expect("existing bounded enrollment record");
-        let mut record: Record =
-            ic_blob_storage::protocol::frame::decode_record(cell.get(), LIMITS)
-                .expect("enrollment record format");
-        assert!(matches!(record.version, 1 | 2));
+        let record: Record = ic_blob_storage::storage_codec::decode(cell.get(), LIMITS.bytes, 3)
+            .expect("enrollment record format");
         let view = &record.view;
         assert_eq!(view.owner, owner, "foreign owner state");
         validate(&view.configuration, owner);
@@ -80,7 +76,6 @@ impl State {
         );
         assert!(view.outcome.is_none() || view.attempted_at.is_some());
 
-        record.version = 2;
         Self { record, cell }
     }
 
@@ -102,10 +97,8 @@ impl State {
 
     fn persist(&mut self) {
         // Encoding/storage failure traps this message; never return after partial mutation.
-        self.cell.set(
-            ic_blob_storage::protocol::frame::encode(&self.record, wire::Encoding::Payload, LIMITS)
-                .unwrap(),
-        );
+        self.cell
+            .set(ic_blob_storage::storage_codec::encode(&self.record, LIMITS.bytes).unwrap());
     }
 }
 

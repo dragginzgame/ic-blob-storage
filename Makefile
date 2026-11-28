@@ -9,7 +9,7 @@ TOKO_TOOLING_RELEASE := 1
 RELEASE_BRANCH := main
 RELEASE_REMOTE := origin
 RELEASE_DELIVERY_POLICY := scripts/release/direct.txt
-CARGO_PUBLISH_PACKAGES := ic-blob-storage ic-blob-storage-reference-app ic-blob-storage-canister ic-blob-storage-cli
+CARGO_PUBLISH_PACKAGES := ic-blob-storage ic-blob-storage-wire ic-blob-storage-reference-app ic-blob-storage-canister ic-blob-storage-cli
 CARGO_PUBLISH_REGISTRY := crates-io
 CARGO_PUBLISH_VERIFY_TARGETS := toko-tooling-check tooling-binding-check publication-admission
 

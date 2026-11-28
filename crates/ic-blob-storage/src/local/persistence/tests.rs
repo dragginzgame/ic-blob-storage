@@ -92,7 +92,7 @@ fn management_inspection_is_authorized_read_only_and_survives_reopen() {
     let expected = ManagementView {
         installation: actor(8),
         configuration: input(),
-        state_version: 2,
+        state_version: 3,
         maintenance: Maintenance {
             attempt: 0,
             active: true,
@@ -205,7 +205,7 @@ fn retired_grants_and_denied_calls_survive_reopen_without_reset() {
 #[test]
 fn oversized_cell_is_refused_before_domain_decode_without_touching_storage() {
     let backing = VectorMemory::default();
-    let cell = StableCell::create(memory(backing.clone()), vec![0_u8; STATE_LIMITS.bytes + 1]);
+    let cell = StableCell::create(memory(backing.clone()), vec![0_u8; STATE_LIMITS + 1]);
     drop(cell);
     let before = backing.borrow().clone();
     assert!(matches!(

@@ -19,11 +19,13 @@ api-manifest = [
     "dep:quote",
     "dep:syn",
     "ic-wire/api-manifest",
+    "ic-blob-storage-wire/inspection",
     "ic-wire/platform-types",
 ]
 
 [dependencies]
-ic-blob-storage.workspace = true
+ic-blob-storage = { workspace = true, features = ["persistence"] }
+ic-blob-storage-wire.workspace = true
 ic-host-process.workspace = true
 ic-platform = { workspace = true, features = ["native-signed"] }
 ic-platform-types.workspace = true

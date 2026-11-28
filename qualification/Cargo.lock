@@ -1002,7 +1002,7 @@ dependencies = [
  "ic-platform-protocol",
  "ic-platform-types",
  "ic-storage",
- "ic-wire",
+ "postcard",
  "serde",
  "sha2 0.11.2",
 ]
@@ -1012,6 +1012,7 @@ name = "ic-blob-storage-callback-probe"
 version = "0.100.9"
 dependencies = [
  "ic-blob-storage",
+ "ic-blob-storage-wire",
  "ic-logging",
  "ic-platform-protocol",
  "ic-platform-runtime",
@@ -1028,6 +1029,7 @@ version = "0.100.8"
 dependencies = [
  "clap",
  "ic-blob-storage",
+ "ic-blob-storage-wire",
  "ic-platform-protocol",
  "ic-platform-runtime",
  "ic-platform-types",
@@ -1043,6 +1045,7 @@ name = "ic-blob-storage-reference-app"
 version = "0.115.0"
 dependencies = [
  "ic-blob-storage",
+ "ic-blob-storage-wire",
  "ic-platform-runtime",
  "ic-platform-types",
  "ic-storage",
@@ -1054,7 +1057,7 @@ dependencies = [
 name = "ic-blob-storage-reply-probe"
 version = "0.100.5"
 dependencies = [
- "ic-blob-storage",
+ "ic-blob-storage-wire",
  "ic-platform-runtime",
  "ic-storage",
  "ic-wire",
@@ -1070,6 +1073,7 @@ dependencies = [
  "ic-blob-storage",
  "ic-blob-storage-enrollment-probe",
  "ic-blob-storage-reference-app",
+ "ic-blob-storage-wire",
  "ic-host-artifacts",
  "ic-host-fs",
  "ic-host-process",
@@ -1087,6 +1091,17 @@ dependencies = [
  "tokio",
  "toko-tooling",
  "wat",
+]
+
+[[package]]
+name = "ic-blob-storage-wire"
+version = "0.115.0"
+dependencies = [
+ "ic-blob-storage",
+ "ic-platform-types",
+ "ic-wire",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -1179,9 +1194,9 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-macros"
-version = "0.23.27"
+version = "0.23.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3f481b3acededb6eddaa46d7780983123e1fff15d2f5b2931658a88cd74ac758"
+checksum = "5b383f7936bcc264a763f207d3cc74ee59418417fe32e232a928870d1b5ce85d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1201,9 +1216,9 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-runtime"
-version = "0.23.27"
+version = "0.23.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54d94d66be307c67deb2063d1e735e781e614a26d8ec0f13ba97092a03ebb788"
+checksum = "551f3e159be2a705e5582a9f16fa097b836d3537972ab310e797d633a693c47d"
 dependencies = [
  "ic-platform-macros",
  "ic-platform-runtime-guard",
@@ -1212,9 +1227,9 @@ dependencies = [
 
 [[package]]
 name = "ic-platform-runtime-guard"
-version = "0.23.27"
+version = "0.23.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26753889d6a2849a9844bef6064dbccfda89e8d76b4fbd7cc5eb6a34c4c79268"
+checksum = "36b681d1078a9cd00a34a7573a7535864acdc38cf3c956e94f6575d58f987121"
 
 [[package]]
 name = "ic-platform-types"
@@ -1291,9 +1306,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire"
-version = "0.33.1"
+version = "0.34.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fbe99a03e083340899084fef793e95c617803117c7067b86f5b372f876357cb8"
+checksum = "44d006cdf1ce2779bd5643d9febb42164061e6aa066dc44ffb08d8d8800bec74"
 dependencies = [
  "bytemuck",
  "ic-platform-types",
@@ -1306,9 +1321,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire-derive"
-version = "0.33.1"
+version = "0.34.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9d4c198e0163c12b23cb4ccfab660439fd895c6cbacd6a15c3f5e8f6595edfc"
+checksum = "addc9e28e21dca2dabda96b93ec39d8fcebc38c4b37524b6a4949e7827573bb1"
 dependencies = [
  "proc-macro2",
  "quote",

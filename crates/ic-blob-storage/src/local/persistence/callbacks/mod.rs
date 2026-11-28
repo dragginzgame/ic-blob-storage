@@ -23,12 +23,7 @@ pub const STORAGE_KEY: &str = "blob.callbacks.v1";
 /// Maximum roots in one callback, including duplicate positions.
 pub const MAX_ROOTS: usize = MAX_RECORDS;
 
-const LIMITS: ic_wire::Limits = ic_wire::Limits {
-    bytes: 16_384,
-    allocation: 262_144,
-    nodes: 32_768,
-    depth: 16,
-};
+const LIMITS: usize = 16_384;
 
 #[derive(Deserialize, Serialize)]
 struct Record {
@@ -36,6 +31,7 @@ struct Record {
     installation: Principal,
     gateway: Principal,
     // Sorted unique roots, each bound to its original registered upload lifetime.
+    #[serde(deserialize_with = "crate::storage_codec::bounded_vec::<_, _, MAX_ROOTS>")]
     acknowledged: Vec<(Root, UploadId)>,
 }
 
@@ -74,13 +70,12 @@ impl<M: Memory> Callbacks<M> {
             return Err(OpenError::Configuration);
         }
         let record = Record {
-            version: 2,
+            version: 3,
             installation: service.installation,
             gateway,
             acknowledged: vec![],
         };
-        let bytes = crate::protocol::frame::encode(&record, ic_wire::Encoding::Payload, LIMITS)
-            .map_err(OpenError::Codec)?;
+        let bytes = crate::storage_codec::encode(&record, LIMITS).map_err(OpenError::Codec)?;
         let cell = create_cell(memory, bytes)?;
 
         Ok(Self {
@@ -97,11 +92,11 @@ impl<M: Memory> Callbacks<M> {
     /// # Panics
     /// Backing IO failure must trap the entire IC execution.
     pub fn open(service: Service<M>, memory: RuntimeMemory<M>) -> Result<Self, OpenError> {
-        let cell = load_cell(memory, LIMITS.bytes)?;
-        let mut record: Record =
-            crate::protocol::frame::decode_record(cell.get(), LIMITS).map_err(OpenError::Codec)?;
+        let cell = load_cell(memory, LIMITS)?;
+        let record: Record =
+            crate::storage_codec::decode(cell.get(), LIMITS, 3).map_err(OpenError::Codec)?;
         valid_principal(record.gateway).map_err(|_| OpenError::Record)?;
-        if !matches!(record.version, 1 | 2)
+        if record.version != 3
             || record.installation != service.installation
             || record.gateway == service.installation
             || record.acknowledged.len() > MAX_RECORDS
@@ -117,7 +112,6 @@ impl<M: Memory> Callbacks<M> {
             return Err(OpenError::Record);
         }
 
-        record.version = 2;
         Ok(Self {
             service,
             record,
@@ -207,8 +201,7 @@ impl<M: Memory> Callbacks<M> {
         self.record.acknowledged.sort_unstable();
         self.record.acknowledged.dedup();
         self.cell.set(
-            crate::protocol::frame::encode(&self.record, ic_wire::Encoding::Payload, LIMITS)
-                .expect("bounded callback receipts"),
+            crate::storage_codec::encode(&self.record, LIMITS).expect("bounded callback receipts"),
         );
 
         Ok(())

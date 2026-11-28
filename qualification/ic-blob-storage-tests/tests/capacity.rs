@@ -6,9 +6,10 @@
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error, Limits, ReferenceStatus, UploadRequest, Usage, persistence::MAX_RECORDS},
-    protocol::{Command, Inspection, Installation, Observation, Outcome, RPC_LIMITS},
+    protocol::{Command, Inspection, Installation, Observation, Outcome},
 };
 use ic_blob_storage_tests::support_tests as support;
+use ic_blob_storage_wire::RPC_LIMITS;
 use ic_platform_protocol::{
     candid::Limits as CandidLimits, management::decode_canister_metrics,
     management_snapshots::CanisterArgs,
@@ -32,7 +33,7 @@ fn id(n: u128) -> NonZeroU128 {
 }
 
 fn encode<T: Serialize>(method: &str, request: &T) -> Vec<u8> {
-    ic_blob_storage::protocol::frame::encode(
+    ic_blob_storage_wire::frame::encode(
         request,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -44,7 +45,7 @@ fn encode<T: Serialize>(method: &str, request: &T) -> Vec<u8> {
 }
 
 fn decode<T: DeserializeOwned>(method: &str, bytes: &[u8]) -> T {
-    ic_blob_storage::protocol::frame::decode(
+    ic_blob_storage_wire::frame::decode(
         bytes,
         wire::Encoding::Frame {
             method: wire::method_id(method),

@@ -9,8 +9,9 @@ use crate::{
     overview::{Network, hex, principal},
 };
 use clap::{Args, ValueEnum};
-use ic_blob_storage::protocol::{Installation as BlobInstallation, RPC_LIMITS};
+use ic_blob_storage::protocol::Installation as BlobInstallation;
 use ic_blob_storage_reference_app::protocol::Installation as AppInstallation;
+use ic_blob_storage_wire::RPC_LIMITS;
 use ic_platform::{
     ingress::{Content, decode_envelope},
     native::PreparedUpdate,
@@ -22,12 +23,7 @@ use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 
 const PACKET_BYTES: usize = 2 * 1024 * 1024;
-const INTENT_LIMITS: ic_wire::Limits = ic_wire::Limits {
-    bytes: 8192,
-    allocation: 65_536,
-    nodes: 2048,
-    depth: 16,
-};
+const INTENT_LIMITS: usize = 8192;
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize, ValueEnum)]
 enum Role {
@@ -94,35 +90,20 @@ struct Selection {
     configuration: String,
 }
 
-fn decode<T: DeserializeOwned>(method: &str, bytes: &[u8], retained: bool) -> Result<T, String> {
-    let current = ic_blob_storage::protocol::frame::decode(
+fn decode<T: DeserializeOwned>(method: &str, bytes: &[u8]) -> Result<T, String> {
+    ic_blob_storage_wire::frame::decode(
         bytes,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id(method),
             direction: ic_wire::Direction::Request,
         },
         RPC_LIMITS,
-    );
-    if current.is_err() && retained {
-        return ic_blob_storage::protocol::frame::decode_retained(
-            bytes,
-            ic_wire::Encoding::Frame {
-                method: ic_wire::method_id(method),
-                direction: ic_wire::Direction::Request,
-            },
-            RPC_LIMITS,
-        )
-        .map_err(|_| "invalid retained installation input".into());
-    }
-    current.map_err(|_| "invalid method-bound installation input".into())
+    )
+    .map_err(|_| "invalid method-bound installation input".into())
 }
 
 impl Input {
     fn selection(&self) -> Result<Selection, String> {
-        self.selection_with_format(false)
-    }
-
-    fn selection_with_format(&self, retained: bool) -> Result<Selection, String> {
         let (root, root_subnet) = self.network.trust()?;
         // Admit the key without constructing a transport or loading an identity.
         ic_platform::certificate::PreparedRootKey::from_der(&root)
@@ -130,8 +111,8 @@ impl Input {
         let inputs = files::directory(&self.inputs, false)?;
         let blob_bytes = files::read_at(&inputs, "blob-init.wire".as_ref(), RPC_LIMITS.bytes)?;
         let app_bytes = files::read_at(&inputs, "app-init.wire".as_ref(), RPC_LIMITS.bytes)?;
-        let blob: BlobInstallation = decode("blob_init", &blob_bytes, retained)?;
-        let app: AppInstallation = decode("app_init", &app_bytes, retained)?;
+        let blob: BlobInstallation = decode("blob_init", &blob_bytes)?;
+        let app: AppInstallation = decode("app_init", &app_bytes)?;
         super::prepare::validate_roles(
             self.canister,
             self.blob_canister,
@@ -239,16 +220,12 @@ pub(super) fn prepare(input: &Input) -> Result<String, String> {
         &selected.argument,
     )?;
     let intent = Intent {
-        version: 2,
+        version: 3,
         packet_hash: Sha256::digest(signed.envelope_bytes()).into(),
         binding: selected.binding,
     };
-    let bytes = ic_blob_storage::protocol::frame::encode(
-        &intent,
-        ic_wire::Encoding::Payload,
-        INTENT_LIMITS,
-    )
-    .map_err(|error| format!("cannot encode installation intent: {error:?}"))?;
+    let bytes = ic_blob_storage::storage_codec::encode(&intent, INTENT_LIMITS)
+        .map_err(|error| format!("cannot encode installation intent: {error:?}"))?;
     let selected = Selection {
         binding: intent.binding,
         ..selected
@@ -270,7 +247,7 @@ pub(super) fn prepare(input: &Input) -> Result<String, String> {
 }
 
 pub(super) fn inspect(input: &Input) -> Result<String, String> {
-    let selected = input.selection_with_format(true)?;
+    let selected = input.selection()?;
     let (_, signed) = load(input, &selected)?;
 
     selected.report(&signed)
@@ -281,13 +258,14 @@ fn load(
     selected: &Selection,
 ) -> Result<(ic_host_fs::Directory, PreparedUpdate), String> {
     let held = files::directory(&selected.directory, false)?;
-    let intent: Intent = ic_blob_storage::protocol::frame::decode_record(
-        &files::read_at(&held, "intent.wire".as_ref(), INTENT_LIMITS.bytes)?,
+    let intent: Intent = ic_blob_storage::storage_codec::decode(
+        &files::read_at(&held, "intent.wire".as_ref(), INTENT_LIMITS)?,
         INTENT_LIMITS,
+        3,
     )
     .map_err(|_| "invalid retained installation intent")?;
     let packet = files::read_at(&held, "request.cbor".as_ref(), PACKET_BYTES)?;
-    if !matches!(intent.version, 1 | 2)
+    if intent.version != 3
         || intent.binding != selected.binding
         || intent.packet_hash != <[u8; 32]>::from(Sha256::digest(&packet))
     {

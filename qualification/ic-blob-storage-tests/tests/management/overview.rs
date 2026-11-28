@@ -1,15 +1,16 @@
 use super::{TEST_PEM, encode, installation, refused, support};
 use ic_blob_storage::{
     local::{Error, UploadRequest},
-    protocol::{Command, Outcome, RPC_LIMITS},
+    protocol::{Command, Outcome},
 };
+use ic_blob_storage_wire::RPC_LIMITS;
 use ic_platform::native::Ed25519Identity;
 use ic_platform_types::Principal;
 use ic_testkit::pocket_ic::{CanisterId, PocketIcBuilder, nonblocking::PocketIc};
 use std::path::{Path, PathBuf};
 
 async fn mutate(pic: &PocketIc, canister: CanisterId, caller: CanisterId, input: Command) {
-    let bytes = ic_blob_storage::protocol::frame::encode(
+    let bytes = ic_blob_storage_wire::frame::encode(
         &input,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id("blob_update"),
@@ -22,7 +23,7 @@ async fn mutate(pic: &PocketIc, canister: CanisterId, caller: CanisterId, input:
         .update_call(canister, caller, "blob_update", bytes)
         .await
         .unwrap();
-    let result: Result<Outcome, Error> = ic_blob_storage::protocol::frame::decode(
+    let result: Result<Outcome, Error> = ic_blob_storage_wire::frame::decode(
         &reply,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id("blob_update"),
@@ -213,7 +214,7 @@ async fn principal_overview_at_capacity_is_read_only_and_survives_reopening() {
     }
     mutate(owned.client(), canister, application, Command::Drain(1)).await;
     owned.client().stop_canister(canister, None).await.unwrap();
-    let args = ic_blob_storage::protocol::frame::encode(
+    let args = ic_blob_storage_wire::frame::encode(
         &(),
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id("blob_post_upgrade"),

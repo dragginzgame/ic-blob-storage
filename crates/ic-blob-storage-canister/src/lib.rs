@@ -4,16 +4,15 @@
 mod codec;
 
 mod host {
-    use crate::codec::{self, INIT, MANAGEMENT, QUERY, UPDATE, UPGRADE};
+    use crate::codec::{self, INIT, UPGRADE};
     use ic_blob_storage::{
         local::{
             Error,
             persistence::{STORAGE_AUTHORITY, STORAGE_KEY, Service},
         },
-        protocol::{
-            Command, Inspection, Installation, ManagementView, Observation, Outcome, RPC_LIMITS,
-        },
+        protocol::{Command, Inspection, Installation, ManagementView, Observation, Outcome},
     };
+    use ic_blob_storage_wire::{Contract, Management, Query, Update};
     use ic_platform_runtime::{raw as ic0, system as api};
     use ic_storage::{
         AllocationGrants, DefaultMemoryImpl, GenericAllocationPolicy, Memory, MemoryAuthority,
@@ -82,9 +81,9 @@ mod host {
     #[ic_platform_runtime::update(
         runtime = ic_platform_runtime,
         name = "blob_update",
-        guard = admit::<UPDATE>,
-        decode = codec::decode::<Command, UPDATE>,
-        encode = codec::encode::<Result<Outcome, Error>, UPDATE>,
+        guard = admit::<Update>,
+        decode = Update::decode_request,
+        encode = codec::encode_response::<Update>,
         max_bytes = 65536,
         on_error = fail
     )]
@@ -104,9 +103,9 @@ mod host {
     #[ic_platform_runtime::query(
         runtime = ic_platform_runtime,
         name = "blob_query",
-        guard = admit::<QUERY>,
-        decode = codec::decode::<Inspection, QUERY>,
-        encode = codec::encode::<Result<Observation, Error>, QUERY>,
+        guard = admit::<Query>,
+        decode = Query::decode_request,
+        encode = codec::encode_response::<Query>,
         max_bytes = 65536,
         on_error = fail
     )]
@@ -126,9 +125,9 @@ mod host {
     #[ic_platform_runtime::update(
         runtime = ic_platform_runtime,
         name = "blob_management",
-        guard = admit::<MANAGEMENT>,
-        decode = codec::decode::<(), MANAGEMENT>,
-        encode = codec::encode::<Result<ManagementView, Error>, MANAGEMENT>,
+        guard = admit::<Management>,
+        decode = Management::decode_request,
+        encode = codec::encode_response::<Management>,
         max_bytes = 65536,
         on_error = fail
     )]
@@ -184,9 +183,9 @@ mod host {
         clippy::unnecessary_wraps,
         reason = "Platform guard signature; malformed transport still traps"
     )]
-    fn admit<const ID: u64>() -> Result<(), String> {
+    fn admit<C: Contract>() -> Result<(), String> {
         let length = ic0::msg_arg_data_size();
-        if length > RPC_LIMITS.bytes {
+        if length > C::REQUEST_LIMITS.bytes {
             api::trap("Wire request exceeds byte allowance");
         }
         let mut header = [0; _]; // The Wire validator sets the array length.
@@ -195,7 +194,7 @@ mod host {
         }
         // Inspect only the fixed header before Runtime allocates/copies the payload.
         ic0::msg_arg_data_copy(&mut header, 0);
-        ic_wire::validate_request_header(ID, &header).unwrap_or_else(|error| trap(error));
+        ic_wire::validate_request_header(C::ID, &header).unwrap_or_else(|error| trap(error));
 
         Ok(())
     }

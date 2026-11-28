@@ -13,10 +13,8 @@ mod provider;
 mod tests;
 
 use clap::{Args, CommandFactory, FromArgMatches, Parser, Subcommand};
-use ic_blob_storage::{
-    local::Error,
-    protocol::{Installation, ManagementView, RPC_LIMITS},
-};
+use ic_blob_storage::protocol::{Installation, ManagementView};
+use ic_blob_storage_wire::{Contract, Management, RPC_LIMITS};
 use ic_platform_types::Principal;
 use network::Client;
 use sha2::{Digest, Sha256};
@@ -351,7 +349,7 @@ impl Context {
             return Err("expected an installed Blob canister".into());
         }
         let installation_bytes = read(&installation, RPC_LIMITS.bytes)?;
-        let configuration: Installation = ic_blob_storage::protocol::frame::decode(
+        let configuration: Installation = ic_blob_storage_wire::frame::decode(
             &installation_bytes,
             ic_wire::Encoding::Frame {
                 method: ic_wire::method_id("blob_init"),
@@ -359,17 +357,6 @@ impl Context {
             },
             RPC_LIMITS,
         )
-        .or_else(|_| {
-            ic_blob_storage::protocol::frame::decode_retained(
-                &installation_bytes,
-                ic_wire::Encoding::Frame {
-                    method: ic_wire::method_id("blob_init"),
-                    direction: ic_wire::Direction::Request,
-                },
-                RPC_LIMITS,
-            )
-            .map_err(|_| ())
-        })
         .map_err(|_| "invalid expected installation frame")?;
         let pem = read(&identity, 16 * 1024)?;
         let wasm_hash = Sha256::digest(read(&wasm, 16 * 1024 * 1024)?).into();
@@ -397,15 +384,7 @@ impl Context {
 
     async fn inspect_artifact(&self, expected: &[u8; 32]) -> Result<ManagementView, String> {
         let target = self.canister;
-        let request = ic_blob_storage::protocol::frame::encode(
-            &(),
-            ic_wire::Encoding::Frame {
-                method: ic_wire::method_id("blob_management"),
-                direction: ic_wire::Direction::Request,
-            },
-            RPC_LIMITS,
-        )
-        .map_err(|_| "cannot encode inspection")?;
+        let request = Management::encode_request(&()).map_err(|_| "cannot encode inspection")?;
         let observed = self
             .client
             .transport
@@ -421,18 +400,10 @@ impl Context {
         }
         let bytes = self
             .client
-            .update(target, target, "blob_management", &request)
+            .update(target, target, Management::NAME, &request)
             .await
             .map_err(|_| "management inspection failed; no state-changing retry was attempted")?;
-        let result: Result<ManagementView, Error> = ic_blob_storage::protocol::frame::decode(
-            &bytes,
-            ic_wire::Encoding::Frame {
-                method: ic_wire::method_id("blob_management"),
-                direction: ic_wire::Direction::Response,
-            },
-            RPC_LIMITS,
-        )
-        .map_err(|_| "invalid management reply")?;
+        let result = Management::decode_response(&bytes).map_err(|_| "invalid management reply")?;
         let view = result.map_err(|_| "host refused management inspection")?;
         if view.installation != self.canister
             || view.configuration != self.configuration

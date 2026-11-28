@@ -161,7 +161,7 @@ mod host {
             "enrollment input limit"
         );
 
-        ic_blob_storage::protocol::frame::decode(
+        ic_blob_storage_wire::frame::decode(
             bytes,
             wire::Encoding::Frame {
                 method: ID,
@@ -172,7 +172,7 @@ mod host {
     }
 
     fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, wire::Error> {
-        ic_blob_storage::protocol::frame::encode(
+        ic_blob_storage_wire::frame::encode(
             &value,
             wire::Encoding::Frame {
                 method: ID,

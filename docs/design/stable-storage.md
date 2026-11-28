@@ -2,21 +2,20 @@
 
 The standalone host and embedded applications use the published ic-storage 0.80.0 V1 named allocation directory and Storage-owned Cell format. The host declares all names in one Storage runtime, bootstraps their authorities and passes each exclusive memory lease to its owner. An embedded application can keep its own catalog in a separate lease and call Blob locally. [Supplier release](https://github.com/dragginzgame/ic-storage/tree/v0.80.0)
 
-| Owner | Stable key | Wire payload limit |
+| Owner | Stable key | Postcard payload limit |
 | --- | --- | --- |
 | Blob service | `blob.control.v1` | 64 KiB for configuration, maintenance attempt, up to 64 lifetime uploads and 64 lifetime references |
 | Callback qualification | `blob.callbacks.v1` | 16 KiB for the gateway binding and acknowledgment history |
 | Reference app | `catalog.control.v1` | 64 KiB for configuration and 16 lifetime drafts |
 | Enrollment qualification | `enrollment.control.v1` | 16 KiB for the original intent, attempt and outcome |
 
-Each owner writes one bounded Wire payload to a governed stable cell. Reopening checks the cell envelope and declared length before allocating the payload, then validates the record and installation binding. Blob reconstructs reference counts, indexes and declared-byte usage from the retained records. The finite history limit makes rewriting and validating the complete record practical. Final release preserves historical identities and unresolved exposure.
+Each owner writes one bounded Postcard payload to a governed stable cell. Reopening checks the cell envelope and declared length before allocating the payload, then validates the record and installation binding. Blob reconstructs reference counts, indexes and declared-byte usage from the retained records. The finite history limit makes rewriting and validating the complete record practical. Final release preserves historical identities and unresolved exposure.
 
-New records use a sparse Wire 0.33 payload with record version 2. The same
-decoder reads a version 1 positional record by supplying its empty extension
-block under the input bounds. Reopening validates the original record and leaves
-the cell intact. The next mutation persists version 2. Once a cell has written
-version 2, reverting to the predecessor Wasm requires a separately planned
-rollback that accounts for intervening operations.
+New records use plain Postcard with record version 3. The cell reader checks
+the byte cap before loading bytes, then admits only version 3 and requires
+complete consumption. Blob also caps the upload, reference, and receipt
+collections during decoding. Earlier Wire records require the original artifact
+and backing. An ordinary upgrade refuses them before publishing state.
 
 ## Installation and upgrade
 

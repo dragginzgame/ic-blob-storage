@@ -16,9 +16,10 @@ publish = false
 [workspace.dependencies]
 # Tests and tooling
 clap = { version = "4.6.7", features = ["derive"] }
-ic-blob-storage = { path = "../crates/ic-blob-storage" }
+ic-blob-storage = { path = "../crates/ic-blob-storage", default-features = false }
 ic-blob-storage-enrollment-probe = { path = "ic-blob-storage-enrollment-probe" }
 ic-blob-storage-reference-app = { path = "../crates/ic-blob-storage-reference-app" }
+ic-blob-storage-wire = { path = "../crates/ic-blob-storage-wire" }
 ic-host-artifacts = { version = "0.80.7", default-features = false }
 ic-host-fs = { version = "0.80.3", default-features = false }
 ic-host-process = { version = "0.81.0", default-features = false }
@@ -29,7 +30,7 @@ ic-platform-runtime = { version = "0.23.27", default-features = false }
 ic-platform-types = { version = "0.21.6", default-features = false }
 ic-storage = "0.80.0"
 ic-testkit = { version = "0.110.0", default-features = false }
-ic-wire = { version = "0.33.0", default-features = false }
+ic-wire = { version = "0.34.0", default-features = false }
 proc-macro2 = "1.0.107"
 quote = "1.0.47"
 serde = { version = "1.0.229", features = ["derive"] }

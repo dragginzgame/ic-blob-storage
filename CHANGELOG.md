@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.116.0]
+
+### ⚠️ Breaking changes
+
+- Write Postcard format version 3 for stable records and CLI custody. Earlier
+  record versions are refused. Public RPC frames retain the Wire encoding.
+- Import RPC frames, limits, and optional native schema inspection from the
+  new `ic-blob-storage-wire` crate. Durable Blob consumers use Postcard.
+
+### 📦 Dependencies
+
+- Select IC Wire and IC Wire Derive 0.34.0 in both Cargo workspaces. Blob’s
+  transport uses Wire’s closed-core encoder for the existing sparse frames.
+
 ## [0.115.0] - 2026-11-28
 
 ### ⚠️ Breaking changes

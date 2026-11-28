@@ -1,6 +1,4 @@
-//! Experimental owned Wire requests. No provider certificate endpoint is exported.
-
-pub mod frame;
+//! Requests, replies and configuration shared by Blob hosts.
 
 use ic_platform_types::Principal;
 use serde::{Deserialize, Serialize};
@@ -11,14 +9,6 @@ use crate::{
         UploadView, Usage,
     },
     references::ReferenceId,
-};
-
-/// Admission shared by the host and its native caller, including the Wire envelope.
-pub const RPC_LIMITS: ic_wire::Limits = ic_wire::Limits {
-    bytes: 65_536,
-    allocation: 8 * 1024 * 1024,
-    nodes: 65_536,
-    depth: 32,
 };
 
 ///

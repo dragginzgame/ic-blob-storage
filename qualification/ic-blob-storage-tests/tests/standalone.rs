@@ -3,15 +3,17 @@
 
 #![forbid(unsafe_code)]
 
+mod retained;
+
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error, Limits, ReferenceStatus, UploadRequest, UploadState},
     protocol::{
         Command, Inspection, Installation, Maintenance, ManagementView, Observation, Outcome,
-        RPC_LIMITS,
     },
 };
 use ic_blob_storage_tests::support_tests as support;
+use ic_blob_storage_wire::RPC_LIMITS;
 use ic_platform_types::Principal;
 use ic_testkit::pocket_ic::{CanisterId, PocketIcBuilder, nonblocking::PocketIc};
 use serde::{Serialize, de::DeserializeOwned};
@@ -57,7 +59,7 @@ const POSITIONAL_LIMITS: ic_wire::Limits = ic_wire::Limits {
 
 fn encode<T: Serialize>(positional: bool, method: &str, value: &T) -> Vec<u8> {
     if positional {
-        return ic_blob_storage::protocol::frame::encode_retained(
+        return retained::encode_retained(
             value,
             ic_wire::Encoding::Frame {
                 method: ic_wire::method_id(method),
@@ -67,7 +69,7 @@ fn encode<T: Serialize>(positional: bool, method: &str, value: &T) -> Vec<u8> {
         )
         .unwrap();
     }
-    ic_blob_storage::protocol::frame::encode(
+    ic_blob_storage_wire::frame::encode(
         value,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id(method),
@@ -80,7 +82,7 @@ fn encode<T: Serialize>(positional: bool, method: &str, value: &T) -> Vec<u8> {
 
 fn decode<T: DeserializeOwned>(positional: bool, method: &str, bytes: &[u8]) -> T {
     if positional {
-        return ic_blob_storage::protocol::frame::decode_retained(
+        return retained::decode_retained(
             bytes,
             ic_wire::Encoding::Frame {
                 method: ic_wire::method_id(method),
@@ -90,7 +92,7 @@ fn decode<T: DeserializeOwned>(positional: bool, method: &str, bytes: &[u8]) -> 
         )
         .unwrap();
     }
-    ic_blob_storage::protocol::frame::decode(
+    ic_blob_storage_wire::frame::decode(
         bytes,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id(method),
@@ -185,8 +187,7 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
     .unwrap();
     // Explicit previous artifact for a cross-version host migration witness;
     // ordinary runs continue to exercise same-artifact reopening.
-    let positional = std::env::var_os("BLOB_PREVIOUS_WASM_POSITIONAL").is_some();
-    assert!(!positional || std::env::var_os("BLOB_PREVIOUS_WASM").is_some());
+    let positional = false;
     let installed_wasm = std::env::var_os("BLOB_PREVIOUS_WASM")
         .map(|path| std::fs::read(path).unwrap())
         .unwrap_or_else(|| wasm.clone());
@@ -207,7 +208,7 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
     let initial = ManagementView {
         installation: Principal::from_slice(canister.as_slice()),
         configuration: input(),
-        state_version: if positional { 1 } else { 2 },
+        state_version: 3,
         maintenance: Maintenance {
             attempt: 0,
             active: true,
@@ -387,15 +388,6 @@ async fn callers_replay_cleanup_and_upgrade_preserve_one_owner() {
     pic.start_canister(canister, Some(pic_actor(9)))
         .await
         .unwrap();
-    let positional = false;
-    let initial = ManagementView {
-        state_version: 2,
-        ..initial
-    };
-    let drained = ManagementView {
-        state_version: initial.state_version,
-        ..drained
-    };
     assert_eq!(management(pic, positional, canister, 9).await, Ok(drained));
     assert_eq!(
         query(pic, positional, canister, 1, Inspection::Usage)
@@ -499,7 +491,8 @@ async fn populated_stable_source_survives_refused_directory_upgrade() {
 async fn incompatible_upgrade(source: &str, expect_empty_stable: bool) {
     use sha2::{Digest, Sha256};
 
-    let positional = true;
+    let positional = source == "BLOB_OP_WASM"
+        || std::env::var_os("BLOB_INCOMPATIBLE_STABLE_WASM_POSITIONAL").is_some();
     let old = std::fs::read(std::env::var_os(source).expect(source)).unwrap();
     let expected_hash = Sha256::digest(&old).to_vec();
     let replacement = std::fs::read(std::env::var_os("BLOB_WASM").unwrap()).unwrap();

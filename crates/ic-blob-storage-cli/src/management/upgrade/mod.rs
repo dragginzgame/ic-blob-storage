@@ -1,7 +1,7 @@
 //! One ordinary upgrade of a stopped host, chained to an acknowledged original stop.
 
 use super::{Context, Operation, load, request_status, stop};
-use ic_blob_storage::protocol::RPC_LIMITS;
+use ic_blob_storage_wire::RPC_LIMITS;
 use ic_platform::native::RequestStatus;
 use ic_platform_protocol::{
     management::{InstallCodeArgs, InstallMode},
@@ -10,36 +10,19 @@ use ic_platform_protocol::{
 use sha2::{Digest, Sha256};
 use std::path::Path;
 
-pub(super) fn argument(
-    context: &Context,
-    wasm: &[u8],
-    positional: bool,
-) -> Result<Vec<u8>, String> {
+pub(super) fn argument(context: &Context, wasm: &[u8]) -> Result<Vec<u8>, String> {
     if wasm.len() > 1024 * 1024 || !wasm.starts_with(b"\0asm\x01\0\0\0") {
         return Err("upgrade requires an uncompressed Wasm module of at most 1 MiB".into());
     }
-    let arg = if positional {
-        ic_blob_storage::protocol::frame::encode_retained(
-            &(),
-            ic_wire::Encoding::Frame {
-                method: ic_wire::method_id("blob_post_upgrade"),
-                direction: ic_wire::Direction::Request,
-            },
-            RPC_LIMITS,
-        )
-        .map_err(|_| ())
-    } else {
-        ic_blob_storage::protocol::frame::encode(
-            &(),
-            ic_wire::Encoding::Frame {
-                method: ic_wire::method_id("blob_post_upgrade"),
-                direction: ic_wire::Direction::Request,
-            },
-            RPC_LIMITS,
-        )
-        .map_err(|_| ())
-    }
-    .map_err(|()| "cannot encode fixed upgrade arguments")?;
+    let arg = ic_blob_storage_wire::frame::encode(
+        &(),
+        ic_wire::Encoding::Frame {
+            method: ic_wire::method_id("blob_post_upgrade"),
+            direction: ic_wire::Direction::Request,
+        },
+        RPC_LIMITS,
+    )
+    .map_err(|_| "cannot encode fixed upgrade arguments")?;
 
     InstallCodeArgs {
         // Omitted flags select ordinary upgrade: run pre_upgrade, replace heap.

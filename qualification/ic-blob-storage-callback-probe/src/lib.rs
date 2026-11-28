@@ -15,8 +15,9 @@ mod host {
             },
         },
         metrics::{CommandKind, MetricsStorage},
-        protocol::{Command, Inspection, Installation, Observation, Outcome, RPC_LIMITS},
+        protocol::{Command, Inspection, Installation, Observation, Outcome},
     };
+    use ic_blob_storage_wire::RPC_LIMITS;
     use ic_logging::{EntryInput, Level, Limits, Log};
     use ic_platform_runtime::{raw as ic0, system as api};
     use ic_platform_types::Principal;
@@ -389,7 +390,7 @@ mod host {
     fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result<T, wire::Error> {
         admit().unwrap();
 
-        ic_blob_storage::protocol::frame::decode(
+        ic_blob_storage_wire::frame::decode(
             bytes,
             wire::Encoding::Frame {
                 method: ID,
@@ -400,7 +401,7 @@ mod host {
     }
 
     fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, wire::Error> {
-        ic_blob_storage::protocol::frame::encode(
+        ic_blob_storage_wire::frame::encode(
             &value,
             wire::Encoding::Frame {
                 method: ID,

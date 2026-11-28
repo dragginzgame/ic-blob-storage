@@ -6,12 +6,13 @@
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error, Limits, ReferenceStatus, UploadRequest, UploadState, UploadView},
-    protocol::{Command, Inspection, Installation, Observation, Outcome, RPC_LIMITS},
+    protocol::{Command, Inspection, Installation, Observation, Outcome},
 };
 use ic_blob_storage_tests::{
     native::{Client, identity},
     support_tests as support,
 };
+use ic_blob_storage_wire::RPC_LIMITS;
 use ic_platform::native::ReadError;
 use ic_platform_types::Principal;
 use ic_testkit::pocket_ic::PocketIcBuilder;
@@ -23,7 +24,7 @@ fn principal(seed: u8) -> Principal {
 }
 
 fn encode<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    ic_blob_storage::protocol::frame::encode(
+    ic_blob_storage_wire::frame::encode(
         value,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -35,7 +36,7 @@ fn encode<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
 }
 
 fn decode<T: DeserializeOwned>(method: &str, bytes: &[u8]) -> T {
-    ic_blob_storage::protocol::frame::decode(
+    ic_blob_storage_wire::frame::decode(
         bytes,
         wire::Encoding::Frame {
             method: wire::method_id(method),

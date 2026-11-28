@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Consumer policy: four product crates; independent private qualification versions.
+# Consumer policy: five product crates; independent private qualification versions.
 # Adapted from the existing ic-entropy two-lock adapter; no runtime state is shared.
 # Shared helpers own the transaction; IC Build owns manifest/lock rendering.
 set -euo pipefail
@@ -41,9 +41,9 @@ case "${1:-}" in
             "${RELEASE_PREVIOUS:?}" "${RELEASE_VERSION:?}" "$evidence/workspace-input.json" > "$candidate/Cargo.toml"
         "$editor" --max-input-bytes "$limit" lock "$original/Cargo.lock" \
             "$RELEASE_PREVIOUS" "$RELEASE_VERSION" "${packages[@]}" > "$candidate/Cargo.lock"
-        # Only two product libraries occur in the independent qualification graph.
+        # Only three product libraries occur in the independent qualification graph.
         "$editor" --max-input-bytes "$limit" lock "$original/qualification/Cargo.lock" \
-            "$RELEASE_PREVIOUS" "$RELEASE_VERSION" ic-blob-storage ic-blob-storage-reference-app \
+            "$RELEASE_PREVIOUS" "$RELEASE_VERSION" ic-blob-storage ic-blob-storage-reference-app ic-blob-storage-wire \
             > "$candidate/qualification/Cargo.lock"
         awk -v version="$RELEASE_VERSION" -v previous="$RELEASE_PREVIOUS" -v date="${RELEASE_DATE:?}" \
             -f vendor/toko-tooling/scripts/ci/finalize-release-changelog.awk "$original/CHANGELOG.md" > "$candidate/CHANGELOG.md"

@@ -12,8 +12,9 @@ mod host {
     };
     use ic_blob_storage::{
         local::{Error as BlobError, ReferenceStatus, UploadState},
-        protocol::{Command, Inspection, Observation, Outcome, RPC_LIMITS},
+        protocol::{Command, Inspection, Observation, Outcome},
     };
+    use ic_blob_storage_wire::{Contract, Query, RPC_LIMITS, Update};
     use ic_platform_runtime::{
         call::{Call, Outcome as CallOutcome, Wait},
         raw as ic0, system as api,
@@ -126,7 +127,7 @@ mod host {
             return Ok(draft);
         }
         let observed: Result<Observation, BlobError> =
-            call("blob_query", &Inspection::Upload(id)).await?;
+            call::<Query>(&Inspection::Upload(id)).await?;
         match observed.map_err(Error::Blob)? {
             Observation::Upload(upload)
                 if upload.request == state::request(&draft)
@@ -138,7 +139,7 @@ mod host {
         }
         publishable(caller, id)?;
         let observed: Result<Observation, BlobError> =
-            call("blob_query", &Inspection::Reference(id)).await?;
+            call::<Query>(&Inspection::Reference(id)).await?;
         match observed.map_err(Error::Blob)? {
             Observation::Reference(reference)
                 if reference.root == draft.input.root
@@ -174,7 +175,7 @@ mod host {
         match authorize(&draft).await {
             Ok(()) => {
                 let released: Result<Outcome, BlobError> =
-                    call("blob_update", &Command::Release(id)).await?;
+                    call::<Update>(&Command::Release(id)).await?;
                 if released.map_err(Error::Blob)? != Outcome::Done {
                     return Err(Error::Uncertain);
                 }
@@ -253,7 +254,7 @@ mod host {
 
     async fn authorize(draft: &DraftView) -> Result<(), Error> {
         let result: Result<Outcome, BlobError> =
-            call("blob_update", &state::authorization(draft)).await?;
+            call::<Update>(&state::authorization(draft)).await?;
 
         match result.map_err(Error::Blob)? {
             Outcome::Upload(view) if view.request == state::request(draft) => Ok(()),
@@ -261,20 +262,9 @@ mod host {
         }
     }
 
-    async fn call<T: Serialize, R: DeserializeOwned>(
-        method: &str,
-        request: &T,
-    ) -> Result<R, Error> {
+    async fn call<C: Contract>(request: &C::Request) -> Result<C::Response, Error> {
         let blob = STATE.with_borrow(|state| state.as_ref().unwrap().blob());
-        let bytes = ic_blob_storage::protocol::frame::encode(
-            request,
-            wire::Encoding::Frame {
-                method: wire::method_id(method),
-                direction: wire::Direction::Request,
-            },
-            RPC_LIMITS,
-        )
-        .map_err(|_| Error::Invalid)?;
+        let bytes = C::encode_request(request).map_err(|_| Error::Invalid)?;
         IN_FLIGHT.set(
             IN_FLIGHT
                 .get()
@@ -285,7 +275,7 @@ mod host {
         let _flight = DropGuard::new((), |()| {
             IN_FLIGHT.set(IN_FLIGHT.get().checked_sub(1).unwrap())
         });
-        let completion = Call::new(blob, method, Wait::Bounded { seconds: 30 })
+        let completion = Call::new(blob, C::NAME, Wait::Bounded { seconds: 30 })
             .owned_args(bytes)
             .execute()
             .await
@@ -294,15 +284,7 @@ mod host {
             return Err(Error::Uncertain);
         };
 
-        ic_blob_storage::protocol::frame::decode(
-            &reply,
-            wire::Encoding::Frame {
-                method: wire::method_id(method),
-                direction: wire::Direction::Response,
-            },
-            RPC_LIMITS,
-        )
-        .map_err(|_| Error::Uncertain)
+        C::decode_response(&reply).map_err(|_| Error::Uncertain)
     }
 
     /// Bound the request before decoding. Catalog operations enforce caller ownership.
@@ -319,7 +301,7 @@ mod host {
     }
 
     fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result<T, wire::Error> {
-        ic_blob_storage::protocol::frame::decode(
+        ic_blob_storage_wire::frame::decode(
             bytes,
             wire::Encoding::Frame {
                 method: ID,
@@ -330,7 +312,7 @@ mod host {
     }
 
     fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, wire::Error> {
-        ic_blob_storage::protocol::frame::encode(
+        ic_blob_storage_wire::frame::encode(
             &value,
             wire::Encoding::Frame {
                 method: ID,

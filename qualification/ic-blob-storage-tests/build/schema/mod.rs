@@ -37,7 +37,7 @@ fn serde_dto(attrs: &[Attribute]) -> bool {
         })
 }
 
-fn project(mut dto: DeriveInput, supplier: bool) -> TokenStream {
+fn project(mut dto: DeriveInput) -> TokenStream {
     let native = dto.ident.clone();
     let schema = format_ident!("{native}Schema");
     dto.ident = schema.clone();
@@ -57,16 +57,8 @@ fn project(mut dto: DeriveInput, supplier: bool) -> TokenStream {
             field.ty = parse_quote!(<#ty as crate::projection::Project>::Schema);
         }
     }
-    let supplier_impl = supplier.then(|| quote! {
-        impl ic_wire::typescript::Wire for #native {
-            fn schema(ctx: &mut ic_wire::typescript::SchemaContext) -> Result<serde_json::Value, ic_wire::typescript::GenerationError> {
-                <#schema as ic_wire::typescript::Wire>::schema(ctx)
-            }
-        }
-    });
     quote! {
         #dto
-        #supplier_impl
         impl crate::projection::Project for #native { type Schema = #schema; }
     }
 }
@@ -86,10 +78,7 @@ pub(crate) fn dtos(base: &str, file: &str, location: &RustPath) -> TokenStream {
             let dto: DeriveInput = syn::parse2(quote!(#item)).unwrap();
             names.visit_derive_input(&dto);
             native.push(dto.ident.clone());
-            declarations.push(project(
-                dto,
-                location.segments.first().unwrap().ident == "crate",
-            ));
+            declarations.push(project(dto));
         }
     }
     for item in &items {

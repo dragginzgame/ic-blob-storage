@@ -10,9 +10,10 @@
 //! caller claims from request fields. These synchronous operations perform no
 //! external awaits. Ordinary errors precede mutation. This heap owner has no
 //! standalone upgrade, serialization, cloning or reset contract. The bounded
-//! [`persistence::Service`] owns its durable representation and maintenance gate.
+//! `persistence::Service` owns its durable representation and maintenance gate.
 //! Dropping a bare model loses history; it MUST NOT back real upload authority.
 
+#[cfg(feature = "persistence")]
 pub mod persistence;
 #[cfg(test)]
 mod tests;

@@ -47,7 +47,7 @@ fn record() -> Record {
 #[test]
 fn corrupted_domain_records_never_publish_authority() {
     let mut bad = record();
-    bad.version = 3;
+    bad.version = 2;
     assert!(matches!(bad.restore(actor(8)), Err(OpenError::Record)));
     let mut bad = record();
     bad.references.clear();
@@ -76,29 +76,35 @@ fn corrupted_domain_records_never_publish_authority() {
 fn codec_rejects_truncation_trailing_and_oversized_input() {
     let bytes = record().encode().unwrap();
     assert!(
-        crate::protocol::frame::decode::<Record>(
-            &bytes[..bytes.len() - 1],
-            ic_wire::Encoding::Payload,
-            STATE_LIMITS
-        )
-        .is_err()
+        crate::storage_codec::decode::<Record>(&bytes[..bytes.len() - 1], STATE_LIMITS, 3).is_err()
     );
     let mut trailing = bytes;
     trailing.push(0);
     assert!(matches!(
-        crate::protocol::frame::decode::<Record>(
-            &trailing,
-            ic_wire::Encoding::Payload,
-            STATE_LIMITS
-        ),
-        Err(ic_wire::Error::Trailing)
+        crate::storage_codec::decode::<Record>(&trailing, STATE_LIMITS, 3),
+        Err(crate::storage_codec::Error::Trailing)
     ));
     assert!(matches!(
-        crate::protocol::frame::decode::<Record>(
-            &vec![0; STATE_LIMITS.bytes + 1],
-            ic_wire::Encoding::Payload,
-            STATE_LIMITS
-        ),
-        Err(ic_wire::Error::Limit(ic_wire::LimitKind::Bytes))
+        crate::storage_codec::decode::<Record>(&vec![0; STATE_LIMITS + 1], STATE_LIMITS, 3),
+        Err(crate::storage_codec::Error::Bytes)
+    ));
+}
+
+#[test]
+fn postcard_refuses_predecessor_versions_and_excess_records() {
+    let mut old = record();
+    old.version = 2;
+    assert!(matches!(
+        crate::storage_codec::decode::<Record>(&old.encode().unwrap(), STATE_LIMITS, 3),
+        Err(crate::storage_codec::Error::Version)
+    ));
+
+    let mut excessive = record();
+    excessive
+        .uploads
+        .resize(super::super::MAX_RECORDS + 1, excessive.uploads[0]);
+    assert!(matches!(
+        crate::storage_codec::decode::<Record>(&excessive.encode().unwrap(), STATE_LIMITS, 3),
+        Err(crate::storage_codec::Error::Postcard(_))
     ));
 }

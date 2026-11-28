@@ -44,7 +44,7 @@ fn actor() -> CanisterId {
 }
 
 fn request<T: Serialize>(method: &str, input: &T) -> Vec<u8> {
-    ic_blob_storage::protocol::frame::encode(
+    ic_blob_storage_wire::frame::encode(
         input,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -56,7 +56,7 @@ fn request<T: Serialize>(method: &str, input: &T) -> Vec<u8> {
 }
 
 fn response(method: &str, bytes: &[u8]) -> Result<View, Error> {
-    ic_blob_storage::protocol::frame::decode(
+    ic_blob_storage_wire::frame::decode(
         bytes,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -389,13 +389,13 @@ async fn incompatible_service_upgrade_preserves_consumed_probe() {
         .upgrade_canister(
             owner,
             host,
-            ic_blob_storage::protocol::frame::encode(
+            ic_blob_storage_wire::frame::encode(
                 &(),
                 ic_wire::Encoding::Frame {
                     method: ic_wire::method_id("blob_post_upgrade"),
                     direction: ic_wire::Direction::Request,
                 },
-                ic_blob_storage::protocol::RPC_LIMITS,
+                ic_blob_storage_wire::RPC_LIMITS,
             )
             .unwrap(),
             Some(actor()),

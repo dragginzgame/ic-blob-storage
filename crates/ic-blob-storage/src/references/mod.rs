@@ -70,6 +70,7 @@ pub struct ObjectReferences {
 }
 
 impl ObjectReferences {
+    #[cfg(feature = "persistence")]
     pub(crate) fn from_records(
         records: BTreeMap<ReferenceId, ReferenceState>,
         limit: NonZeroUsize,

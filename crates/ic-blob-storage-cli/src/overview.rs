@@ -2,10 +2,8 @@
 
 use crate::network::Client;
 use clap::Args;
-use ic_blob_storage::{
-    local::Error,
-    protocol::{Inspection, Observation, RPC_LIMITS},
-};
+use ic_blob_storage::protocol::{Inspection, Observation};
+use ic_blob_storage_wire::{Contract, Query};
 use ic_platform_types::Principal;
 use std::{fmt::Write, path::PathBuf};
 use url::Url;
@@ -88,35 +86,18 @@ pub(crate) struct Input {
 }
 
 pub(crate) async fn run(input: Input) -> Result<String, String> {
-    let request = ic_blob_storage::protocol::frame::encode(
-        &Inspection::Overview(input.principal),
-        ic_wire::Encoding::Frame {
-            method: ic_wire::method_id("blob_query"),
-            direction: ic_wire::Direction::Request,
-        },
-        RPC_LIMITS,
-    )
-    .map_err(|_| "cannot encode overview")?;
+    let request = Query::encode_request(&Inspection::Overview(input.principal))
+        .map_err(|_| "cannot encode overview")?;
     let target = input.canister;
     let reply = tokio::time::timeout(
         std::time::Duration::from_secs(30),
-        input
-            .network
-            .client()?
-            .query(target, "blob_query", &request),
+        input.network.client()?.query(target, Query::NAME, &request),
     )
     .await
     .map_err(|_| "Blob query timed out; storage is unknown")?
     .map_err(|error| format!("Blob query failed: {:?}", error))?;
-    let result: Result<Observation, Error> = ic_blob_storage::protocol::frame::decode(
-        &reply,
-        ic_wire::Encoding::Frame {
-            method: ic_wire::method_id("blob_query"),
-            direction: ic_wire::Direction::Response,
-        },
-        RPC_LIMITS,
-    )
-    .map_err(|_| "invalid Blob overview reply (host may not support this command)")?;
+    let result = Query::decode_response(&reply)
+        .map_err(|_| "invalid Blob overview reply (host may not support this command)")?;
     let Observation::Overview(view) =
         result.map_err(|error| format!("Blob overview refused: {error:?}"))?
     else {

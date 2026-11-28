@@ -1,33 +1,21 @@
 //! One bounded application record; no copy of Blob's liveness or accounting state.
 
-use ic_blob_storage::{
-    local::UploadRequest,
-    protocol::{Command, RPC_LIMITS},
-};
+use ic_blob_storage::{local::UploadRequest, protocol::Command};
 use ic_platform_types::Principal;
 use ic_storage::{DefaultMemoryImpl, RuntimeMemory, adapter::StableCell};
 use serde::{Deserialize, Serialize};
 
 use crate::protocol::{DraftInput, DraftView, Error, Installation, Phase};
 
-pub(crate) const LIMITS: ic_wire::Limits = ic_wire::Limits {
-    bytes: 65_536,
-    allocation: RPC_LIMITS.allocation,
-    nodes: RPC_LIMITS.nodes,
-    depth: RPC_LIMITS.depth,
-};
-const INPUT_LIMITS: ic_wire::Limits = ic_wire::Limits {
-    bytes: 2048,
-    allocation: RPC_LIMITS.allocation,
-    nodes: RPC_LIMITS.nodes,
-    depth: RPC_LIMITS.depth,
-};
+pub(crate) const LIMITS: usize = 65_536;
+const INPUT_LIMITS: usize = 2048;
 
 #[derive(Deserialize, Serialize)]
 struct Record {
     version: u32,
     installation: Principal,
     config: Installation,
+    #[serde(deserialize_with = "ic_blob_storage::storage_codec::bounded_vec::<_, _, 16>")]
     drafts: Vec<DraftView>,
 }
 
@@ -44,28 +32,25 @@ impl State {
     ) -> Self {
         validate_config(&config);
         let record = Record {
-            version: 2,
+            version: 3,
             installation,
             config,
             drafts: vec![],
         };
         let cell = StableCell::create(
             memory,
-            ic_blob_storage::protocol::frame::encode(&record, ic_wire::Encoding::Payload, LIMITS)
-                .unwrap(),
+            ic_blob_storage::storage_codec::encode(&record, LIMITS).unwrap(),
         );
 
         Self { record, cell }
     }
 
     pub fn open(memory: RuntimeMemory<DefaultMemoryImpl>, installation: Principal) -> Self {
-        ic_storage::stable_cell_payload_length(&memory, LIMITS.bytes)
-            .expect("bounded stable payload");
+        ic_storage::stable_cell_payload_length(&memory, LIMITS).expect("bounded stable payload");
         let cell = StableCell::<Vec<u8>, _>::load(memory).expect("existing application record");
-        let mut record: Record =
-            ic_blob_storage::protocol::frame::decode_record(cell.get(), LIMITS)
-                .expect("bounded application record");
-        assert!(matches!(record.version, 1 | 2), "application format");
+        let record: Record = ic_blob_storage::storage_codec::decode(cell.get(), LIMITS, 3)
+            .expect("bounded application record");
+
         assert_eq!(record.installation, installation, "application identity");
         validate_config(&record.config);
         assert!(record.drafts.len() <= 16);
@@ -83,7 +68,6 @@ impl State {
             }
         }
 
-        record.version = 2;
         Self { record, cell }
     }
 
@@ -217,12 +201,8 @@ impl State {
     fn persist(&mut self) {
         // A failure traps this message; never turn it into an ordinary error after mutation.
         self.cell.set(
-            ic_blob_storage::protocol::frame::encode(
-                &self.record,
-                ic_wire::Encoding::Payload,
-                LIMITS,
-            )
-            .expect("bounded application persistence"),
+            ic_blob_storage::storage_codec::encode(&self.record, LIMITS)
+                .expect("bounded application persistence"),
         );
     }
 }
@@ -266,8 +246,7 @@ fn validate_input(input: &DraftInput) -> Result<(), Error> {
         || input.chunks.is_empty()
         || input.chunks.len() > 8
         || input.headers.len() > 8
-        || ic_blob_storage::protocol::frame::encode(input, ic_wire::Encoding::Payload, INPUT_LIMITS)
-            .is_err()
+        || ic_blob_storage::storage_codec::encode(input, INPUT_LIMITS).is_err()
     {
         return Err(Error::Invalid);
     }

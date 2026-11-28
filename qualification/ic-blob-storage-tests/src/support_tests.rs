@@ -72,13 +72,14 @@ pub async fn blob_state(
 ) -> Vec<ic_blob_storage::protocol::Observation> {
     use ic_blob_storage::{
         local::Error,
-        protocol::{Inspection, Observation, RPC_LIMITS},
+        protocol::{Inspection, Observation},
     };
+    use ic_blob_storage_wire::RPC_LIMITS;
     let mut state = Vec::new();
     for inspection in std::iter::once(Inspection::Usage)
         .chain(uploaders.iter().copied().map(Inspection::Overview))
     {
-        let request = ic_blob_storage::protocol::frame::encode(
+        let request = ic_blob_storage_wire::frame::encode(
             &inspection,
             ic_wire::Encoding::Frame {
                 method: ic_wire::method_id("blob_query"),
@@ -91,7 +92,7 @@ pub async fn blob_state(
             .query_call(target, application, "blob_query", request)
             .await
             .unwrap();
-        let value: Result<Observation, Error> = ic_blob_storage::protocol::frame::decode(
+        let value: Result<Observation, Error> = ic_blob_storage_wire::frame::decode(
             &reply,
             ic_wire::Encoding::Frame {
                 method: ic_wire::method_id("blob_query"),

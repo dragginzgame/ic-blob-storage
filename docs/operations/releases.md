@@ -67,8 +67,8 @@ a fresh plan/gate; a later failed phase uses `release-resume` and its exact save
 source/intent. Never rewrite earlier evidence or use cache hits as a pass.
 Archive/source/tag/registry/provenance admission and uncertain-upload recovery
 remain fresh through the unchanged publication runner and steps below.
-All four product crates remain one coordinated version group: each release still
-checks/publishes all four archives explicitly. A narrower validation plan does not
+All five product crates remain one coordinated version group: each release still
+checks/publishes all five archives explicitly. A narrower validation plan does not
 silently change that package selection or qualify a different release grouping.
 
 When selection/recipes/runner wiring changes, run `make test-release-validation`
@@ -81,7 +81,7 @@ with simulated product work; real product/host qualification and release latency
 must be measured separately. [The handoff](../status/current.md) records the storage layout and installed
 qualification for the current worktree.
 
-At the exact release commit, run `make publish-check`, inspect the four prepared
+At the exact release commit, run `make publish-check`, inspect the five prepared
 archives, then check their provenance before `make publish`:
 
 ```sh
@@ -89,6 +89,7 @@ bash vendor/toko-tooling/scripts/ci/check-cargo-package-provenance.sh \
   target/publication/provenance-NEW-ATTEMPT target/package/tmp-crate \
   https://github.com/dragginzgame/ic-blob-storage "$(git rev-parse HEAD)" \
   --package "ic-blob-storage@VERSION" crates/ic-blob-storage \
+  --package "ic-blob-storage-wire@VERSION" crates/ic-blob-storage-wire \
   --package "ic-blob-storage-reference-app@VERSION" crates/ic-blob-storage-reference-app \
   --package "ic-blob-storage-canister@VERSION" crates/ic-blob-storage-canister \
   --package "ic-blob-storage-cli@VERSION" crates/ic-blob-storage-cli

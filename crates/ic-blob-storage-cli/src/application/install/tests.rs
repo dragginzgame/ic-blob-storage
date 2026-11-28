@@ -9,7 +9,7 @@ use std::{fs, os::unix::fs::symlink};
 const PEM: &str = "-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC\n-----END PRIVATE KEY-----\n";
 
 fn frame<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    ic_blob_storage::protocol::frame::encode(
+    ic_blob_storage_wire::frame::encode(
         value,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id(method),
@@ -96,21 +96,13 @@ pub(super) fn fixture(role: &str) -> Input {
 pub(super) fn replace_packet(input: &Input, packet: &[u8]) {
     let selected = input.selection().unwrap();
     let intent_path = selected.directory.join("intent.wire");
-    let mut intent: Intent = ic_blob_storage::protocol::frame::decode(
-        &fs::read(&intent_path).unwrap(),
-        ic_wire::Encoding::Payload,
-        INTENT_LIMITS,
-    )
-    .unwrap();
+    let mut intent: Intent =
+        ic_blob_storage::storage_codec::decode(&fs::read(&intent_path).unwrap(), INTENT_LIMITS, 3)
+            .unwrap();
     intent.packet_hash = Sha256::digest(packet).into();
     fs::write(
         intent_path,
-        ic_blob_storage::protocol::frame::encode(
-            &intent,
-            ic_wire::Encoding::Payload,
-            INTENT_LIMITS,
-        )
-        .unwrap(),
+        ic_blob_storage::storage_codec::encode(&intent, INTENT_LIMITS).unwrap(),
     )
     .unwrap();
     fs::write(selected.directory.join("request.cbor"), packet).unwrap();

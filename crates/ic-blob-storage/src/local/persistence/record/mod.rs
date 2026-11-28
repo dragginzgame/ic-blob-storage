@@ -15,14 +15,9 @@ use crate::{
     references::{ObjectReferences, ReferenceId, ReferenceState, RetentionState},
 };
 
-pub(super) const STATE_VERSION: u32 = 2;
+pub(super) const STATE_VERSION: u32 = 3;
 
-pub(super) const STATE_LIMITS: ic_wire::Limits = ic_wire::Limits {
-    bytes: 65_536,
-    allocation: 8 * 1024 * 1024,
-    nodes: 262_144,
-    depth: 32,
-};
+pub(super) const STATE_LIMITS: usize = 65_536;
 
 #[derive(Deserialize, Serialize)]
 pub(super) struct Record {
@@ -30,7 +25,13 @@ pub(super) struct Record {
     installation: Principal,
     pub input: Installation,
     pub maintenance: Maintenance,
+    #[serde(
+        deserialize_with = "crate::storage_codec::bounded_vec::<_, _, { super::MAX_RECORDS }>"
+    )]
     uploads: Vec<(UploadView, u64)>,
+    #[serde(
+        deserialize_with = "crate::storage_codec::bounded_vec::<_, _, { super::MAX_RECORDS }>"
+    )]
     references: Vec<(ReferenceId, Root, ReferenceStatus)>,
 }
 
@@ -67,13 +68,12 @@ impl Record {
     }
 
     pub fn encode(&self) -> Result<Vec<u8>, OpenError> {
-        crate::protocol::frame::encode(self, ic_wire::Encoding::Payload, STATE_LIMITS)
-            .map_err(OpenError::Codec)
+        crate::storage_codec::encode(self, STATE_LIMITS).map_err(OpenError::Codec)
     }
 
     pub fn restore(self, installation: Principal) -> Result<LocalModel, OpenError> {
         validate(self.input)?;
-        if !matches!(self.version, 1 | STATE_VERSION)
+        if self.version != STATE_VERSION
             || self.installation != installation
             || (self.maintenance.attempt == 0 && !self.maintenance.active)
             || self.uploads.len() > self.input.limits.uploads.get()

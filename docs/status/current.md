@@ -31,8 +31,9 @@ application catalog. To adopt Blob 0.113.0 it needs a Storage 0.80 lease and
 IC Logging 0.26's `Level` type for its recorder. See the
 [metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics).
 Blob 0.115.0 uses Wire 0.33.1 throughout both workspaces. Upgrade callers and
-embedders together to sparse frames. Stable state and CLI custody use
-format version 2 for new writes and accept retained version 1 records. See the
+embedders together to sparse frames. The pending Postcard cutover puts transport
+and schema inspection in the separate Blob Wire crate. Stable state and CLI custody use
+version 3 and refuse earlier records. See the
 [callable schema qualification](../../qualification/api/README.md). The tagged
 reference application also reopened a draft written by the 0.114.0 source build
 in `target/01150-release/predecessor-app.log`.

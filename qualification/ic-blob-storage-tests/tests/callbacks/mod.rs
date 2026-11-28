@@ -7,9 +7,10 @@ mod issuance;
 use ic_blob_storage::{
     caffeine::ManifestLimits,
     local::{Error, Limits, Root, UploadRequest},
-    protocol::{Command, Inspection, Installation, Observation, Outcome, RPC_LIMITS},
+    protocol::{Command, Inspection, Installation, Observation, Outcome},
 };
 use ic_blob_storage_tests::support_tests as support;
+use ic_blob_storage_wire::RPC_LIMITS;
 use ic_platform_protocol::{caffeine as provider, candid::Limits as ProviderLimits};
 use ic_platform_types::Principal;
 use ic_testkit::pocket_ic::{CanisterId, PocketIcBuilder, RejectCode, nonblocking::PocketIc};
@@ -43,7 +44,7 @@ fn caller(n: u8) -> CanisterId {
 }
 
 fn frame<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    ic_blob_storage::protocol::frame::encode(
+    ic_blob_storage_wire::frame::encode(
         value,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -109,7 +110,7 @@ async fn update(
         .await
         .unwrap();
 
-    ic_blob_storage::protocol::frame::decode(
+    ic_blob_storage_wire::frame::decode(
         &bytes,
         wire::Encoding::Frame {
             method: wire::method_id("blob_update"),
@@ -131,7 +132,7 @@ async fn usage(pic: &PocketIc, owner: CanisterId) -> Observation {
         .await
         .unwrap();
 
-    ic_blob_storage::protocol::frame::decode::<Result<Observation, Error>>(
+    ic_blob_storage_wire::frame::decode::<Result<Observation, Error>>(
         &bytes,
         wire::Encoding::Frame {
             method: wire::method_id("blob_query"),

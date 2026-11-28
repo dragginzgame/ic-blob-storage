@@ -46,7 +46,7 @@ async fn update(
             canister,
             CanisterId::from_slice(caller.as_slice()),
             "blob_update",
-            ic_blob_storage::protocol::frame::encode(
+            ic_blob_storage_wire::frame::encode(
                 &command,
                 ic_wire::Encoding::Frame {
                     method,
@@ -59,7 +59,7 @@ async fn update(
         .await
         .unwrap();
 
-    ic_blob_storage::protocol::frame::decode(
+    ic_blob_storage_wire::frame::decode(
         &bytes,
         ic_wire::Encoding::Frame {
             method,
@@ -82,7 +82,7 @@ async fn query(
             canister,
             CanisterId::from_slice(caller.as_slice()),
             "blob_query",
-            ic_blob_storage::protocol::frame::encode(
+            ic_blob_storage_wire::frame::encode(
                 &request,
                 ic_wire::Encoding::Frame {
                     method,
@@ -95,7 +95,7 @@ async fn query(
         .await
         .unwrap();
 
-    ic_blob_storage::protocol::frame::decode(
+    ic_blob_storage_wire::frame::decode(
         &bytes,
         ic_wire::Encoding::Frame {
             method,
@@ -260,7 +260,7 @@ async fn changed_artifact_preserves_obligations_through_native_lifecycle() {
                 &directory,
                 url.as_str(),
                 canister,
-                "2",
+                "3",
                 &format!("{action}-{operation}"),
             );
             cli.arg("--record").arg(directory.join(operation));
@@ -335,7 +335,7 @@ async fn changed_artifact_preserves_obligations_through_native_lifecycle() {
     }
     // The old artifact is no longer an acceptable input to inspection.
     refused(
-        &inspect(&directory, url.as_str(), canister, "2").await,
+        &inspect(&directory, url.as_str(), canister, "3").await,
         "Wasm does not match",
     );
     // Historical acquisition/release cannot resurrect a released reference or settle exposure.

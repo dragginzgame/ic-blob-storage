@@ -22,13 +22,14 @@ pub(super) fn generate() -> TokenStream {
                 _ => None,
             })
             .expect("inline Platform mounts");
-        let external_codec = (label == "standalone").then(|| read(&format!("{package}/src/codec.rs")));
-        let codec = external_codec.as_deref().unwrap_or(&host);
-        let request_budget = budget(codec, "decode");
-        let reply_budget = budget(codec, "encode");
         let mut budgets = Names::default();
-        budgets.visit_expr_path(request_budget);
-        budgets.visit_expr_path(reply_budget);
+        let reference_budgets = (label == "reference-app").then(|| {
+            let request = budget(&host, "decode");
+            let reply = budget(&host, "encode");
+            budgets.visit_expr_path(request);
+            budgets.visit_expr_path(reply);
+            (request, reply)
+        });
         let mut calls = Vec::new();
         let mut names = Names::default();
         for item in &host {
@@ -53,6 +54,17 @@ pub(super) fn generate() -> TokenStream {
                 for a in &handler.attrs { names.visit_attribute(a); }
                 let name = option("name");
                 let bytes = option("max_bytes");
+                assert_eq!(handler.sig.inputs.len(), 1);
+                let FnArg::Typed(input) = handler.sig.inputs.first().unwrap() else {
+                    panic!("expected a single mounted request");
+                };
+                let request = input.ty.clone();
+                let ReturnType::Type(_, ref reply) = handler.sig.output else {
+                    panic!("expected a mounted reply");
+                };
+                names.visit_type(&request);
+                names.visit_type(reply);
+                if let Some((request_budget, reply_budget)) = reference_budgets {
                 let codec_id = |key: &str| {
                     let Expr::Path(p) = option(key) else {
                         panic!("expected typed {key} hook");
@@ -71,33 +83,46 @@ pub(super) fn generate() -> TokenStream {
                     codec_id("encode"),
                     "mismatched request/reply method IDs"
                 );
-                let value = codec
+                let value = host
                     .iter()
                     .find_map(|i| match i {
                         Item::Const(c) if c.ident == id => Some(&c.expr),
                         _ => None,
                     })
                     .expect("mounted Wire ID");
-                assert_eq!(handler.sig.inputs.len(), 1);
-                let FnArg::Typed(input) = handler.sig.inputs.first().unwrap() else {
-                    panic!("expected a single mounted request");
-                };
-                let request = input.ty.clone();
-                let ReturnType::Type(_, ref reply) = handler.sig.output else {
-                    panic!("expected a mounted reply");
-                };
-                names.visit_type(&request);
-                names.visit_type(reply);
-                calls.push(
-                    quote!(add::<#request, #reply>(&mut contracts, #name, #mode, #value, #bytes, #request_budget, #reply_budget)?;),
-                );
+                    calls.push(
+                        quote!(add::<#request, #reply>(&mut contracts, #name, #mode, #value, #bytes, #request_budget, #reply_budget)?;),
+                    );
+                } else {
+                    let Expr::Path(decode) = option("decode") else {
+                        panic!("expected typed request decoder")
+                    };
+                    let Expr::Path(encode) = option("encode") else {
+                        panic!("expected typed response encoder")
+                    };
+                    let path = &decode.path;
+                    assert_eq!(path.segments.len(), 2);
+                    assert_eq!(path.segments.last().unwrap().ident, "decode_request");
+                    let method = &path.segments.first().unwrap().ident;
+                    let hook = encode.path.segments.last().unwrap();
+                    assert_eq!(hook.ident, "encode_response");
+                    let PathArguments::AngleBracketed(args) = &hook.arguments else {
+                        panic!("missing response contract")
+                    };
+                    assert_eq!(args.args.to_token_stream().to_string(), method.to_string());
+                    names.visit_type(&syn::parse_quote!(#method));
+                    calls.push(
+                        quote!(add_contract::<#method, #request, #reply>(&mut contracts, #name, #mode, #bytes)?;),
+                    );
+                }
                 break;
             }
         }
         let product = quote::format_ident!("{}", package.replace('-', "_"));
         let imports = names.imports(&host, &product);
-        let budget_imports = budgets.imports(codec, &product);
-        quote!(#label => { #budget_imports #imports use ic_wire as wire; #(#calls)* })
+        let budget_imports = budgets.imports(&host, &product);
+        let wire = (label == "reference-app").then(|| quote!(use ic_wire as wire;));
+        quote!(#label => { #budget_imports #imports #wire #(#calls)* })
     });
     quote! {
         fn mounted(label: &str) -> Result<Contracts, Box<dyn std::error::Error>> {

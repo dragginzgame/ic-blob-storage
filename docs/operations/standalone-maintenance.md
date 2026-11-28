@@ -24,7 +24,7 @@ Use an existing installation and independently reviewed inputs:
 | `installation.wire` | Original bounded Wire `blob_init` request with the expected immutable configuration |
 | `current.wasm` | Reviewed uncompressed artifact currently installed before this maintenance attempt |
 | `next.wasm` | Reviewed state-compatible replacement, uncompressed and at most 1 MiB; compatibility is the operator's responsibility |
-| State version | Expected durable record format, currently `1`; this is not the crate release version |
+| State version | Expected durable record format, currently `3` |
 | Request parent | Existing private operator-owned directory for new immutable operation records |
 | Custody root | One durable operator-controlled root shared by every manager of this target |
 | Checkout | Trusted Blob checkout, Makefile and execution environment; its admitted tooling snapshot must match the CLI binary |
@@ -57,7 +57,7 @@ blob_target=(
   --root-subnet 'REPLACE_ROOT_SUBNET_PRINCIPAL'
   --installation "$blob_inputs/installation.wire"
   --wasm "$blob_inputs/current.wasm"
-  --state-version 2
+  --state-version 3
 )
 blob_dispatch=(--custody "$blob_custody" --checkout "$blob_checkout")
 "$blob_cli" maintenance inspect "${blob_target[@]}"

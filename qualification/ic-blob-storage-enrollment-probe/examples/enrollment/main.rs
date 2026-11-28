@@ -87,7 +87,7 @@ fn run(command: Command) -> Result<Value, String> {
             }))
         }
         Command::Decode { method, reply_hex } => {
-            let result: Result<View, Error> = ic_blob_storage::protocol::frame::decode(
+            let result: Result<View, Error> = ic_blob_storage_wire::frame::decode(
                 &reply_hex.0,
                 wire::Encoding::Frame {
                     method: wire::method_id(method.name()),
@@ -102,7 +102,7 @@ fn run(command: Command) -> Result<Value, String> {
 }
 
 fn frame<T: Serialize>(method: &str, value: &T) -> Result<String, String> {
-    ic_blob_storage::protocol::frame::encode(
+    ic_blob_storage_wire::frame::encode(
         value,
         wire::Encoding::Frame {
             method: wire::method_id(method),

@@ -79,22 +79,16 @@ pub(crate) fn claim(input: &Input) -> Result<String, String> {
         return Err("certificate has no reply".into());
     };
     admit_reply(reply, &target.root)?;
-    let intent = ic_blob_storage::protocol::frame::encode(
+    let intent = ic_blob_storage::storage_codec::encode(
         &Claim {
-            version: 2,
+            version: 3,
             original_request: id.as_ref(),
             gateway: &input.gateway,
             project: &input.project,
             bucket: &input.bucket,
             certificate_sha256: hash,
         },
-        ic_wire::Encoding::Payload,
-        ic_wire::Limits {
-            bytes: 4096,
-            allocation: 32_768,
-            nodes: 2048,
-            depth: 16,
-        },
+        4096,
     )
     .map_err(|_| "cannot encode bounded transfer claim")?;
     // The directory is the irreversible claim. A partial publication still bars
