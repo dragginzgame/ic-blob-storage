@@ -30,7 +30,7 @@ The Wire 0.31.1 baseline adds the `fixed: true` annotations to the existing
 ordinary Serde layouts. Removing those annotations reproduces the previous
 eight manifests byte for byte.
 
-Wire 0.31.1 supplies the ordinary scalar, container and Platform principal
+Wire 0.32.0 reproduces all eight reviewed manifests byte for byte. It supplies the ordinary scalar, container and Platform principal
 projections. Four integer types used by these mounts still lack a native
 `Wire` implementation. The [supplier projections](../../crates/ic-blob-storage/src/projection.rs)
 cover their existing binary Serde representations.

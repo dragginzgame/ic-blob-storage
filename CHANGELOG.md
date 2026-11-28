@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.114.0]
+
+### ⚠️ Breaking changes
+
+- Rust hosts using Blob’s public Wire types must select IC Wire 0.32.
+
+### 📦 Dependencies
+
+- Select IC Wire and its derive crate at 0.32.0 in both Cargo workspaces.
+  The eight callable manifests match the previous release byte for byte.
+
 ## [0.113.2] - 2026-11-27
 
 ### ✨ Added

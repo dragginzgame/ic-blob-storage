@@ -30,7 +30,7 @@ The Canic adapter owns the report projection and qualification with its
 application catalog. To adopt Blob 0.113.0 it needs a Storage 0.80 lease and
 IC Logging 0.26's `Level` type for its recorder. See the
 [metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics).
-Rust hosts using Blob’s public codec types should select Wire 0.31
+Rust hosts using Blob’s public codec types should select Wire 0.32
 and match admission failures as `Error::Limit(kind)`.
 
 The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.8 in

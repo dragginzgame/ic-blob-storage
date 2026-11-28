@@ -30,7 +30,7 @@ ic-platform-protocol = { version = "0.3.11", default-features = false }
 ic-platform-runtime = { version = "0.23.27", default-features = false }
 ic-platform-types = { version = "0.21.6", default-features = false }
 ic-storage = "0.80.0"
-ic-wire = { version = "0.31.1", default-features = false }
+ic-wire = { version = "0.32.0", default-features = false }
 serde = { version = "1.0.229", features = ["derive"] }
 sha2 = { version = "0.11.1", default-features = false }
 tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread", "time", "process"] }
