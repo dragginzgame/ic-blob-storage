@@ -2,15 +2,15 @@
 
 ## Delivery and active work
 
-**0.114.0 is published** for all four product crates. Every crates.io download
+**0.115.0 is published** for all four product crates. Every crates.io download
 matched the prepared archive and registry checksum. See the
-[release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.114.0),
-`target/01140-release/registry-verified.json` and `target/publication/provenance-01140/`.
+[release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.115.0),
+`target/01150-release/registry-verified.json` and `target/publication/provenance-01150/`.
 
 All 17 local release stages passed, including an ordinary upgrade from the
-checksum-verified 0.113.2 standalone Wasm. See
-`target/validation/blob.X4Jm3z/proof.json` and the
-[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/46132579082).
+checksum-verified 0.114.0 standalone Wasm. See
+`target/validation/blob.SpkEzb/proof.json` and the
+[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/46143031457).
 
 ## Next action and provider boundary
 
@@ -30,10 +30,12 @@ The Canic adapter owns the report projection and qualification with its
 application catalog. To adopt Blob 0.113.0 it needs a Storage 0.80 lease and
 IC Logging 0.26's `Level` type for its recorder. See the
 [metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics).
-The pending cutover uses Wire 0.33 throughout both workspaces. Callers and
-embedders move together to sparse frames. Stable state and CLI custody use
+Blob 0.115.0 uses Wire 0.33.1 throughout both workspaces. Upgrade callers and
+embedders together to sparse frames. Stable state and CLI custody use
 format version 2 for new writes and accept retained version 1 records. See the
-[callable schema qualification](../../qualification/api/README.md).
+[callable schema qualification](../../qualification/api/README.md). The tagged
+reference application also reopened a draft written by the 0.114.0 source build
+in `target/01150-release/predecessor-app.log`.
 
 The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.8 in
 the next release-tooling maintenance pass with the two-lock metadata fixture.
