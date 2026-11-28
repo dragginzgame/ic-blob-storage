@@ -63,7 +63,7 @@ async fn query<T: Serialize, R: DeserializeOwned>(
     method: &str,
     input: &T,
 ) -> Result<R, String> {
-    let request = ic_wire::encode(
+    let request = ic_blob_storage::protocol::frame::encode(
         input,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id(method),
@@ -76,7 +76,7 @@ async fn query<T: Serialize, R: DeserializeOwned>(
         .query(canister, method, &request)
         .await
         .map_err(|error| format!("Application query failed: {:?}", error))?;
-    let result: Result<R, Error> = ic_wire::decode(
+    let result: Result<R, Error> = ic_blob_storage::protocol::frame::decode(
         &reply,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id(method),

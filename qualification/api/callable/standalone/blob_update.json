@@ -6,19 +6,21 @@
   "request":{"root":"Request","payload_limits":{"bytes":65525,"nodes":65536,"depth":32}},
   "response":{"root":"Reply","payload_limits":{"bytes":65525,"nodes":65536,"depth":32}},
   "schemas":{
-    "Reply":{"k":"ref","name":"Wire_Result_b14d5da54681e943"},
-    "Request":{"k":"ref","name":"Wire_CommandSchema_28c20603d7541e38"},
+    "Reply":{"k":"ref","name":"Wire_Message_ea008771111f7cfc"},
+    "Request":{"k":"ref","name":"Wire_Message_a06c14f8acd70c3f"},
+    "Wire_Message_a06c14f8acd70c3f":{"k":"extension-tuple","items":[{"k":"ref","name":"Wire_CommandSchema_28c20603d7541e38"}],"extensions":[],"projected":true},
     "Wire_CommandSchema_28c20603d7541e38":{"k":"enum","variants":[
       {"name":"Authorize","id":0,"value":{"k":"record","fields":[
       {"name":"request","value":{"k":"ref","name":"Wire_UploadRequestSchema_4f461cc72854b5e2"}},
       {"name":"chunks","value":{"k":"ref","name":"Wire_Vec_5e0c6805bf276bb7"}},
-      {"name":"headers","value":{"k":"ref","name":"Wire_Vec_66bff6c69d9e05c3"}}]}},
+      {"name":"headers","value":{"k":"ref","name":"Wire_Vec_66bff6c69d9e05c3"}}],"fixed":true}},
       {"name":"Register","id":1,"value":{"k":"ref","name":"Wire__u8__32__a6c3ffa4fc6f7348"}},
-      {"name":"Retain","id":2,"value":{"k":"tuple","items":[{"k":"ref","name":"Wire__u8__32__a6c3ffa4fc6f7348"},{"k":"ref","name":"Wire_Shape_50664f42da928cc5"}]}},
+      {"name":"Retain","id":2,"value":{"k":"tuple","items":[{"k":"ref","name":"Wire__u8__32__a6c3ffa4fc6f7348"},{"k":"ref","name":"Wire_Shape_50664f42da928cc5"}],"fixed":true}},
       {"name":"Release","id":3,"value":{"k":"ref","name":"Wire_Shape_50664f42da928cc5"}},
       {"name":"Expire","id":4,"value":{"k":"ref","name":"Wire_Shape_50664f42da928cc5"}},
       {"name":"Drain","id":5,"value":{"k":"ref","name":"Wire_u64_4d35d3193e8d66f2"}},
       {"name":"Activate","id":6,"value":{"k":"ref","name":"Wire_u64_4d35d3193e8d66f2"}}]},
+    "Wire_Message_ea008771111f7cfc":{"k":"extension-tuple","items":[{"k":"ref","name":"Wire_Result_b14d5da54681e943"}],"extensions":[],"projected":true},
     "Wire_Result_b14d5da54681e943":{"k":"result","ok":{"k":"ref","name":"Wire_OutcomeSchema_f62de3640dd0fffd"},"err":{"k":"ref","name":"Wire_ErrorSchema_fa9b59a87d2f18ce"}},
     "Wire_ErrorSchema_fa9b59a87d2f18ce":{"k":"enum","variants":[
       {"name":"Maintenance","id":0,"value":{"k":"unit"}},

@@ -16,6 +16,7 @@ ignored = ["toko-tooling"]
 crate-type = ["cdylib"]
 
 [dependencies]
+ic-blob-storage.workspace = true
 ic-platform-runtime = { workspace = true, features = ["entrypoint-macros"] }
 ic-storage.workspace = true
 ic-wire.workspace = true

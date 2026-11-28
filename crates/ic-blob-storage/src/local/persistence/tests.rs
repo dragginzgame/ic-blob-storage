@@ -92,7 +92,7 @@ fn management_inspection_is_authorized_read_only_and_survives_reopen() {
     let expected = ManagementView {
         installation: actor(8),
         configuration: input(),
-        state_version: 1,
+        state_version: 2,
         maintenance: Maintenance {
             attempt: 0,
             active: true,

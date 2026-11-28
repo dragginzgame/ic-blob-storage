@@ -43,11 +43,7 @@ fn project(mut dto: DeriveInput, supplier: bool) -> TokenStream {
     dto.ident = schema.clone();
     dto.attrs
         .retain(|a| !a.path().is_ident("derive") && !a.path().is_ident("doc"));
-    dto.attrs
-        .push(parse_quote!(#[derive(ic_wire::typescript::Wire)]));
-    if matches!(dto.data, Data::Struct(_)) {
-        dto.attrs.push(parse_quote!(#[wire(fixed)]));
-    }
+    dto.attrs.push(parse_quote!(#[derive(ic_wire::WireSchema)]));
     dto.attrs.push(parse_quote!(#[allow(dead_code, reason = "Wire reads the declaration; no projection values are constructed")]));
     dto.vis = parse_quote!(pub(crate));
     let fields: Vec<_> = match &mut dto.data {

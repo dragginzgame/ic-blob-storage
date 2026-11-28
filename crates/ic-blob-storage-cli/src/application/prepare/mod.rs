@@ -70,7 +70,7 @@ pub(crate) struct Input {
 }
 
 fn frame<T: Serialize>(method: &str, input: &T) -> Result<Vec<u8>, String> {
-    ic_wire::encode(
+    ic_blob_storage::protocol::frame::encode(
         input,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id(method),

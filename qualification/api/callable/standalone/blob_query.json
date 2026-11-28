@@ -6,8 +6,10 @@
   "request":{"root":"Request","payload_limits":{"bytes":65525,"nodes":65536,"depth":32}},
   "response":{"root":"Reply","payload_limits":{"bytes":65525,"nodes":65536,"depth":32}},
   "schemas":{
-    "Reply":{"k":"ref","name":"Wire_Result_f5366784857fd06d"},
-    "Request":{"k":"ref","name":"Wire_InspectionSchema_8c8ee2be090d293f"},
+    "Reply":{"k":"ref","name":"Wire_Message_1c6a9b7719325f0a"},
+    "Request":{"k":"ref","name":"Wire_Message_982cea252c7c5a98"},
+    "Wire_Message_1c6a9b7719325f0a":{"k":"extension-tuple","items":[{"k":"ref","name":"Wire_Result_f5366784857fd06d"}],"extensions":[],"projected":true},
+    "Wire_Message_982cea252c7c5a98":{"k":"extension-tuple","items":[{"k":"ref","name":"Wire_InspectionSchema_8c8ee2be090d293f"}],"extensions":[],"projected":true},
     "Wire_InspectionSchema_8c8ee2be090d293f":{"k":"enum","variants":[
       {"name":"Upload","id":0,"value":{"k":"ref","name":"Wire_Shape_50664f42da928cc5"}},
       {"name":"Reference","id":1,"value":{"k":"ref","name":"Wire_Shape_50664f42da928cc5"}},

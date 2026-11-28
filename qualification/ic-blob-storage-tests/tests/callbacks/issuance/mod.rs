@@ -49,7 +49,7 @@ async fn inspect(pic: &PocketIc, owner: CanisterId, request: Inspection) -> Obse
         .await
         .unwrap();
 
-    wire::decode::<Result<Observation, Error>>(
+    ic_blob_storage::protocol::frame::decode::<Result<Observation, Error>>(
         &bytes,
         wire::Encoding::Frame {
             method: wire::method_id("blob_query"),
@@ -84,7 +84,7 @@ async fn probe_report<T: serde::de::DeserializeOwned>(
         .await
         .unwrap();
 
-    wire::decode(
+    ic_blob_storage::protocol::frame::decode(
         &bytes,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -295,7 +295,7 @@ async fn signed_command(agent: &Client, owner: CanisterId, command: Command) -> 
         .update(&owner, "blob_update", &frame("blob_update", &command))
         .await
         .unwrap();
-    let result: Result<Outcome, Error> = wire::decode(
+    let result: Result<Outcome, Error> = ic_blob_storage::protocol::frame::decode(
         &bytes,
         wire::Encoding::Frame {
             method: wire::method_id("blob_update"),
@@ -662,7 +662,7 @@ async fn cancelled_authority_and_transport_failure_never_release_dispatch_custod
         )
         .await
         .unwrap();
-    let observed: Result<Observation, Error> = wire::decode(
+    let observed: Result<Observation, Error> = ic_blob_storage::protocol::frame::decode(
         &bytes,
         wire::Encoding::Frame {
             method: wire::method_id("blob_query"),
@@ -966,7 +966,7 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
         )
         .await
         .unwrap();
-    let observed: Result<Observation, Error> = wire::decode(
+    let observed: Result<Observation, Error> = ic_blob_storage::protocol::frame::decode(
         &bytes,
         wire::Encoding::Frame {
             method: wire::method_id("blob_query"),
@@ -1030,7 +1030,7 @@ async fn original_request_recovery_authenticates_history_after_release_without_r
         .await
         .unwrap();
     assert_eq!(
-        wire::decode::<Result<Observation, Error>>(
+        ic_blob_storage::protocol::frame::decode::<Result<Observation, Error>>(
             &after,
             wire::Encoding::Frame {
                 method: wire::method_id("blob_query"),
@@ -1197,7 +1197,7 @@ async fn owned_transfer_authenticates_proof_verifies_read_and_refuses_process_re
         .await
         .unwrap();
     assert!(
-        matches!(wire::decode::<Result<Observation, Error>>(&bytes, wire::Encoding::Frame { method: wire::method_id("blob_query"), direction: wire::Direction::Response }, RPC_LIMITS).unwrap().unwrap(),
+        matches!(ic_blob_storage::protocol::frame::decode::<Result<Observation, Error>>(&bytes, wire::Encoding::Frame { method: wire::method_id("blob_query"), direction: wire::Direction::Response }, RPC_LIMITS).unwrap().unwrap(),
         Observation::Usage(u) if u.live_bytes == 0 && u.unresolved_bytes == 3)
     );
     support::close(server, owned).await;

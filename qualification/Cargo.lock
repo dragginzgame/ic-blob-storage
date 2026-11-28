@@ -1027,6 +1027,7 @@ name = "ic-blob-storage-enrollment-probe"
 version = "0.100.8"
 dependencies = [
  "clap",
+ "ic-blob-storage",
  "ic-platform-protocol",
  "ic-platform-runtime",
  "ic-platform-types",
@@ -1053,6 +1054,7 @@ dependencies = [
 name = "ic-blob-storage-reply-probe"
 version = "0.100.5"
 dependencies = [
+ "ic-blob-storage",
  "ic-platform-runtime",
  "ic-storage",
  "ic-wire",
@@ -1289,9 +1291,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire"
-version = "0.32.0"
+version = "0.33.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "476f78d119b0ac0bb77eac71938d1fb9421596e76d9739c1a4dde26c80bedfd8"
+checksum = "fbe99a03e083340899084fef793e95c617803117c7067b86f5b372f876357cb8"
 dependencies = [
  "bytemuck",
  "ic-platform-types",
@@ -1304,9 +1306,9 @@ dependencies = [
 
 [[package]]
 name = "ic-wire-derive"
-version = "0.32.0"
+version = "0.33.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6534e552a7cd45dd87055be4906011fcefc711ad6c1d86677d488f02c8fda0c1"
+checksum = "a9d4c198e0163c12b23cb4ccfab660439fd895c6cbacd6a15c3f5e8f6595edfc"
 dependencies = [
  "proc-macro2",
  "quote",

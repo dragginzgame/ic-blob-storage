@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.115.0]
+
+### ⚠️ Breaking changes
+
+- Callable and lifecycle frames use the Wire 0.33 sparse message root. Update
+  Rust hosts, inter-canister callers, and generated clients together. Method
+  IDs and the fixed request and reply bodies carry forward.
+- Store new canister state and CLI custody records in sparse format version 2.
+  Recover version 1 records through a bounded Wire 0.33 reader. Earlier signed
+  management requests remain available for observation.
+### 📦 Dependencies
+
+- Both workspaces lock IC Wire and IC Wire Derive at 0.33.1.
+
 ## [0.114.0] - 2026-11-28
 
 ### ⚠️ Breaking changes

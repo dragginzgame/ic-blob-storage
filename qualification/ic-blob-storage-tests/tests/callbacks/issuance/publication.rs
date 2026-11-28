@@ -69,7 +69,7 @@ async fn app_update<T: Serialize>(
         .await
         .unwrap();
 
-    wire::decode(
+    ic_blob_storage::protocol::frame::decode(
         &bytes,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -86,7 +86,7 @@ async fn catalog(user: &Client, app: CanisterId) -> Vec<DraftView> {
         .await
         .unwrap();
 
-    wire::decode::<Result<Vec<DraftView>, AppError>>(
+    ic_blob_storage::protocol::frame::decode::<Result<Vec<DraftView>, AppError>>(
         &bytes,
         wire::Encoding::Frame {
             method: wire::method_id("app_catalog"),
@@ -336,7 +336,7 @@ async fn publication_cases(browser: bool) {
                     }
                     b'S' => {
                         let bytes = user.query(&app, "app_draft", &frame("app_draft", &draft.id)).await.unwrap();
-                        let saved = wire::decode::<Result<DraftView, AppError>>(&bytes, wire::Encoding::Frame { method: wire::method_id("app_draft"), direction: wire::Direction::Response }, RPC_LIMITS).unwrap().unwrap();
+                        let saved = ic_blob_storage::protocol::frame::decode::<Result<DraftView, AppError>>(&bytes, wire::Encoding::Frame { method: wire::method_id("app_draft"), direction: wire::Direction::Response }, RPC_LIMITS).unwrap().unwrap();
                         assert_eq!(saved.input, draft);
                         assert_eq!(saved.phase, Phase::Draft);
                         before_read = Some(support::blob_state(owned.client(), owner, app, &[signer(2), signer(3)]).await);
@@ -456,7 +456,7 @@ async fn publication_cases(browser: bool) {
             .query(&app, "app_draft", &frame("app_draft", &draft.id))
             .await
             .unwrap();
-        let observed = wire::decode::<Result<DraftView, AppError>>(
+        let observed = ic_blob_storage::protocol::frame::decode::<Result<DraftView, AppError>>(
             &bytes,
             wire::Encoding::Frame {
                 method: wire::method_id("app_draft"),
@@ -514,7 +514,7 @@ async fn publication_cases(browser: bool) {
             .await
             .unwrap();
         assert!(
-            matches!(wire::decode::<Result<Observation, Error>>(&bytes, wire::Encoding::Frame { method: wire::method_id("blob_query"), direction: wire::Direction::Response }, RPC_LIMITS).unwrap().unwrap(),
+            matches!(ic_blob_storage::protocol::frame::decode::<Result<Observation, Error>>(&bytes, wire::Encoding::Frame { method: wire::method_id("blob_query"), direction: wire::Direction::Response }, RPC_LIMITS).unwrap().unwrap(),
             Observation::Usage(u) if u.live_bytes == 0 && u.unresolved_bytes == draft.bytes)
         );
     }

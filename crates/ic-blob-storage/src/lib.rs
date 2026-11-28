@@ -33,8 +33,12 @@ mod inspection_tests {
 
     fn check<Request: Wire, Reply: Wire>() {
         let mut registry = SchemaRegistry::new(Default::default()).unwrap();
-        registry.register::<Request>("Request").unwrap();
-        registry.register::<Reply>("Reply").unwrap();
+        registry
+            .register::<ic_wire::Message<Request>>("Request")
+            .unwrap();
+        registry
+            .register::<ic_wire::Message<Reply>>("Reply")
+            .unwrap();
         registry.finish().unwrap();
     }
 

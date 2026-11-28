@@ -1,5 +1,7 @@
 //! Experimental owned Wire requests. No provider certificate endpoint is exported.
 
+pub mod frame;
+
 use ic_platform_types::Principal;
 use serde::{Deserialize, Serialize};
 

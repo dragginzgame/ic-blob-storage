@@ -43,7 +43,7 @@ fn caller(n: u8) -> CanisterId {
 }
 
 fn frame<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    wire::encode(
+    ic_blob_storage::protocol::frame::encode(
         value,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -109,7 +109,7 @@ async fn update(
         .await
         .unwrap();
 
-    wire::decode(
+    ic_blob_storage::protocol::frame::decode(
         &bytes,
         wire::Encoding::Frame {
             method: wire::method_id("blob_update"),
@@ -131,7 +131,7 @@ async fn usage(pic: &PocketIc, owner: CanisterId) -> Observation {
         .await
         .unwrap();
 
-    wire::decode::<Result<Observation, Error>>(
+    ic_blob_storage::protocol::frame::decode::<Result<Observation, Error>>(
         &bytes,
         wire::Encoding::Frame {
             method: wire::method_id("blob_query"),

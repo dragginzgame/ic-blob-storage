@@ -20,7 +20,7 @@ inspection = [
     "dep:quote",
     "dep:syn",
     "dep:serde_json",
-    "ic-wire/derive",
+    "ic-wire/typescript",
     "ic-wire/platform-types",
 ]
 logging = ["dep:ic-logging"]

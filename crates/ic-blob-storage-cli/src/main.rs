@@ -350,14 +350,26 @@ impl Context {
         if overview::is_special_principal(canister) {
             return Err("expected an installed Blob canister".into());
         }
-        let configuration: Installation = ic_wire::decode(
-            &read(&installation, RPC_LIMITS.bytes)?,
+        let installation_bytes = read(&installation, RPC_LIMITS.bytes)?;
+        let configuration: Installation = ic_blob_storage::protocol::frame::decode(
+            &installation_bytes,
             ic_wire::Encoding::Frame {
                 method: ic_wire::method_id("blob_init"),
                 direction: ic_wire::Direction::Request,
             },
             RPC_LIMITS,
         )
+        .or_else(|_| {
+            ic_blob_storage::protocol::frame::decode_retained(
+                &installation_bytes,
+                ic_wire::Encoding::Frame {
+                    method: ic_wire::method_id("blob_init"),
+                    direction: ic_wire::Direction::Request,
+                },
+                RPC_LIMITS,
+            )
+            .map_err(|_| ())
+        })
         .map_err(|_| "invalid expected installation frame")?;
         let pem = read(&identity, 16 * 1024)?;
         let wasm_hash = Sha256::digest(read(&wasm, 16 * 1024 * 1024)?).into();
@@ -385,7 +397,7 @@ impl Context {
 
     async fn inspect_artifact(&self, expected: &[u8; 32]) -> Result<ManagementView, String> {
         let target = self.canister;
-        let request = ic_wire::encode(
+        let request = ic_blob_storage::protocol::frame::encode(
             &(),
             ic_wire::Encoding::Frame {
                 method: ic_wire::method_id("blob_management"),
@@ -412,7 +424,7 @@ impl Context {
             .update(target, target, "blob_management", &request)
             .await
             .map_err(|_| "management inspection failed; no state-changing retry was attempted")?;
-        let result: Result<ManagementView, Error> = ic_wire::decode(
+        let result: Result<ManagementView, Error> = ic_blob_storage::protocol::frame::decode(
             &bytes,
             ic_wire::Encoding::Frame {
                 method: ic_wire::method_id("blob_management"),

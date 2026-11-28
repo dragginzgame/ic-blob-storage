@@ -11,7 +11,7 @@ pub(super) const QUERY: u64 = wire::method_id("blob_query");
 pub(super) const MANAGEMENT: u64 = wire::method_id("blob_management");
 
 pub(super) fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result<T, wire::Error> {
-    wire::decode(
+    ic_blob_storage::protocol::frame::decode(
         bytes,
         wire::Encoding::Frame {
             method: ID,
@@ -24,7 +24,7 @@ pub(super) fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result
 pub(super) fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, wire::Error> {
     // Trapping here rolls back the synchronous handler's mutation. Returning an
     // error frame/rejection instead would commit it. These endpoints never await.
-    wire::encode(
+    ic_blob_storage::protocol::frame::encode(
         &value,
         wire::Encoding::Frame {
             method: ID,

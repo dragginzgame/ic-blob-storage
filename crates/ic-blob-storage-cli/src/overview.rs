@@ -88,7 +88,7 @@ pub(crate) struct Input {
 }
 
 pub(crate) async fn run(input: Input) -> Result<String, String> {
-    let request = ic_wire::encode(
+    let request = ic_blob_storage::protocol::frame::encode(
         &Inspection::Overview(input.principal),
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id("blob_query"),
@@ -108,7 +108,7 @@ pub(crate) async fn run(input: Input) -> Result<String, String> {
     .await
     .map_err(|_| "Blob query timed out; storage is unknown")?
     .map_err(|error| format!("Blob query failed: {:?}", error))?;
-    let result: Result<Observation, Error> = ic_wire::decode(
+    let result: Result<Observation, Error> = ic_blob_storage::protocol::frame::decode(
         &reply,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id("blob_query"),

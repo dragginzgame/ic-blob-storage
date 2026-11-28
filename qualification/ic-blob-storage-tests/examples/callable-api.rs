@@ -76,14 +76,14 @@ fn add<I: projection::Project, O: projection::Project>(
     let mut registry =
         SchemaRegistry::new(Default::default()).map_err(|e| format!("{name}: {e:?}"))?;
     registry
-        .register::<I::Schema>("Request")
-        .and_then(|()| registry.register::<O::Schema>("Reply"))
+        .register::<ic_wire::Message<I::Schema>>("Request")
+        .and_then(|()| registry.register::<ic_wire::Message<O::Schema>>("Reply"))
         .map_err(|e| format!("{name}: {e:?}"))?;
     let graph = registry.finish().map_err(|e| format!("{name}: {e:?}"))?;
     let payload_limits =
         |limits: ic_wire::Limits, bytes: usize| -> Result<PayloadLimits, Box<dyn Error>> {
-            // A framed unit has an empty payload, so its length is the Wire header size.
-            let header = ic_wire::encode(
+            // Subtract the empty sparse block to isolate the frame header.
+            let header = ic_blob_storage::protocol::frame::encode(
                 &(),
                 ic_wire::Encoding::Frame {
                     method: id,
@@ -91,7 +91,8 @@ fn add<I: projection::Project, O: projection::Project>(
                 },
                 limits,
             )?
-            .len();
+            .len()
+                - 1;
             Ok(PayloadLimits {
                 bytes: bytes.checked_sub(header).ok_or("frame exceeds limit")? as u64,
                 nodes: limits.nodes as u64,

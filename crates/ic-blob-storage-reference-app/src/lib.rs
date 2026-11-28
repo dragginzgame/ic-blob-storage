@@ -266,7 +266,7 @@ mod host {
         request: &T,
     ) -> Result<R, Error> {
         let blob = STATE.with_borrow(|state| state.as_ref().unwrap().blob());
-        let bytes = wire::encode(
+        let bytes = ic_blob_storage::protocol::frame::encode(
             request,
             wire::Encoding::Frame {
                 method: wire::method_id(method),
@@ -294,7 +294,7 @@ mod host {
             return Err(Error::Uncertain);
         };
 
-        wire::decode(
+        ic_blob_storage::protocol::frame::decode(
             &reply,
             wire::Encoding::Frame {
                 method: wire::method_id(method),
@@ -319,7 +319,7 @@ mod host {
     }
 
     fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result<T, wire::Error> {
-        wire::decode(
+        ic_blob_storage::protocol::frame::decode(
             bytes,
             wire::Encoding::Frame {
                 method: ID,
@@ -330,7 +330,7 @@ mod host {
     }
 
     fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, wire::Error> {
-        wire::encode(
+        ic_blob_storage::protocol::frame::encode(
             &value,
             wire::Encoding::Frame {
                 method: ID,

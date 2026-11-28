@@ -13,15 +13,16 @@ v0.108.0 product declarations with Wire 0.27.1. For an intended API change,
 inspect the candidate directory printed by the shared comparison runner, review
 the affected manifests against the mount and copy the accepted files into the
 baseline. The installed endpoint suite also checks request and reply bytes
-captured with the 0.107.1 codecs.
+captured with the 0.107.1 codecs and verifies that the sparse endpoint refuses
+the old positional request.
 
 ## How qualification obtains the schemas
 
 The [qualification build script](../ic-blob-storage-tests/build/contracts/mod.rs)
 reads the Platform mounts, their Wire codec IDs and budgets, and the Serde
 declarations used by their handlers. It preserves field order, variant order
-and Serde attributes for Wire's derive and marks projected structs and tuples
-as fixed. The [exporter](../ic-blob-storage-tests/examples/callable-api.rs)
+and Serde attributes for `WireSchema`, which describes the fixed Serde body.
+Each request and reply is registered under a Wire 0.33 `Message` root. The [exporter](../ic-blob-storage-tests/examples/callable-api.rs)
 uses Wire's validated registry and format-1 manifest writer. Wire budgets in
 these files exclude the frame header. The native allocation budget is outside
 Wire's manifest format.
@@ -30,8 +31,9 @@ The Wire 0.31.1 baseline adds the `fixed: true` annotations to the existing
 ordinary Serde layouts. Removing those annotations reproduces the previous
 eight manifests byte for byte.
 
-Wire 0.32.0 reproduces all eight reviewed manifests byte for byte. It supplies the ordinary scalar, container and Platform principal
-projections. Four integer types used by these mounts still lack a native
+Wire 0.33 supplies ordinary scalar, container and Platform principal
+projections. Method IDs, payload limits and body layouts carry forward from
+Wire 0.32.0. Four integer types used by these mounts still lack a native
 `Wire` implementation. The [supplier projections](../../crates/ic-blob-storage/src/projection.rs)
 cover their existing binary Serde representations.
 

@@ -29,7 +29,7 @@ use std::{
 const LIMITS: ic_wire::Limits = ic_wire::Limits {
     bytes: 16 * 1024,
     allocation: 128 * 1024,
-    nodes: 1024,
+    nodes: 2048,
     depth: 16,
 };
 
@@ -83,12 +83,17 @@ impl<'a> Operation<'a> {
         }
     }
 
-    fn argument(self, context: &Context, attempt: u64) -> Result<Vec<u8>, String> {
+    fn argument(
+        self,
+        context: &Context,
+        attempt: u64,
+        positional: bool,
+    ) -> Result<Vec<u8>, String> {
         match self {
-            Self::Drain => argument(&Command::Drain(attempt)),
-            Self::Activate { .. } => argument(&Command::Activate(attempt)),
+            Self::Drain => argument(&Command::Drain(attempt), positional),
+            Self::Activate { .. } => argument(&Command::Activate(attempt), positional),
             Self::Stop | Self::Start { .. } => stop::argument(context),
-            Self::Upgrade { wasm, .. } => upgrade::argument(context, wasm),
+            Self::Upgrade { wasm, .. } => upgrade::argument(context, wasm, positional),
         }
     }
 
@@ -234,8 +239,20 @@ struct Intent {
     packet_hash: [u8; 32],
 }
 
-fn argument(command: &Command) -> Result<Vec<u8>, String> {
-    ic_wire::encode(
+fn argument(command: &Command, positional: bool) -> Result<Vec<u8>, String> {
+    if positional {
+        return ic_blob_storage::protocol::frame::encode_retained(
+            command,
+            ic_wire::Encoding::Frame {
+                method: ic_wire::method_id("blob_update"),
+                direction: ic_wire::Direction::Request,
+            },
+            RPC_LIMITS,
+        )
+        .map_err(|_| "cannot encode original positional admission command".into());
+    }
+
+    ic_blob_storage::protocol::frame::encode(
         command,
         ic_wire::Encoding::Frame {
             method: ic_wire::method_id("blob_update"),
@@ -258,10 +275,10 @@ pub(super) async fn prepare(
         recipient,
         context.canister,
         operation.method(),
-        &operation.argument(context, attempt)?,
+        &operation.argument(context, attempt, false)?,
     )?;
     let intent = Intent {
-        version: 1,
+        version: 2,
         url: context.url.clone(),
         canister: context.canister,
         configuration: context.configuration,
@@ -271,8 +288,9 @@ pub(super) async fn prepare(
         attempt,
         packet_hash: Sha256::digest(signed.envelope_bytes()).into(),
     };
-    let bytes = ic_wire::encode(&intent, ic_wire::Encoding::Payload, LIMITS)
-        .map_err(|_| "cannot encode management intent")?;
+    let bytes =
+        ic_blob_storage::protocol::frame::encode(&intent, ic_wire::Encoding::Payload, LIMITS)
+            .map_err(|_| "cannot encode management intent")?;
     if signed.envelope_bytes().len() > operation.packet_limit() {
         return Err("signed management request exceeds record limit".into());
     }
@@ -300,6 +318,7 @@ pub(super) async fn prepare(
 }
 
 struct Original {
+    positional: bool,
     attempt: u64,
     packet: Vec<u8>,
     id: [u8; 32],
@@ -308,15 +327,14 @@ struct Original {
 
 fn load(context: &Context, directory: &Path, operation: Operation<'_>) -> Result<Original, String> {
     let held = files::directory(directory, false)?;
-    let intent: Intent = ic_wire::decode(
+    let intent: Intent = ic_blob_storage::protocol::frame::decode_record(
         &files::read_at(&held, "intent.wire".as_ref(), LIMITS.bytes)?,
-        ic_wire::Encoding::Payload,
         LIMITS,
     )
     .map_err(|_| "invalid management intent")?;
     let packet = files::read_at(&held, "request.cbor".as_ref(), operation.packet_limit())?;
     let hash: [u8; 32] = Sha256::digest(&packet).into();
-    if intent.version != 1
+    if !matches!(intent.version, 1 | 2)
         || intent.url != context.url
         || intent.canister != context.canister
         || intent.configuration != context.configuration
@@ -354,7 +372,7 @@ fn load(context: &Context, directory: &Path, operation: Operation<'_>) -> Result
     if *sender != context.configuration.manager
         || *canister_id != operation.recipient(context)
         || method_name != operation.method()
-        || *arg != operation.argument(context, intent.attempt)?
+        || *arg != operation.argument(context, intent.attempt, intent.version == 1)?
         || sender_info.is_some()
     {
         return Err("signed management fields do not match intent".into());
@@ -366,6 +384,7 @@ fn load(context: &Context, directory: &Path, operation: Operation<'_>) -> Result
         .map_err(|_| "cannot derive original request ID")?;
 
     Ok(Original {
+        positional: intent.version == 1,
         attempt: intent.attempt,
         packet,
         id,
@@ -381,7 +400,15 @@ pub(super) async fn observe(
     let original = load(context, directory, operation)?;
     let status = request_status(context, &original).await?;
     if let Operation::Activate { wasm, .. } = operation {
-        return activate::observe(context, &original.id, original.attempt, status, wasm).await;
+        return activate::observe(
+            context,
+            &original.id,
+            original.attempt,
+            status,
+            wasm,
+            original.positional,
+        )
+        .await;
     }
     if let Operation::Start { wasm, .. } = operation {
         return start::observe(context, &original.id, original.attempt, status, wasm).await;
@@ -394,7 +421,13 @@ pub(super) async fn observe(
     }
 
     match status {
-        RequestStatus::Replied(reply) => acknowledge(&original.id, original.attempt, &reply, false),
+        RequestStatus::Replied(reply) => acknowledge(
+            &original.id,
+            original.attempt,
+            &reply,
+            false,
+            original.positional,
+        ),
         RequestStatus::Rejected { .. } => {
             Err("original drain was rejected; no retry authorized".into())
         }
@@ -418,17 +451,36 @@ async fn request_status(context: &Context, original: &Original) -> Result<Reques
     Ok(context.client.observe(&prepared).await?.status().clone())
 }
 
-fn acknowledge(id: &[u8; 32], attempt: u64, bytes: &[u8], active: bool) -> Result<String, String> {
+fn acknowledge(
+    id: &[u8; 32],
+    attempt: u64,
+    bytes: &[u8],
+    active: bool,
+    positional: bool,
+) -> Result<String, String> {
     let operation = if active { "activation" } else { "drain" };
-    let result: Result<Outcome, Error> = ic_wire::decode(
-        bytes,
-        ic_wire::Encoding::Frame {
-            method: ic_wire::method_id("blob_update"),
-            direction: ic_wire::Direction::Response,
-        },
-        RPC_LIMITS,
-    )
-    .map_err(|_| format!("invalid original {operation} reply"))?;
+    let result: Result<Outcome, Error> = if positional {
+        ic_blob_storage::protocol::frame::decode_retained(
+            bytes,
+            ic_wire::Encoding::Frame {
+                method: ic_wire::method_id("blob_update"),
+                direction: ic_wire::Direction::Response,
+            },
+            RPC_LIMITS,
+        )
+        .map_err(|_| ())
+    } else {
+        ic_blob_storage::protocol::frame::decode(
+            bytes,
+            ic_wire::Encoding::Frame {
+                method: ic_wire::method_id("blob_update"),
+                direction: ic_wire::Direction::Response,
+            },
+            RPC_LIMITS,
+        )
+        .map_err(|_| ())
+    }
+    .map_err(|()| format!("invalid original {operation} reply"))?;
 
     match result {
         Ok(Outcome::Maintenance(state)) if state.attempt == attempt && state.active == active => {
@@ -524,6 +576,11 @@ pub(super) async fn dispatch(
             "dispatch already claimed; observe the original request, never resubmit".into(),
         );
     }
+    if original.positional {
+        return Err(
+            "positional management claim is observation-only after the Wire cutover".into(),
+        );
+    }
     operation.admit_custody(context, original.attempt, &held)?;
     operation.admit(context, original.attempt).await?;
     unexpired(original.expires_at)?;
@@ -552,14 +609,14 @@ pub(super) async fn dispatch(
                 unreachable!()
             };
             match operation {
-                Operation::Drain => acknowledge(&original.id, original.attempt, bytes, false),
+                Operation::Drain => acknowledge(&original.id, original.attempt, bytes, false, original.positional),
                 Operation::Stop => stop::acknowledge(&original.id, bytes),
                 Operation::Upgrade { .. } => upgrade::acknowledge(&original.id, bytes),
                 Operation::Start { wasm, .. } => {
                     start::acknowledge(context, &original.id, original.attempt, bytes, wasm).await
                 }
                 Operation::Activate { wasm, .. } => {
-                    activate::acknowledge(context, &original.id, original.attempt, bytes, wasm)
+                    activate::acknowledge(context, &original.id, original.attempt, bytes, wasm, false)
                         .await
                 }
             }

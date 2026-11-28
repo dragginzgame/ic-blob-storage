@@ -113,8 +113,9 @@ Installed tests select Testkit 0.110.5 and Host Process 0.81.5.
 See the [integration boundary](docs/design/application-boundary.md#types-0212-integration).
 
 The workspace has four product crates under `crates/`, Rust 1.100.0 / edition 2024
-and published Toko Tooling 0.46.9. Both workspaces use IC Wire 0.32.0. Rust hosts
-that pass Blob’s `RPC_LIMITS` to Wire should also select Wire 0.32. GitHub development uses the `main` branch of
+and published Toko Tooling 0.46.9. Both workspaces lock IC Wire 0.33.1 for callable frames. Rust hosts use
+`ic_blob_storage::protocol::frame` with Wire 0.33 and regenerate clients for the
+sparse message roots. GitHub development uses the `main` branch of
 `dragginzgame/ic-blob-storage`. Releases use the shared Toko workflow; there is no production deployment configuration.
 
 The [selected crate layout](docs/design/ic-blob-storage-design.md#selected-crate-layout)
@@ -154,7 +155,8 @@ separate aggregate native gate; installed testing is an explicit command.
 `make test-capacity` measures full-history resource use and verifies cleanup and
 upgrade at capacity; see the [results and limits](docs/design/standalone-capacity.md).
 Set `BLOB_PREVIOUS_WASM=/absolute/path/to/previous.wasm` for an upgrade witness from
-a compatible predecessor. The [storage qualification](docs/design/stable-storage.md#qualification)
+a compatible predecessor. Set `BLOB_PREVIOUS_WASM_POSITIONAL=1` for a Wire 0.32
+predecessor. The [storage qualification](docs/design/stable-storage.md#qualification)
 covers refusal of incompatible predecessors. `make test-endpoints` checks raw frames on the actual host and
 uses a separate, small qualification canister to force reply-encoding failure
 after a stable write. The latter tests rollback without a production fault mode.

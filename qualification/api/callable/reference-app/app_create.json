@@ -6,8 +6,10 @@
   "request":{"root":"Request","payload_limits":{"bytes":65525,"nodes":65536,"depth":32}},
   "response":{"root":"Reply","payload_limits":{"bytes":65525,"nodes":65536,"depth":32}},
   "schemas":{
-    "Reply":{"k":"ref","name":"Wire_Result_6ce6118437822484"},
-    "Request":{"k":"ref","name":"Wire_DraftInputSchema_7c0a85a6e3a268da"},
+    "Reply":{"k":"ref","name":"Wire_Message_9788fbcbf6ee1dbb"},
+    "Request":{"k":"ref","name":"Wire_Message_d9103c6d8db04f1f"},
+    "Wire_Message_9788fbcbf6ee1dbb":{"k":"extension-tuple","items":[{"k":"ref","name":"Wire_Result_6ce6118437822484"}],"extensions":[],"projected":true},
+    "Wire_Message_d9103c6d8db04f1f":{"k":"extension-tuple","items":[{"k":"ref","name":"Wire_DraftInputSchema_7c0a85a6e3a268da"}],"extensions":[],"projected":true},
     "Wire_DraftInputSchema_7c0a85a6e3a268da":{"k":"record","fields":[
       {"name":"id","value":{"k":"ref","name":"Wire_Shape_50664f42da928cc5"}},
       {"name":"asset","value":{"k":"ref","name":"Wire_String_76e26e9121e02e46"}},

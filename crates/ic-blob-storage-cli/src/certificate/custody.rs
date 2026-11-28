@@ -19,8 +19,8 @@ use std::{
 
 const LIMITS: ic_wire::Limits = ic_wire::Limits {
     bytes: 8192,
-    allocation: 32_768,
-    nodes: 1024,
+    allocation: 65_536,
+    nodes: 2048,
     depth: 16,
 };
 
@@ -74,7 +74,7 @@ pub(crate) fn prepare(input: &Input) -> Result<String, String> {
         return Err("signed request exceeds custody budget".into());
     }
     let intent = Intent {
-        version: 1,
+        version: 2,
         url: input.target.network.url.to_string(),
         canister: input.target.canister,
         uploader: input.target.uploader,
@@ -82,8 +82,9 @@ pub(crate) fn prepare(input: &Input) -> Result<String, String> {
         root_key_hash: Sha256::digest(&agent.root).into(),
         packet_hash: Sha256::digest(signed.envelope_bytes()).into(),
     };
-    let bytes = ic_wire::encode(&intent, ic_wire::Encoding::Payload, LIMITS)
-        .map_err(|_| "cannot encode certificate intent")?;
+    let bytes =
+        ic_blob_storage::protocol::frame::encode(&intent, ic_wire::Encoding::Payload, LIMITS)
+            .map_err(|_| "cannot encode certificate intent")?;
     let directory = input.directory(&agent);
     let parent = files::directory(directory.parent().ok_or("missing custody parent")?, true)
         .map_err(|_| "cannot admit certificate custody")?;
@@ -107,14 +108,13 @@ pub(super) fn load(
     let target = &input.target;
     let directory = input.directory(agent);
     let held = files::directory(&directory, false)?;
-    let intent: Intent = ic_wire::decode(
+    let intent: Intent = ic_blob_storage::protocol::frame::decode_record(
         &files::read_at(&held, "intent.wire".as_ref(), LIMITS.bytes)?,
-        ic_wire::Encoding::Payload,
         LIMITS,
     )
     .map_err(|_| "invalid retained certificate intent")?;
     let packet = files::read_at(&held, "request.cbor".as_ref(), PACKET_LIMIT)?;
-    if intent.version != 1
+    if !matches!(intent.version, 1 | 2)
         || intent.url != target.network.url.as_str()
         || intent.canister != target.canister
         || intent.uploader != target.uploader

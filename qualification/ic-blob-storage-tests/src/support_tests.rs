@@ -78,7 +78,7 @@ pub async fn blob_state(
     for inspection in std::iter::once(Inspection::Usage)
         .chain(uploaders.iter().copied().map(Inspection::Overview))
     {
-        let request = ic_wire::encode(
+        let request = ic_blob_storage::protocol::frame::encode(
             &inspection,
             ic_wire::Encoding::Frame {
                 method: ic_wire::method_id("blob_query"),
@@ -91,7 +91,7 @@ pub async fn blob_state(
             .query_call(target, application, "blob_query", request)
             .await
             .unwrap();
-        let value: Result<Observation, Error> = ic_wire::decode(
+        let value: Result<Observation, Error> = ic_blob_storage::protocol::frame::decode(
             &reply,
             ic_wire::Encoding::Frame {
                 method: ic_wire::method_id("blob_query"),

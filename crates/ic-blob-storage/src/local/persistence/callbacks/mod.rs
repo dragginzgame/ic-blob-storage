@@ -26,7 +26,7 @@ pub const MAX_ROOTS: usize = MAX_RECORDS;
 const LIMITS: ic_wire::Limits = ic_wire::Limits {
     bytes: 16_384,
     allocation: 262_144,
-    nodes: 16_384,
+    nodes: 32_768,
     depth: 16,
 };
 
@@ -74,12 +74,12 @@ impl<M: Memory> Callbacks<M> {
             return Err(OpenError::Configuration);
         }
         let record = Record {
-            version: 1,
+            version: 2,
             installation: service.installation,
             gateway,
             acknowledged: vec![],
         };
-        let bytes = ic_wire::encode(&record, ic_wire::Encoding::Payload, LIMITS)
+        let bytes = crate::protocol::frame::encode(&record, ic_wire::Encoding::Payload, LIMITS)
             .map_err(OpenError::Codec)?;
         let cell = create_cell(memory, bytes)?;
 
@@ -98,10 +98,10 @@ impl<M: Memory> Callbacks<M> {
     /// Backing IO failure must trap the entire IC execution.
     pub fn open(service: Service<M>, memory: RuntimeMemory<M>) -> Result<Self, OpenError> {
         let cell = load_cell(memory, LIMITS.bytes)?;
-        let record: Record = ic_wire::decode(cell.get(), ic_wire::Encoding::Payload, LIMITS)
-            .map_err(OpenError::Codec)?;
+        let mut record: Record =
+            crate::protocol::frame::decode_record(cell.get(), LIMITS).map_err(OpenError::Codec)?;
         valid_principal(record.gateway).map_err(|_| OpenError::Record)?;
-        if record.version != 1
+        if !matches!(record.version, 1 | 2)
             || record.installation != service.installation
             || record.gateway == service.installation
             || record.acknowledged.len() > MAX_RECORDS
@@ -117,6 +117,7 @@ impl<M: Memory> Callbacks<M> {
             return Err(OpenError::Record);
         }
 
+        record.version = 2;
         Ok(Self {
             service,
             record,
@@ -206,7 +207,7 @@ impl<M: Memory> Callbacks<M> {
         self.record.acknowledged.sort_unstable();
         self.record.acknowledged.dedup();
         self.cell.set(
-            ic_wire::encode(&self.record, ic_wire::Encoding::Payload, LIMITS)
+            crate::protocol::frame::encode(&self.record, ic_wire::Encoding::Payload, LIMITS)
                 .expect("bounded callback receipts"),
         );
 

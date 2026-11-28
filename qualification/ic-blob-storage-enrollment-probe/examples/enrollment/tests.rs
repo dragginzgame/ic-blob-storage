@@ -14,7 +14,7 @@ fn offline_frames_match_host_types_and_refuse_wrong_direction() {
     })
     .unwrap();
     let init = unhex(prepared["init_hex"].as_str().unwrap()).unwrap();
-    let decoded: Installation = wire::decode(
+    let decoded: Installation = ic_blob_storage::protocol::frame::decode(
         &init,
         wire::Encoding::Frame {
             method: wire::method_id("enrollment_init"),
@@ -33,7 +33,7 @@ fn offline_frames_match_host_types_and_refuse_wrong_direction() {
         .is_err()
     );
     let denied = Err::<View, _>(Error::Denied);
-    let bytes = wire::encode(
+    let bytes = ic_blob_storage::protocol::frame::encode(
         &denied,
         wire::Encoding::Frame {
             method: wire::method_id("enrollment_inspect"),

@@ -30,9 +30,10 @@ The Canic adapter owns the report projection and qualification with its
 application catalog. To adopt Blob 0.113.0 it needs a Storage 0.80 lease and
 IC Logging 0.26's `Level` type for its recorder. See the
 [metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics).
-Rust hosts using Blob’s public codec types should select Wire 0.32
-and match admission failures as `Error::Limit(kind)`. The eight callable Wire
-manifests match the 0.113.2 baseline byte for byte.
+The pending cutover uses Wire 0.33 throughout both workspaces. Callers and
+embedders move together to sparse frames. Stable state and CLI custody use
+format version 2 for new writes and accept retained version 1 records. See the
+[callable schema qualification](../../qualification/api/README.md).
 
 The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.8 in
 the next release-tooling maintenance pass with the two-lock metadata fixture.

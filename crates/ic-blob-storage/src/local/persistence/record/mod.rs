@@ -15,7 +15,7 @@ use crate::{
     references::{ObjectReferences, ReferenceId, ReferenceState, RetentionState},
 };
 
-pub(super) const STATE_VERSION: u32 = 1;
+pub(super) const STATE_VERSION: u32 = 2;
 
 pub(super) const STATE_LIMITS: ic_wire::Limits = ic_wire::Limits {
     bytes: 65_536,
@@ -67,12 +67,13 @@ impl Record {
     }
 
     pub fn encode(&self) -> Result<Vec<u8>, OpenError> {
-        ic_wire::encode(self, ic_wire::Encoding::Payload, STATE_LIMITS).map_err(OpenError::Codec)
+        crate::protocol::frame::encode(self, ic_wire::Encoding::Payload, STATE_LIMITS)
+            .map_err(OpenError::Codec)
     }
 
     pub fn restore(self, installation: Principal) -> Result<LocalModel, OpenError> {
         validate(self.input)?;
-        if self.version != STATE_VERSION
+        if !matches!(self.version, 1 | STATE_VERSION)
             || self.installation != installation
             || (self.maintenance.attempt == 0 && !self.maintenance.active)
             || self.uploads.len() > self.input.limits.uploads.get()

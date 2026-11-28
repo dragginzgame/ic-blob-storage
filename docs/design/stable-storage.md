@@ -11,6 +11,13 @@ The standalone host and embedded applications use the published ic-storage 0.80.
 
 Each owner writes one bounded Wire payload to a governed stable cell. Reopening checks the cell envelope and declared length before allocating the payload, then validates the record and installation binding. Blob reconstructs reference counts, indexes and declared-byte usage from the retained records. The finite history limit makes rewriting and validating the complete record practical. Final release preserves historical identities and unresolved exposure.
 
+New records use a sparse Wire 0.33 payload with record version 2. The same
+decoder reads a version 1 positional record by supplying its empty extension
+block under the input bounds. Reopening validates the original record and leaves
+the cell intact. The next mutation persists version 2. Once a cell has written
+version 2, reverting to the predecessor Wasm requires a separately planned
+rollback that accounts for intervening operations.
+
 ## Installation and upgrade
 
 Use `make build-host` or `make build-reference-app`. The selected Cargo Wasm artifact is installable directly.

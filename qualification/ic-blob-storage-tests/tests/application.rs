@@ -18,7 +18,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use std::{path::Path, time::Duration};
 
 fn encode<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    wire::encode(
+    ic_blob_storage::protocol::frame::encode(
         value,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -30,7 +30,7 @@ fn encode<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
 }
 
 fn decode<R: DeserializeOwned>(method: &str, bytes: &[u8]) -> R {
-    wire::decode(
+    ic_blob_storage::protocol::frame::decode(
         bytes,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -221,6 +221,12 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
     let installed_app = std::env::var_os("BLOB_PREVIOUS_REFERENCE_APP")
         .map(|path| std::fs::read(path).unwrap())
         .unwrap_or_else(|| wasm.clone());
+    if std::env::var_os("BLOB_PREVIOUS_REFERENCE_APP_POSITIONAL").is_some() {
+        assert!(std::env::var_os("BLOB_PREVIOUS_REFERENCE_APP").is_some());
+        positional_catalog_upgrade(pic, app, blob, alice, installed_app, wasm).await;
+        support::close(server, owned).await;
+        return;
+    }
     pic.install_canister(app, installed_app, app_init, None)
         .await;
 
@@ -615,4 +621,74 @@ async fn catalog_cancellation_and_recovery_use_original_references() {
         Phase::Cleaned
     );
     support::close(server, owned).await;
+}
+
+// A positional app cannot call a sparse Blob. Seed a durable draft before the
+// unavailable cross-canister authorization, then reopen it with the sparse app.
+async fn positional_catalog_upgrade(
+    pic: &PocketIc,
+    app: CanisterId,
+    blob: CanisterId,
+    alice: CanisterId,
+    predecessor: Vec<u8>,
+    replacement: Vec<u8>,
+) {
+    let limits = ic_wire::Limits {
+        bytes: RPC_LIMITS.bytes,
+        allocation: RPC_LIMITS.allocation,
+        nodes: RPC_LIMITS.nodes,
+        depth: RPC_LIMITS.depth,
+    };
+    let request = |method| ic_wire::Encoding::Frame {
+        method: ic_wire::method_id(method),
+        direction: ic_wire::Direction::Request,
+    };
+    let installation = Installation {
+        blob: Principal::from_slice(blob.as_slice()),
+        users: vec![Principal::from_slice(alice.as_slice())],
+    };
+    pic.install_canister(
+        app,
+        predecessor,
+        ic_blob_storage::protocol::frame::encode_retained(
+            &installation,
+            request("app_init"),
+            limits,
+        )
+        .unwrap(),
+        None,
+    )
+    .await;
+    pic.stop_canister(blob, None).await.unwrap();
+    let seed = input(1, "retained", 7);
+    let reply = pic
+        .update_call(
+            app,
+            alice,
+            "app_create",
+            ic_blob_storage::protocol::frame::encode_retained(&seed, request("app_create"), limits)
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    let result: Result<DraftView, Error> = ic_blob_storage::protocol::frame::decode_retained(
+        &reply,
+        ic_wire::Encoding::Frame {
+            method: ic_wire::method_id("app_create"),
+            direction: ic_wire::Direction::Response,
+        },
+        limits,
+    )
+    .unwrap();
+    assert_eq!(result, Err(Error::Uncertain));
+    let stable = pic.get_stable_memory(app).await;
+    pic.stop_canister(app, None).await.unwrap();
+    pic.upgrade_canister(app, replacement, encode("app_post_upgrade", &()), None)
+        .await
+        .unwrap();
+    assert_eq!(pic.get_stable_memory(app).await, stable);
+    pic.start_canister(app, None).await.unwrap();
+    let reopened = draft(pic, app, alice, &seed).await;
+    assert_eq!(reopened.phase, Phase::Draft);
+    assert_eq!(reopened.input, seed);
 }

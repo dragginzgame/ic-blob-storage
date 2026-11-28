@@ -210,9 +210,10 @@ fn reopen_refuses_foreign_inconsistent_and_unordered_receipts_without_repair() {
             6 => callbacks.record.version = 0,
             _ => unreachable!(),
         }
-        callbacks
-            .cell
-            .set(ic_wire::encode(&callbacks.record, ic_wire::Encoding::Payload, LIMITS).unwrap());
+        callbacks.cell.set(
+            crate::protocol::frame::encode(&callbacks.record, ic_wire::Encoding::Payload, LIMITS)
+                .unwrap(),
+        );
         drop(callbacks);
         let before = backing.borrow().clone();
         assert!(

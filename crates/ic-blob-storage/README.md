@@ -14,11 +14,15 @@ the granted `RuntimeMemory` lease to `Service::create` or `Service::open`. This 
 
 ## Native Wire inspection
 
-Enable `ic-blob-storage/inspection` in the native inspector. Canic can then inspect
-the mounted methods with its default schema registry. The supplier implements Wire
+Mount the callable endpoints with `protocol::frame::decode` and
+`protocol::frame::encode`. The Wire 0.33 contract has a sparse message root
+around each fixed Serde request or reply body. Upgrade callers and hosts
+together, including inter-canister callers. Older positional requests are refused.
+
+Enable `ic-blob-storage/inspection` in the native inspector. The supplier implements Wire
 for `protocol::Command`, `Inspection`, `Outcome`, `Observation`, `ManagementView`
-and `local::Error`. Register the same request and typed `Result` used by each
-mount. Ordinary canister builds can omit the feature.
+and `local::Error`. Register `ic_wire::Message<Request>` and `ic_wire::Message<Reply>` using
+the body types below. Ordinary canister builds can omit the feature.
 
 | Method ID input | Request | Reply |
 | --- | --- | --- |

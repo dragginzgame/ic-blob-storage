@@ -19,7 +19,7 @@ use ic_wire as wire;
 use serde::Serialize;
 
 fn request<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    wire::encode(
+    ic_blob_storage::protocol::frame::encode(
         value,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -31,7 +31,7 @@ fn request<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
 }
 
 fn response<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    wire::encode(
+    ic_blob_storage::protocol::frame::encode(
         value,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -75,7 +75,7 @@ fn sized_request(bytes: usize) -> Vec<u8> {
         bytes: RPC_LIMITS.bytes * 2,
         ..RPC_LIMITS
     };
-    let size = wire::encode(
+    let size = ic_blob_storage::protocol::frame::encode(
         &command,
         wire::Encoding::Frame {
             method: wire::method_id("blob_update"),
@@ -89,7 +89,7 @@ fn sized_request(bytes: usize) -> Vec<u8> {
         unreachable!()
     };
     headers[0].1.truncate(bytes - (size - bytes));
-    let frame = wire::encode(
+    let frame = ic_blob_storage::protocol::frame::encode(
         &command,
         wire::Encoding::Frame {
             method: wire::method_id("blob_update"),
@@ -140,15 +140,16 @@ async fn installed_frames_and_reply_failure_preserve_the_contract() {
         Some(controller),
     )
     .await;
-    // v0.107.1 / Wire 0.26.1: inspect upload 300 in a fresh catalog. Keep both
-    // frames literal so a coordinated change in the current codecs is visible.
+    // The original positional query must be rejected. The sparse fixture
+    // adds an empty extension block after the same body.
     let released_request = b"IW\x12\x52\x27\x4a\x26\xbc\x99\x2a\x00\x00\xac\x02";
-    let released_reply = b"IW\x12\x52\x27\x4a\x26\xbc\x99\x2a\x01\x01\x04";
+    let sparse_request = b"IW\x12\x52\x27\x4a\x26\xbc\x99\x2a\x00\x00\xac\x02\x00";
+    let sparse_reply = b"IW\x12\x52\x27\x4a\x26\xbc\x99\x2a\x01\x01\x04\x00";
     assert_eq!(
         request("blob_query", &Inspection::Upload(300.try_into().unwrap())),
-        released_request
+        sparse_request
     );
-    assert_eq!(
+    assert!(
         call(
             pic,
             canister,
@@ -157,8 +158,13 @@ async fn installed_frames_and_reply_failure_preserve_the_contract() {
             released_request.to_vec()
         )
         .await
-        .unwrap(),
-        released_reply
+        .is_err()
+    );
+    assert_eq!(
+        call(pic, canister, caller, "blob_query", sparse_request.to_vec())
+            .await
+            .unwrap(),
+        sparse_reply
     );
     let initial =
         support::blob_state(pic, canister, caller, &[Principal::from_slice(&[2, 1])]).await;
@@ -187,7 +193,7 @@ async fn installed_frames_and_reply_failure_preserve_the_contract() {
                 &Ok::<_, Error>(ManagementView {
                     installation: Principal::from_slice(canister.as_slice()),
                     configuration: input,
-                    state_version: 1,
+                    state_version: 2,
                     maintenance: Maintenance {
                         attempt: 0,
                         active: true,

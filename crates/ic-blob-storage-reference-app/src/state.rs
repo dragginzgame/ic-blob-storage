@@ -12,11 +12,15 @@ use crate::protocol::{DraftInput, DraftView, Error, Installation, Phase};
 
 pub(crate) const LIMITS: ic_wire::Limits = ic_wire::Limits {
     bytes: 65_536,
-    ..RPC_LIMITS
+    allocation: RPC_LIMITS.allocation,
+    nodes: RPC_LIMITS.nodes,
+    depth: RPC_LIMITS.depth,
 };
 const INPUT_LIMITS: ic_wire::Limits = ic_wire::Limits {
     bytes: 2048,
-    ..RPC_LIMITS
+    allocation: RPC_LIMITS.allocation,
+    nodes: RPC_LIMITS.nodes,
+    depth: RPC_LIMITS.depth,
 };
 
 #[derive(Deserialize, Serialize)]
@@ -40,14 +44,15 @@ impl State {
     ) -> Self {
         validate_config(&config);
         let record = Record {
-            version: 1,
+            version: 2,
             installation,
             config,
             drafts: vec![],
         };
         let cell = StableCell::create(
             memory,
-            ic_wire::encode(&record, ic_wire::Encoding::Payload, LIMITS).unwrap(),
+            ic_blob_storage::protocol::frame::encode(&record, ic_wire::Encoding::Payload, LIMITS)
+                .unwrap(),
         );
 
         Self { record, cell }
@@ -57,9 +62,10 @@ impl State {
         ic_storage::stable_cell_payload_length(&memory, LIMITS.bytes)
             .expect("bounded stable payload");
         let cell = StableCell::<Vec<u8>, _>::load(memory).expect("existing application record");
-        let record: Record = ic_wire::decode(cell.get(), ic_wire::Encoding::Payload, LIMITS)
-            .expect("bounded application record");
-        assert_eq!(record.version, 1, "application format");
+        let mut record: Record =
+            ic_blob_storage::protocol::frame::decode_record(cell.get(), LIMITS)
+                .expect("bounded application record");
+        assert!(matches!(record.version, 1 | 2), "application format");
         assert_eq!(record.installation, installation, "application identity");
         validate_config(&record.config);
         assert!(record.drafts.len() <= 16);
@@ -77,6 +83,7 @@ impl State {
             }
         }
 
+        record.version = 2;
         Self { record, cell }
     }
 
@@ -210,8 +217,12 @@ impl State {
     fn persist(&mut self) {
         // A failure traps this message; never turn it into an ordinary error after mutation.
         self.cell.set(
-            ic_wire::encode(&self.record, ic_wire::Encoding::Payload, LIMITS)
-                .expect("bounded application persistence"),
+            ic_blob_storage::protocol::frame::encode(
+                &self.record,
+                ic_wire::Encoding::Payload,
+                LIMITS,
+            )
+            .expect("bounded application persistence"),
         );
     }
 }
@@ -255,7 +266,8 @@ fn validate_input(input: &DraftInput) -> Result<(), Error> {
         || input.chunks.is_empty()
         || input.chunks.len() > 8
         || input.headers.len() > 8
-        || ic_wire::encode(input, ic_wire::Encoding::Payload, INPUT_LIMITS).is_err()
+        || ic_blob_storage::protocol::frame::encode(input, ic_wire::Encoding::Payload, INPUT_LIMITS)
+            .is_err()
     {
         return Err(Error::Invalid);
     }

@@ -11,7 +11,7 @@ fn maximum_reply_fits_persistence_and_inspection_budgets() {
         target_balance: 9_900_000_000,
     };
     let record = Record {
-        version: 1,
+        version: 2,
         view: View {
             owner,
             arguments: arguments(owner, configuration.target_balance),
@@ -22,11 +22,13 @@ fn maximum_reply_fits_persistence_and_inspection_budgets() {
             )),
         },
     };
-    let bytes = wire::encode(&record, wire::Encoding::Payload, LIMITS).unwrap();
-    let decoded: Record = wire::decode(&bytes, wire::Encoding::Payload, LIMITS).unwrap();
+    let bytes =
+        ic_blob_storage::protocol::frame::encode(&record, wire::Encoding::Payload, LIMITS).unwrap();
+    let decoded: Record =
+        ic_blob_storage::protocol::frame::decode(&bytes, wire::Encoding::Payload, LIMITS).unwrap();
     assert_eq!(decoded.view, record.view);
     let reply = Ok::<_, crate::protocol::Error>(record.view);
-    let bytes = wire::encode(
+    let bytes = ic_blob_storage::protocol::frame::encode(
         &reply,
         wire::Encoding::Frame {
             method: ic_wire::method_id("enrollment_inspect"),
@@ -35,7 +37,7 @@ fn maximum_reply_fits_persistence_and_inspection_budgets() {
         LIMITS,
     )
     .unwrap();
-    let decoded: Result<View, crate::protocol::Error> = wire::decode(
+    let decoded: Result<View, crate::protocol::Error> = ic_blob_storage::protocol::frame::decode(
         &bytes,
         wire::Encoding::Frame {
             method: ic_wire::method_id("enrollment_inspect"),

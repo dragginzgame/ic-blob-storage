@@ -23,7 +23,7 @@ fn principal(seed: u8) -> Principal {
 }
 
 fn encode<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
-    wire::encode(
+    ic_blob_storage::protocol::frame::encode(
         value,
         wire::Encoding::Frame {
             method: wire::method_id(method),
@@ -35,7 +35,7 @@ fn encode<T: Serialize>(method: &str, value: &T) -> Vec<u8> {
 }
 
 fn decode<T: DeserializeOwned>(method: &str, bytes: &[u8]) -> T {
-    wire::decode(
+    ic_blob_storage::protocol::frame::decode(
         bytes,
         wire::Encoding::Frame {
             method: wire::method_id(method),

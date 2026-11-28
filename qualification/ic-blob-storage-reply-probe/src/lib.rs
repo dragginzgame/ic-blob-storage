@@ -68,7 +68,7 @@ const LIMITS: ic_wire::Limits = ic_wire::Limits {
 };
 
 fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result<T, wire::Error> {
-    wire::decode(
+    ic_blob_storage::protocol::frame::decode(
         bytes,
         wire::Encoding::Frame {
             method: ID,
@@ -79,7 +79,7 @@ fn decode<T: DeserializeOwned, const ID: u64>(bytes: &[u8]) -> Result<T, wire::E
 }
 
 fn encode<T: Serialize, const ID: u64>(value: T) -> Result<Vec<u8>, wire::Error> {
-    wire::encode(
+    ic_blob_storage::protocol::frame::encode(
         &value,
         wire::Encoding::Frame {
             method: ID,

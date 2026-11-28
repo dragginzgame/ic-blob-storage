@@ -79,9 +79,9 @@ pub(crate) fn claim(input: &Input) -> Result<String, String> {
         return Err("certificate has no reply".into());
     };
     admit_reply(reply, &target.root)?;
-    let intent = ic_wire::encode(
+    let intent = ic_blob_storage::protocol::frame::encode(
         &Claim {
-            version: 1,
+            version: 2,
             original_request: id.as_ref(),
             gateway: &input.gateway,
             project: &input.project,
@@ -92,7 +92,7 @@ pub(crate) fn claim(input: &Input) -> Result<String, String> {
         ic_wire::Limits {
             bytes: 4096,
             allocation: 32_768,
-            nodes: 1024,
+            nodes: 2048,
             depth: 16,
         },
     )

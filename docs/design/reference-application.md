@@ -14,6 +14,8 @@ local PocketIC subnets. `make build-reference-app` builds only the application;
 Cargo artifact paths are recorded in `target/blob-reference-app-artifacts.jsonl`.
 Set `BLOB_PREVIOUS_REFERENCE_APP` to a retained predecessor Wasm to install that
 artifact first and exercise catalog reopening with the current build during upgrade.
+For a Wire 0.32 predecessor, also set `BLOB_PREVIOUS_REFERENCE_APP_POSITIONAL=1`
+to seed a durable draft and reopen it with the sparse application.
 There is no public deployment command, browser UI or live provider upload in this slice.
 `blob app prepare-installation` prepares the paired init arguments offline;
 the installed test consumes those exact files, rather than reconstructing them.

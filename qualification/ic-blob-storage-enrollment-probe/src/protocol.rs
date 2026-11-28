@@ -9,7 +9,7 @@ pub const LIMITS: ic_wire::Limits = ic_wire::Limits {
     // Include the complete 8 KiB reply plus immutable intent in every budget.
     bytes: 16_384,
     allocation: 262_144,
-    nodes: 1024,
+    nodes: 2048,
     depth: 16,
 };
 

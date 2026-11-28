@@ -47,7 +47,7 @@ fn record() -> Record {
 #[test]
 fn corrupted_domain_records_never_publish_authority() {
     let mut bad = record();
-    bad.version = 2;
+    bad.version = 3;
     assert!(matches!(bad.restore(actor(8)), Err(OpenError::Record)));
     let mut bad = record();
     bad.references.clear();
@@ -76,7 +76,7 @@ fn corrupted_domain_records_never_publish_authority() {
 fn codec_rejects_truncation_trailing_and_oversized_input() {
     let bytes = record().encode().unwrap();
     assert!(
-        ic_wire::decode::<Record>(
+        crate::protocol::frame::decode::<Record>(
             &bytes[..bytes.len() - 1],
             ic_wire::Encoding::Payload,
             STATE_LIMITS
@@ -86,11 +86,15 @@ fn codec_rejects_truncation_trailing_and_oversized_input() {
     let mut trailing = bytes;
     trailing.push(0);
     assert!(matches!(
-        ic_wire::decode::<Record>(&trailing, ic_wire::Encoding::Payload, STATE_LIMITS),
+        crate::protocol::frame::decode::<Record>(
+            &trailing,
+            ic_wire::Encoding::Payload,
+            STATE_LIMITS
+        ),
         Err(ic_wire::Error::Trailing)
     ));
     assert!(matches!(
-        ic_wire::decode::<Record>(
+        crate::protocol::frame::decode::<Record>(
             &vec![0; STATE_LIMITS.bytes + 1],
             ic_wire::Encoding::Payload,
             STATE_LIMITS

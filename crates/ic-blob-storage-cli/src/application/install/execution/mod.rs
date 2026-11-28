@@ -130,7 +130,7 @@ pub(crate) async fn dispatch(input: DispatchInput) -> Result<String, String> {
 }
 
 pub(crate) async fn observe(input: &Input) -> Result<String, String> {
-    let selected = input.selection()?;
+    let selected = input.selection_with_format(true)?;
     let (held, original) = load(input, &selected)?;
     if files::read_at(&held, CLAIM.as_ref(), 32)?.as_slice() != original.request_id() {
         return Err("installation dispatch claim does not match the original request".into());

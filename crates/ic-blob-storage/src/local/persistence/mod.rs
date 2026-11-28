@@ -115,7 +115,7 @@ impl<M: Memory> Service<M> {
     /// Traps on backing IO failure; callers must not substitute empty state.
     pub fn open(memory: RuntimeMemory<M>, installation: Principal) -> Result<Self, OpenError> {
         let cell = load_cell(memory, STATE_LIMITS.bytes)?;
-        let record: Record = ic_wire::decode(cell.get(), ic_wire::Encoding::Payload, STATE_LIMITS)
+        let record: Record = crate::protocol::frame::decode_record(cell.get(), STATE_LIMITS)
             .map_err(OpenError::Codec)?;
         let manager = record.input.manager;
         let attempt = record.maintenance.attempt;

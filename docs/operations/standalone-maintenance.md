@@ -57,7 +57,7 @@ blob_target=(
   --root-subnet 'REPLACE_ROOT_SUBNET_PRINCIPAL'
   --installation "$blob_inputs/installation.wire"
   --wasm "$blob_inputs/current.wasm"
-  --state-version 1
+  --state-version 2
 )
 blob_dispatch=(--custody "$blob_custody" --checkout "$blob_checkout")
 "$blob_cli" maintenance inspect "${blob_target[@]}"

@@ -19,7 +19,6 @@ api-manifest = [
     "dep:quote",
     "dep:syn",
     "ic-wire/api-manifest",
-    "ic-wire/derive",
     "ic-wire/platform-types",
 ]
 
