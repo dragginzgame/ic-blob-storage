@@ -1,16 +1,16 @@
-# Current status — 2026-11-27
+# Current status — 2026-11-28
 
 ## Delivery and active work
 
-**0.113.2 is published** for all four product crates. Every crates.io download
+**0.114.0 is published** for all four product crates. Every crates.io download
 matched the prepared archive and registry checksum. See the
-[release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.113.2),
-`target/01132-release/registry-verified.json` and `target/publication/provenance-01132/`.
+[release tag](https://github.com/dragginzgame/ic-blob-storage/tree/v0.114.0),
+`target/01140-release/registry-verified.json` and `target/publication/provenance-01140/`.
 
 All 17 local release stages passed, including an ordinary upgrade from the
-checksum-verified 0.113.1 standalone Wasm. See
-`target/validation/blob.14uP8n/proof.json` and the
-[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/46005351052).
+checksum-verified 0.113.2 standalone Wasm. See
+`target/validation/blob.X4Jm3z/proof.json` and the
+[release commit’s hosted CI](https://github.com/dragginzgame/ic-blob-storage/actions/runs/46132579082).
 
 ## Next action and provider boundary
 
@@ -31,7 +31,8 @@ application catalog. To adopt Blob 0.113.0 it needs a Storage 0.80 lease and
 IC Logging 0.26's `Level` type for its recorder. See the
 [metrics source and logging hook](../../crates/ic-blob-storage/README.md#optional-operational-metrics).
 Rust hosts using Blob’s public codec types should select Wire 0.32
-and match admission failures as `Error::Limit(kind)`.
+and match admission failures as `Error::Limit(kind)`. The eight callable Wire
+manifests match the 0.113.2 baseline byte for byte.
 
 The release metadata editor remains at IC Build 0.73.0. Evaluate 0.87.8 in
 the next release-tooling maintenance pass with the two-lock metadata fixture.
